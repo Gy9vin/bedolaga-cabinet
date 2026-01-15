@@ -25,10 +25,10 @@
 
 ```bash
 # Из GitHub Container Registry
-docker pull ghcr.io/fr1ngg/bedolaga-cabinet:latest
+docker pull ghcr.io/bedolaga-dev/bedolaga-cabinet:latest
 
 # Или из Docker Hub
-docker pull fr1ngg/bedolaga-cabinet:latest
+docker pull bedolaga/bedolaga-cabinet:latest
 ```
 
 Затем настройте Caddy/Nginx для проксирования (см. раздел "Настройка прокси для production").
@@ -44,11 +44,13 @@ cd bedolaga-cabinet
 
 #### 2. Настройка окружения
 
-Скопируйте `.env.example` в `.env` и настройте переменные:
+**⚠️ ОБЯЗАТЕЛЬНО:** Скопируйте `.env.example` в `.env` перед запуском!
 
 ```bash
 cp .env.example .env
 ```
+
+Docker Compose не запустится без `.env` файла.
 
 **Основные переменные:**
 
