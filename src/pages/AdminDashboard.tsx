@@ -184,32 +184,32 @@ function RevenueChart({ data }: { data: { date: string; amount_rubles: number }[
     )
   }
 
-  const maxValue = Math.max(...data.map(d => d.amount_rubles), 1)
   const last7Days = data.slice(-7)
+  const maxValue = Math.max(...last7Days.map(d => d.amount_rubles), 1)
 
   return (
-    <div className="h-48">
-      <div className="flex items-end justify-between h-36 gap-2">
-        {last7Days.map((item, index) => {
-          const height = (item.amount_rubles / maxValue) * 100
-          const date = new Date(item.date)
-          const dayName = date.toLocaleDateString('ru-RU', { weekday: 'short' })
+    <div className="space-y-3">
+      {last7Days.map((item, index) => {
+        const percentage = (item.amount_rubles / maxValue) * 100
+        const date = new Date(item.date)
+        const dayName = date.toLocaleDateString('ru-RU', { weekday: 'short' })
+        const dayNum = date.getDate()
 
-          return (
-            <div key={index} className="flex-1 flex flex-col items-center gap-2">
-              <div
-                className="w-full bg-accent-500/80 rounded-t-lg hover:bg-accent-500 transition-colors cursor-pointer group relative"
-                style={{ height: `${Math.max(height, 4)}%` }}
-              >
-                <div className="absolute -top-8 left-1/2 -translate-x-1/2 bg-dark-800 px-2 py-1 rounded text-xs text-dark-100 opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap z-10 border border-dark-600">
-                  {formatAmount(item.amount_rubles)} {currencySymbol}
-                </div>
-              </div>
-              <div className="text-xs text-dark-500">{dayName}</div>
+        return (
+          <div key={index} className="group">
+            <div className="flex items-center justify-between mb-1">
+              <span className="text-sm text-dark-300 font-medium capitalize">{dayName}, {dayNum}</span>
+              <span className="text-sm font-semibold text-dark-100">{formatAmount(item.amount_rubles)} {currencySymbol}</span>
             </div>
-          )
-        })}
-      </div>
+            <div className="h-3 bg-dark-700/50 rounded-full overflow-hidden">
+              <div
+                className="h-full bg-gradient-to-r from-accent-600 to-accent-400 rounded-full transition-all duration-500 ease-out group-hover:from-accent-500 group-hover:to-accent-300"
+                style={{ width: `${Math.max(percentage, 2)}%` }}
+              />
+            </div>
+          </div>
+        )
+      })}
     </div>
   )
 }
