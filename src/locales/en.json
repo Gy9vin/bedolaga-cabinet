@@ -253,6 +253,7 @@
     "currentBalance": "Current Balance",
     "topUp": "Top Up",
     "topUpBalance": "Top Up Balance",
+    "enterAmount": "Enter amount",
     "paymentMethods": "Payment Methods",
     "transactionHistory": "Transaction History",
     "noTransactions": "No transactions",

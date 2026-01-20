@@ -184,6 +184,7 @@
     "currentBalance": "当前余额",
     "topUp": "充值",
     "topUpBalance": "充值余额",
+    "enterAmount": "输入金额",
     "paymentMethods": {
       "yookassa": {
         "name": "YooKassa",

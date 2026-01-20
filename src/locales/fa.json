@@ -183,6 +183,7 @@
     "currentBalance": "موجودی فعلی",
     "topUp": "شارژ",
     "topUpBalance": "شارژ موجودی",
+    "enterAmount": "مقدار را وارد کنید",
     "paymentMethods": {
       "yookassa": {
         "name": "YooKassa",
