@@ -1027,7 +1027,16 @@
         "Admin Reports Chat Id": "ID чата отчётов",
         "Admin Reports Enabled": "Отчёты админов",
         "Admin Reports Send Time": "Время отправки",
-        "Admin Reports Topic Id": "ID топика отчётов"
+        "Admin Reports Topic Id": "ID топика отчётов",
+        "Postgres Db": "Имя БД",
+        "Postgres Host": "Хост",
+        "Postgres Password": "Пароль",
+        "Postgres Port": "Порт",
+        "Postgres User": "Пользователь",
+        "Database Mode": "Режим БД",
+        "Database Url": "URL подключения",
+        "Redis Url": "URL Redis",
+        "Sqlite Path": "Путь SQLite"
       },
       "categories": {
         "PAYMENT": "Платежи",
