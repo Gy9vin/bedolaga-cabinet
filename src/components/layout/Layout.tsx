@@ -9,7 +9,7 @@ import TicketNotificationBell from '../TicketNotificationBell'
 import AnimatedBackground from '../AnimatedBackground'
 import { contestsApi } from '../../api/contests'
 import { pollsApi } from '../../api/polls'
-import { brandingApi, getCachedBranding, setCachedBranding, preloadLogo } from '../../api/branding'
+import { brandingApi, getCachedBranding, setCachedBranding, preloadLogo, isLogoPreloaded } from '../../api/branding'
 import { wheelApi } from '../../api/wheel'
 import { themeColorsApi } from '../../api/themeColors'
 import { promoApi } from '../../api/promo'
@@ -240,8 +240,8 @@ export default function Layout({ children }: LayoutProps) {
     }
   }, [])
 
-  // State to track if logo image has loaded
-  const [logoLoaded, setLogoLoaded] = useState(false)
+  // State to track if logo image has loaded - start with true if already preloaded
+  const [logoLoaded, setLogoLoaded] = useState(() => isLogoPreloaded())
 
   // Fetch branding settings with localStorage cache for instant load
   const { data: branding } = useQuery({

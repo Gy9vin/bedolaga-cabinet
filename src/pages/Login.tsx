@@ -3,7 +3,7 @@ import { useNavigate, useLocation } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { useQuery } from '@tanstack/react-query'
 import { useAuthStore } from '../store/auth'
-import { brandingApi, getCachedBranding, setCachedBranding, preloadLogo, type BrandingInfo } from '../api/branding'
+import { brandingApi, getCachedBranding, setCachedBranding, preloadLogo, isLogoPreloaded, type BrandingInfo } from '../api/branding'
 import { getAndClearReturnUrl } from '../utils/token'
 import LanguageSwitcher from '../components/LanguageSwitcher'
 import TelegramLoginButton from '../components/TelegramLoginButton'
@@ -19,7 +19,7 @@ export default function Login() {
   const [error, setError] = useState('')
   const [isLoading, setIsLoading] = useState(false)
   const [isTelegramWebApp, setIsTelegramWebApp] = useState(false)
-  const [logoLoaded, setLogoLoaded] = useState(false)
+  const [logoLoaded, setLogoLoaded] = useState(() => isLogoPreloaded())
 
   // Получаем URL для возврата после авторизации
   const getReturnUrl = useCallback(() => {

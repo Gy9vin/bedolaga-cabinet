@@ -18,6 +18,21 @@ export interface FullscreenEnabled {
 const BRANDING_CACHE_KEY = 'cabinet_branding'
 const LOGO_PRELOADED_KEY = 'cabinet_logo_preloaded'
 
+// Check if logo was already preloaded in this session
+export const isLogoPreloaded = (): boolean => {
+  try {
+    const cached = getCachedBranding()
+    if (!cached?.has_custom_logo || !cached?.logo_url) {
+      return false
+    }
+    const logoUrl = `${import.meta.env.VITE_API_URL || ''}${cached.logo_url}`
+    const preloaded = sessionStorage.getItem(LOGO_PRELOADED_KEY)
+    return preloaded === logoUrl
+  } catch {
+    return false
+  }
+}
+
 // Get cached branding from localStorage
 export const getCachedBranding = (): BrandingInfo | null => {
   try {
