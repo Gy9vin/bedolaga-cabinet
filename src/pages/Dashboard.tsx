@@ -280,7 +280,29 @@ export default function Dashboard() {
       </div>
 
       {/* Subscription Status - Main Card */}
-      {subscription && (
+      {subLoading ? (
+        <div className="bento-card">
+          <div className="flex items-center justify-between mb-6">
+            <div className="skeleton h-6 w-24" />
+            <div className="skeleton h-6 w-16 rounded-full" />
+          </div>
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
+            {[...Array(4)].map((_, i) => (
+              <div key={i}>
+                <div className="skeleton h-4 w-20 mb-2" />
+                <div className="skeleton h-5 w-24" />
+              </div>
+            ))}
+          </div>
+          <div className="mt-6">
+            <div className="skeleton h-2 w-full rounded-full" />
+          </div>
+          <div className="mt-6 grid grid-cols-2 gap-3">
+            <div className="skeleton h-10 w-full rounded-xl" />
+            <div className="skeleton h-10 w-full rounded-xl" />
+          </div>
+        </div>
+      ) : subscription ? (
         <div className="bento-card">
           <div className="flex items-center justify-between mb-6">
             <h2 className="text-lg font-semibold text-dark-100">{t('subscription.status')}</h2>
@@ -360,7 +382,7 @@ export default function Dashboard() {
             )}
           </div>
         </div>
-      )}
+      ) : null}
 
       {/* Stats Grid */}
       <div className="bento-grid">
