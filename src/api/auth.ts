@@ -48,6 +48,7 @@ export const authApi = {
     password: string
     first_name?: string
     language?: string
+    referral_code?: string
   }): Promise<AuthResponse> => {
     const response = await apiClient.post<AuthResponse>('/cabinet/auth/email/register/standalone', data)
     return response.data
