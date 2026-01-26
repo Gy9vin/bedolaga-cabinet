@@ -1,0 +1,548 @@
+import { useState, useCallback, useRef, useEffect } from 'react'
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
+import { useTranslation } from 'react-i18next'
+import { Link } from 'react-router-dom'
+import {
+  adminEmailTemplatesApi,
+  EmailTemplateType,
+  EmailTemplateDetail,
+  EmailTemplateLanguageData,
+} from '../api/adminEmailTemplates'
+
+// Icons
+const BackIcon = () => (
+  <svg className="w-5 h-5 text-dark-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+    <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 19.5L8.25 12l7.5-7.5" />
+  </svg>
+)
+
+const MailIcon = () => (
+  <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+    <path strokeLinecap="round" strokeLinejoin="round" d="M21.75 6.75v10.5a2.25 2.25 0 01-2.25 2.25h-15a2.25 2.25 0 01-2.25-2.25V6.75m19.5 0A2.25 2.25 0 0019.5 4.5h-15a2.25 2.25 0 00-2.25 2.25m19.5 0v.243a2.25 2.25 0 01-1.07 1.916l-7.5 4.615a2.25 2.25 0 01-2.36 0L3.32 8.91a2.25 2.25 0 01-1.07-1.916V6.75" />
+  </svg>
+)
+
+const SaveIcon = () => (
+  <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+    <path strokeLinecap="round" strokeLinejoin="round" d="M4.5 12.75l6 6 9-13.5" />
+  </svg>
+)
+
+const EyeIcon = () => (
+  <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+    <path strokeLinecap="round" strokeLinejoin="round" d="M2.036 12.322a1.012 1.012 0 010-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178z" />
+    <path strokeLinecap="round" strokeLinejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+  </svg>
+)
+
+const SendIcon = () => (
+  <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+    <path strokeLinecap="round" strokeLinejoin="round" d="M6 12L3.269 3.126A59.768 59.768 0 0121.485 12 59.77 59.77 0 013.27 20.876L5.999 12zm0 0h7.5" />
+  </svg>
+)
+
+const ResetIcon = () => (
+  <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+    <path strokeLinecap="round" strokeLinejoin="round" d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0l3.181 3.183a8.25 8.25 0 0013.803-3.7M4.031 9.865a8.25 8.25 0 0113.803-3.7l3.181 3.182m0-4.991v4.99" />
+  </svg>
+)
+
+const XIcon = () => (
+  <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+    <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+  </svg>
+)
+
+const LANG_LABELS: Record<string, string> = {
+  ru: 'RU',
+  en: 'EN',
+  zh: 'ZH',
+  ua: 'UA',
+}
+
+const LANG_FULL_LABELS: Record<string, string> = {
+  ru: 'Русский',
+  en: 'English',
+  zh: '中文',
+  ua: 'Українська',
+}
+
+// ============ Template List View ============
+
+function TemplateCard({
+  template,
+  currentLang,
+  onClick,
+}: {
+  template: EmailTemplateType
+  currentLang: string
+  onClick: () => void
+}) {
+  const label = template.label[currentLang] || template.label['en'] || template.type
+  const description = template.description[currentLang] || template.description['en'] || ''
+  const customCount = Object.values(template.languages).filter(l => l.has_custom).length
+
+  return (
+    <button
+      onClick={onClick}
+      className="w-full text-left p-4 bg-dark-800 rounded-xl border border-dark-700 hover:border-accent-500/50 transition-all duration-200 group"
+    >
+      <div className="flex items-start justify-between gap-3">
+        <div className="flex-1 min-w-0">
+          <h3 className="text-sm font-medium text-dark-100 group-hover:text-accent-400 transition-colors truncate">
+            {label}
+          </h3>
+          <p className="text-xs text-dark-400 mt-1 line-clamp-2">{description}</p>
+        </div>
+        <div className="flex items-center gap-1.5 flex-shrink-0 mt-0.5">
+          {Object.entries(template.languages).map(([lang, status]) => (
+            <span
+              key={lang}
+              className={`inline-flex items-center justify-center w-7 h-5 rounded text-2xs font-medium ${
+                status.has_custom
+                  ? 'bg-accent-500/20 text-accent-400 ring-1 ring-accent-500/30'
+                  : 'bg-dark-700 text-dark-400'
+              }`}
+              title={`${LANG_FULL_LABELS[lang] || lang}: ${status.has_custom ? 'Custom' : 'Default'}`}
+            >
+              {LANG_LABELS[lang] || lang}
+            </span>
+          ))}
+        </div>
+      </div>
+      {customCount > 0 && (
+        <div className="mt-2">
+          <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-2xs bg-accent-500/10 text-accent-400">
+            <span className="w-1.5 h-1.5 rounded-full bg-accent-400" />
+            {customCount} custom
+          </span>
+        </div>
+      )}
+    </button>
+  )
+}
+
+// ============ Template Editor ============
+
+function TemplateEditor({
+  detail,
+  onClose,
+  currentLang: interfaceLang,
+}: {
+  detail: EmailTemplateDetail
+  onClose: () => void
+  currentLang: string
+}) {
+  const { t } = useTranslation()
+  const queryClient = useQueryClient()
+  const [activeLang, setActiveLang] = useState('ru')
+  const [editSubject, setEditSubject] = useState('')
+  const [editBody, setEditBody] = useState('')
+  const [isDirty, setIsDirty] = useState(false)
+  const [showPreview, setShowPreview] = useState(false)
+  const [previewHtml, setPreviewHtml] = useState('')
+  const [toast, setToast] = useState<{ type: 'success' | 'error'; message: string } | null>(null)
+  const textareaRef = useRef<HTMLTextAreaElement>(null)
+  const iframeRef = useRef<HTMLIFrameElement>(null)
+
+  const langData: EmailTemplateLanguageData | undefined = detail.languages[activeLang]
+
+  // Load data for current language
+  useEffect(() => {
+    if (langData) {
+      setEditSubject(langData.subject)
+      setEditBody(langData.is_default ? langData.body_html : langData.body_html)
+      setIsDirty(false)
+    }
+  }, [activeLang, langData])
+
+  const showToast = useCallback((type: 'success' | 'error', message: string) => {
+    setToast({ type, message })
+    setTimeout(() => setToast(null), 3000)
+  }, [])
+
+  // Extract body content from full HTML (strip base template wrapper)
+  const extractBodyContent = useCallback((html: string): string => {
+    // If it's wrapped in the base template, extract just the content div
+    const contentMatch = html.match(/<div class="content">\s*([\s\S]*?)\s*<\/div>\s*<div class="footer">/)
+    if (contentMatch) {
+      return contentMatch[1].trim()
+    }
+    return html
+  }, [])
+
+  // When langData changes (e.g., after refetch), update the body content
+  useEffect(() => {
+    if (langData) {
+      if (langData.is_default) {
+        // For default templates, extract just the content portion
+        setEditBody(extractBodyContent(langData.body_html))
+      } else {
+        setEditBody(langData.body_html)
+      }
+      setEditSubject(langData.subject)
+      setIsDirty(false)
+    }
+  }, [activeLang, langData, extractBodyContent])
+
+  // Save mutation
+  const saveMutation = useMutation({
+    mutationFn: () => adminEmailTemplatesApi.updateTemplate(detail.notification_type, activeLang, {
+      subject: editSubject,
+      body_html: editBody,
+    }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['admin', 'email-templates'] })
+      queryClient.invalidateQueries({ queryKey: ['admin', 'email-template', detail.notification_type] })
+      setIsDirty(false)
+      showToast('success', t('admin.emailTemplates.saved', 'Template saved'))
+    },
+    onError: () => {
+      showToast('error', t('common.error', 'Error'))
+    },
+  })
+
+  // Reset mutation
+  const resetMutation = useMutation({
+    mutationFn: () => adminEmailTemplatesApi.deleteTemplate(detail.notification_type, activeLang),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['admin', 'email-templates'] })
+      queryClient.invalidateQueries({ queryKey: ['admin', 'email-template', detail.notification_type] })
+      setIsDirty(false)
+      showToast('success', t('admin.emailTemplates.resetted', 'Template reset to default'))
+    },
+    onError: () => {
+      showToast('error', t('common.error', 'Error'))
+    },
+  })
+
+  // Preview mutation
+  const previewMutation = useMutation({
+    mutationFn: () => adminEmailTemplatesApi.previewTemplate(detail.notification_type, {
+      language: activeLang,
+      subject: editSubject,
+      body_html: editBody,
+    }),
+    onSuccess: (data) => {
+      setPreviewHtml(data.body_html)
+      setShowPreview(true)
+    },
+    onError: () => {
+      showToast('error', t('common.error', 'Error'))
+    },
+  })
+
+  // Send test mutation
+  const testMutation = useMutation({
+    mutationFn: () => adminEmailTemplatesApi.sendTestEmail(detail.notification_type, {
+      language: activeLang,
+    }),
+    onSuccess: (data) => {
+      showToast('success', `${t('admin.emailTemplates.testSent', 'Test email sent')} → ${data.sent_to}`)
+    },
+    onError: () => {
+      showToast('error', t('common.error', 'Error'))
+    },
+  })
+
+  // Write preview HTML into iframe
+  useEffect(() => {
+    if (showPreview && iframeRef.current && previewHtml) {
+      const doc = iframeRef.current.contentDocument
+      if (doc) {
+        doc.open()
+        doc.write(previewHtml)
+        doc.close()
+      }
+    }
+  }, [showPreview, previewHtml])
+
+  const handleSubjectChange = (value: string) => {
+    setEditSubject(value)
+    setIsDirty(true)
+  }
+
+  const handleBodyChange = (value: string) => {
+    setEditBody(value)
+    setIsDirty(true)
+  }
+
+  const label = detail.label[interfaceLang] || detail.label['en'] || detail.notification_type
+
+  return (
+    <div className="space-y-4">
+      {/* Header */}
+      <div className="flex items-center justify-between">
+        <div className="flex items-center gap-3">
+          <button onClick={onClose} className="p-1 rounded-lg hover:bg-dark-700 transition-colors">
+            <BackIcon />
+          </button>
+          <div>
+            <h2 className="text-lg font-semibold text-dark-100">{label}</h2>
+            <p className="text-xs text-dark-400">
+              {detail.description[interfaceLang] || detail.description['en'] || ''}
+            </p>
+          </div>
+        </div>
+        {langData && !langData.is_default && (
+          <span className="px-2.5 py-1 rounded-full text-xs font-medium bg-accent-500/15 text-accent-400 ring-1 ring-accent-500/25">
+            Custom
+          </span>
+        )}
+      </div>
+
+      {/* Language tabs */}
+      <div className="flex items-center gap-1 p-1 bg-dark-900 rounded-lg">
+        {Object.keys(detail.languages).map(lang => {
+          const isActive = lang === activeLang
+          const langInfo = detail.languages[lang]
+          return (
+            <button
+              key={lang}
+              onClick={() => {
+                if (isDirty && !window.confirm(t('admin.emailTemplates.unsavedWarning', 'Unsaved changes will be lost. Continue?'))) return
+                setActiveLang(lang)
+              }}
+              className={`flex-1 px-3 py-2 rounded-md text-sm font-medium transition-all duration-150 flex items-center justify-center gap-1.5 ${
+                isActive
+                  ? 'bg-dark-700 text-dark-100 shadow-sm'
+                  : 'text-dark-400 hover:text-dark-200 hover:bg-dark-800'
+              }`}
+            >
+              {LANG_FULL_LABELS[lang] || lang}
+              {!langInfo.is_default && (
+                <span className="w-1.5 h-1.5 rounded-full bg-accent-400 flex-shrink-0" />
+              )}
+            </button>
+          )
+        })}
+      </div>
+
+      {/* Subject */}
+      <div>
+        <label className="block text-xs font-medium text-dark-300 mb-1.5">
+          {t('admin.emailTemplates.subject', 'Subject')}
+        </label>
+        <input
+          type="text"
+          value={editSubject}
+          onChange={e => handleSubjectChange(e.target.value)}
+          className="w-full px-3 py-2.5 bg-dark-900 border border-dark-600 rounded-lg text-sm text-dark-100 placeholder-dark-500 focus:outline-none focus:ring-1 focus:ring-accent-500 focus:border-accent-500 transition-colors"
+          placeholder={t('admin.emailTemplates.subjectPlaceholder', 'Email subject line...')}
+        />
+      </div>
+
+      {/* Context variables hint */}
+      {detail.context_vars.length > 0 && (
+        <div className="p-3 bg-dark-900/60 border border-dark-700 rounded-lg">
+          <p className="text-xs font-medium text-dark-300 mb-1.5">
+            {t('admin.emailTemplates.variables', 'Available Variables')}
+          </p>
+          <div className="flex flex-wrap gap-1.5">
+            {detail.context_vars.map(v => (
+              <code
+                key={v}
+                className="px-2 py-0.5 rounded bg-dark-700 text-accent-400 text-xs font-mono cursor-pointer hover:bg-dark-600 transition-colors"
+                title={t('admin.emailTemplates.clickToCopy', 'Click to copy')}
+                onClick={() => {
+                  navigator.clipboard.writeText(`{${v}}`)
+                  showToast('success', `Copied {${v}}`)
+                }}
+              >
+                {`{${v}}`}
+              </code>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* Body HTML editor */}
+      <div>
+        <label className="block text-xs font-medium text-dark-300 mb-1.5">
+          {t('admin.emailTemplates.body', 'Body (HTML)')}
+        </label>
+        <textarea
+          ref={textareaRef}
+          value={editBody}
+          onChange={e => handleBodyChange(e.target.value)}
+          rows={16}
+          className="w-full px-3 py-2.5 bg-dark-900 border border-dark-600 rounded-lg text-sm text-dark-100 placeholder-dark-500 font-mono leading-relaxed focus:outline-none focus:ring-1 focus:ring-accent-500 focus:border-accent-500 transition-colors resize-y"
+          placeholder="<h2>Title</h2><p>Content...</p>"
+          spellCheck={false}
+        />
+        <p className="text-2xs text-dark-500 mt-1">
+          {t('admin.emailTemplates.bodyHint', 'HTML content that will be wrapped in the base email template with header and footer.')}
+        </p>
+      </div>
+
+      {/* Actions */}
+      <div className="flex flex-wrap items-center gap-2">
+        <button
+          onClick={() => saveMutation.mutate()}
+          disabled={!isDirty || saveMutation.isPending}
+          className="inline-flex items-center gap-1.5 px-4 py-2 rounded-lg text-sm font-medium bg-accent-500 text-white hover:bg-accent-600 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+        >
+          <SaveIcon />
+          {saveMutation.isPending ? t('common.loading', 'Loading...') : t('common.save', 'Save')}
+        </button>
+
+        <button
+          onClick={() => previewMutation.mutate()}
+          disabled={previewMutation.isPending}
+          className="inline-flex items-center gap-1.5 px-4 py-2 rounded-lg text-sm font-medium bg-dark-700 text-dark-200 hover:bg-dark-600 disabled:opacity-40 transition-colors"
+        >
+          <EyeIcon />
+          {t('admin.emailTemplates.preview', 'Preview')}
+        </button>
+
+        <button
+          onClick={() => testMutation.mutate()}
+          disabled={testMutation.isPending}
+          className="inline-flex items-center gap-1.5 px-4 py-2 rounded-lg text-sm font-medium bg-dark-700 text-dark-200 hover:bg-dark-600 disabled:opacity-40 transition-colors"
+        >
+          <SendIcon />
+          {testMutation.isPending ? t('common.loading', 'Loading...') : t('admin.emailTemplates.sendTest', 'Send Test')}
+        </button>
+
+        {langData && !langData.is_default && (
+          <button
+            onClick={() => {
+              if (window.confirm(t('admin.emailTemplates.resetConfirm', 'Reset this template to the default version?'))) {
+                resetMutation.mutate()
+              }
+            }}
+            disabled={resetMutation.isPending}
+            className="inline-flex items-center gap-1.5 px-4 py-2 rounded-lg text-sm font-medium bg-dark-700 text-warning-400 hover:bg-dark-600 disabled:opacity-40 transition-colors ml-auto"
+          >
+            <ResetIcon />
+            {t('admin.emailTemplates.resetDefault', 'Reset to Default')}
+          </button>
+        )}
+      </div>
+
+      {/* Toast */}
+      {toast && (
+        <div className={`fixed bottom-6 right-6 z-50 px-4 py-3 rounded-xl text-sm font-medium shadow-lg animate-fade-in ${
+          toast.type === 'success'
+            ? 'bg-emerald-500/90 text-white'
+            : 'bg-red-500/90 text-white'
+        }`}>
+          {toast.message}
+        </div>
+      )}
+
+      {/* Preview Modal */}
+      {showPreview && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
+          <div className="bg-dark-800 rounded-2xl w-full max-w-2xl max-h-[85vh] flex flex-col border border-dark-600 shadow-2xl">
+            <div className="flex items-center justify-between px-5 py-4 border-b border-dark-700">
+              <h3 className="text-base font-semibold text-dark-100">
+                {t('admin.emailTemplates.preview', 'Preview')}
+              </h3>
+              <button
+                onClick={() => setShowPreview(false)}
+                className="p-1.5 rounded-lg hover:bg-dark-700 transition-colors"
+              >
+                <XIcon />
+              </button>
+            </div>
+            <div className="flex-1 overflow-hidden p-1">
+              <iframe
+                ref={iframeRef}
+                className="w-full h-full min-h-[400px] rounded-lg bg-white"
+                sandbox="allow-same-origin"
+                title="Email Preview"
+              />
+            </div>
+          </div>
+        </div>
+      )}
+    </div>
+  )
+}
+
+// ============ Main Page ============
+
+export default function AdminEmailTemplates() {
+  const { t, i18n } = useTranslation()
+  const currentLang = i18n.language || 'ru'
+  const [selectedType, setSelectedType] = useState<string | null>(null)
+
+  // Fetch template types list
+  const { data: typesData, isLoading: typesLoading } = useQuery({
+    queryKey: ['admin', 'email-templates'],
+    queryFn: adminEmailTemplatesApi.getTemplateTypes,
+  })
+
+  // Fetch detail for selected type
+  const { data: detailData, isLoading: detailLoading } = useQuery({
+    queryKey: ['admin', 'email-template', selectedType],
+    queryFn: () => adminEmailTemplatesApi.getTemplate(selectedType!),
+    enabled: !!selectedType,
+  })
+
+  return (
+    <div className="max-w-4xl mx-auto px-4 py-6 space-y-6">
+      {/* Page Header */}
+      <div className="flex items-center gap-3">
+        <Link
+          to="/admin"
+          className="p-2 rounded-xl bg-dark-800 hover:bg-dark-700 transition-colors border border-dark-700"
+        >
+          <BackIcon />
+        </Link>
+        <div className="flex items-center gap-2.5">
+          <div className="p-2 rounded-xl bg-gradient-to-br from-blue-500/20 to-blue-600/10 text-blue-400">
+            <MailIcon />
+          </div>
+          <div>
+            <h1 className="text-xl font-bold text-dark-100">
+              {t('admin.emailTemplates.title', 'Email Templates')}
+            </h1>
+            <p className="text-xs text-dark-400">
+              {t('admin.emailTemplates.description', 'Manage email notification templates')}
+            </p>
+          </div>
+        </div>
+      </div>
+
+      {/* Content */}
+      {selectedType && detailData ? (
+        <TemplateEditor
+          detail={detailData}
+          onClose={() => setSelectedType(null)}
+          currentLang={currentLang}
+        />
+      ) : (
+        <>
+          {/* Template List */}
+          {typesLoading ? (
+            <div className="space-y-3">
+              {[...Array(6)].map((_, i) => (
+                <div key={i} className="h-20 bg-dark-800 rounded-xl animate-pulse" />
+              ))}
+            </div>
+          ) : (
+            <div className="grid gap-3 sm:grid-cols-2">
+              {typesData?.items.map(template => (
+                <TemplateCard
+                  key={template.type}
+                  template={template}
+                  currentLang={currentLang}
+                  onClick={() => setSelectedType(template.type)}
+                />
+              ))}
+            </div>
+          )}
+        </>
+      )}
+
+      {/* Detail loading overlay */}
+      {selectedType && detailLoading && (
+        <div className="flex items-center justify-center py-16">
+          <div className="w-8 h-8 border-2 border-accent-500 border-t-transparent rounded-full animate-spin" />
+        </div>
+      )}
+    </div>
+  )
+}

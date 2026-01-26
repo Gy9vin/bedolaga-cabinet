@@ -368,7 +368,8 @@
       "wheel": "转盘",
       "tariffs": "套餐",
       "servers": "服务器",
-      "broadcasts": "群发"
+      "broadcasts": "群发",
+      "emailTemplates": "邮件模板"
     },
     "panel": {
       "title": "管理面板",
@@ -380,7 +381,28 @@
       "wheelDesc": "配置幸运转盘和奖品",
       "tariffsDesc": "管理套餐计划",
       "serversDesc": "配置VPN服务器",
-      "broadcastsDesc": "向用户群发消息"
+      "broadcastsDesc": "向用户群发消息",
+      "emailTemplatesDesc": "管理邮件通知模板"
+    },
+    "emailTemplates": {
+      "title": "邮件模板",
+      "description": "管理邮件通知模板",
+      "subject": "主题",
+      "subjectPlaceholder": "邮件主题...",
+      "body": "内容 (HTML)",
+      "bodyHint": "HTML内容将被包裹在基础邮件模板中，包含页眉和页脚。",
+      "preview": "预览",
+      "sendTest": "发送测试",
+      "resetDefault": "恢复默认",
+      "resetConfirm": "将此模板恢复为默认版本？",
+      "unsavedWarning": "未保存的更改将丢失。继续？",
+      "custom": "自定义",
+      "default": "默认",
+      "saved": "模板已保存",
+      "resetted": "模板已恢复默认",
+      "testSent": "测试邮件已发送",
+      "variables": "可用变量",
+      "clickToCopy": "点击复制"
     },
     "wheel": {
       "title": "幸运转盘设置",

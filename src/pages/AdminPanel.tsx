@@ -119,6 +119,12 @@ const ServerStackIcon = () => (
   </svg>
 )
 
+const EnvelopeIcon = () => (
+  <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+    <path strokeLinecap="round" strokeLinejoin="round" d="M21.75 6.75v10.5a2.25 2.25 0 01-2.25 2.25h-15a2.25 2.25 0 01-2.25-2.25V6.75m19.5 0A2.25 2.25 0 0019.5 4.5h-15a2.25 2.25 0 00-2.25 2.25m19.5 0v.243a2.25 2.25 0 01-1.07 1.916l-7.5 4.615a2.25 2.25 0 01-2.36 0L3.32 8.91a2.25 2.25 0 01-1.07-1.916V6.75" />
+  </svg>
+)
+
 const CubeTransparentIcon = () => (
   <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
     <path strokeLinecap="round" strokeLinejoin="round" d="M21 7.5l-2.25-1.313M21 7.5v2.25m0-2.25l-2.25 1.313M3 7.5l2.25-1.313M3 7.5l2.25 1.313M3 7.5v2.25m9 3l2.25-1.313M12 12.75l-2.25-1.313M12 12.75V15m0 6.75l2.25-1.313M12 21.75V19.5m0 2.25l-2.25-1.313m0-16.875L12 2.25l2.25 1.313M21 14.25v2.25l-2.25 1.313m-13.5 0L3 16.5v-2.25" />
@@ -343,6 +349,12 @@ export default function AdminPanel() {
           icon: <CubeTransparentIcon />,
           title: t('admin.nav.remnawave', 'RemnaWave'),
           description: t('admin.panel.remnawaveDesc', 'Управление панелью'),
+        },
+        {
+          to: '/admin/email-templates',
+          icon: <EnvelopeIcon />,
+          title: t('admin.nav.emailTemplates', 'Email-шаблоны'),
+          description: t('admin.panel.emailTemplatesDesc', 'Шаблоны email-уведомлений'),
         },
       ],
     },

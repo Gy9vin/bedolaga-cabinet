@@ -514,7 +514,8 @@
       "broadcasts": "Рассылки",
       "users": "Пользователи",
       "payments": "Платежи",
-      "remnawave": "RemnaWave"
+      "remnawave": "RemnaWave",
+      "emailTemplates": "Email-шаблоны"
     },
     "panel": {
       "title": "Панель администратора",
@@ -530,7 +531,28 @@
       "broadcastsDesc": "Массовая отправка сообщений",
       "usersDesc": "Управление пользователями бота",
       "paymentsDesc": "Проверка платежей",
-      "remnawaveDesc": "Управление панелью и статистика"
+      "remnawaveDesc": "Управление панелью и статистика",
+      "emailTemplatesDesc": "Шаблоны email-уведомлений"
+    },
+    "emailTemplates": {
+      "title": "Email-шаблоны",
+      "description": "Управление шаблонами email-уведомлений",
+      "subject": "Тема письма",
+      "subjectPlaceholder": "Тема письма...",
+      "body": "Содержимое (HTML)",
+      "bodyHint": "HTML-контент, который будет обёрнут в базовый шаблон письма с шапкой и подвалом.",
+      "preview": "Предпросмотр",
+      "sendTest": "Тестовое письмо",
+      "resetDefault": "Сбросить по умолчанию",
+      "resetConfirm": "Сбросить этот шаблон к версии по умолчанию?",
+      "unsavedWarning": "Несохранённые изменения будут потеряны. Продолжить?",
+      "custom": "Кастомный",
+      "default": "По умолчанию",
+      "saved": "Шаблон сохранён",
+      "resetted": "Шаблон сброшен к значению по умолчанию",
+      "testSent": "Тестовое письмо отправлено",
+      "variables": "Доступные переменные",
+      "clickToCopy": "Нажмите для копирования"
     },
     "payments": {
       "title": "Проверка платежей",

@@ -44,6 +44,7 @@ const AdminUsers = lazy(() => import('./pages/AdminUsers'))
 const AdminPayments = lazy(() => import('./pages/AdminPayments'))
 const AdminPromoOffers = lazy(() => import('./pages/AdminPromoOffers'))
 const AdminRemnawave = lazy(() => import('./pages/AdminRemnawave'))
+const AdminEmailTemplates = lazy(() => import('./pages/AdminEmailTemplates'))
 
 function ProtectedRoute({ children }: { children: React.ReactNode }) {
   const { isAuthenticated, isLoading } = useAuthStore()
@@ -329,6 +330,14 @@ function App() {
         element={
           <AdminRoute>
             <LazyPage><AdminRemnawave /></LazyPage>
+          </AdminRoute>
+        }
+      />
+      <Route
+        path="/admin/email-templates"
+        element={
+          <AdminRoute>
+            <LazyPage><AdminEmailTemplates /></LazyPage>
           </AdminRoute>
         }
       />

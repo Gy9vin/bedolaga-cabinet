@@ -501,7 +501,8 @@
       "broadcasts": "Broadcasts",
       "users": "Users",
       "payments": "Payments",
-      "remnawave": "RemnaWave"
+      "remnawave": "RemnaWave",
+      "emailTemplates": "Email Templates"
     },
     "panel": {
       "title": "Admin Panel",
@@ -517,7 +518,28 @@
       "broadcastsDesc": "Mass messaging to users",
       "usersDesc": "Manage bot users",
       "paymentsDesc": "Payment verification",
-      "remnawaveDesc": "Panel management and statistics"
+      "remnawaveDesc": "Panel management and statistics",
+      "emailTemplatesDesc": "Manage email notification templates"
+    },
+    "emailTemplates": {
+      "title": "Email Templates",
+      "description": "Manage email notification templates",
+      "subject": "Subject",
+      "subjectPlaceholder": "Email subject line...",
+      "body": "Body (HTML)",
+      "bodyHint": "HTML content that will be wrapped in the base email template with header and footer.",
+      "preview": "Preview",
+      "sendTest": "Send Test",
+      "resetDefault": "Reset to Default",
+      "resetConfirm": "Reset this template to the default version?",
+      "unsavedWarning": "Unsaved changes will be lost. Continue?",
+      "custom": "Custom",
+      "default": "Default",
+      "saved": "Template saved",
+      "resetted": "Template reset to default",
+      "testSent": "Test email sent",
+      "variables": "Available Variables",
+      "clickToCopy": "Click to copy"
     },
     "payments": {
       "title": "Payment Verification",

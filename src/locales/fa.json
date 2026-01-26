@@ -367,7 +367,8 @@
       "wheel": "چرخ",
       "tariffs": "تعرفه‌ها",
       "servers": "سرورها",
-      "broadcasts": "پیام‌رسانی"
+      "broadcasts": "پیام‌رسانی",
+      "emailTemplates": "قالب‌های ایمیل"
     },
     "panel": {
       "title": "پنل مدیریت",
@@ -379,7 +380,28 @@
       "wheelDesc": "تنظیم چرخ شانس و جوایز",
       "tariffsDesc": "مدیریت طرح‌های تعرفه",
       "serversDesc": "تنظیم سرورهای VPN",
-      "broadcastsDesc": "ارسال پیام گروهی به کاربران"
+      "broadcastsDesc": "ارسال پیام گروهی به کاربران",
+      "emailTemplatesDesc": "مدیریت قالب‌های اعلان ایمیل"
+    },
+    "emailTemplates": {
+      "title": "قالب‌های ایمیل",
+      "description": "مدیریت قالب‌های اعلان ایمیل",
+      "subject": "موضوع",
+      "subjectPlaceholder": "موضوع ایمیل...",
+      "body": "محتوا (HTML)",
+      "bodyHint": "محتوای HTML که در قالب پایه ایمیل با سربرگ و پاورقی قرار می‌گیرد.",
+      "preview": "پیش‌نمایش",
+      "sendTest": "ارسال آزمایشی",
+      "resetDefault": "بازگشت به پیش‌فرض",
+      "resetConfirm": "این قالب به نسخه پیش‌فرض بازگردانده شود؟",
+      "unsavedWarning": "تغییرات ذخیره نشده از بین خواهند رفت. ادامه؟",
+      "custom": "سفارشی",
+      "default": "پیش‌فرض",
+      "saved": "قالب ذخیره شد",
+      "resetted": "قالب به پیش‌فرض بازگردانده شد",
+      "testSent": "ایمیل آزمایشی ارسال شد",
+      "variables": "متغیرهای موجود",
+      "clickToCopy": "برای کپی کلیک کنید"
     },
     "wheel": {
       "title": "تنظیمات چرخ شانس",
