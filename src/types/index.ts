@@ -230,6 +230,12 @@ export interface TariffPeriod {
   discount_percent?: number
   discount_amount_kopeks?: number
   discount_label?: string
+  // Extra devices info (additional devices beyond tariff base)
+  extra_devices_count?: number
+  extra_devices_cost_kopeks?: number
+  extra_devices_cost_label?: string
+  base_tariff_price_kopeks?: number
+  base_tariff_price_label?: string
 }
 
 export interface TariffServer {
@@ -246,6 +252,8 @@ export interface Tariff {
   traffic_limit_label: string
   is_unlimited_traffic: boolean
   device_limit: number
+  base_device_limit?: number
+  extra_devices_count: number
   servers_count: number
   servers: TariffServer[]
   periods: TariffPeriod[]
@@ -555,4 +563,36 @@ export interface TicketSettings {
   support_system_mode: string
   cabinet_user_notifications_enabled: boolean
   cabinet_admin_notifications_enabled: boolean
+}
+
+// Payment method config types (admin)
+export interface PaymentMethodSubOptionInfo {
+  id: string
+  name: string
+}
+
+export interface PaymentMethodConfig {
+  method_id: string
+  sort_order: number
+  is_enabled: boolean
+  display_name: string | null
+  default_display_name: string
+  sub_options: Record<string, boolean> | null
+  available_sub_options: PaymentMethodSubOptionInfo[] | null
+  min_amount_kopeks: number | null
+  max_amount_kopeks: number | null
+  default_min_amount_kopeks: number
+  default_max_amount_kopeks: number
+  user_type_filter: 'all' | 'telegram' | 'email'
+  first_topup_filter: 'any' | 'yes' | 'no'
+  promo_group_filter_mode: 'all' | 'selected'
+  allowed_promo_group_ids: number[]
+  is_provider_configured: boolean
+  created_at: string | null
+  updated_at: string | null
+}
+
+export interface PromoGroupSimple {
+  id: number
+  name: string
 }

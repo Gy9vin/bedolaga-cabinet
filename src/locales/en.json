@@ -163,6 +163,9 @@
     "perDevice": "/ device",
     "devicesFree": "devices free",
     "perExtraDevice": "/ extra device",
+    "extraDevices": "Extra devices",
+    "extraDevicesIncluded": "Incl. {{count}} extra dev.",
+    "baseTariff": "Tariff",
     "perMonth": "/mo",
     "summary": "Summary",
     "total": "Total",
@@ -502,7 +505,8 @@
       "users": "Users",
       "payments": "Payments",
       "remnawave": "RemnaWave",
-      "emailTemplates": "Email Templates"
+      "emailTemplates": "Email Templates",
+      "paymentMethods": "Payment Methods"
     },
     "panel": {
       "title": "Admin Panel",
@@ -519,7 +523,8 @@
       "usersDesc": "Manage bot users",
       "paymentsDesc": "Payment verification",
       "remnawaveDesc": "Panel management and statistics",
-      "emailTemplatesDesc": "Manage email notification templates"
+      "emailTemplatesDesc": "Manage email notification templates",
+      "paymentMethodsDesc": "Configure payment methods and order"
     },
     "emailTemplates": {
       "title": "Email Templates",
@@ -552,6 +557,40 @@
       "openLink": "Open Link",
       "checkStatus": "Check Status",
       "checking": "Checking..."
+    },
+    "paymentMethods": {
+      "title": "Payment Methods",
+      "description": "Configure display order and conditions",
+      "enabled": "On",
+      "disabled": "Off",
+      "notConfigured": "Not configured",
+      "dragToReorder": "Drag to reorder",
+      "dragHint": "Drag cards to change order. Click to configure.",
+      "saveOrder": "Save Order",
+      "orderSaved": "Order saved",
+      "saved": "Settings saved",
+      "noMethods": "No payment methods configured",
+      "methodEnabled": "Method enabled",
+      "providerNotConfigured": "Provider not configured in env",
+      "displayName": "Display name",
+      "displayNameHint": "Leave empty for default name",
+      "subOptions": "Payment options",
+      "minAmount": "Min amount (kopeks)",
+      "maxAmount": "Max amount (kopeks)",
+      "conditions": "Display conditions",
+      "userTypeFilter": "User type",
+      "userTypeAll": "All",
+      "userTypeTelegram": "Telegram",
+      "userTypeEmail": "Email",
+      "firstTopupFilter": "First top-up",
+      "firstTopupAny": "Any",
+      "firstTopupYes": "Made",
+      "firstTopupNo": "Not made",
+      "promoGroupFilter": "Promo groups",
+      "promoGroupAll": "All groups",
+      "promoGroupSelected": "Selected",
+      "promoGroupsShort": "groups",
+      "noPromoGroups": "No promo groups"
     },
     "remnawave": {
       "title": "RemnaWave",

@@ -176,6 +176,9 @@
     "perDevice": "/ устройство",
     "devicesFree": "устройств бесплатно",
     "perExtraDevice": "/ доп. устройство",
+    "extraDevices": "Доп. устройства",
+    "extraDevicesIncluded": "Вкл. {{count}} доп. устр.",
+    "baseTariff": "Тариф",
     "perMonth": "/мес",
     "summary": "Итого",
     "total": "К оплате",
@@ -515,7 +518,8 @@
       "users": "Пользователи",
       "payments": "Платежи",
       "remnawave": "RemnaWave",
-      "emailTemplates": "Email-шаблоны"
+      "emailTemplates": "Email-шаблоны",
+      "paymentMethods": "Платёжные методы"
     },
     "panel": {
       "title": "Панель администратора",
@@ -532,7 +536,8 @@
       "usersDesc": "Управление пользователями бота",
       "paymentsDesc": "Проверка платежей",
       "remnawaveDesc": "Управление панелью и статистика",
-      "emailTemplatesDesc": "Шаблоны email-уведомлений"
+      "emailTemplatesDesc": "Шаблоны email-уведомлений",
+      "paymentMethodsDesc": "Настройка и порядок платежек"
     },
     "emailTemplates": {
       "title": "Email-шаблоны",
@@ -565,6 +570,40 @@
       "openLink": "Открыть ссылку",
       "checkStatus": "Проверить статус",
       "checking": "Проверка..."
+    },
+    "paymentMethods": {
+      "title": "Платёжные методы",
+      "description": "Настройка порядка и условий отображения",
+      "enabled": "Вкл",
+      "disabled": "Выкл",
+      "notConfigured": "Не настроен",
+      "dragToReorder": "Перетащите для изменения порядка",
+      "dragHint": "Перетаскивайте карточки для изменения порядка. Нажмите для настройки.",
+      "saveOrder": "Сохранить порядок",
+      "orderSaved": "Порядок сохранён",
+      "saved": "Настройки сохранены",
+      "noMethods": "Нет настроенных платёжных методов",
+      "methodEnabled": "Метод включён",
+      "providerNotConfigured": "Провайдер не настроен в env",
+      "displayName": "Отображаемое имя",
+      "displayNameHint": "Оставьте пустым для имени по умолчанию",
+      "subOptions": "Варианты оплаты",
+      "minAmount": "Мин. сумма (коп.)",
+      "maxAmount": "Макс. сумма (коп.)",
+      "conditions": "Условия отображения",
+      "userTypeFilter": "Тип пользователя",
+      "userTypeAll": "Все",
+      "userTypeTelegram": "Telegram",
+      "userTypeEmail": "Email",
+      "firstTopupFilter": "Первое пополнение",
+      "firstTopupAny": "Не важно",
+      "firstTopupYes": "Было",
+      "firstTopupNo": "Не было",
+      "promoGroupFilter": "Промо-группы",
+      "promoGroupAll": "Все группы",
+      "promoGroupSelected": "Выбранные",
+      "promoGroupsShort": "групп",
+      "noPromoGroups": "Нет промо-групп"
     },
     "remnawave": {
       "title": "RemnaWave",

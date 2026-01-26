@@ -1657,7 +1657,14 @@ export default function Subscription() {
                   </div>
                   <div>
                     <span className="text-dark-500">{t('subscription.devices')}:</span>
-                    <span className="ml-2 text-dark-200">{selectedTariff.device_limit}</span>
+                    <span className="ml-2 text-dark-200">
+                      {selectedTariff.device_limit}
+                      {selectedTariff.extra_devices_count > 0 && (
+                        <span className="ml-1 text-accent-400 text-xs">
+                          (+{selectedTariff.extra_devices_count})
+                        </span>
+                      )}
+                    </span>
                   </div>
                   <div>
                     <span className="text-dark-500">{t('subscription.servers')}:</span>
@@ -1951,17 +1958,33 @@ export default function Subscription() {
                               </div>
                             </div>
                           ) : selectedTariffPeriod && (
-                            <div className="flex justify-between text-sm text-dark-300">
-                              <span>Период: {selectedTariffPeriod.label}</span>
-                              <div className="flex items-center gap-2">
-                                <span>{formatPrice(promoPeriod.price)}</span>
-                                {(hasExistingPeriodDiscount || promoPeriod.original) && (
-                                  <span className="text-dark-500 text-xs line-through">
-                                    {formatPrice(hasExistingPeriodDiscount ? selectedTariffPeriod.original_price_kopeks! : promoPeriod.original!)}
-                                  </span>
-                                )}
-                              </div>
-                            </div>
+                            <>
+                              {/* Если есть доп. устройства - показываем разбивку */}
+                              {(selectedTariffPeriod.extra_devices_count ?? 0) > 0 && selectedTariffPeriod.base_tariff_price_kopeks ? (
+                                <>
+                                  <div className="flex justify-between text-sm text-dark-300">
+                                    <span>{t('subscription.baseTariff')}: {selectedTariffPeriod.label}</span>
+                                    <span>{formatPrice(selectedTariffPeriod.base_tariff_price_kopeks)}</span>
+                                  </div>
+                                  <div className="flex justify-between text-sm text-dark-300">
+                                    <span>{t('subscription.extraDevices')} ({selectedTariffPeriod.extra_devices_count})</span>
+                                    <span>+{formatPrice(selectedTariffPeriod.extra_devices_cost_kopeks ?? 0)}</span>
+                                  </div>
+                                </>
+                              ) : (
+                                <div className="flex justify-between text-sm text-dark-300">
+                                  <span>Период: {selectedTariffPeriod.label}</span>
+                                  <div className="flex items-center gap-2">
+                                    <span>{formatPrice(promoPeriod.price)}</span>
+                                    {(hasExistingPeriodDiscount || promoPeriod.original) && (
+                                      <span className="text-dark-500 text-xs line-through">
+                                        {formatPrice(hasExistingPeriodDiscount ? selectedTariffPeriod.original_price_kopeks! : promoPeriod.original!)}
+                                      </span>
+                                    )}
+                                  </div>
+                                </div>
+                              )}
+                            </>
                           )}
                           {useCustomTraffic && selectedTariff.custom_traffic_enabled && (
                             <div className="flex justify-between text-sm text-dark-300">

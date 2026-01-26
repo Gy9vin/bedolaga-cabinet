@@ -286,6 +286,12 @@ export default function AdminPanel() {
           title: t('admin.nav.promoOffers', 'Промопредложения'),
           description: t('admin.panel.promoOffersDesc', 'Персональные скидки'),
         },
+        {
+          to: '/admin/payment-methods',
+          icon: <BanknotesIcon />,
+          title: t('admin.nav.paymentMethods', 'Платёжные методы'),
+          description: t('admin.panel.paymentMethodsDesc', 'Настройка и порядок платежек'),
+        },
       ],
     },
     {
