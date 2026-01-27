@@ -41,7 +41,7 @@ const isValidDeepLink = (url: string): boolean => {
 };
 
 export default function DeepLinkRedirect() {
-  const { i18n } = useTranslation();
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const [status, setStatus] = useState<Status>('countdown');
@@ -72,51 +72,6 @@ export default function DeepLinkRedirect() {
     : null;
   const appName = appInfo?.name || appParam || 'VPN';
   const appIcon = appInfo?.icon || appName[0]?.toUpperCase() || 'V';
-
-  // Translations
-  const texts = {
-    en: {
-      connecting: 'Connecting to',
-      redirecting: 'Redirecting in',
-      seconds: 'seconds',
-      manual: 'If nothing happens, click the button below.',
-      openApp: 'Open App',
-      copyLink: 'Copy subscription link',
-      copied: 'Copied!',
-      tryAgain: 'Try again',
-      backToCabinet: 'Back to cabinet',
-      errorTitle: 'Error',
-      errorDesc: 'Connection link is missing',
-      goToSubscription: 'Go to subscription',
-      howToAdd: 'How to add manually:',
-      step1: 'Copy the link using the button above',
-      step2: 'Open the app',
-      step3: 'Find "+" or "Add subscription"',
-      step4: 'Select "From clipboard" or "Paste link"',
-    },
-    ru: {
-      connecting: 'Подключение к',
-      redirecting: 'Перенаправление через',
-      seconds: 'сек',
-      manual: 'Если ничего не происходит, нажмите кнопку ниже.',
-      openApp: 'Открыть приложение',
-      copyLink: 'Скопировать ссылку подписки',
-      copied: 'Скопировано!',
-      tryAgain: 'Попробовать снова',
-      backToCabinet: 'Вернуться в кабинет',
-      errorTitle: 'Ошибка',
-      errorDesc: 'Ссылка для подключения не найдена',
-      goToSubscription: 'Перейти к подписке',
-      howToAdd: 'Как добавить вручную:',
-      step1: 'Скопируйте ссылку кнопкой выше',
-      step2: 'Откройте приложение',
-      step3: 'Найдите "+" или "Добавить подписку"',
-      step4: 'Выберите "Из буфера" или "Вставить ссылку"',
-    },
-  };
-
-  const lang = i18n.language?.startsWith('ru') ? 'ru' : 'en';
-  const txt = texts[lang];
 
   // Open deep link - same as miniapp, just window.location.href
   const openDeepLink = useCallback(() => {
@@ -210,7 +165,7 @@ export default function DeepLinkRedirect() {
 
         {status !== 'error' && (
           <p className="mb-6 text-dark-400">
-            {txt.connecting} {appName}...
+            {t('deepLink.connecting')} {appName}...
           </p>
         )}
 
@@ -227,10 +182,10 @@ export default function DeepLinkRedirect() {
 
             {/* Timer */}
             <div className="mb-4">
-              <p className="mb-2 text-sm text-dark-500">{txt.redirecting}</p>
+              <p className="mb-2 text-sm text-dark-500">{t('deepLink.redirecting')}</p>
               <div className="flex items-center justify-center gap-2">
                 <span className="text-4xl font-bold text-accent-400">{countdown}</span>
-                <span className="text-dark-400">{txt.seconds}</span>
+                <span className="text-dark-400">{t('deepLink.seconds')}</span>
               </div>
             </div>
 
@@ -242,7 +197,7 @@ export default function DeepLinkRedirect() {
               />
             </div>
 
-            <p className="mb-4 text-sm text-dark-500">{txt.manual}</p>
+            <p className="mb-4 text-sm text-dark-500">{t('deepLink.manual')}</p>
 
             {/* Open now button */}
             <button
@@ -262,7 +217,7 @@ export default function DeepLinkRedirect() {
                   d="M13.5 6H5.25A2.25 2.25 0 003 8.25v10.5A2.25 2.25 0 005.25 21h10.5A2.25 2.25 0 0018 18.75V10.5m-10.5 6L21 3m0 0h-5.25M21 3v5.25"
                 />
               </svg>
-              {txt.openApp}
+              {t('deepLink.openApp')}
             </button>
           </div>
         )}
@@ -296,7 +251,7 @@ export default function DeepLinkRedirect() {
                         d="M4.5 12.75l6 6 9-13.5"
                       />
                     </svg>
-                    {txt.copied}
+                    {t('deepLink.copied')}
                   </>
                 ) : (
                   <>
@@ -313,7 +268,7 @@ export default function DeepLinkRedirect() {
                         d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"
                       />
                     </svg>
-                    {txt.copyLink}
+                    {t('deepLink.copyLink')}
                   </>
                 )}
               </button>
@@ -336,7 +291,7 @@ export default function DeepLinkRedirect() {
                     d="M13.5 6H5.25A2.25 2.25 0 003 8.25v10.5A2.25 2.25 0 005.25 21h10.5A2.25 2.25 0 0018 18.75V10.5m-10.5 6L21 3m0 0h-5.25M21 3v5.25"
                   />
                 </svg>
-                {txt.tryAgain}
+                {t('deepLink.tryAgain')}
               </button>
 
               {/* Back to cabinet */}
@@ -344,20 +299,20 @@ export default function DeepLinkRedirect() {
                 onClick={() => navigate('/subscription')}
                 className="w-full py-2 text-sm text-dark-500 transition-colors hover:text-dark-300"
               >
-                {txt.backToCabinet}
+                {t('deepLink.backToCabinet')}
               </button>
             </div>
 
             {/* Instructions */}
             <div className="mt-6 rounded-xl border border-dark-700 bg-dark-900/50 p-4 text-left">
-              <h3 className="mb-2 text-sm font-medium text-dark-200">{txt.howToAdd}</h3>
+              <h3 className="mb-2 text-sm font-medium text-dark-200">{t('deepLink.howToAdd')}</h3>
               <ol className="list-inside list-decimal space-y-1.5 text-xs text-dark-400">
-                <li>{txt.step1}</li>
+                <li>{t('deepLink.step1')}</li>
                 <li>
-                  {txt.step2} {appName}
+                  {t('deepLink.step2')} {appName}
                 </li>
-                <li>{txt.step3}</li>
-                <li>{txt.step4}</li>
+                <li>{t('deepLink.step3')}</li>
+                <li>{t('deepLink.step4')}</li>
               </ol>
             </div>
           </div>
@@ -381,10 +336,10 @@ export default function DeepLinkRedirect() {
                 />
               </svg>
             </div>
-            <p className="mb-2 font-medium text-dark-200">{txt.errorTitle}</p>
-            <p className="mb-6 text-sm text-dark-400">{txt.errorDesc}</p>
+            <p className="mb-2 font-medium text-dark-200">{t('deepLink.errorTitle')}</p>
+            <p className="mb-6 text-sm text-dark-400">{t('deepLink.errorDesc')}</p>
             <button onClick={() => navigate('/subscription')} className="btn-primary w-full">
-              {txt.goToSubscription}
+              {t('deepLink.goToSubscription')}
             </button>
           </div>
         )}

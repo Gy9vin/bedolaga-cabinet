@@ -79,7 +79,11 @@ export function SettingRow({
               ? 'bg-warning-500/15 text-warning-400 hover:bg-warning-500/25'
               : 'text-dark-500 opacity-0 hover:bg-dark-700/50 hover:text-warning-400 group-hover:opacity-100'
           }`}
-          title={isFavorite ? 'Убрать из избранного' : 'В избранное'}
+          title={
+            isFavorite
+              ? t('admin.settings.removeFromFavorites')
+              : t('admin.settings.addToFavorites')
+          }
         >
           <StarIcon filled={isFavorite} />
         </button>
@@ -105,7 +109,9 @@ export function SettingRow({
           // Boolean toggle
           <div className="flex items-center justify-between gap-3">
             <span className="text-sm text-dark-400">
-              {setting.current === true || setting.current === 'true' ? 'Включено' : 'Выключено'}
+              {setting.current === true || setting.current === 'true'
+                ? t('admin.settings.enabled')
+                : t('admin.settings.disabled')}
             </span>
             <div className="flex items-center gap-2">
               <Toggle
@@ -161,7 +167,7 @@ export function SettingRow({
             title={t('admin.settings.reset')}
           >
             <RefreshIcon />
-            <span>Сбросить</span>
+            <span>{t('admin.settings.reset')}</span>
           </button>
         </div>
       )}

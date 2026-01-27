@@ -222,7 +222,8 @@ export default function Polls() {
                   )}
                   <div className="mt-2 flex items-center gap-4 text-sm text-dark-400">
                     <span>
-                      {poll.answered_questions}/{poll.total_questions} {t('polls.questions')}
+                      {poll.answered_questions}/
+                      {t('polls.questions', { count: poll.total_questions })}
                     </span>
                   </div>
                 </div>

@@ -453,7 +453,7 @@ export default function ConnectionModal({ onClose }: ConnectionModalProps) {
               <BackIcon />
             </button>
             <h2 className="text-lg font-bold text-dark-100">
-              {t('subscription.connection.selectPlatform') || 'Выберите платформу'}
+              {t('subscription.connection.selectPlatform')}
             </h2>
           </div>
           <div className="space-y-2 p-4">
@@ -498,8 +498,8 @@ export default function ConnectionModal({ onClose }: ConnectionModalProps) {
                     <span className="text-sm text-dark-400">
                       {appCount}{' '}
                       {appCount === 1
-                        ? t('subscription.connection.app') || 'приложение'
-                        : t('subscription.connection.apps') || 'приложений'}
+                        ? t('subscription.connection.app')
+                        : t('subscription.connection.apps')}
                     </span>
                   </div>
                   <ChevronIcon />
@@ -623,9 +623,7 @@ export default function ConnectionModal({ onClose }: ConnectionModalProps) {
           </div>
           <div className="flex-1 text-left">
             <div className="font-medium text-dark-100">{selectedApp?.name}</div>
-            <div className="text-sm text-dark-400">
-              {t('subscription.connection.changeApp') || 'Сменить приложение'}
-            </div>
+            <div className="text-sm text-dark-400">{t('subscription.connection.changeApp')}</div>
           </div>
           <ChevronIcon />
         </button>

@@ -15,16 +15,7 @@ import type {
 import ConnectionModal from '../components/ConnectionModal';
 import InsufficientBalancePrompt from '../components/InsufficientBalancePrompt';
 import { useCurrency } from '../hooks/useCurrency';
-
-// Russian pluralization for "день/дня/дней"
-const pluralizeDays = (n: number): string => {
-  const mod100 = n % 100;
-  const mod10 = n % 10;
-  if (mod100 >= 11 && mod100 <= 19) return 'дней';
-  if (mod10 === 1) return 'день';
-  if (mod10 >= 2 && mod10 <= 4) return 'дня';
-  return 'дней';
-};
+import i18n from '../i18n';
 
 // Helper to extract error message from axios/api errors
 const getErrorMessage = (error: unknown): string => {
@@ -34,7 +25,7 @@ const getErrorMessage = (error: unknown): string => {
     if (typeof detail === 'object' && detail?.message) return detail.message;
   }
   if (error instanceof Error) return error.message;
-  return 'Произошла ошибка';
+  return i18n.t('common.error');
 };
 
 // Helper to extract insufficient balance error details
@@ -631,11 +622,11 @@ export default function Subscription() {
               <div className="mb-1 text-sm text-dark-500">{t('subscription.daysLeft')}</div>
               <div className="text-xl font-semibold text-dark-100">
                 {subscription.days_left > 0 ? (
-                  `${subscription.days_left} ${t('subscription.days')}`
+                  t('subscription.days', { count: subscription.days_left })
                 ) : subscription.hours_left > 0 ? (
-                  `${subscription.hours_left}${t('subscription.hours')} ${subscription.minutes_left}${t('subscription.minutes')}`
+                  `${t('subscription.hours', { count: subscription.hours_left })} ${t('subscription.minutes', { count: subscription.minutes_left })}`
                 ) : subscription.minutes_left > 0 ? (
-                  `${subscription.minutes_left}${t('subscription.minutes')}`
+                  t('subscription.minutes', { count: subscription.minutes_left })
                 ) : (
                   <span className="text-error-400">{t('subscription.expired')}</span>
                 )}
@@ -687,7 +678,7 @@ export default function Subscription() {
           {/* Servers */}
           {subscription.servers && subscription.servers.length > 0 && (
             <div className="mb-6">
-              <div className="mb-2 text-sm text-dark-500">{t('subscription.servers')}</div>
+              <div className="mb-2 text-sm text-dark-500">{t('subscription.serversLabel')}</div>
               <div className="flex flex-wrap gap-2">
                 {subscription.servers.map((server) => (
                   <span
@@ -753,19 +744,16 @@ export default function Subscription() {
                           />
                         </svg>
                         <span className="text-base font-semibold text-dark-100">
-                          {purchase.traffic_gb} ГБ
+                          {purchase.traffic_gb} {t('common.units.gb')}
                         </span>
                       </div>
                       <div className="flex flex-col items-end gap-1">
                         <div className="text-sm text-dark-400">
                           {purchase.days_remaining === 0 ? (
-                            <span className="text-orange-500">Истекает сегодня</span>
-                          ) : purchase.days_remaining === 1 ? (
-                            <span className="text-orange-400">Остался 1 день</span>
+                            <span className="text-orange-500">{t('subscription.expired')}</span>
                           ) : (
                             <span>
-                              Осталось {purchase.days_remaining}{' '}
-                              {pluralizeDays(purchase.days_remaining)}
+                              {t('subscription.days', { count: purchase.days_remaining })}
                             </span>
                           )}
                         </div>
@@ -784,7 +772,7 @@ export default function Subscription() {
                             />
                           </svg>
                           <span>
-                            {t('subscription.trafficResetAt', 'Сброс')}:{' '}
+                            {t('subscription.trafficResetAt')}:{' '}
                             {new Date(purchase.expires_at).toLocaleDateString(undefined, {
                               day: '2-digit',
                               month: '2-digit',
@@ -816,7 +804,7 @@ export default function Subscription() {
               <div>
                 <div className="font-medium text-dark-100">{t('subscription.autoRenewal')}</div>
                 <div className="text-sm text-dark-500">
-                  {subscription.autopay_days_before} {t('subscription.daysBeforeExpiry')}
+                  {t('subscription.daysBeforeExpiry', { count: subscription.autopay_days_before })}
                 </div>
               </div>
               <button
@@ -927,13 +915,7 @@ export default function Subscription() {
                     <div className="mt-1 text-sm text-dark-400">
                       {t('subscription.pause.pausedDescription')}{' '}
                       {new Date(subscription.end_date).toLocaleDateString()} (
-                      {subscription.days_left}{' '}
-                      {subscription.days_left === 1
-                        ? t('subscription.pause.days_one')
-                        : subscription.days_left < 5
-                          ? t('subscription.pause.days_few')
-                          : t('subscription.pause.days_many')}
-                      )
+                      {t('subscription.pause.days', { count: subscription.days_left })})
                     </div>
                   </div>
                 </div>
@@ -988,7 +970,9 @@ export default function Subscription() {
       {/* Additional Options (Buy Devices) */}
       {subscription && subscription.is_active && !subscription.is_trial && (
         <div className="bento-card">
-          <h2 className="mb-4 text-lg font-semibold text-dark-100">Дополнительные опции</h2>
+          <h2 className="mb-4 text-lg font-semibold text-dark-100">
+            {t('subscription.additionalOptions.title')}
+          </h2>
 
           {/* Buy Devices */}
           {!showDeviceTopup ? (
@@ -998,9 +982,13 @@ export default function Subscription() {
             >
               <div className="flex items-center justify-between">
                 <div>
-                  <div className="font-medium text-dark-100">Докупить устройства</div>
+                  <div className="font-medium text-dark-100">
+                    {t('subscription.additionalOptions.buyDevices')}
+                  </div>
                   <div className="mt-1 text-sm text-dark-400">
-                    Текущий лимит: {subscription.device_limit} устройств
+                    {t('subscription.additionalOptions.currentDeviceLimit', {
+                      count: subscription.device_limit,
+                    })}
                   </div>
                 </div>
                 <svg
@@ -1017,7 +1005,7 @@ export default function Subscription() {
           ) : (
             <div className="rounded-xl border border-dark-700/50 bg-dark-800/30 p-5">
               <div className="mb-4 flex items-center justify-between">
-                <h3 className="font-medium text-dark-100">Докупить устройства</h3>
+                <h3 className="font-medium text-dark-100">{t('subscription.buyDevices')}</h3>
                 <button
                   onClick={() => setShowDeviceTopup(false)}
                   className="text-sm text-dark-400 hover:text-dark-200"
@@ -1028,7 +1016,7 @@ export default function Subscription() {
 
               {devicePriceData?.available === false ? (
                 <div className="py-4 text-center text-sm text-dark-400">
-                  {devicePriceData.reason || 'Докупка устройств недоступна'}
+                  {devicePriceData.reason || t('subscription.additionalOptions.devicesUnavailable')}
                 </div>
               ) : (
                 <div className="space-y-4">
@@ -1042,7 +1030,9 @@ export default function Subscription() {
                     </button>
                     <div className="text-center">
                       <div className="text-4xl font-bold text-dark-100">{devicesToAdd}</div>
-                      <div className="text-sm text-dark-500">устройств</div>
+                      <div className="text-sm text-dark-500">
+                        {t('subscription.additionalOptions.devicesUnit')}
+                      </div>
                     </div>
                     <button
                       onClick={() => setDevicesToAdd(devicesToAdd + 1)}
@@ -1055,8 +1045,9 @@ export default function Subscription() {
                   {devicePriceData && (
                     <div className="text-center">
                       <div className="mb-2 text-sm text-dark-400">
-                        {devicePriceData.price_per_device_label}/устройство (пропорционально{' '}
-                        {devicePriceData.days_left} дням)
+                        {devicePriceData.price_per_device_label}/
+                        {t('subscription.perDevice').replace('/ ', '')} (
+                        {t('subscription.days', { count: devicePriceData.days_left })})
                       </div>
                       <div className="text-2xl font-bold text-accent-400">
                         {devicePriceData.total_price_label}
@@ -1093,7 +1084,7 @@ export default function Subscription() {
                         <span className="h-4 w-4 animate-spin rounded-full border-2 border-white/30 border-t-white" />
                       </span>
                     ) : (
-                      'Купить'
+                      t('subscription.additionalOptions.buy')
                     )}
                   </button>
 
@@ -1117,10 +1108,14 @@ export default function Subscription() {
                 >
                   <div className="flex items-center justify-between">
                     <div>
-                      <div className="font-medium text-dark-100">Докупить трафик</div>
+                      <div className="font-medium text-dark-100">
+                        {t('subscription.additionalOptions.buyTraffic')}
+                      </div>
                       <div className="mt-1 text-sm text-dark-400">
-                        Текущий лимит: {subscription.traffic_limit_gb} ГБ (использовано{' '}
-                        {subscription.traffic_used_gb.toFixed(1)} ГБ)
+                        {t('subscription.additionalOptions.currentTrafficLimit', {
+                          limit: subscription.traffic_limit_gb,
+                          used: subscription.traffic_used_gb.toFixed(1),
+                        })}
                       </div>
                     </div>
                     <svg
@@ -1137,7 +1132,9 @@ export default function Subscription() {
               ) : (
                 <div className="rounded-xl border border-dark-700/50 bg-dark-800/30 p-5">
                   <div className="mb-4 flex items-center justify-between">
-                    <h3 className="font-medium text-dark-100">Докупить трафик</h3>
+                    <h3 className="font-medium text-dark-100">
+                      {t('subscription.additionalOptions.buyTrafficTitle')}
+                    </h3>
                     <button
                       onClick={() => {
                         setShowTrafficTopup(false);
@@ -1150,13 +1147,12 @@ export default function Subscription() {
                   </div>
 
                   <div className="mb-4 rounded-lg bg-dark-700/30 p-2 text-xs text-dark-500">
-                    ⚠️ Докупленный трафик добавляется к текущему лимиту и не переносится на
-                    следующий период
+                    ⚠️ {t('subscription.additionalOptions.trafficWarning')}
                   </div>
 
                   {!trafficPackages || trafficPackages.length === 0 ? (
                     <div className="py-4 text-center text-sm text-dark-400">
-                      Докупка трафика недоступна для вашего тарифа
+                      {t('subscription.additionalOptions.trafficUnavailable')}
                     </div>
                   ) : (
                     <div className="space-y-4">
@@ -1172,7 +1168,9 @@ export default function Subscription() {
                             }`}
                           >
                             <div className="text-lg font-semibold text-dark-100">
-                              {pkg.is_unlimited ? '♾️ Безлимит' : `${pkg.gb} ГБ`}
+                              {pkg.is_unlimited
+                                ? '♾️ ' + t('subscription.additionalOptions.unlimited')
+                                : `${pkg.gb} ${t('common.units.gb')}`}
                             </div>
                             <div className="font-medium text-accent-400">
                               {formatPrice(pkg.price_kopeks)}
@@ -1216,7 +1214,9 @@ export default function Subscription() {
                                     <span className="h-4 w-4 animate-spin rounded-full border-2 border-white/30 border-t-white" />
                                   </span>
                                 ) : (
-                                  `Купить ${selectedTrafficPackage} ГБ`
+                                  t('subscription.additionalOptions.buyTrafficGb', {
+                                    gb: selectedTrafficPackage,
+                                  })
                                 )}
                               </button>
                             </>
@@ -1245,9 +1245,11 @@ export default function Subscription() {
                 >
                   <div className="flex items-center justify-between">
                     <div>
-                      <div className="font-medium text-dark-100">Управление серверами</div>
+                      <div className="font-medium text-dark-100">
+                        {t('subscription.additionalOptions.manageServers')}
+                      </div>
                       <div className="mt-1 text-sm text-dark-400">
-                        Подключено серверов: {subscription.servers?.length || 0}
+                        {t('subscription.servers', { count: subscription.servers?.length || 0 })}
                       </div>
                     </div>
                     <svg
@@ -1264,7 +1266,9 @@ export default function Subscription() {
               ) : (
                 <div className="rounded-xl border border-dark-700/50 bg-dark-800/30 p-5">
                   <div className="mb-4 flex items-center justify-between">
-                    <h3 className="font-medium text-dark-100">Управление серверами</h3>
+                    <h3 className="font-medium text-dark-100">
+                      {t('subscription.additionalOptions.manageServersTitle')}
+                    </h3>
                     <button
                       onClick={() => {
                         setShowServerManagement(false);
@@ -1283,12 +1287,15 @@ export default function Subscription() {
                   ) : countriesData && countriesData.countries.length > 0 ? (
                     <div className="space-y-4">
                       <div className="rounded-lg bg-dark-700/30 p-2 text-xs text-dark-500">
-                        ✅ — подключено • ➕ — будет добавлено (платно) • ➖ — будет отключено
+                        {t('subscription.serverManagement.statusLegend')}
                       </div>
 
                       {countriesData.discount_percent > 0 && (
                         <div className="rounded-lg border border-success-500/30 bg-success-500/10 p-2 text-xs text-success-400">
-                          🎁 Ваша скидка на серверы: -{countriesData.discount_percent}%
+                          🎁{' '}
+                          {t('subscription.serverManagement.discountBanner', {
+                            percent: countriesData.discount_percent,
+                          })}
                         </div>
                       )}
 
@@ -1343,8 +1350,10 @@ export default function Subscription() {
                                   </div>
                                   {willBeAdded && (
                                     <div className="text-xs text-success-400">
-                                      +{formatPrice(country.price_kopeks)} (за{' '}
-                                      {countriesData.days_left} дн.)
+                                      +{formatPrice(country.price_kopeks)}{' '}
+                                      {t('subscription.serverManagement.forDays', {
+                                        days: countriesData.days_left,
+                                      })}
                                       {country.has_discount && (
                                         <span className="ml-1 text-dark-500 line-through">
                                           {formatPrice(
@@ -1360,7 +1369,8 @@ export default function Subscription() {
                                   )}
                                   {!willBeAdded && !isCurrentlyConnected && (
                                     <div className="text-xs text-dark-500">
-                                      {formatPrice(country.price_per_month_kopeks)}/мес
+                                      {formatPrice(country.price_per_month_kopeks)}
+                                      {t('subscription.serverManagement.perMonth')}
                                       {country.has_discount && (
                                         <span className="ml-1 text-dark-600 line-through">
                                           {formatPrice(country.base_price_kopeks)}
@@ -1369,7 +1379,9 @@ export default function Subscription() {
                                     </div>
                                   )}
                                   {!country.is_available && !isCurrentlyConnected && (
-                                    <div className="text-xs text-dark-500">Недоступен</div>
+                                    <div className="text-xs text-dark-500">
+                                      {t('subscription.serverManagement.unavailable')}
+                                    </div>
                                   )}
                                 </div>
                               </div>
@@ -1410,7 +1422,9 @@ export default function Subscription() {
                           <div className="space-y-3 border-t border-dark-700/50 pt-3">
                             {added.length > 0 && (
                               <div className="text-sm">
-                                <span className="text-success-400">Добавить:</span>{' '}
+                                <span className="text-success-400">
+                                  {t('subscription.serverManagement.toAdd')}
+                                </span>{' '}
                                 <span className="text-dark-300">
                                   {addedServers.map((s) => s.name).join(', ')}
                                 </span>
@@ -1418,7 +1432,9 @@ export default function Subscription() {
                             )}
                             {removed.length > 0 && (
                               <div className="text-sm">
-                                <span className="text-error-400">Отключить:</span>{' '}
+                                <span className="text-error-400">
+                                  {t('subscription.serverManagement.toDisconnect')}
+                                </span>{' '}
                                 <span className="text-dark-300">
                                   {countriesData.countries
                                     .filter((c) => removed.includes(c.uuid))
@@ -1430,7 +1446,7 @@ export default function Subscription() {
                             {totalCost > 0 && (
                               <div className="text-center">
                                 <div className="text-sm text-dark-400">
-                                  К оплате (пропорционально оставшимся дням):
+                                  {t('subscription.serverManagement.paymentProrated')}
                                 </div>
                                 <div className="text-xl font-bold text-accent-400">
                                   {formatPrice(totalCost)}
@@ -1461,13 +1477,13 @@ export default function Subscription() {
                                   <span className="h-4 w-4 animate-spin rounded-full border-2 border-white/30 border-t-white" />
                                 </span>
                               ) : (
-                                'Применить изменения'
+                                t('subscription.serverManagement.applyChanges')
                               )}
                             </button>
                           </div>
                         ) : (
                           <div className="py-2 text-center text-sm text-dark-500">
-                            Выберите серверы для подключения или отключения
+                            {t('subscription.serverManagement.selectServersHint')}
                           </div>
                         );
                       })()}
@@ -1480,7 +1496,7 @@ export default function Subscription() {
                     </div>
                   ) : (
                     <div className="py-4 text-center text-sm text-dark-400">
-                      Нет доступных серверов для управления
+                      {t('subscription.serverManagement.noServersAvailable')}
                     </div>
                   )}
                 </div>
@@ -1517,7 +1533,8 @@ export default function Subscription() {
           ) : devicesData && devicesData.devices.length > 0 ? (
             <div className="space-y-3">
               <div className="mb-2 text-sm text-dark-400">
-                {devicesData.total} / {devicesData.device_limit} {t('subscription.devices')}
+                {devicesData.total} /{' '}
+                {t('subscription.devices', { count: devicesData.device_limit })}
               </div>
               {devicesData.devices.map((device) => (
                 <div
@@ -1597,14 +1614,13 @@ export default function Subscription() {
           {subscription && !subscription.is_trial && !subscription.tariff_id && (
             <div className="mb-6 rounded-xl border border-accent-500/30 bg-accent-500/10 p-4">
               <div className="mb-2 font-medium text-accent-400">
-                📦 Выберите тариф для продления
+                📦 {t('subscription.legacy.selectTariffTitle')}
               </div>
               <div className="text-sm text-dark-300">
-                Ваша текущая подписка была создана до введения тарифов. Для продления необходимо
-                выбрать один из доступных тарифов.
+                {t('subscription.legacy.selectTariffDescription')}
               </div>
               <div className="mt-2 text-xs text-dark-500">
-                ⚠️ Ваша текущая подписка продолжит действовать до окончания срока.
+                ⚠️ {t('subscription.legacy.currentSubContinues')}
               </div>
             </div>
           )}
@@ -1661,12 +1677,14 @@ export default function Subscription() {
                       {/* Daily tariff info */}
                       {isDailyTariff && (
                         <div className="rounded-lg border border-accent-500/30 bg-accent-500/10 p-3 text-center">
-                          <div className="text-sm text-dark-300">Оплата за день</div>
+                          <div className="text-sm text-dark-300">
+                            {t('subscription.switchTariff.dailyPayment')}
+                          </div>
                           <div className="text-lg font-bold text-accent-400">
                             {formatPrice(dailyPrice)}
                           </div>
                           <div className="mt-1 text-xs text-dark-400">
-                            Списывается ежедневно с баланса
+                            {t('subscription.switchTariff.dailyChargeDescription')}
                           </div>
                         </div>
                       )}
@@ -1732,10 +1750,12 @@ export default function Subscription() {
                   </div>
                   <div>
                     <div className="text-sm font-medium text-success-400">
-                      Ваша группа: {tariffs.find((t) => t.promo_group_name)?.promo_group_name}
+                      {t('subscription.promoGroup.yourGroup', {
+                        name: tariffs.find((t) => t.promo_group_name)?.promo_group_name,
+                      })}
                     </div>
                     <div className="text-xs text-dark-400">
-                      Персональные скидки применены к ценам
+                      {t('subscription.promoGroup.personalDiscountsApplied')}
                     </div>
                   </div>
                 </div>
@@ -1795,12 +1815,12 @@ export default function Subscription() {
                           </span>
                           <span className="flex items-center gap-1">
                             <span className="text-dark-400">
-                              {tariff.device_limit} {t('subscription.devices')}
+                              {t('subscription.devices', { count: tariff.device_limit })}
                             </span>
                           </span>
                           <span className="flex items-center gap-1">
                             <span className="text-dark-400">
-                              {tariff.servers_count} {t('subscription.servers')}
+                              {t('subscription.servers', { count: tariff.servers_count })}
                             </span>
                           </span>
                         </div>
@@ -1833,7 +1853,7 @@ export default function Subscription() {
                                       )}
                                     </span>
                                   )}
-                                  <span>/ день</span>
+                                  <span>{t('subscription.tariff.perDay')}</span>
                                   {/* Show discount badge */}
                                   {tariff.daily_discount_percent &&
                                   tariff.daily_discount_percent > 0 ? (
@@ -1895,7 +1915,9 @@ export default function Subscription() {
                             }
                             // Fallback
                             return (
-                              <span className="font-medium text-accent-400">Гибкая оплата</span>
+                              <span className="font-medium text-accent-400">
+                                {t('subscription.tariff.flexiblePayment')}
+                              </span>
                             );
                           })()}
                         </div>
@@ -1930,7 +1952,7 @@ export default function Subscription() {
                               }}
                               className="btn-primary flex-1 py-2 text-sm"
                             >
-                              Выбрать для продления
+                              {t('subscription.tariff.selectForRenewal')}
                             </button>
                           ) : canSwitch ? (
                             /* Other tariffs with existing tariff - switch button */
@@ -1998,7 +2020,7 @@ export default function Subscription() {
                       </span>
                     </div>
                     <div>
-                      <span className="text-dark-500">{t('subscription.servers')}:</span>
+                      <span className="text-dark-500">{t('subscription.serversLabel')}:</span>
                       <span className="ml-2 text-dark-200">{selectedTariff.servers_count}</span>
                     </div>
                   </div>
@@ -2168,7 +2190,7 @@ export default function Subscription() {
                           <div className="rounded-xl border border-dark-700/50 bg-dark-800/30 p-4">
                             <div className="mb-3 flex items-center justify-between">
                               <span className="font-medium text-dark-200">
-                                Произвольное кол-во дней
+                                {t('subscription.customDays.title')}
                               </span>
                               <button
                                 type="button"
@@ -2230,8 +2252,9 @@ export default function Subscription() {
                                   return (
                                     <div className="flex justify-between text-sm">
                                       <span className="text-dark-400">
-                                        {customDays} {pluralizeDays(customDays)} ×{' '}
-                                        {formatPrice(selectedTariff.price_per_day_kopeks ?? 0)}/день
+                                        {t('subscription.days', { count: customDays })} ×{' '}
+                                        {formatPrice(selectedTariff.price_per_day_kopeks ?? 0)}/
+                                        {t('subscription.customDays.perDay')}
                                       </span>
                                       <div className="flex items-center gap-2">
                                         <span className="font-medium text-accent-400">
@@ -2261,11 +2284,13 @@ export default function Subscription() {
                     {selectedTariff.custom_traffic_enabled &&
                       (selectedTariff.traffic_price_per_gb_kopeks ?? 0) > 0 && (
                         <div>
-                          <div className="mb-3 text-sm text-dark-400">Трафик</div>
+                          <div className="mb-3 text-sm text-dark-400">
+                            {t('subscription.customTraffic.label')}
+                          </div>
                           <div className="rounded-xl border border-dark-700/50 bg-dark-800/30 p-4">
                             <div className="mb-3 flex items-center justify-between">
                               <span className="font-medium text-dark-200">
-                                Выбрать объём трафика
+                                {t('subscription.customTraffic.selectVolume')}
                               </span>
                               <button
                                 type="button"
@@ -2283,7 +2308,9 @@ export default function Subscription() {
                             </div>
                             {!useCustomTraffic && (
                               <div className="text-sm text-dark-400">
-                                По умолчанию: {selectedTariff.traffic_limit_label}
+                                {t('subscription.customTraffic.default', {
+                                  label: selectedTariff.traffic_limit_label,
+                                })}
                               </div>
                             )}
                             {useCustomTraffic && (
@@ -2317,14 +2344,14 @@ export default function Subscription() {
                                       }
                                       className="w-20 rounded-lg border border-dark-600 bg-dark-700 px-3 py-2 text-center text-dark-100"
                                     />
-                                    <span className="text-dark-400">ГБ</span>
+                                    <span className="text-dark-400">{t('common.units.gb')}</span>
                                   </div>
                                 </div>
                                 <div className="flex justify-between text-sm">
                                   <span className="text-dark-400">
-                                    {customTrafficGb} ГБ ×{' '}
-                                    {formatPrice(selectedTariff.traffic_price_per_gb_kopeks ?? 0)}
-                                    /ГБ
+                                    {customTrafficGb} {t('common.units.gb')} ×{' '}
+                                    {formatPrice(selectedTariff.traffic_price_per_gb_kopeks ?? 0)}/
+                                    {t('common.units.gb')}
                                   </span>
                                   <span className="font-medium text-accent-400">
                                     +
@@ -2377,7 +2404,8 @@ export default function Subscription() {
                                 {useCustomDays ? (
                                   <div className="flex justify-between text-sm text-dark-300">
                                     <span>
-                                      Период: {customDays} {pluralizeDays(customDays)}
+                                      {t('subscription.stepPeriod')}:{' '}
+                                      {t('subscription.days', { count: customDays })}
                                     </span>
                                     <div className="flex items-center gap-2">
                                       <span>{formatPrice(promoPeriod.price)}</span>
@@ -2421,7 +2449,11 @@ export default function Subscription() {
                                         </>
                                       ) : (
                                         <div className="flex justify-between text-sm text-dark-300">
-                                          <span>Период: {selectedTariffPeriod.label}</span>
+                                          <span>
+                                            {t('subscription.summary.period', {
+                                              label: selectedTariffPeriod.label,
+                                            })}
+                                          </span>
                                           <div className="flex items-center gap-2">
                                             <span>{formatPrice(promoPeriod.price)}</span>
                                             {(hasExistingPeriodDiscount ||
@@ -2442,7 +2474,9 @@ export default function Subscription() {
                                 )}
                                 {useCustomTraffic && selectedTariff.custom_traffic_enabled && (
                                   <div className="flex justify-between text-sm text-dark-300">
-                                    <span>Трафик: {customTrafficGb} ГБ</span>
+                                    <span>
+                                      {t('subscription.summary.traffic', { gb: customTrafficGb })}
+                                    </span>
                                     <span>+{formatPrice(trafficPrice)}</span>
                                   </div>
                                 )}
@@ -2765,7 +2799,7 @@ export default function Subscription() {
                   </div>
                   <div className="mt-4 space-y-1 text-center text-sm text-dark-500">
                     <div className="text-accent-400">
-                      {selectedPeriod.devices.min} {t('subscription.devicesFree')}
+                      {t('subscription.devicesFree', { count: selectedPeriod.devices.min })}
                     </div>
                     {selectedPeriod.devices.max > selectedPeriod.devices.min && (
                       <div>

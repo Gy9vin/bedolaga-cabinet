@@ -234,7 +234,7 @@ export default function Contests() {
                 <div className="flex items-center gap-1 text-accent-400">
                   <TrophyIcon />
                   <span className="text-sm font-medium">
-                    +{contest.prize_days} {t('contests.days')}
+                    +{t('contests.days', { count: contest.prize_days })}
                   </span>
                 </div>
               </div>

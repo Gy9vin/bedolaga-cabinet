@@ -222,10 +222,10 @@ function TemplateEditor({
         queryKey: ['admin', 'email-template', detail.notification_type],
       });
       setIsDirty(false);
-      showToast('success', t('admin.emailTemplates.saved', 'Template saved'));
+      showToast('success', t('admin.emailTemplates.saved'));
     },
     onError: () => {
-      showToast('error', t('common.error', 'Error'));
+      showToast('error', t('common.error'));
     },
   });
 
@@ -238,10 +238,10 @@ function TemplateEditor({
         queryKey: ['admin', 'email-template', detail.notification_type],
       });
       setIsDirty(false);
-      showToast('success', t('admin.emailTemplates.resetted', 'Template reset to default'));
+      showToast('success', t('admin.emailTemplates.resetted'));
     },
     onError: () => {
-      showToast('error', t('common.error', 'Error'));
+      showToast('error', t('common.error'));
     },
   });
 
@@ -258,7 +258,7 @@ function TemplateEditor({
       setShowPreview(true);
     },
     onError: () => {
-      showToast('error', t('common.error', 'Error'));
+      showToast('error', t('common.error'));
     },
   });
 
@@ -269,13 +269,10 @@ function TemplateEditor({
         language: activeLang,
       }),
     onSuccess: (data) => {
-      showToast(
-        'success',
-        `${t('admin.emailTemplates.testSent', 'Test email sent')} → ${data.sent_to}`,
-      );
+      showToast('success', `${t('admin.emailTemplates.testSent')} → ${data.sent_to}`);
     },
     onError: () => {
-      showToast('error', t('common.error', 'Error'));
+      showToast('error', t('common.error'));
     },
   });
 
@@ -337,16 +334,7 @@ function TemplateEditor({
             <button
               key={lang}
               onClick={() => {
-                if (
-                  isDirty &&
-                  !window.confirm(
-                    t(
-                      'admin.emailTemplates.unsavedWarning',
-                      'Unsaved changes will be lost. Continue?',
-                    ),
-                  )
-                )
-                  return;
+                if (isDirty && !window.confirm(t('admin.emailTemplates.unsavedWarning'))) return;
                 setActiveLang(lang);
               }}
               className={`flex flex-1 items-center justify-center gap-1 whitespace-nowrap rounded-md px-2 py-2 text-xs font-medium transition-all duration-150 sm:gap-1.5 sm:px-3 sm:text-sm ${
@@ -368,14 +356,14 @@ function TemplateEditor({
       {/* Subject */}
       <div>
         <label className="mb-1.5 block text-xs font-medium text-dark-300">
-          {t('admin.emailTemplates.subject', 'Subject')}
+          {t('admin.emailTemplates.subject')}
         </label>
         <input
           type="text"
           value={editSubject}
           onChange={(e) => handleSubjectChange(e.target.value)}
           className="w-full rounded-lg border border-dark-600 bg-dark-900 px-3 py-2.5 text-sm text-dark-100 placeholder-dark-500 transition-colors focus:border-accent-500 focus:outline-none focus:ring-1 focus:ring-accent-500"
-          placeholder={t('admin.emailTemplates.subjectPlaceholder', 'Email subject line...')}
+          placeholder={t('admin.emailTemplates.subjectPlaceholder')}
         />
       </div>
 
@@ -383,14 +371,14 @@ function TemplateEditor({
       {detail.context_vars.length > 0 && (
         <div className="rounded-lg border border-dark-700 bg-dark-900/60 p-2.5 sm:p-3">
           <p className="mb-1.5 text-xs font-medium text-dark-300">
-            {t('admin.emailTemplates.variables', 'Available Variables')}
+            {t('admin.emailTemplates.variables')}
           </p>
           <div className="flex flex-wrap gap-1 sm:gap-1.5">
             {detail.context_vars.map((v) => (
               <code
                 key={v}
                 className="cursor-pointer rounded bg-dark-700 px-2 py-0.5 font-mono text-xs text-accent-400 transition-colors hover:bg-dark-600"
-                title={t('admin.emailTemplates.clickToCopy', 'Click to copy')}
+                title={t('admin.emailTemplates.clickToCopy')}
                 onClick={() => {
                   navigator.clipboard.writeText(`{${v}}`);
                   showToast('success', `Copied {${v}}`);
@@ -406,7 +394,7 @@ function TemplateEditor({
       {/* Body HTML editor */}
       <div>
         <label className="mb-1.5 block text-xs font-medium text-dark-300">
-          {t('admin.emailTemplates.body', 'Body (HTML)')}
+          {t('admin.emailTemplates.body')}
         </label>
         <textarea
           ref={textareaRef}
@@ -417,12 +405,7 @@ function TemplateEditor({
           placeholder="<h2>Title</h2><p>Content...</p>"
           spellCheck={false}
         />
-        <p className="mt-1 text-2xs text-dark-500">
-          {t(
-            'admin.emailTemplates.bodyHint',
-            'HTML content that will be wrapped in the base email template with header and footer.',
-          )}
-        </p>
+        <p className="mt-1 text-2xs text-dark-500">{t('admin.emailTemplates.bodyHint')}</p>
       </div>
 
       {/* Actions */}
@@ -434,7 +417,7 @@ function TemplateEditor({
             className="inline-flex items-center justify-center gap-1.5 rounded-lg bg-accent-500 px-3 py-2.5 text-sm font-medium text-white transition-colors hover:bg-accent-600 disabled:cursor-not-allowed disabled:opacity-40 sm:px-4 sm:py-2"
           >
             <SaveIcon />
-            {saveMutation.isPending ? t('common.loading', 'Loading...') : t('common.save', 'Save')}
+            {saveMutation.isPending ? t('common.loading') : t('common.save')}
           </button>
 
           <button
@@ -443,7 +426,7 @@ function TemplateEditor({
             className="inline-flex items-center justify-center gap-1.5 rounded-lg bg-dark-700 px-3 py-2.5 text-sm font-medium text-dark-200 transition-colors hover:bg-dark-600 disabled:opacity-40 sm:px-4 sm:py-2"
           >
             <EyeIcon />
-            {t('admin.emailTemplates.preview', 'Preview')}
+            {t('admin.emailTemplates.preview')}
           </button>
         </div>
 
@@ -454,22 +437,13 @@ function TemplateEditor({
             className="inline-flex items-center justify-center gap-1.5 rounded-lg bg-dark-700 px-3 py-2.5 text-sm font-medium text-dark-200 transition-colors hover:bg-dark-600 disabled:opacity-40 sm:px-4 sm:py-2"
           >
             <SendIcon />
-            {testMutation.isPending
-              ? t('common.loading', 'Loading...')
-              : t('admin.emailTemplates.sendTest', 'Send Test')}
+            {testMutation.isPending ? t('common.loading') : t('admin.emailTemplates.sendTest')}
           </button>
 
           {langData && !langData.is_default && (
             <button
               onClick={() => {
-                if (
-                  window.confirm(
-                    t(
-                      'admin.emailTemplates.resetConfirm',
-                      'Reset this template to the default version?',
-                    ),
-                  )
-                ) {
+                if (window.confirm(t('admin.emailTemplates.resetConfirm'))) {
                   resetMutation.mutate();
                 }
               }}
@@ -477,9 +451,7 @@ function TemplateEditor({
               className="inline-flex items-center justify-center gap-1.5 rounded-lg bg-dark-700 px-3 py-2.5 text-sm font-medium text-warning-400 transition-colors hover:bg-dark-600 disabled:opacity-40 sm:ml-auto sm:px-4 sm:py-2"
             >
               <ResetIcon />
-              <span className="truncate">
-                {t('admin.emailTemplates.resetDefault', 'Reset to Default')}
-              </span>
+              <span className="truncate">{t('admin.emailTemplates.resetDefault')}</span>
             </button>
           )}
         </div>
@@ -502,7 +474,7 @@ function TemplateEditor({
           <div className="flex max-h-[90vh] w-full flex-col rounded-t-2xl border border-dark-600 bg-dark-800 shadow-2xl sm:max-h-[85vh] sm:max-w-2xl sm:rounded-2xl">
             <div className="flex items-center justify-between border-b border-dark-700 px-4 py-3 sm:px-5 sm:py-4">
               <h3 className="text-base font-semibold text-dark-100">
-                {t('admin.emailTemplates.preview', 'Preview')}
+                {t('admin.emailTemplates.preview')}
               </h3>
               <button
                 onClick={() => setShowPreview(false)}
@@ -562,10 +534,10 @@ export default function AdminEmailTemplates() {
           </div>
           <div className="min-w-0">
             <h1 className="truncate text-lg font-bold text-dark-100 sm:text-xl">
-              {t('admin.emailTemplates.title', 'Email Templates')}
+              {t('admin.emailTemplates.title')}
             </h1>
             <p className="truncate text-xs text-dark-400">
-              {t('admin.emailTemplates.description', 'Manage email notification templates')}
+              {t('admin.emailTemplates.description')}
             </p>
           </div>
         </div>

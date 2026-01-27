@@ -112,33 +112,59 @@ const ChevronDownIcon = () => (
 );
 
 // Status badge component
+const statusConfig: Record<string, { bg: string; text: string; labelKey: string }> = {
+  queued: {
+    bg: 'bg-yellow-500/20',
+    text: 'text-yellow-400',
+    labelKey: 'admin.broadcasts.status.queued',
+  },
+  in_progress: {
+    bg: 'bg-blue-500/20',
+    text: 'text-blue-400',
+    labelKey: 'admin.broadcasts.status.inProgress',
+  },
+  completed: {
+    bg: 'bg-green-500/20',
+    text: 'text-green-400',
+    labelKey: 'admin.broadcasts.status.completed',
+  },
+  partial: {
+    bg: 'bg-orange-500/20',
+    text: 'text-orange-400',
+    labelKey: 'admin.broadcasts.status.partial',
+  },
+  failed: { bg: 'bg-red-500/20', text: 'text-red-400', labelKey: 'admin.broadcasts.status.failed' },
+  cancelled: {
+    bg: 'bg-gray-500/20',
+    text: 'text-gray-400',
+    labelKey: 'admin.broadcasts.status.cancelled',
+  },
+  cancelling: {
+    bg: 'bg-yellow-500/20',
+    text: 'text-yellow-400',
+    labelKey: 'admin.broadcasts.status.cancelling',
+  },
+};
+
 function StatusBadge({ status }: { status: string }) {
-  const statusConfig: Record<string, { bg: string; text: string; label: string }> = {
-    queued: { bg: 'bg-yellow-500/20', text: 'text-yellow-400', label: 'В очереди' },
-    in_progress: { bg: 'bg-blue-500/20', text: 'text-blue-400', label: 'Отправляется' },
-    completed: { bg: 'bg-green-500/20', text: 'text-green-400', label: 'Завершено' },
-    partial: { bg: 'bg-orange-500/20', text: 'text-orange-400', label: 'Частично' },
-    failed: { bg: 'bg-red-500/20', text: 'text-red-400', label: 'Ошибка' },
-    cancelled: { bg: 'bg-gray-500/20', text: 'text-gray-400', label: 'Отменено' },
-    cancelling: { bg: 'bg-yellow-500/20', text: 'text-yellow-400', label: 'Отменяется' },
-  };
+  const { t } = useTranslation();
   const config = statusConfig[status] || statusConfig.queued;
   return (
     <span className={`rounded-full px-2 py-1 text-xs font-medium ${config.bg} ${config.text}`}>
-      {config.label}
+      {t(config.labelKey)}
     </span>
   );
 }
 
-// Filter labels
-const FILTER_GROUP_LABELS: Record<string, string> = {
-  basic: 'Основные',
-  subscription: 'По подписке',
-  traffic: 'По трафику',
-  registration: 'По регистрации',
-  activity: 'По активности',
-  source: 'По источнику',
-  tariff: 'По тарифу',
+// Filter labels (labelKey pattern: store i18n keys, resolve at render time with t())
+const FILTER_GROUP_LABEL_KEYS: Record<string, string> = {
+  basic: 'admin.broadcasts.filterGroups.basic',
+  subscription: 'admin.broadcasts.filterGroups.subscription',
+  traffic: 'admin.broadcasts.filterGroups.traffic',
+  registration: 'admin.broadcasts.filterGroups.registration',
+  activity: 'admin.broadcasts.filterGroups.activity',
+  source: 'admin.broadcasts.filterGroups.source',
+  tariff: 'admin.broadcasts.filterGroups.tariff',
 };
 
 // Create broadcast modal
@@ -351,7 +377,9 @@ function CreateBroadcastModal({ onClose, onSuccess }: CreateModalProps) {
                     Object.entries(groupedFilters).map(([group, filters]) => (
                       <div key={group}>
                         <div className="sticky top-0 bg-dark-800 px-3 py-2 text-xs font-medium text-dark-400">
-                          {FILTER_GROUP_LABELS[group] || group}
+                          {FILTER_GROUP_LABEL_KEYS[group]
+                            ? t(FILTER_GROUP_LABEL_KEYS[group])
+                            : group}
                         </div>
                         {filters.map((filter) => (
                           <button
@@ -756,7 +784,7 @@ export default function AdminBroadcasts() {
                 disabled={page === 0}
                 className="rounded-lg bg-dark-700 px-3 py-1 text-dark-300 hover:bg-dark-600 disabled:cursor-not-allowed disabled:opacity-50"
               >
-                {t('common.prev')}
+                {t('admin.broadcasts.prev')}
               </button>
               <span className="text-dark-400">
                 {page + 1} / {totalPages}
@@ -766,7 +794,7 @@ export default function AdminBroadcasts() {
                 disabled={page >= totalPages - 1}
                 className="rounded-lg bg-dark-700 px-3 py-1 text-dark-300 hover:bg-dark-600 disabled:cursor-not-allowed disabled:opacity-50"
               >
-                {t('common.next')}
+                {t('admin.broadcasts.next')}
               </button>
             </div>
           )}

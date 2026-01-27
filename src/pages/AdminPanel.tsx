@@ -297,7 +297,7 @@ export default function AdminPanel() {
   const groups: AdminGroup[] = [
     {
       id: 'analytics',
-      title: t('admin.groups.analytics', 'Аналитика'),
+      title: t('admin.groups.analytics'),
       icon: <AnalyticsGroupIcon />,
       gradient: 'from-emerald-500/10 to-emerald-500/5',
       borderColor: 'border-emerald-500/20',
@@ -313,14 +313,14 @@ export default function AdminPanel() {
         {
           to: '/admin/payments',
           icon: <BanknotesIcon />,
-          title: t('admin.nav.payments', 'Платежи'),
-          description: t('admin.panel.paymentsDesc', 'История и проверка платежей'),
+          title: t('admin.nav.payments'),
+          description: t('admin.panel.paymentsDesc'),
         },
       ],
     },
     {
       id: 'users',
-      title: t('admin.groups.users', 'Пользователи'),
+      title: t('admin.groups.users'),
       icon: <UsersGroupIcon />,
       gradient: 'from-blue-500/10 to-blue-500/5',
       borderColor: 'border-blue-500/20',
@@ -330,8 +330,8 @@ export default function AdminPanel() {
         {
           to: '/admin/users',
           icon: <UsersIcon />,
-          title: t('admin.nav.users', 'Пользователи'),
-          description: t('admin.panel.usersDesc', 'Управление пользователями'),
+          title: t('admin.nav.users'),
+          description: t('admin.panel.usersDesc'),
         },
         {
           to: '/admin/tickets',
@@ -349,7 +349,7 @@ export default function AdminPanel() {
     },
     {
       id: 'tariffs',
-      title: t('admin.groups.tariffs', 'Тарифы и продажи'),
+      title: t('admin.groups.tariffs'),
       icon: <TariffsGroupIcon />,
       gradient: 'from-amber-500/10 to-amber-500/5',
       borderColor: 'border-amber-500/20',
@@ -365,26 +365,26 @@ export default function AdminPanel() {
         {
           to: '/admin/promocodes',
           icon: <TicketIcon />,
-          title: t('admin.nav.promocodes', 'Промокоды'),
-          description: t('admin.panel.promocodesDesc', 'Управление промокодами'),
+          title: t('admin.nav.promocodes'),
+          description: t('admin.panel.promocodesDesc'),
         },
         {
           to: '/admin/promo-offers',
           icon: <GiftIcon />,
-          title: t('admin.nav.promoOffers', 'Промопредложения'),
-          description: t('admin.panel.promoOffersDesc', 'Персональные скидки'),
+          title: t('admin.nav.promoOffers'),
+          description: t('admin.panel.promoOffersDesc'),
         },
         {
           to: '/admin/payment-methods',
           icon: <BanknotesIcon />,
-          title: t('admin.nav.paymentMethods', 'Платёжные методы'),
-          description: t('admin.panel.paymentMethodsDesc', 'Настройка и порядок платежек'),
+          title: t('admin.nav.paymentMethods'),
+          description: t('admin.panel.paymentMethodsDesc'),
         },
       ],
     },
     {
       id: 'marketing',
-      title: t('admin.groups.marketing', 'Маркетинг'),
+      title: t('admin.groups.marketing'),
       icon: <MarketingGroupIcon />,
       gradient: 'from-rose-500/10 to-rose-500/5',
       borderColor: 'border-rose-500/20',
@@ -394,8 +394,8 @@ export default function AdminPanel() {
         {
           to: '/admin/campaigns',
           icon: <MegaphoneIcon />,
-          title: t('admin.nav.campaigns', 'Кампании'),
-          description: t('admin.panel.campaignsDesc', 'Рекламные кампании'),
+          title: t('admin.nav.campaigns'),
+          description: t('admin.panel.campaignsDesc'),
         },
         {
           to: '/admin/broadcasts',
@@ -413,7 +413,7 @@ export default function AdminPanel() {
     },
     {
       id: 'system',
-      title: t('admin.groups.system', 'Система'),
+      title: t('admin.groups.system'),
       icon: <SystemGroupIcon />,
       gradient: 'from-violet-500/10 to-violet-500/5',
       borderColor: 'border-violet-500/20',
@@ -441,14 +441,14 @@ export default function AdminPanel() {
         {
           to: '/admin/remnawave',
           icon: <CubeTransparentIcon />,
-          title: t('admin.nav.remnawave', 'RemnaWave'),
-          description: t('admin.panel.remnawaveDesc', 'Управление панелью'),
+          title: t('admin.nav.remnawave'),
+          description: t('admin.panel.remnawaveDesc'),
         },
         {
           to: '/admin/email-templates',
           icon: <EnvelopeIcon />,
-          title: t('admin.nav.emailTemplates', 'Email-шаблоны'),
-          description: t('admin.panel.emailTemplatesDesc', 'Шаблоны email-уведомлений'),
+          title: t('admin.nav.emailTemplates'),
+          description: t('admin.panel.emailTemplatesDesc'),
         },
       ],
     },

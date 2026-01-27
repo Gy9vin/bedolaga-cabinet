@@ -139,22 +139,22 @@ export interface PromoOfferLogListResponse {
 
 // Target segments for broadcast
 export const TARGET_SEGMENTS = {
-  all: 'Все пользователи',
-  active: 'Активные подписчики',
-  trial: 'Триал пользователи',
-  trial_ending: 'Заканчивается триал',
-  expiring: 'Заканчивается подписка',
-  expired: 'Истекшая подписка',
-  zero: 'Нулевой баланс',
-  autopay_failed: 'Ошибка автоплатежа',
-  low_balance: 'Низкий баланс',
-  inactive_30d: 'Неактивны 30 дней',
-  inactive_60d: 'Неактивны 60 дней',
-  inactive_90d: 'Неактивны 90 дней',
-  custom_today: 'Зарегистрированы сегодня',
-  custom_week: 'Зарегистрированы за неделю',
-  custom_month: 'Зарегистрированы за месяц',
-  custom_active_today: 'Активны сегодня',
+  all: 'admin.promoOffers.segments.all',
+  active: 'admin.promoOffers.segments.active',
+  trial: 'admin.promoOffers.segments.trial',
+  trial_ending: 'admin.promoOffers.segments.trialEnding',
+  expiring: 'admin.promoOffers.segments.expiring',
+  expired: 'admin.promoOffers.segments.expired',
+  zero: 'admin.promoOffers.segments.zero',
+  autopay_failed: 'admin.promoOffers.segments.autopayFailed',
+  low_balance: 'admin.promoOffers.segments.lowBalance',
+  inactive_30d: 'admin.promoOffers.segments.inactive30d',
+  inactive_60d: 'admin.promoOffers.segments.inactive60d',
+  inactive_90d: 'admin.promoOffers.segments.inactive90d',
+  custom_today: 'admin.promoOffers.segments.customToday',
+  custom_week: 'admin.promoOffers.segments.customWeek',
+  custom_month: 'admin.promoOffers.segments.customMonth',
+  custom_active_today: 'admin.promoOffers.segments.customActiveToday',
 } as const;
 
 export type TargetSegment = keyof typeof TARGET_SEGMENTS;
@@ -163,21 +163,21 @@ export type TargetSegment = keyof typeof TARGET_SEGMENTS;
 export const OFFER_TYPE_CONFIG = {
   test_access: {
     icon: '🧪',
-    label: 'Тестовый доступ',
+    labelKey: 'admin.promoOffers.offerType.testAccess',
     effect: 'test_access',
-    description: 'Временный доступ к дополнительным серверам',
+    descriptionKey: 'admin.promoOffers.offerType.testAccessDesc',
   },
   extend_discount: {
     icon: '💎',
-    label: 'Скидка на продление',
+    labelKey: 'admin.promoOffers.offerType.extendDiscount',
     effect: 'percent_discount',
-    description: 'Скидка для текущих подписчиков',
+    descriptionKey: 'admin.promoOffers.offerType.extendDiscountDesc',
   },
   purchase_discount: {
     icon: '🎯',
-    label: 'Скидка на покупку',
+    labelKey: 'admin.promoOffers.offerType.purchaseDiscount',
     effect: 'percent_discount',
-    description: 'Скидка для новых пользователей',
+    descriptionKey: 'admin.promoOffers.offerType.purchaseDiscountDesc',
   },
 } as const;
 

@@ -189,7 +189,7 @@ export default function Support() {
         file,
         preview: '',
         uploading: false,
-        error: t('support.invalidFileType') || 'Invalid file type. Use JPEG, PNG, GIF, or WebP.',
+        error: t('support.invalidFileType'),
       });
       return;
     }
@@ -200,7 +200,7 @@ export default function Support() {
         file,
         preview: '',
         uploading: false,
-        error: t('support.fileTooLarge') || 'File is too large. Maximum size is 10MB.',
+        error: t('support.fileTooLarge'),
       });
       return;
     }
@@ -222,7 +222,7 @@ export default function Support() {
         file,
         preview,
         uploading: false,
-        error: t('support.uploadFailed') || 'Failed to upload image',
+        error: t('support.uploadFailed'),
       });
     }
   };
@@ -551,10 +551,7 @@ export default function Support() {
                   // Rate limit: max 3 tickets per 60 seconds
                   if (!checkRateLimit(RATE_LIMIT_KEYS.TICKET_CREATE, 3, 60000)) {
                     const resetTime = getRateLimitResetTime(RATE_LIMIT_KEYS.TICKET_CREATE);
-                    setRateLimitError(
-                      t('support.tooManyRequests', { seconds: resetTime }) ||
-                        `Слишком много запросов. Подождите ${resetTime} сек.`,
-                    );
+                    setRateLimitError(t('support.tooManyRequests', { seconds: resetTime }));
                     return;
                   }
                   createMutation.mutate();
@@ -716,10 +713,7 @@ export default function Support() {
                     // Rate limit: max 5 replies per 30 seconds
                     if (!checkRateLimit(RATE_LIMIT_KEYS.TICKET_REPLY, 5, 30000)) {
                       const resetTime = getRateLimitResetTime(RATE_LIMIT_KEYS.TICKET_REPLY);
-                      setRateLimitError(
-                        t('support.tooManyRequests', { seconds: resetTime }) ||
-                          `Слишком много запросов. Подождите ${resetTime} сек.`,
-                      );
+                      setRateLimitError(t('support.tooManyRequests', { seconds: resetTime }));
                       return;
                     }
                     replyMutation.mutate();

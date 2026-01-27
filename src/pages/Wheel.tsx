@@ -560,8 +560,8 @@ export default function Wheel() {
                     >
                       <CalendarIcon />
                       <span className="font-semibold">
-                        {t('wheel.payWithDays')} ({config.spin_cost_days}{' '}
-                        {config.spin_cost_days === 1 ? t('wheel.day') : t('wheel.days')})
+                        {t('wheel.payWithDays')} (
+                        {t('wheel.days', { count: config.spin_cost_days ?? 0 })})
                       </span>
                     </button>
                   )}
@@ -603,8 +603,7 @@ export default function Wheel() {
                       >
                         <CalendarIcon />
                         <span className="font-semibold">
-                          {config.spin_cost_days}{' '}
-                          {config.spin_cost_days === 1 ? t('wheel.day') : t('wheel.days')}
+                          {t('wheel.days', { count: config.spin_cost_days ?? 0 })}
                         </span>
                       </button>
                     )}

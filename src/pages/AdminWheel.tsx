@@ -471,7 +471,7 @@ export default function AdminWheel() {
                   <div key={i} className="flex items-center justify-between">
                     <span className="text-dark-300">{prize.display_name}</span>
                     <span className="text-dark-100">
-                      {prize.count} {t('admin.wheel.statistics.times')}
+                      {t('admin.wheel.statistics.times', { count: prize.count })}
                     </span>
                   </div>
                 ))}

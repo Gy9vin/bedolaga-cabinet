@@ -100,11 +100,12 @@ interface TariffTypeSelectProps {
 }
 
 function TariffTypeSelect({ onSelect, onClose }: TariffTypeSelectProps) {
+  const { t } = useTranslation();
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
       <div className="w-full max-w-md overflow-hidden rounded-xl bg-dark-800">
         <div className="flex items-center justify-between border-b border-dark-700 p-4">
-          <h2 className="text-lg font-semibold text-dark-100">Выберите тип тарифа</h2>
+          <h2 className="text-lg font-semibold text-dark-100">{t('admin.tariffs.selectType')}</h2>
           <button onClick={onClose} className="rounded-lg p-1 transition-colors hover:bg-dark-700">
             <XIcon />
           </button>
@@ -119,10 +120,8 @@ function TariffTypeSelect({ onSelect, onClose }: TariffTypeSelectProps) {
                 <CalendarIcon />
               </div>
               <div>
-                <h3 className="font-medium text-dark-100">Периодный тариф</h3>
-                <p className="mt-1 text-sm text-dark-400">
-                  Оплата за период (7, 30, 90 дней и т.д.). Произвольные периоды и цены.
-                </p>
+                <h3 className="font-medium text-dark-100">{t('admin.tariffs.periodTariff')}</h3>
+                <p className="mt-1 text-sm text-dark-400">{t('admin.tariffs.periodTariffDesc')}</p>
               </div>
             </div>
           </button>
@@ -135,10 +134,8 @@ function TariffTypeSelect({ onSelect, onClose }: TariffTypeSelectProps) {
                 <SunIcon />
               </div>
               <div>
-                <h3 className="font-medium text-dark-100">Суточный тариф</h3>
-                <p className="mt-1 text-sm text-dark-400">
-                  Ежедневное списание с баланса. Можно ставить на паузу.
-                </p>
+                <h3 className="font-medium text-dark-100">{t('admin.tariffs.dailyTariff')}</h3>
+                <p className="mt-1 text-sm text-dark-400">{t('admin.tariffs.dailyTariffDesc')}</p>
               </div>
             </div>
           </button>
@@ -164,6 +161,7 @@ function PeriodTariffModal({
   onClose,
   isLoading,
 }: PeriodTariffModalProps) {
+  const { t } = useTranslation();
   const isEdit = !!tariff;
 
   const [name, setName] = useState(tariff?.name || '');
@@ -286,9 +284,9 @@ function PeriodTariffModal({
             </div>
             <div>
               <h2 className="text-lg font-semibold text-dark-100">
-                {isEdit ? 'Редактирование тарифа' : 'Новый периодный тариф'}
+                {isEdit ? t('admin.tariffs.editTitle') : t('admin.tariffs.newPeriodTitle')}
               </h2>
-              <p className="text-xs text-dark-500">Оплата за период</p>
+              <p className="text-xs text-dark-500">{t('admin.tariffs.periodPayment')}</p>
             </div>
           </div>
           <button onClick={onClose} className="rounded-lg p-1 transition-colors hover:bg-dark-700">
@@ -308,10 +306,10 @@ function PeriodTariffModal({
                   : 'text-dark-400 hover:text-dark-200'
               }`}
             >
-              {tab === 'basic' && 'Основное'}
-              {tab === 'periods' && 'Периоды'}
-              {tab === 'servers' && 'Серверы'}
-              {tab === 'extra' && 'Дополнительно'}
+              {tab === 'basic' && t('admin.tariffs.tabBasic')}
+              {tab === 'periods' && t('admin.tariffs.tabPeriods')}
+              {tab === 'servers' && t('admin.tariffs.tabServers')}
+              {tab === 'extra' && t('admin.tariffs.tabExtra')}
             </button>
           ))}
         </div>
@@ -322,31 +320,37 @@ function PeriodTariffModal({
             <div className="space-y-4">
               {/* Name */}
               <div>
-                <label className="mb-1 block text-sm text-dark-300">Название тарифа</label>
+                <label className="mb-1 block text-sm text-dark-300">
+                  {t('admin.tariffs.nameLabel')}
+                </label>
                 <input
                   type="text"
                   value={name}
                   onChange={(e) => setName(e.target.value)}
                   className="w-full rounded-lg border border-dark-600 bg-dark-700 px-3 py-2 text-dark-100 focus:border-accent-500 focus:outline-none"
-                  placeholder="Например: Стандарт"
+                  placeholder={t('admin.tariffs.nameExamplePeriod')}
                 />
               </div>
 
               {/* Description */}
               <div>
-                <label className="mb-1 block text-sm text-dark-300">Описание</label>
+                <label className="mb-1 block text-sm text-dark-300">
+                  {t('admin.tariffs.descriptionLabel')}
+                </label>
                 <textarea
                   value={description}
                   onChange={(e) => setDescription(e.target.value)}
                   className="w-full resize-none rounded-lg border border-dark-600 bg-dark-700 px-3 py-2 text-dark-100 focus:border-accent-500 focus:outline-none"
                   rows={2}
-                  placeholder="Краткое описание тарифа"
+                  placeholder={t('admin.tariffs.descriptionPlaceholder')}
                 />
               </div>
 
               {/* Traffic Limit */}
               <div>
-                <label className="mb-1 block text-sm text-dark-300">Лимит трафика</label>
+                <label className="mb-1 block text-sm text-dark-300">
+                  {t('admin.tariffs.trafficLimitLabel')}
+                </label>
                 <div className="flex items-center gap-2">
                   <input
                     type="number"
@@ -355,20 +359,22 @@ function PeriodTariffModal({
                     className="w-32 rounded-lg border border-dark-600 bg-dark-700 px-3 py-2 text-dark-100 focus:border-accent-500 focus:outline-none"
                     min={0}
                   />
-                  <span className="text-dark-400">ГБ</span>
+                  <span className="text-dark-400">{t('admin.tariffs.gbUnit')}</span>
                   {trafficLimitGb === 0 && (
                     <span className="flex items-center gap-1 text-sm text-success-500">
                       <InfinityIcon />
-                      Безлимит
+                      {t('admin.tariffs.unlimited')}
                     </span>
                   )}
                 </div>
-                <p className="mt-1 text-xs text-dark-500">0 = безлимитный трафик</p>
+                <p className="mt-1 text-xs text-dark-500">{t('admin.tariffs.trafficLimitHint')}</p>
               </div>
 
               {/* Device Limit */}
               <div>
-                <label className="mb-1 block text-sm text-dark-300">Устройств в тарифе</label>
+                <label className="mb-1 block text-sm text-dark-300">
+                  {t('admin.tariffs.deviceLimitLabel')}
+                </label>
                 <input
                   type="number"
                   value={deviceLimit}
@@ -380,7 +386,9 @@ function PeriodTariffModal({
 
               {/* Tier Level */}
               <div>
-                <label className="mb-1 block text-sm text-dark-300">Уровень тарифа</label>
+                <label className="mb-1 block text-sm text-dark-300">
+                  {t('admin.tariffs.tierLevelLabel')}
+                </label>
                 <input
                   type="number"
                   value={tierLevel}
@@ -391,26 +399,25 @@ function PeriodTariffModal({
                   min={1}
                   max={10}
                 />
-                <p className="mt-1 text-xs text-dark-500">
-                  Влияет на доступность перехода между тарифами
-                </p>
+                <p className="mt-1 text-xs text-dark-500">{t('admin.tariffs.tierLevelHint')}</p>
               </div>
             </div>
           )}
 
           {activeTab === 'periods' && (
             <div className="space-y-4">
-              <p className="text-sm text-dark-400">
-                Добавьте периоды и цены для тарифа. Пользователи смогут выбирать из добавленных
-                периодов.
-              </p>
+              <p className="text-sm text-dark-400">{t('admin.tariffs.periodsTabHint')}</p>
 
               {/* Add new period */}
               <div className="rounded-lg border border-dashed border-dark-600 bg-dark-700/50 p-4">
-                <h4 className="mb-3 text-sm font-medium text-dark-300">Добавить период</h4>
+                <h4 className="mb-3 text-sm font-medium text-dark-300">
+                  {t('admin.tariffs.addPeriodTitle')}
+                </h4>
                 <div className="flex flex-wrap items-end gap-3">
                   <div>
-                    <label className="mb-1 block text-xs text-dark-500">Дней</label>
+                    <label className="mb-1 block text-xs text-dark-500">
+                      {t('admin.tariffs.daysLabel')}
+                    </label>
                     <input
                       type="number"
                       value={newPeriodDays}
@@ -420,7 +427,9 @@ function PeriodTariffModal({
                     />
                   </div>
                   <div>
-                    <label className="mb-1 block text-xs text-dark-500">Цена (₽)</label>
+                    <label className="mb-1 block text-xs text-dark-500">
+                      {t('admin.tariffs.priceLabel')}
+                    </label>
                     <input
                       type="number"
                       value={newPeriodPrice}
@@ -437,7 +446,7 @@ function PeriodTariffModal({
                     className="flex items-center gap-2 rounded-lg bg-accent-500 px-4 py-2 text-white transition-colors hover:bg-accent-600 disabled:cursor-not-allowed disabled:opacity-50"
                   >
                     <PlusIcon />
-                    Добавить
+                    {t('admin.tariffs.addButton')}
                   </button>
                 </div>
               </div>
@@ -445,7 +454,7 @@ function PeriodTariffModal({
               {/* Period list */}
               {periodPrices.length === 0 ? (
                 <div className="py-8 text-center text-dark-500">
-                  Нет добавленных периодов. Добавьте хотя бы один период.
+                  {t('admin.tariffs.noPeriodsHint')}
                 </div>
               ) : (
                 <div className="space-y-2">
@@ -454,7 +463,9 @@ function PeriodTariffModal({
                       key={period.days}
                       className="flex items-center gap-3 rounded-lg bg-dark-700/50 p-3"
                     >
-                      <div className="w-20 font-medium text-dark-300">{period.days} дн.</div>
+                      <div className="w-20 font-medium text-dark-300">
+                        {period.days} {t('admin.tariffs.daysShort')}
+                      </div>
                       <input
                         type="number"
                         value={period.price_kopeks / 100}
@@ -485,11 +496,11 @@ function PeriodTariffModal({
 
           {activeTab === 'servers' && (
             <div className="space-y-2">
-              <p className="mb-4 text-sm text-dark-400">
-                Выберите серверы, доступные на этом тарифе.
-              </p>
+              <p className="mb-4 text-sm text-dark-400">{t('admin.tariffs.serversTabHint')}</p>
               {servers.length === 0 ? (
-                <p className="py-4 text-center text-dark-500">Нет доступных серверов</p>
+                <p className="py-4 text-center text-dark-500">
+                  {t('admin.tariffs.noServersAvailable')}
+                </p>
               ) : (
                 servers.map((server) => {
                   const isSelected = selectedSquads.includes(server.squad_uuid);
@@ -527,11 +538,13 @@ function PeriodTariffModal({
             <div className="space-y-6">
               {/* Докупка устройств */}
               <div className="rounded-lg bg-dark-700/50 p-4">
-                <h4 className="mb-3 text-sm font-medium text-dark-200">Докупка устройств</h4>
+                <h4 className="mb-3 text-sm font-medium text-dark-200">
+                  {t('admin.tariffs.extraDeviceTitle')}
+                </h4>
                 <div className="space-y-3">
                   <div className="flex items-center gap-3">
                     <span className="w-48 text-sm text-dark-400">
-                      Цена за устройство (30 дней):
+                      {t('admin.tariffs.devicePriceLabel')}
                     </span>
                     <input
                       type="number"
@@ -545,9 +558,11 @@ function PeriodTariffModal({
                     />
                     <span className="text-dark-400">₽</span>
                   </div>
-                  <p className="text-xs text-dark-500">0 = докупка недоступна</p>
+                  <p className="text-xs text-dark-500">{t('admin.tariffs.devicePriceHint')}</p>
                   <div className="flex items-center gap-3">
-                    <span className="w-48 text-sm text-dark-400">Макс. устройств на тарифе:</span>
+                    <span className="w-48 text-sm text-dark-400">
+                      {t('admin.tariffs.maxDeviceLabel')}
+                    </span>
                     <input
                       type="number"
                       value={maxDeviceLimit}
@@ -558,14 +573,16 @@ function PeriodTariffModal({
                       min={0}
                     />
                   </div>
-                  <p className="text-xs text-dark-500">0 = без ограничений</p>
+                  <p className="text-xs text-dark-500">{t('admin.tariffs.noLimitHint')}</p>
                 </div>
               </div>
 
               {/* Докупка трафика */}
               <div className="rounded-lg bg-dark-700/50 p-4">
                 <div className="mb-3 flex items-center justify-between">
-                  <h4 className="text-sm font-medium text-dark-200">Докупка трафика</h4>
+                  <h4 className="text-sm font-medium text-dark-200">
+                    {t('admin.tariffs.extraTrafficTitle')}
+                  </h4>
                   <button
                     type="button"
                     onClick={() => setTrafficTopupEnabled(!trafficTopupEnabled)}
@@ -583,7 +600,9 @@ function PeriodTariffModal({
                 {trafficTopupEnabled && (
                   <div className="space-y-3">
                     <div className="flex items-center gap-3">
-                      <span className="w-32 text-sm text-dark-400">Макс. лимит:</span>
+                      <span className="w-32 text-sm text-dark-400">
+                        {t('admin.tariffs.trafficMaxLimitLabel')}
+                      </span>
                       <input
                         type="number"
                         value={maxTopupTrafficGb}
@@ -593,15 +612,21 @@ function PeriodTariffModal({
                         className="w-24 rounded-lg border border-dark-500 bg-dark-600 px-3 py-2 text-dark-100 focus:border-accent-500 focus:outline-none"
                         min={0}
                       />
-                      <span className="text-dark-400">ГБ</span>
-                      <span className="text-xs text-dark-500">(0 = без ограничений)</span>
+                      <span className="text-dark-400">{t('admin.tariffs.gbUnit')}</span>
+                      <span className="text-xs text-dark-500">
+                        {t('admin.tariffs.trafficLimitHint2')}
+                      </span>
                     </div>
                     <div className="mt-3">
-                      <span className="text-sm text-dark-400">Пакеты трафика:</span>
+                      <span className="text-sm text-dark-400">
+                        {t('admin.tariffs.trafficPackagesLabel')}
+                      </span>
                       <div className="mt-2 grid grid-cols-2 gap-2">
                         {[5, 10, 20, 50].map((gb) => (
                           <div key={gb} className="flex items-center gap-2">
-                            <span className="w-12 text-sm text-dark-300">{gb} ГБ:</span>
+                            <span className="w-12 text-sm text-dark-300">
+                              {gb} {t('admin.tariffs.gbPackageUnit')}
+                            </span>
                             <input
                               type="number"
                               value={(trafficTopupPackages[String(gb)] || 0) / 100}
@@ -630,10 +655,10 @@ function PeriodTariffModal({
                 <div className="mb-3 flex items-center justify-between">
                   <div>
                     <h4 className="text-sm font-medium text-dark-200">
-                      Произвольное количество дней
+                      {t('admin.tariffs.customDaysTitle')}
                     </h4>
                     <p className="mt-1 text-xs text-dark-500">
-                      Пользователь сам выбирает срок подписки
+                      {t('admin.tariffs.customDaysDesc')}
                     </p>
                   </div>
                   <button
@@ -653,7 +678,9 @@ function PeriodTariffModal({
                 {customDaysEnabled && (
                   <div className="space-y-3 border-t border-dark-600 pt-2">
                     <div className="flex items-center gap-3">
-                      <span className="w-32 text-sm text-dark-400">Цена за день:</span>
+                      <span className="w-32 text-sm text-dark-400">
+                        {t('admin.tariffs.pricePerDayLabel')}
+                      </span>
                       <input
                         type="number"
                         value={pricePerDayKopeks / 100}
@@ -667,7 +694,9 @@ function PeriodTariffModal({
                       <span className="text-dark-400">₽</span>
                     </div>
                     <div className="flex items-center gap-3">
-                      <span className="w-32 text-sm text-dark-400">Мин. дней:</span>
+                      <span className="w-32 text-sm text-dark-400">
+                        {t('admin.tariffs.minDaysLabel')}
+                      </span>
                       <input
                         type="number"
                         value={minDays}
@@ -677,7 +706,9 @@ function PeriodTariffModal({
                       />
                     </div>
                     <div className="flex items-center gap-3">
-                      <span className="w-32 text-sm text-dark-400">Макс. дней:</span>
+                      <span className="w-32 text-sm text-dark-400">
+                        {t('admin.tariffs.maxDaysLabel')}
+                      </span>
                       <input
                         type="number"
                         value={maxDays}
@@ -695,10 +726,10 @@ function PeriodTariffModal({
                 <div className="mb-3 flex items-center justify-between">
                   <div>
                     <h4 className="text-sm font-medium text-dark-200">
-                      Произвольный объём трафика
+                      {t('admin.tariffs.customTrafficTitle')}
                     </h4>
                     <p className="mt-1 text-xs text-dark-500">
-                      Пользователь сам выбирает объём трафика при покупке
+                      {t('admin.tariffs.customTrafficDesc')}
                     </p>
                   </div>
                   <button
@@ -718,7 +749,9 @@ function PeriodTariffModal({
                 {customTrafficEnabled && (
                   <div className="space-y-3 border-t border-dark-600 pt-2">
                     <div className="flex items-center gap-3">
-                      <span className="w-32 text-sm text-dark-400">Цена за 1 ГБ:</span>
+                      <span className="w-32 text-sm text-dark-400">
+                        {t('admin.tariffs.pricePerGbLabel')}
+                      </span>
                       <input
                         type="number"
                         value={trafficPricePerGbKopeks / 100}
@@ -734,7 +767,9 @@ function PeriodTariffModal({
                       <span className="text-dark-400">₽</span>
                     </div>
                     <div className="flex items-center gap-3">
-                      <span className="w-32 text-sm text-dark-400">Мин. ГБ:</span>
+                      <span className="w-32 text-sm text-dark-400">
+                        {t('admin.tariffs.minTrafficLabel')}
+                      </span>
                       <input
                         type="number"
                         value={minTrafficGb}
@@ -746,7 +781,9 @@ function PeriodTariffModal({
                       />
                     </div>
                     <div className="flex items-center gap-3">
-                      <span className="w-32 text-sm text-dark-400">Макс. ГБ:</span>
+                      <span className="w-32 text-sm text-dark-400">
+                        {t('admin.tariffs.maxTrafficLabel')}
+                      </span>
                       <input
                         type="number"
                         value={maxTrafficGb}
@@ -763,21 +800,44 @@ function PeriodTariffModal({
 
               {/* Режим сброса трафика */}
               <div className="rounded-lg bg-dark-700/50 p-4">
-                <h4 className="mb-3 text-sm font-medium text-dark-200">Режим сброса трафика</h4>
+                <h4 className="mb-3 text-sm font-medium text-dark-200">
+                  {t('admin.tariffs.trafficResetModeTitle')}
+                </h4>
                 <p className="mb-3 text-xs text-dark-500">
-                  Определяет, когда сбрасывается использованный трафик у подписчиков этого тарифа
+                  {t('admin.tariffs.trafficResetModeDesc')}
                 </p>
                 <div className="space-y-2">
                   {[
                     {
                       value: null,
-                      label: '🌐 Глобальная настройка',
-                      desc: 'Использовать значение из конфига бота',
+                      labelKey: 'admin.tariffs.resetModeGlobal',
+                      descKey: 'admin.tariffs.resetModeGlobalDesc',
+                      emoji: '🌐',
                     },
-                    { value: 'DAY', label: '📅 Ежедневно', desc: 'Сброс каждый день' },
-                    { value: 'WEEK', label: '📆 Еженедельно', desc: 'Сброс каждую неделю' },
-                    { value: 'MONTH', label: '🗓️ Ежемесячно', desc: 'Сброс каждый месяц' },
-                    { value: 'NO_RESET', label: '🚫 Никогда', desc: 'Трафик не сбрасывается' },
+                    {
+                      value: 'DAY',
+                      labelKey: 'admin.tariffs.resetModeDaily',
+                      descKey: 'admin.tariffs.resetModeDailyDesc',
+                      emoji: '📅',
+                    },
+                    {
+                      value: 'WEEK',
+                      labelKey: 'admin.tariffs.resetModeWeekly',
+                      descKey: 'admin.tariffs.resetModeWeeklyDesc',
+                      emoji: '📆',
+                    },
+                    {
+                      value: 'MONTH',
+                      labelKey: 'admin.tariffs.resetModeMonthly',
+                      descKey: 'admin.tariffs.resetModeMonthlyDesc',
+                      emoji: '🗓️',
+                    },
+                    {
+                      value: 'NO_RESET',
+                      labelKey: 'admin.tariffs.resetModeNever',
+                      descKey: 'admin.tariffs.resetModeNeverDesc',
+                      emoji: '🚫',
+                    },
                   ].map((option) => (
                     <button
                       key={option.value || 'global'}
@@ -791,8 +851,10 @@ function PeriodTariffModal({
                     >
                       <div className="flex items-center justify-between">
                         <div>
-                          <span className="text-sm text-dark-100">{option.label}</span>
-                          <p className="mt-0.5 text-xs text-dark-400">{option.desc}</p>
+                          <span className="text-sm text-dark-100">
+                            {option.emoji} {t(option.labelKey)}
+                          </span>
+                          <p className="mt-0.5 text-xs text-dark-400">{t(option.descKey)}</p>
                         </div>
                         {trafficResetMode === option.value && (
                           <span className="text-accent-400">
@@ -814,14 +876,14 @@ function PeriodTariffModal({
             onClick={onClose}
             className="px-4 py-2 text-dark-300 transition-colors hover:text-dark-100"
           >
-            Отмена
+            {t('admin.tariffs.cancelButton')}
           </button>
           <button
             onClick={handleSubmit}
             disabled={!name || (periodPrices.length === 0 && !customDaysEnabled) || isLoading}
             className="rounded-lg bg-accent-500 px-4 py-2 text-white transition-colors hover:bg-accent-600 disabled:cursor-not-allowed disabled:opacity-50"
           >
-            {isLoading ? 'Сохранение...' : 'Сохранить'}
+            {isLoading ? t('admin.tariffs.savingButton') : t('admin.tariffs.saveButton')}
           </button>
         </div>
       </div>
@@ -839,6 +901,7 @@ interface DailyTariffModalProps {
 }
 
 function DailyTariffModal({ tariff, servers, onSave, onClose, isLoading }: DailyTariffModalProps) {
+  const { t } = useTranslation();
   const isEdit = !!tariff;
 
   const [name, setName] = useState(tariff?.name || '');
@@ -904,9 +967,9 @@ function DailyTariffModal({ tariff, servers, onSave, onClose, isLoading }: Daily
             </div>
             <div>
               <h2 className="text-lg font-semibold text-dark-100">
-                {isEdit ? 'Редактирование тарифа' : 'Новый суточный тариф'}
+                {isEdit ? t('admin.tariffs.editTitle') : t('admin.tariffs.newDailyTitle')}
               </h2>
-              <p className="text-xs text-dark-500">Ежедневное списание</p>
+              <p className="text-xs text-dark-500">{t('admin.tariffs.dailyDeduction')}</p>
             </div>
           </div>
           <button onClick={onClose} className="rounded-lg p-1 transition-colors hover:bg-dark-700">
@@ -926,9 +989,9 @@ function DailyTariffModal({ tariff, servers, onSave, onClose, isLoading }: Daily
                   : 'text-dark-400 hover:text-dark-200'
               }`}
             >
-              {tab === 'basic' && 'Основное'}
-              {tab === 'servers' && 'Серверы'}
-              {tab === 'extra' && 'Дополнительно'}
+              {tab === 'basic' && t('admin.tariffs.tabBasic')}
+              {tab === 'servers' && t('admin.tariffs.tabServers')}
+              {tab === 'extra' && t('admin.tariffs.tabExtra')}
             </button>
           ))}
         </div>
@@ -939,32 +1002,36 @@ function DailyTariffModal({ tariff, servers, onSave, onClose, isLoading }: Daily
             <div className="space-y-4">
               {/* Name */}
               <div>
-                <label className="mb-1 block text-sm text-dark-300">Название тарифа</label>
+                <label className="mb-1 block text-sm text-dark-300">
+                  {t('admin.tariffs.nameLabel')}
+                </label>
                 <input
                   type="text"
                   value={name}
                   onChange={(e) => setName(e.target.value)}
                   className="w-full rounded-lg border border-dark-600 bg-dark-700 px-3 py-2 text-dark-100 focus:border-amber-500 focus:outline-none"
-                  placeholder="Например: Суточный"
+                  placeholder={t('admin.tariffs.nameExampleDaily')}
                 />
               </div>
 
               {/* Description */}
               <div>
-                <label className="mb-1 block text-sm text-dark-300">Описание</label>
+                <label className="mb-1 block text-sm text-dark-300">
+                  {t('admin.tariffs.descriptionLabel')}
+                </label>
                 <textarea
                   value={description}
                   onChange={(e) => setDescription(e.target.value)}
                   className="w-full resize-none rounded-lg border border-dark-600 bg-dark-700 px-3 py-2 text-dark-100 focus:border-amber-500 focus:outline-none"
                   rows={2}
-                  placeholder="Краткое описание тарифа"
+                  placeholder={t('admin.tariffs.descriptionPlaceholder')}
                 />
               </div>
 
               {/* Daily Price */}
               <div className="rounded-lg border border-amber-500/30 bg-amber-500/10 p-4">
                 <label className="mb-2 block text-sm font-medium text-amber-400">
-                  Цена за день
+                  {t('admin.tariffs.dailyPriceLabel')}
                 </label>
                 <div className="flex items-center gap-2">
                   <input
@@ -977,16 +1044,18 @@ function DailyTariffModal({ tariff, servers, onSave, onClose, isLoading }: Daily
                     min={0}
                     step={0.1}
                   />
-                  <span className="text-dark-400">₽/день</span>
+                  <span className="text-dark-400">{t('admin.tariffs.currencyPerDay')}</span>
                 </div>
                 <p className="mt-2 text-xs text-dark-500">
-                  Списывается ежедневно с баланса пользователя
+                  {t('admin.tariffs.dailyDeductionDesc')}
                 </p>
               </div>
 
               {/* Traffic Limit */}
               <div>
-                <label className="mb-1 block text-sm text-dark-300">Лимит трафика</label>
+                <label className="mb-1 block text-sm text-dark-300">
+                  {t('admin.tariffs.trafficLimitLabel')}
+                </label>
                 <div className="flex items-center gap-2">
                   <input
                     type="number"
@@ -995,11 +1064,11 @@ function DailyTariffModal({ tariff, servers, onSave, onClose, isLoading }: Daily
                     className="w-32 rounded-lg border border-dark-600 bg-dark-700 px-3 py-2 text-dark-100 focus:border-amber-500 focus:outline-none"
                     min={0}
                   />
-                  <span className="text-dark-400">ГБ</span>
+                  <span className="text-dark-400">{t('admin.tariffs.gbUnit')}</span>
                   {trafficLimitGb === 0 && (
                     <span className="flex items-center gap-1 text-sm text-success-500">
                       <InfinityIcon />
-                      Безлимит
+                      {t('admin.tariffs.unlimited')}
                     </span>
                   )}
                 </div>
@@ -1007,7 +1076,9 @@ function DailyTariffModal({ tariff, servers, onSave, onClose, isLoading }: Daily
 
               {/* Device Limit */}
               <div>
-                <label className="mb-1 block text-sm text-dark-300">Устройств в тарифе</label>
+                <label className="mb-1 block text-sm text-dark-300">
+                  {t('admin.tariffs.deviceLimitLabel')}
+                </label>
                 <input
                   type="number"
                   value={deviceLimit}
@@ -1019,7 +1090,9 @@ function DailyTariffModal({ tariff, servers, onSave, onClose, isLoading }: Daily
 
               {/* Tier Level */}
               <div>
-                <label className="mb-1 block text-sm text-dark-300">Уровень тарифа</label>
+                <label className="mb-1 block text-sm text-dark-300">
+                  {t('admin.tariffs.tierLevelLabel')}
+                </label>
                 <input
                   type="number"
                   value={tierLevel}
@@ -1036,11 +1109,11 @@ function DailyTariffModal({ tariff, servers, onSave, onClose, isLoading }: Daily
 
           {activeTab === 'servers' && (
             <div className="space-y-2">
-              <p className="mb-4 text-sm text-dark-400">
-                Выберите серверы, доступные на этом тарифе.
-              </p>
+              <p className="mb-4 text-sm text-dark-400">{t('admin.tariffs.serversTabHint')}</p>
               {servers.length === 0 ? (
-                <p className="py-4 text-center text-dark-500">Нет доступных серверов</p>
+                <p className="py-4 text-center text-dark-500">
+                  {t('admin.tariffs.noServersAvailable')}
+                </p>
               ) : (
                 servers.map((server) => {
                   const isSelected = selectedSquads.includes(server.squad_uuid);
@@ -1078,11 +1151,13 @@ function DailyTariffModal({ tariff, servers, onSave, onClose, isLoading }: Daily
             <div className="space-y-6">
               {/* Докупка устройств */}
               <div className="rounded-lg bg-dark-700/50 p-4">
-                <h4 className="mb-3 text-sm font-medium text-dark-200">Докупка устройств</h4>
+                <h4 className="mb-3 text-sm font-medium text-dark-200">
+                  {t('admin.tariffs.extraDeviceTitle')}
+                </h4>
                 <div className="space-y-3">
                   <div className="flex items-center gap-3">
                     <span className="w-48 text-sm text-dark-400">
-                      Цена за устройство (30 дней):
+                      {t('admin.tariffs.devicePriceLabel')}
                     </span>
                     <input
                       type="number"
@@ -1096,9 +1171,11 @@ function DailyTariffModal({ tariff, servers, onSave, onClose, isLoading }: Daily
                     />
                     <span className="text-dark-400">₽</span>
                   </div>
-                  <p className="text-xs text-dark-500">0 = докупка недоступна</p>
+                  <p className="text-xs text-dark-500">{t('admin.tariffs.devicePriceHint')}</p>
                   <div className="flex items-center gap-3">
-                    <span className="w-48 text-sm text-dark-400">Макс. устройств на тарифе:</span>
+                    <span className="w-48 text-sm text-dark-400">
+                      {t('admin.tariffs.maxDeviceLabel')}
+                    </span>
                     <input
                       type="number"
                       value={maxDeviceLimit}
@@ -1109,14 +1186,16 @@ function DailyTariffModal({ tariff, servers, onSave, onClose, isLoading }: Daily
                       min={0}
                     />
                   </div>
-                  <p className="text-xs text-dark-500">0 = без ограничений</p>
+                  <p className="text-xs text-dark-500">{t('admin.tariffs.noLimitHint')}</p>
                 </div>
               </div>
 
               {/* Докупка трафика */}
               <div className="rounded-lg bg-dark-700/50 p-4">
                 <div className="mb-3 flex items-center justify-between">
-                  <h4 className="text-sm font-medium text-dark-200">Докупка трафика</h4>
+                  <h4 className="text-sm font-medium text-dark-200">
+                    {t('admin.tariffs.extraTrafficTitle')}
+                  </h4>
                   <button
                     type="button"
                     onClick={() => setTrafficTopupEnabled(!trafficTopupEnabled)}
@@ -1134,7 +1213,9 @@ function DailyTariffModal({ tariff, servers, onSave, onClose, isLoading }: Daily
                 {trafficTopupEnabled && (
                   <div className="space-y-3">
                     <div className="flex items-center gap-3">
-                      <span className="w-32 text-sm text-dark-400">Макс. лимит:</span>
+                      <span className="w-32 text-sm text-dark-400">
+                        {t('admin.tariffs.trafficMaxLimitLabel')}
+                      </span>
                       <input
                         type="number"
                         value={maxTopupTrafficGb}
@@ -1144,15 +1225,21 @@ function DailyTariffModal({ tariff, servers, onSave, onClose, isLoading }: Daily
                         className="w-24 rounded-lg border border-dark-500 bg-dark-600 px-3 py-2 text-dark-100 focus:border-amber-500 focus:outline-none"
                         min={0}
                       />
-                      <span className="text-dark-400">ГБ</span>
-                      <span className="text-xs text-dark-500">(0 = без ограничений)</span>
+                      <span className="text-dark-400">{t('admin.tariffs.gbUnit')}</span>
+                      <span className="text-xs text-dark-500">
+                        {t('admin.tariffs.trafficLimitHint2')}
+                      </span>
                     </div>
                     <div className="mt-3">
-                      <span className="text-sm text-dark-400">Пакеты трафика:</span>
+                      <span className="text-sm text-dark-400">
+                        {t('admin.tariffs.trafficPackagesLabel')}
+                      </span>
                       <div className="mt-2 grid grid-cols-2 gap-2">
                         {[5, 10, 20, 50].map((gb) => (
                           <div key={gb} className="flex items-center gap-2">
-                            <span className="w-12 text-sm text-dark-300">{gb} ГБ:</span>
+                            <span className="w-12 text-sm text-dark-300">
+                              {gb} {t('admin.tariffs.gbPackageUnit')}
+                            </span>
                             <input
                               type="number"
                               value={(trafficTopupPackages[String(gb)] || 0) / 100}
@@ -1178,21 +1265,44 @@ function DailyTariffModal({ tariff, servers, onSave, onClose, isLoading }: Daily
 
               {/* Режим сброса трафика */}
               <div className="rounded-lg bg-dark-700/50 p-4">
-                <h4 className="mb-3 text-sm font-medium text-dark-200">Режим сброса трафика</h4>
+                <h4 className="mb-3 text-sm font-medium text-dark-200">
+                  {t('admin.tariffs.trafficResetModeTitle')}
+                </h4>
                 <p className="mb-3 text-xs text-dark-500">
-                  Определяет, когда сбрасывается использованный трафик у подписчиков этого тарифа
+                  {t('admin.tariffs.trafficResetModeDesc')}
                 </p>
                 <div className="space-y-2">
                   {[
                     {
                       value: null,
-                      label: '🌐 Глобальная настройка',
-                      desc: 'Использовать значение из конфига бота',
+                      labelKey: 'admin.tariffs.resetModeGlobal',
+                      descKey: 'admin.tariffs.resetModeGlobalDesc',
+                      emoji: '🌐',
                     },
-                    { value: 'DAY', label: '📅 Ежедневно', desc: 'Сброс каждый день' },
-                    { value: 'WEEK', label: '📆 Еженедельно', desc: 'Сброс каждую неделю' },
-                    { value: 'MONTH', label: '🗓️ Ежемесячно', desc: 'Сброс каждый месяц' },
-                    { value: 'NO_RESET', label: '🚫 Никогда', desc: 'Трафик не сбрасывается' },
+                    {
+                      value: 'DAY',
+                      labelKey: 'admin.tariffs.resetModeDaily',
+                      descKey: 'admin.tariffs.resetModeDailyDesc',
+                      emoji: '📅',
+                    },
+                    {
+                      value: 'WEEK',
+                      labelKey: 'admin.tariffs.resetModeWeekly',
+                      descKey: 'admin.tariffs.resetModeWeeklyDesc',
+                      emoji: '📆',
+                    },
+                    {
+                      value: 'MONTH',
+                      labelKey: 'admin.tariffs.resetModeMonthly',
+                      descKey: 'admin.tariffs.resetModeMonthlyDesc',
+                      emoji: '🗓️',
+                    },
+                    {
+                      value: 'NO_RESET',
+                      labelKey: 'admin.tariffs.resetModeNever',
+                      descKey: 'admin.tariffs.resetModeNeverDesc',
+                      emoji: '🚫',
+                    },
                   ].map((option) => (
                     <button
                       key={option.value || 'global'}
@@ -1206,8 +1316,10 @@ function DailyTariffModal({ tariff, servers, onSave, onClose, isLoading }: Daily
                     >
                       <div className="flex items-center justify-between">
                         <div>
-                          <span className="text-sm text-dark-100">{option.label}</span>
-                          <p className="mt-0.5 text-xs text-dark-400">{option.desc}</p>
+                          <span className="text-sm text-dark-100">
+                            {option.emoji} {t(option.labelKey)}
+                          </span>
+                          <p className="mt-0.5 text-xs text-dark-400">{t(option.descKey)}</p>
                         </div>
                         {trafficResetMode === option.value && (
                           <span className="text-amber-400">
@@ -1229,14 +1341,14 @@ function DailyTariffModal({ tariff, servers, onSave, onClose, isLoading }: Daily
             onClick={onClose}
             className="px-4 py-2 text-dark-300 transition-colors hover:text-dark-100"
           >
-            Отмена
+            {t('admin.tariffs.cancelButton')}
           </button>
           <button
             onClick={handleSubmit}
             disabled={!name || dailyPriceKopeks <= 0 || isLoading}
             className="rounded-lg bg-amber-500 px-4 py-2 text-white transition-colors hover:bg-amber-600 disabled:cursor-not-allowed disabled:opacity-50"
           >
-            {isLoading ? 'Сохранение...' : 'Сохранить'}
+            {isLoading ? t('admin.tariffs.savingButton') : t('admin.tariffs.saveButton')}
           </button>
         </div>
       </div>
@@ -1400,11 +1512,11 @@ export default function AdminTariffs() {
                     <h3 className="truncate font-medium text-dark-100">{tariff.name}</h3>
                     {tariff.is_daily ? (
                       <span className="rounded bg-amber-500/20 px-2 py-0.5 text-xs text-amber-400">
-                        Суточный
+                        {t('admin.tariffs.dailyType')}
                       </span>
                     ) : (
                       <span className="rounded bg-accent-500/20 px-2 py-0.5 text-xs text-accent-400">
-                        Периодный
+                        {t('admin.tariffs.periodType')}
                       </span>
                     )}
                     {tariff.is_trial_available && (
@@ -1421,7 +1533,8 @@ export default function AdminTariffs() {
                   <div className="flex flex-wrap gap-x-4 gap-y-1 text-sm text-dark-400">
                     {tariff.is_daily && tariff.daily_price_kopeks > 0 && (
                       <span className="text-amber-400">
-                        {(tariff.daily_price_kopeks / 100).toFixed(2)} ₽/день
+                        {(tariff.daily_price_kopeks / 100).toFixed(2)}{' '}
+                        {t('admin.tariffs.currencyPerDay')}
                       </span>
                     )}
                     <span>
@@ -1429,14 +1542,10 @@ export default function AdminTariffs() {
                         ? t('admin.tariffs.unlimited')
                         : `${tariff.traffic_limit_gb} GB`}
                     </span>
+                    <span>{t('admin.tariffs.devices', { count: tariff.device_limit })}</span>
+                    <span>{t('admin.tariffs.servers', { count: tariff.servers_count })}</span>
                     <span>
-                      {tariff.device_limit} {t('admin.tariffs.devices')}
-                    </span>
-                    <span>
-                      {tariff.servers_count} {t('admin.tariffs.servers')}
-                    </span>
-                    <span>
-                      {tariff.subscriptions_count} {t('admin.tariffs.subscriptions')}
+                      {t('admin.tariffs.subscriptions', { count: tariff.subscriptions_count })}
                     </span>
                   </div>
                 </div>

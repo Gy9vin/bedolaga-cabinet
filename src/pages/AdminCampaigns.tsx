@@ -1,6 +1,8 @@
 import { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router-dom';
+import i18n from '../i18n';
 import {
   campaignsApi,
   CampaignListItem,
@@ -108,23 +110,47 @@ const CopyIcon = () => (
 // Bonus type labels and colors
 const bonusTypeConfig: Record<
   CampaignBonusType,
-  { label: string; color: string; bgColor: string }
+  { labelKey: string; color: string; bgColor: string }
 > = {
-  balance: { label: 'Баланс', color: 'text-emerald-400', bgColor: 'bg-emerald-500/20' },
-  subscription: { label: 'Подписка', color: 'text-blue-400', bgColor: 'bg-blue-500/20' },
-  tariff: { label: 'Тариф', color: 'text-purple-400', bgColor: 'bg-purple-500/20' },
-  none: { label: 'Только ссылка', color: 'text-gray-400', bgColor: 'bg-gray-500/20' },
+  balance: {
+    labelKey: 'admin.campaigns.bonusType.balance',
+    color: 'text-emerald-400',
+    bgColor: 'bg-emerald-500/20',
+  },
+  subscription: {
+    labelKey: 'admin.campaigns.bonusType.subscription',
+    color: 'text-blue-400',
+    bgColor: 'bg-blue-500/20',
+  },
+  tariff: {
+    labelKey: 'admin.campaigns.bonusType.tariff',
+    color: 'text-purple-400',
+    bgColor: 'bg-purple-500/20',
+  },
+  none: {
+    labelKey: 'admin.campaigns.bonusType.none',
+    color: 'text-gray-400',
+    bgColor: 'bg-gray-500/20',
+  },
 };
 
+// Locale mapping for formatting
+const localeMap: Record<string, string> = { ru: 'ru-RU', en: 'en-US', zh: 'zh-CN', fa: 'fa-IR' };
+
 // Format number as rubles
-const formatRubles = (kopeks: number) =>
-  (kopeks / 100).toLocaleString('ru-RU', { minimumFractionDigits: 0, maximumFractionDigits: 2 }) +
-  ' ₽';
+const formatRubles = (kopeks: number) => {
+  const locale = localeMap[i18n.language] || 'ru-RU';
+  return (
+    (kopeks / 100).toLocaleString(locale, { minimumFractionDigits: 0, maximumFractionDigits: 2 }) +
+    ' ₽'
+  );
+};
 
 // Format date
 const formatDate = (dateStr: string | null) => {
   if (!dateStr) return '-';
-  return new Date(dateStr).toLocaleDateString('ru-RU', {
+  const locale = localeMap[i18n.language] || 'ru-RU';
+  return new Date(dateStr).toLocaleDateString(locale, {
     day: '2-digit',
     month: '2-digit',
     year: 'numeric',
@@ -151,6 +177,7 @@ function CampaignModal({
   onClose,
   isLoading,
 }: CampaignModalProps) {
+  const { t } = useTranslation();
   const isEdit = !!campaign;
 
   const [name, setName] = useState(campaign?.name || '');
@@ -218,7 +245,7 @@ function CampaignModal({
         {/* Header */}
         <div className="flex items-center justify-between border-b border-dark-700 p-4">
           <h2 className="text-lg font-semibold text-dark-100">
-            {isEdit ? 'Редактирование кампании' : 'Новая кампания'}
+            {isEdit ? t('admin.campaigns.modal.editTitle') : t('admin.campaigns.modal.createTitle')}
           </h2>
           <button onClick={onClose} className="rounded-lg p-1 transition-colors hover:bg-dark-700">
             <XIcon />
@@ -229,19 +256,23 @@ function CampaignModal({
         <div className="flex-1 space-y-4 overflow-y-auto p-4">
           {/* Name */}
           <div>
-            <label className="mb-1 block text-sm text-dark-300">Название</label>
+            <label className="mb-1 block text-sm text-dark-300">
+              {t('admin.campaigns.form.name')}
+            </label>
             <input
               type="text"
               value={name}
               onChange={(e) => setName(e.target.value)}
               className="w-full rounded-lg border border-dark-600 bg-dark-700 px-3 py-2 text-dark-100 focus:border-accent-500 focus:outline-none"
-              placeholder="Например: Instagram Реклама"
+              placeholder={t('admin.campaigns.form.namePlaceholder')}
             />
           </div>
 
           {/* Start Parameter */}
           <div>
-            <label className="mb-1 block text-sm text-dark-300">Метка (start параметр)</label>
+            <label className="mb-1 block text-sm text-dark-300">
+              {t('admin.campaigns.form.startParameter')}
+            </label>
             <input
               type="text"
               value={startParameter}
@@ -249,12 +280,16 @@ function CampaignModal({
               className="w-full rounded-lg border border-dark-600 bg-dark-700 px-3 py-2 text-dark-100 focus:border-accent-500 focus:outline-none"
               placeholder="instagram_jan2024"
             />
-            <p className="mt-1 text-xs text-dark-500">Только латиница, цифры, _ и -</p>
+            <p className="mt-1 text-xs text-dark-500">
+              {t('admin.campaigns.form.startParameterHint')}
+            </p>
           </div>
 
           {/* Bonus Type */}
           <div>
-            <label className="mb-2 block text-sm text-dark-300">Тип бонуса</label>
+            <label className="mb-2 block text-sm text-dark-300">
+              {t('admin.campaigns.form.bonusType')}
+            </label>
             <div className="grid grid-cols-2 gap-2">
               {(Object.keys(bonusTypeConfig) as CampaignBonusType[]).map((type) => (
                 <button
@@ -267,7 +302,7 @@ function CampaignModal({
                       : 'border border-dark-600 bg-dark-700 text-dark-300 hover:border-dark-500'
                   }`}
                 >
-                  <span className="text-sm font-medium">{bonusTypeConfig[type].label}</span>
+                  <span className="text-sm font-medium">{t(bonusTypeConfig[type].labelKey)}</span>
                 </button>
               ))}
             </div>
@@ -277,7 +312,7 @@ function CampaignModal({
           {bonusType === 'balance' && (
             <div className="rounded-lg border border-emerald-500/30 bg-emerald-500/10 p-4">
               <label className="mb-2 block text-sm font-medium text-emerald-400">
-                Бонус на баланс
+                {t('admin.campaigns.form.balanceBonus')}
               </label>
               <div className="flex items-center gap-2">
                 <input
@@ -297,10 +332,14 @@ function CampaignModal({
 
           {bonusType === 'subscription' && (
             <div className="space-y-3 rounded-lg border border-blue-500/30 bg-blue-500/10 p-4">
-              <label className="block text-sm font-medium text-blue-400">Пробная подписка</label>
+              <label className="block text-sm font-medium text-blue-400">
+                {t('admin.campaigns.form.trialSubscription')}
+              </label>
               <div className="grid grid-cols-3 gap-3">
                 <div>
-                  <label className="mb-1 block text-xs text-dark-500">Дней</label>
+                  <label className="mb-1 block text-xs text-dark-500">
+                    {t('admin.campaigns.form.days')}
+                  </label>
                   <input
                     type="number"
                     value={subscriptionDays}
@@ -312,7 +351,9 @@ function CampaignModal({
                   />
                 </div>
                 <div>
-                  <label className="mb-1 block text-xs text-dark-500">Трафик (ГБ)</label>
+                  <label className="mb-1 block text-xs text-dark-500">
+                    {t('admin.campaigns.form.trafficGb')}
+                  </label>
                   <input
                     type="number"
                     value={subscriptionTraffic}
@@ -324,7 +365,9 @@ function CampaignModal({
                   />
                 </div>
                 <div>
-                  <label className="mb-1 block text-xs text-dark-500">Устройств</label>
+                  <label className="mb-1 block text-xs text-dark-500">
+                    {t('admin.campaigns.form.devices')}
+                  </label>
                   <input
                     type="number"
                     value={subscriptionDevices}
@@ -338,7 +381,9 @@ function CampaignModal({
               </div>
               {servers.length > 0 && (
                 <div>
-                  <label className="mb-2 block text-xs text-dark-500">Серверы</label>
+                  <label className="mb-2 block text-xs text-dark-500">
+                    {t('admin.campaigns.form.servers')}
+                  </label>
                   <div className="max-h-32 space-y-1 overflow-y-auto">
                     {servers.map((server) => (
                       <button
@@ -371,24 +416,35 @@ function CampaignModal({
 
           {bonusType === 'tariff' && (
             <div className="space-y-3 rounded-lg border border-purple-500/30 bg-purple-500/10 p-4">
-              <label className="block text-sm font-medium text-purple-400">Тариф</label>
+              <label className="block text-sm font-medium text-purple-400">
+                {t('admin.campaigns.form.tariff')}
+              </label>
               <div>
-                <label className="mb-1 block text-xs text-dark-500">Выберите тариф</label>
+                <label className="mb-1 block text-xs text-dark-500">
+                  {t('admin.campaigns.form.selectTariff')}
+                </label>
                 <select
                   value={tariffId || ''}
                   onChange={(e) => setTariffId(e.target.value ? parseInt(e.target.value) : null)}
                   className="w-full rounded-lg border border-dark-600 bg-dark-700 px-3 py-2 text-dark-100 focus:border-purple-500 focus:outline-none"
                 >
-                  <option value="">Не выбран</option>
+                  <option value="">{t('admin.campaigns.form.notSelected')}</option>
                   {tariffs.map((tariff) => (
                     <option key={tariff.id} value={tariff.id}>
-                      {tariff.name} ({tariff.traffic_limit_gb} ГБ, {tariff.device_limit} уст.)
+                      {tariff.name} (
+                      {t('admin.campaigns.form.tariffOption', {
+                        traffic: tariff.traffic_limit_gb,
+                        devices: tariff.device_limit,
+                      })}
+                      )
                     </option>
                   ))}
                 </select>
               </div>
               <div>
-                <label className="mb-1 block text-xs text-dark-500">Длительность (дней)</label>
+                <label className="mb-1 block text-xs text-dark-500">
+                  {t('admin.campaigns.form.durationDays')}
+                </label>
                 <input
                   type="number"
                   value={tariffDays}
@@ -403,14 +459,14 @@ function CampaignModal({
           {bonusType === 'none' && (
             <div className="rounded-lg border border-gray-500/30 bg-gray-500/10 p-4">
               <p className="text-sm text-dark-400">
-                Кампания без бонусов - только для отслеживания переходов и регистраций.
+                {t('admin.campaigns.form.noBonusDescription')}
               </p>
             </div>
           )}
 
           {/* Active toggle */}
           <div className="flex items-center justify-between rounded-lg bg-dark-700 p-3">
-            <span className="text-sm text-dark-300">Активна</span>
+            <span className="text-sm text-dark-300">{t('admin.campaigns.form.active')}</span>
             <button
               type="button"
               onClick={() => setIsActive(!isActive)}
@@ -433,14 +489,14 @@ function CampaignModal({
             onClick={onClose}
             className="px-4 py-2 text-dark-300 transition-colors hover:text-dark-100"
           >
-            Отмена
+            {t('admin.campaigns.form.cancel')}
           </button>
           <button
             onClick={handleSubmit}
             disabled={!isValid || isLoading}
             className="rounded-lg bg-accent-500 px-4 py-2 text-white transition-colors hover:bg-accent-600 disabled:cursor-not-allowed disabled:opacity-50"
           >
-            {isLoading ? 'Сохранение...' : 'Сохранить'}
+            {isLoading ? t('admin.campaigns.form.saving') : t('admin.campaigns.form.save')}
           </button>
         </div>
       </div>
@@ -456,6 +512,7 @@ interface StatsModalProps {
 }
 
 function StatsModal({ stats, onClose, onViewUsers }: StatsModalProps) {
+  const { t } = useTranslation();
   const [copied, setCopied] = useState(false);
 
   const copyLink = () => {
@@ -477,15 +534,15 @@ function StatsModal({ stats, onClose, onViewUsers }: StatsModalProps) {
               <span
                 className={`rounded px-2 py-0.5 text-xs ${bonusTypeConfig[stats.bonus_type].bgColor} ${bonusTypeConfig[stats.bonus_type].color}`}
               >
-                {bonusTypeConfig[stats.bonus_type].label}
+                {t(bonusTypeConfig[stats.bonus_type].labelKey)}
               </span>
               {stats.is_active ? (
                 <span className="rounded bg-success-500/20 px-2 py-0.5 text-xs text-success-400">
-                  Активна
+                  {t('admin.campaigns.stats.active')}
                 </span>
               ) : (
                 <span className="rounded bg-dark-600 px-2 py-0.5 text-xs text-dark-400">
-                  Неактивна
+                  {t('admin.campaigns.stats.inactive')}
                 </span>
               )}
             </div>
@@ -510,7 +567,9 @@ function StatsModal({ stats, onClose, onViewUsers }: StatsModalProps) {
                   className="flex shrink-0 items-center gap-1 rounded-lg bg-dark-600 px-3 py-1.5 text-dark-300 transition-colors hover:bg-dark-500"
                 >
                   <CopyIcon />
-                  <span className="text-sm">{copied ? 'Скопировано!' : 'Копировать'}</span>
+                  <span className="text-sm">
+                    {copied ? t('admin.campaigns.stats.copied') : t('admin.campaigns.stats.copy')}
+                  </span>
                 </button>
               </div>
             </div>
@@ -520,28 +579,32 @@ function StatsModal({ stats, onClose, onViewUsers }: StatsModalProps) {
           <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
             <div className="rounded-lg bg-dark-700 p-3 text-center">
               <div className="text-2xl font-bold text-dark-100">{stats.registrations}</div>
-              <div className="text-xs text-dark-500">Регистраций</div>
+              <div className="text-xs text-dark-500">
+                {t('admin.campaigns.stats.registrations')}
+              </div>
             </div>
             <div className="rounded-lg bg-dark-700 p-3 text-center">
               <div className="text-2xl font-bold text-emerald-400">
                 {formatRubles(stats.total_revenue_kopeks)}
               </div>
-              <div className="text-xs text-dark-500">Доход</div>
+              <div className="text-xs text-dark-500">{t('admin.campaigns.stats.revenue')}</div>
             </div>
             <div className="rounded-lg bg-dark-700 p-3 text-center">
               <div className="text-2xl font-bold text-blue-400">{stats.paid_users_count}</div>
-              <div className="text-xs text-dark-500">Оплатили</div>
+              <div className="text-xs text-dark-500">{t('admin.campaigns.stats.paidUsers')}</div>
             </div>
             <div className="rounded-lg bg-dark-700 p-3 text-center">
               <div className="text-2xl font-bold text-purple-400">{stats.conversion_rate}%</div>
-              <div className="text-xs text-dark-500">Конверсия</div>
+              <div className="text-xs text-dark-500">{t('admin.campaigns.stats.conversion')}</div>
             </div>
           </div>
 
           {/* Detailed Stats */}
           <div className="grid grid-cols-2 gap-3">
             <div className="rounded-lg bg-dark-700/50 p-3">
-              <div className="mb-2 text-sm text-dark-400">Бонусы выданы</div>
+              <div className="mb-2 text-sm text-dark-400">
+                {t('admin.campaigns.stats.bonusesIssued')}
+              </div>
               {stats.bonus_type === 'balance' && (
                 <div className="text-lg font-medium text-emerald-400">
                   {formatRubles(stats.balance_issued_kopeks)}
@@ -549,12 +612,14 @@ function StatsModal({ stats, onClose, onViewUsers }: StatsModalProps) {
               )}
               {stats.bonus_type === 'subscription' && (
                 <div className="text-lg font-medium text-blue-400">
-                  {stats.subscription_issued} подписок
+                  {t('admin.campaigns.stats.subscriptionsIssued', {
+                    count: stats.subscription_issued,
+                  })}
                 </div>
               )}
               {stats.bonus_type === 'tariff' && (
                 <div className="text-lg font-medium text-purple-400">
-                  {stats.subscription_issued} тарифов
+                  {t('admin.campaigns.stats.tariffsIssued', { count: stats.subscription_issued })}
                 </div>
               )}
               {stats.bonus_type === 'none' && (
@@ -562,31 +627,44 @@ function StatsModal({ stats, onClose, onViewUsers }: StatsModalProps) {
               )}
             </div>
             <div className="rounded-lg bg-dark-700/50 p-3">
-              <div className="mb-2 text-sm text-dark-400">Средний доход с пользователя</div>
+              <div className="mb-2 text-sm text-dark-400">
+                {t('admin.campaigns.stats.avgRevenuePerUser')}
+              </div>
               <div className="text-lg font-medium text-dark-200">
                 {formatRubles(stats.avg_revenue_per_user_kopeks)}
               </div>
             </div>
             <div className="rounded-lg bg-dark-700/50 p-3">
-              <div className="mb-2 text-sm text-dark-400">Средний первый платёж</div>
+              <div className="mb-2 text-sm text-dark-400">
+                {t('admin.campaigns.stats.avgFirstPayment')}
+              </div>
               <div className="text-lg font-medium text-dark-200">
                 {formatRubles(stats.avg_first_payment_kopeks)}
               </div>
             </div>
             <div className="rounded-lg bg-dark-700/50 p-3">
-              <div className="mb-2 text-sm text-dark-400">Пробных подписок</div>
+              <div className="mb-2 text-sm text-dark-400">
+                {t('admin.campaigns.stats.trialSubscriptions')}
+              </div>
               <div className="text-lg font-medium text-dark-200">
-                {stats.trial_users_count} (активных: {stats.active_trials_count})
+                {t('admin.campaigns.stats.trialCount', {
+                  total: stats.trial_users_count,
+                  active: stats.active_trials_count,
+                })}
               </div>
             </div>
             <div className="rounded-lg bg-dark-700/50 p-3">
-              <div className="mb-2 text-sm text-dark-400">Конверсия из триала</div>
+              <div className="mb-2 text-sm text-dark-400">
+                {t('admin.campaigns.stats.trialConversion')}
+              </div>
               <div className="text-lg font-medium text-dark-200">
                 {stats.trial_conversion_rate}%
               </div>
             </div>
             <div className="rounded-lg bg-dark-700/50 p-3">
-              <div className="mb-2 text-sm text-dark-400">Последняя регистрация</div>
+              <div className="mb-2 text-sm text-dark-400">
+                {t('admin.campaigns.stats.lastRegistration')}
+              </div>
               <div className="text-sm font-medium text-dark-200">
                 {formatDate(stats.last_registration)}
               </div>
@@ -601,13 +679,13 @@ function StatsModal({ stats, onClose, onViewUsers }: StatsModalProps) {
             className="flex items-center gap-2 rounded-lg bg-dark-700 px-4 py-2 text-dark-300 transition-colors hover:bg-dark-600"
           >
             <UsersIcon />
-            Пользователи
+            {t('admin.campaigns.stats.users')}
           </button>
           <button
             onClick={onClose}
             className="px-4 py-2 text-dark-300 transition-colors hover:text-dark-100"
           >
-            Закрыть
+            {t('admin.campaigns.modal.close')}
           </button>
         </div>
       </div>
@@ -623,6 +701,7 @@ interface UsersModalProps {
 }
 
 function UsersModal({ campaignId, campaignName, onClose }: UsersModalProps) {
+  const { t } = useTranslation();
   const [page, setPage] = useState(1);
 
   const { data, isLoading } = useQuery({
@@ -640,9 +719,14 @@ function UsersModal({ campaignId, campaignName, onClose }: UsersModalProps) {
         {/* Header */}
         <div className="flex items-center justify-between border-b border-dark-700 p-4">
           <div>
-            <h2 className="text-lg font-semibold text-dark-100">Пользователи кампании</h2>
+            <h2 className="text-lg font-semibold text-dark-100">
+              {t('admin.campaigns.users.title')}
+            </h2>
             <p className="text-sm text-dark-400">
-              {campaignName} - {total} регистраций
+              {t('admin.campaigns.users.campaignRegistrations', {
+                name: campaignName,
+                count: total,
+              })}
             </p>
           </div>
           <button onClick={onClose} className="rounded-lg p-1 transition-colors hover:bg-dark-700">
@@ -658,17 +742,27 @@ function UsersModal({ campaignId, campaignName, onClose }: UsersModalProps) {
             </div>
           ) : registrations.length === 0 ? (
             <div className="py-12 text-center text-dark-400">
-              Нет зарегистрированных пользователей
+              {t('admin.campaigns.users.noUsers')}
             </div>
           ) : (
             <table className="w-full">
               <thead className="sticky top-0 bg-dark-700">
                 <tr>
-                  <th className="p-3 text-left text-xs font-medium text-dark-400">Пользователь</th>
-                  <th className="p-3 text-left text-xs font-medium text-dark-400">Бонус</th>
-                  <th className="p-3 text-left text-xs font-medium text-dark-400">Баланс</th>
-                  <th className="p-3 text-left text-xs font-medium text-dark-400">Статус</th>
-                  <th className="p-3 text-left text-xs font-medium text-dark-400">Дата</th>
+                  <th className="p-3 text-left text-xs font-medium text-dark-400">
+                    {t('admin.campaigns.users.user')}
+                  </th>
+                  <th className="p-3 text-left text-xs font-medium text-dark-400">
+                    {t('admin.campaigns.users.bonus')}
+                  </th>
+                  <th className="p-3 text-left text-xs font-medium text-dark-400">
+                    {t('admin.campaigns.users.balance')}
+                  </th>
+                  <th className="p-3 text-left text-xs font-medium text-dark-400">
+                    {t('admin.campaigns.users.status')}
+                  </th>
+                  <th className="p-3 text-left text-xs font-medium text-dark-400">
+                    {t('admin.campaigns.users.date')}
+                  </th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-dark-700">
@@ -676,7 +770,7 @@ function UsersModal({ campaignId, campaignName, onClose }: UsersModalProps) {
                   <tr key={reg.id} className="hover:bg-dark-700/50">
                     <td className="p-3">
                       <div className="text-sm text-dark-100">
-                        {reg.first_name || 'Без имени'}
+                        {reg.first_name || t('admin.campaigns.users.noName')}
                         {reg.username && (
                           <span className="ml-1 text-dark-400">@{reg.username}</span>
                         )}
@@ -687,8 +781,9 @@ function UsersModal({ campaignId, campaignName, onClose }: UsersModalProps) {
                       <span
                         className={`rounded px-2 py-0.5 text-xs ${bonusTypeConfig[reg.bonus_type as CampaignBonusType]?.bgColor || 'bg-dark-600'} ${bonusTypeConfig[reg.bonus_type as CampaignBonusType]?.color || 'text-dark-400'}`}
                       >
-                        {bonusTypeConfig[reg.bonus_type as CampaignBonusType]?.label ||
-                          reg.bonus_type}
+                        {bonusTypeConfig[reg.bonus_type as CampaignBonusType]?.labelKey
+                          ? t(bonusTypeConfig[reg.bonus_type as CampaignBonusType].labelKey)
+                          : reg.bonus_type}
                       </span>
                     </td>
                     <td className="p-3 text-sm text-dark-300">
@@ -703,7 +798,7 @@ function UsersModal({ campaignId, campaignName, onClose }: UsersModalProps) {
                         )}
                         {reg.has_paid && (
                           <span className="rounded bg-emerald-500/20 px-1.5 py-0.5 text-xs text-emerald-400">
-                            Платил
+                            {t('admin.campaigns.users.paid')}
                           </span>
                         )}
                       </div>
@@ -724,17 +819,17 @@ function UsersModal({ campaignId, campaignName, onClose }: UsersModalProps) {
               disabled={page === 1}
               className="rounded-lg bg-dark-700 px-3 py-1.5 text-dark-300 hover:bg-dark-600 disabled:cursor-not-allowed disabled:opacity-50"
             >
-              Назад
+              {t('admin.campaigns.users.prev')}
             </button>
             <span className="text-sm text-dark-400">
-              {page} из {totalPages}
+              {t('admin.campaigns.users.pageOf', { page, totalPages })}
             </span>
             <button
               onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
               disabled={page === totalPages}
               className="rounded-lg bg-dark-700 px-3 py-1.5 text-dark-300 hover:bg-dark-600 disabled:cursor-not-allowed disabled:opacity-50"
             >
-              Далее
+              {t('admin.campaigns.users.next')}
             </button>
           </div>
         )}
@@ -745,6 +840,7 @@ function UsersModal({ campaignId, campaignName, onClose }: UsersModalProps) {
 
 // Main Component
 export default function AdminCampaigns() {
+  const { t } = useTranslation();
   const queryClient = useQueryClient();
 
   const [showModal, setShowModal] = useState(false);
@@ -856,8 +952,8 @@ export default function AdminCampaigns() {
             <BackIcon />
           </Link>
           <div>
-            <h1 className="text-xl font-semibold text-dark-100">Рекламные кампании</h1>
-            <p className="text-sm text-dark-400">Управление рекламными ссылками</p>
+            <h1 className="text-xl font-semibold text-dark-100">{t('admin.campaigns.title')}</h1>
+            <p className="text-sm text-dark-400">{t('admin.campaigns.subtitle')}</p>
           </div>
         </div>
         <button
@@ -868,7 +964,7 @@ export default function AdminCampaigns() {
           className="flex items-center gap-2 rounded-lg bg-accent-500 px-4 py-2 text-white transition-colors hover:bg-accent-600"
         >
           <PlusIcon />
-          Создать
+          {t('admin.campaigns.createButton')}
         </button>
       </div>
 
@@ -877,21 +973,27 @@ export default function AdminCampaigns() {
         <div className="mb-6 grid grid-cols-2 gap-3 sm:grid-cols-4">
           <div className="rounded-xl border border-dark-700 bg-dark-800 p-4">
             <div className="text-2xl font-bold text-dark-100">{overview.total}</div>
-            <div className="text-sm text-dark-400">Всего кампаний</div>
+            <div className="text-sm text-dark-400">
+              {t('admin.campaigns.overview.totalCampaigns')}
+            </div>
           </div>
           <div className="rounded-xl border border-dark-700 bg-dark-800 p-4">
             <div className="text-2xl font-bold text-success-400">{overview.active}</div>
-            <div className="text-sm text-dark-400">Активных</div>
+            <div className="text-sm text-dark-400">{t('admin.campaigns.overview.active')}</div>
           </div>
           <div className="rounded-xl border border-dark-700 bg-dark-800 p-4">
             <div className="text-2xl font-bold text-blue-400">{overview.total_registrations}</div>
-            <div className="text-sm text-dark-400">Регистраций</div>
+            <div className="text-sm text-dark-400">
+              {t('admin.campaigns.overview.registrations')}
+            </div>
           </div>
           <div className="rounded-xl border border-dark-700 bg-dark-800 p-4">
             <div className="text-2xl font-bold text-emerald-400">
               {formatRubles(overview.total_balance_issued_kopeks)}
             </div>
-            <div className="text-sm text-dark-400">Выдано бонусов</div>
+            <div className="text-sm text-dark-400">
+              {t('admin.campaigns.overview.bonusesIssued')}
+            </div>
           </div>
         </div>
       )}
@@ -903,7 +1005,7 @@ export default function AdminCampaigns() {
         </div>
       ) : campaigns.length === 0 ? (
         <div className="py-12 text-center">
-          <p className="text-dark-400">Нет рекламных кампаний</p>
+          <p className="text-dark-400">{t('admin.campaigns.noData')}</p>
         </div>
       ) : (
         <div className="space-y-3">
@@ -921,19 +1023,29 @@ export default function AdminCampaigns() {
                     <span
                       className={`rounded px-2 py-0.5 text-xs ${bonusTypeConfig[campaign.bonus_type].bgColor} ${bonusTypeConfig[campaign.bonus_type].color}`}
                     >
-                      {bonusTypeConfig[campaign.bonus_type].label}
+                      {t(bonusTypeConfig[campaign.bonus_type].labelKey)}
                     </span>
                     {!campaign.is_active && (
                       <span className="rounded bg-dark-600 px-2 py-0.5 text-xs text-dark-400">
-                        Неактивна
+                        {t('admin.campaigns.table.inactive')}
                       </span>
                     )}
                   </div>
                   <div className="flex flex-wrap gap-x-4 gap-y-1 text-sm text-dark-400">
                     <span className="font-mono text-xs">?start={campaign.start_parameter}</span>
-                    <span>{campaign.registrations_count} регистраций</span>
-                    <span>{formatRubles(campaign.total_revenue_kopeks)} доход</span>
-                    <span>{campaign.conversion_rate}% конверсия</span>
+                    <span>
+                      {t('admin.campaigns.table.registrations', {
+                        count: campaign.registrations_count,
+                      })}
+                    </span>
+                    <span>
+                      {t('admin.campaigns.table.revenue', {
+                        amount: formatRubles(campaign.total_revenue_kopeks),
+                      })}
+                    </span>
+                    <span>
+                      {t('admin.campaigns.table.conversion', { rate: campaign.conversion_rate })}
+                    </span>
                   </div>
                 </div>
 
@@ -942,7 +1054,7 @@ export default function AdminCampaigns() {
                   <button
                     onClick={() => handleViewStats(campaign.id)}
                     className="rounded-lg bg-dark-700 p-2 text-dark-300 transition-colors hover:bg-dark-600 hover:text-dark-100"
-                    title="Статистика"
+                    title={t('admin.campaigns.table.statistics')}
                   >
                     <ChartIcon />
                   </button>
@@ -955,7 +1067,11 @@ export default function AdminCampaigns() {
                         ? 'bg-success-500/20 text-success-400 hover:bg-success-500/30'
                         : 'bg-dark-700 text-dark-400 hover:bg-dark-600'
                     }`}
-                    title={campaign.is_active ? 'Деактивировать' : 'Активировать'}
+                    title={
+                      campaign.is_active
+                        ? t('admin.campaigns.table.deactivate')
+                        : t('admin.campaigns.table.activate')
+                    }
                   >
                     {campaign.is_active ? <CheckIcon /> : <XIcon />}
                   </button>
@@ -964,7 +1080,7 @@ export default function AdminCampaigns() {
                   <button
                     onClick={() => handleEdit(campaign.id)}
                     className="rounded-lg bg-dark-700 p-2 text-dark-300 transition-colors hover:bg-dark-600 hover:text-dark-100"
-                    title="Редактировать"
+                    title={t('admin.campaigns.table.edit')}
                   >
                     <EditIcon />
                   </button>
@@ -973,7 +1089,7 @@ export default function AdminCampaigns() {
                   <button
                     onClick={() => setDeleteConfirm(campaign.id)}
                     className="rounded-lg bg-dark-700 p-2 text-dark-300 transition-colors hover:bg-error-500/20 hover:text-error-400"
-                    title="Удалить"
+                    title={t('admin.campaigns.table.delete')}
                     disabled={campaign.registrations_count > 0}
                   >
                     <TrashIcon />
@@ -1022,22 +1138,22 @@ export default function AdminCampaigns() {
       {deleteConfirm !== null && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
           <div className="w-full max-w-sm rounded-xl bg-dark-800 p-6">
-            <h3 className="mb-2 text-lg font-semibold text-dark-100">Удалить кампанию?</h3>
-            <p className="mb-6 text-dark-400">
-              Это действие нельзя отменить. Кампании с регистрациями удалить нельзя.
-            </p>
+            <h3 className="mb-2 text-lg font-semibold text-dark-100">
+              {t('admin.campaigns.confirm.deleteTitle')}
+            </h3>
+            <p className="mb-6 text-dark-400">{t('admin.campaigns.confirm.deleteText')}</p>
             <div className="flex justify-end gap-3">
               <button
                 onClick={() => setDeleteConfirm(null)}
                 className="px-4 py-2 text-dark-300 transition-colors hover:text-dark-100"
               >
-                Отмена
+                {t('admin.campaigns.confirm.cancel')}
               </button>
               <button
                 onClick={() => deleteMutation.mutate(deleteConfirm)}
                 className="rounded-lg bg-error-500 px-4 py-2 text-white transition-colors hover:bg-error-600"
               >
-                Удалить
+                {t('admin.campaigns.confirm.delete')}
               </button>
             </div>
           </div>

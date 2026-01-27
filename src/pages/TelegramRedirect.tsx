@@ -112,7 +112,7 @@ export default function TelegramRedirect() {
   // Handle retry with limit to prevent infinite loops
   const handleRetry = () => {
     if (retryCount >= MAX_RETRY_ATTEMPTS) {
-      setErrorMessage('Превышено количество попыток. Попробуйте позже.');
+      setErrorMessage(t('telegramRedirect.maxRetries'));
       sessionStorage.removeItem(RETRY_COUNT_KEY);
       return;
     }
@@ -173,7 +173,7 @@ export default function TelegramRedirect() {
               </svg>
             </div>
             <p className="text-dark-200">{t('auth.loginSuccess')}</p>
-            <p className="mt-2 text-sm text-dark-500">Перенаправление...</p>
+            <p className="mt-2 text-sm text-dark-500">{t('telegramRedirect.redirecting')}</p>
           </div>
         )}
 
@@ -198,7 +198,7 @@ export default function TelegramRedirect() {
                 {t('auth.tryAgain')}
               </button>
               <button onClick={() => navigate('/login')} className="btn-secondary w-full">
-                Войти другим способом
+                {t('telegramRedirect.loginAlternative')}
               </button>
             </div>
           </div>
@@ -222,11 +222,9 @@ export default function TelegramRedirect() {
                 />
               </svg>
             </div>
-            <p className="mb-2 text-dark-200">Откройте в Telegram</p>
-            <p className="mb-6 text-sm text-dark-400">
-              Для автоматического входа откройте это приложение через бота в Telegram
-            </p>
-            <p className="text-sm text-dark-500">Перенаправление на страницу входа...</p>
+            <p className="mb-2 text-dark-200">{t('telegramRedirect.openInTelegram')}</p>
+            <p className="mb-6 text-sm text-dark-400">{t('telegramRedirect.openInTelegramDesc')}</p>
+            <p className="text-sm text-dark-500">{t('telegramRedirect.redirectToLogin')}</p>
           </div>
         )}
 

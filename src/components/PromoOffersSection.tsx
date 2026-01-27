@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { useTranslation } from 'react-i18next';
 import { promoApi, PromoOffer } from '../api/promo';
 
 // Icons
@@ -50,7 +51,10 @@ const ServerIcon = () => (
 );
 
 // Helper functions
-const formatTimeLeft = (expiresAt: string): string => {
+const formatTimeLeft = (
+  expiresAt: string,
+  t: (key: string, options?: Record<string, unknown>) => string,
+): string => {
   const now = new Date();
   // Ensure UTC parsing - if no timezone specified, assume UTC
   let expires: Date;
@@ -62,19 +66,19 @@ const formatTimeLeft = (expiresAt: string): string => {
   }
   const diffMs = expires.getTime() - now.getTime();
 
-  if (diffMs <= 0) return 'Истекло';
+  if (diffMs <= 0) return t('promo.offers.expired');
 
   const hours = Math.floor(diffMs / (1000 * 60 * 60));
   const minutes = Math.floor((diffMs % (1000 * 60 * 60)) / (1000 * 60));
 
   if (hours > 24) {
     const days = Math.floor(hours / 24);
-    return `${days} дн.`;
+    return `${days} ${t('promo.time.days')}`;
   }
   if (hours > 0) {
-    return `${hours}ч ${minutes}м`;
+    return `${hours}${t('promo.time.hours')} ${minutes}${t('promo.time.minutes')}`;
   }
-  return `${minutes}м`;
+  return `${minutes}${t('promo.time.minutes')}`;
 };
 
 const getOfferIcon = (effectType: string) => {
@@ -82,22 +86,30 @@ const getOfferIcon = (effectType: string) => {
   return <SparklesIcon />;
 };
 
-const getOfferTitle = (offer: PromoOffer): string => {
+const getOfferTitle = (
+  offer: PromoOffer,
+  t: (key: string, options?: Record<string, unknown>) => string,
+): string => {
   if (offer.effect_type === 'test_access') {
-    return 'Тестовый доступ';
+    return t('promo.offers.testAccess');
   }
   if (offer.discount_percent) {
-    return `Скидка ${offer.discount_percent}%`;
+    return t('promo.offers.discountPercent', { percent: offer.discount_percent });
   }
-  return 'Специальное предложение';
+  return t('promo.offers.specialOffer');
 };
 
-const getOfferDescription = (offer: PromoOffer): string => {
+const getOfferDescription = (
+  offer: PromoOffer,
+  t: (key: string, options?: Record<string, unknown>) => string,
+): string => {
   if (offer.effect_type === 'test_access') {
     const squads = offer.extra_data?.test_squad_uuids?.length || 0;
-    return squads > 0 ? `Доступ к ${squads} серверам` : 'Доступ к дополнительным серверам';
+    return squads > 0
+      ? t('promo.offers.serverAccess', { count: squads })
+      : t('promo.offers.additionalServers');
   }
-  return 'Активируйте скидку на покупку подписки';
+  return t('promo.offers.activateDiscountHint');
 };
 
 interface PromoOffersSectionProps {
@@ -105,6 +117,7 @@ interface PromoOffersSectionProps {
 }
 
 export default function PromoOffersSection({ className = '' }: PromoOffersSectionProps) {
+  const { t } = useTranslation();
   const queryClient = useQueryClient();
   const [claimingId, setClaimingId] = useState<number | null>(null);
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
@@ -137,7 +150,7 @@ export default function PromoOffersSection({ className = '' }: PromoOffersSectio
     },
     onError: (error: unknown) => {
       const axiosErr = error as { response?: { data?: { detail?: string } } };
-      setErrorMessage(axiosErr.response?.data?.detail || 'Не удалось активировать предложение');
+      setErrorMessage(axiosErr.response?.data?.detail || t('promo.offers.activationFailed'));
       setClaimingId(null);
       setTimeout(() => setErrorMessage(null), 5000);
     },
@@ -174,17 +187,23 @@ export default function PromoOffersSection({ className = '' }: PromoOffersSectio
             <div className="flex-1">
               <div className="mb-1 flex items-center gap-2">
                 <h3 className="font-semibold text-dark-100">
-                  Скидка {activeDiscount.discount_percent}% активна
+                  {t('promo.offers.discountActiveTitle', {
+                    percent: activeDiscount.discount_percent,
+                  })}
                 </h3>
                 <span className="rounded bg-accent-500/20 px-2 py-0.5 text-xs text-accent-400">
-                  Действует
+                  {t('promo.offers.statusActive')}
                 </span>
               </div>
               <div className="flex items-center gap-4 text-sm text-dark-400">
                 {activeDiscount.expires_at && (
                   <div className="flex items-center gap-1">
                     <ClockIcon />
-                    <span>Истекает: {formatTimeLeft(activeDiscount.expires_at)}</span>
+                    <span>
+                      {t('promo.offers.expires', {
+                        time: formatTimeLeft(activeDiscount.expires_at, t),
+                      })}
+                    </span>
                   </div>
                 )}
               </div>
@@ -221,18 +240,20 @@ export default function PromoOffersSection({ className = '' }: PromoOffersSectio
                 </div>
                 <div className="min-w-0 flex-1">
                   <div className="mb-1 flex items-center gap-2">
-                    <h3 className="font-semibold text-dark-100">{getOfferTitle(offer)}</h3>
+                    <h3 className="font-semibold text-dark-100">{getOfferTitle(offer, t)}</h3>
                     {offer.effect_type === 'test_access' && (
                       <span className="rounded bg-purple-500/20 px-2 py-0.5 text-xs text-purple-400">
-                        Тест
+                        {t('promo.offers.test')}
                       </span>
                     )}
                   </div>
-                  <p className="mb-3 text-sm text-dark-400">{getOfferDescription(offer)}</p>
+                  <p className="mb-3 text-sm text-dark-400">{getOfferDescription(offer, t)}</p>
                   <div className="flex items-center justify-between gap-4">
                     <div className="flex items-center gap-1 text-xs text-dark-500">
                       <ClockIcon />
-                      <span>Осталось: {formatTimeLeft(offer.expires_at)}</span>
+                      <span>
+                        {t('promo.offers.remaining', { time: formatTimeLeft(offer.expires_at, t) })}
+                      </span>
                     </div>
                     <button
                       onClick={() => handleClaim(offer.id)}
@@ -242,12 +263,12 @@ export default function PromoOffersSection({ className = '' }: PromoOffersSectio
                       {claimingId === offer.id ? (
                         <>
                           <div className="h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent" />
-                          <span>Активация...</span>
+                          <span>{t('promo.offers.activating')}</span>
                         </>
                       ) : (
                         <>
                           <GiftIcon />
-                          <span>Активировать</span>
+                          <span>{t('promo.offers.activate')}</span>
                         </>
                       )}
                     </button>

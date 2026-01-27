@@ -28,25 +28,17 @@ export default function MaintenanceScreen() {
         </div>
 
         {/* Title */}
-        <h1 className="mb-4 text-2xl font-bold text-white">
-          {t('blocking.maintenance.title', 'Технические работы')}
-        </h1>
+        <h1 className="mb-4 text-2xl font-bold text-white">{t('blocking.maintenance.title')}</h1>
 
         {/* Message */}
         <p className="mb-6 text-lg text-gray-400">
-          {maintenanceInfo?.message ||
-            t(
-              'blocking.maintenance.defaultMessage',
-              'Сервис временно недоступен. Проводятся технические работы.',
-            )}
+          {maintenanceInfo?.message || t('blocking.maintenance.defaultMessage')}
         </p>
 
         {/* Reason */}
         {maintenanceInfo?.reason && (
           <div className="mb-6 rounded-xl bg-dark-800/50 p-4">
-            <p className="mb-1 text-sm text-gray-500">
-              {t('blocking.maintenance.reason', 'Причина')}:
-            </p>
+            <p className="mb-1 text-sm text-gray-500">{t('blocking.maintenance.reason')}:</p>
             <p className="text-gray-300">{maintenanceInfo.reason}</p>
           </div>
         )}
@@ -67,9 +59,7 @@ export default function MaintenanceScreen() {
           />
         </div>
 
-        <p className="mt-4 text-sm text-gray-500">
-          {t('blocking.maintenance.waitMessage', 'Пожалуйста, подождите...')}
-        </p>
+        <p className="mt-4 text-sm text-gray-500">{t('blocking.maintenance.waitMessage')}</p>
       </div>
     </div>
   );

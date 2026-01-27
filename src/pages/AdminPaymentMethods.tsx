@@ -131,16 +131,13 @@ function SortablePaymentCard({ config, onClick }: SortableCardProps) {
   // Build condition summary chips
   const chips: string[] = [];
   if (config.user_type_filter === 'telegram')
-    chips.push(t('admin.paymentMethods.userTypeTelegram', 'Telegram'));
-  if (config.user_type_filter === 'email')
-    chips.push(t('admin.paymentMethods.userTypeEmail', 'Email'));
-  if (config.first_topup_filter === 'yes')
-    chips.push(t('admin.paymentMethods.firstTopupYes', 'C пополнением'));
-  if (config.first_topup_filter === 'no')
-    chips.push(t('admin.paymentMethods.firstTopupNo', 'Без пополнения'));
+    chips.push(t('admin.paymentMethods.userTypeTelegram'));
+  if (config.user_type_filter === 'email') chips.push(t('admin.paymentMethods.userTypeEmail'));
+  if (config.first_topup_filter === 'yes') chips.push(t('admin.paymentMethods.firstTopupYes'));
+  if (config.first_topup_filter === 'no') chips.push(t('admin.paymentMethods.firstTopupNo'));
   if (config.promo_group_filter_mode === 'selected' && config.allowed_promo_group_ids.length > 0) {
     chips.push(
-      `${config.allowed_promo_group_ids.length} ${t('admin.paymentMethods.promoGroupsShort', 'групп')}`,
+      `${config.allowed_promo_group_ids.length} ${t('admin.paymentMethods.promoGroupsShort')}`,
     );
   }
 
@@ -173,7 +170,7 @@ function SortablePaymentCard({ config, onClick }: SortableCardProps) {
         {...attributes}
         {...listeners}
         className="flex-shrink-0 cursor-grab touch-manipulation rounded-lg p-1.5 text-dark-500 hover:bg-dark-700/50 hover:text-dark-300 active:cursor-grabbing"
-        title={t('admin.paymentMethods.dragToReorder', 'Перетащите для изменения порядка')}
+        title={t('admin.paymentMethods.dragToReorder')}
       >
         <GripIcon />
       </button>
@@ -189,16 +186,16 @@ function SortablePaymentCard({ config, onClick }: SortableCardProps) {
           <span className="truncate font-semibold text-dark-100">{displayName}</span>
           {config.is_enabled ? (
             <span className="flex-shrink-0 rounded-full border border-success-500/20 bg-success-500/15 px-2 py-0.5 text-xs text-success-400">
-              {t('admin.paymentMethods.enabled', 'Вкл')}
+              {t('admin.paymentMethods.enabled')}
             </span>
           ) : (
             <span className="flex-shrink-0 rounded-full border border-dark-700/30 bg-dark-700/50 px-2 py-0.5 text-xs text-dark-500">
-              {t('admin.paymentMethods.disabled', 'Выкл')}
+              {t('admin.paymentMethods.disabled')}
             </span>
           )}
           {!config.is_provider_configured && (
             <span className="flex-shrink-0 rounded-full border border-warning-500/20 bg-warning-500/15 px-2 py-0.5 text-xs text-warning-400">
-              {t('admin.paymentMethods.notConfigured', 'Не настроен')}
+              {t('admin.paymentMethods.notConfigured')}
             </span>
           )}
           {subOptionsInfo && (
@@ -363,11 +360,11 @@ function PaymentMethodDetailModal({
           <div className="flex items-center justify-between">
             <div>
               <div className="text-sm font-medium text-dark-200">
-                {t('admin.paymentMethods.methodEnabled', 'Метод включён')}
+                {t('admin.paymentMethods.methodEnabled')}
               </div>
               {!config.is_provider_configured && (
                 <div className="mt-0.5 text-xs text-warning-400">
-                  {t('admin.paymentMethods.providerNotConfigured', 'Провайдер не настроен в env')}
+                  {t('admin.paymentMethods.providerNotConfigured')}
                 </div>
               )}
             </div>
@@ -388,7 +385,7 @@ function PaymentMethodDetailModal({
           {/* Display name */}
           <div>
             <label className="mb-2 block text-sm font-medium text-dark-200">
-              {t('admin.paymentMethods.displayName', 'Отображаемое имя')}
+              {t('admin.paymentMethods.displayName')}
             </label>
             <input
               type="text"
@@ -398,8 +395,7 @@ function PaymentMethodDetailModal({
               className="w-full rounded-xl border border-dark-700 bg-dark-900/50 px-4 py-2.5 text-dark-100 transition-colors placeholder:text-dark-500 focus:border-accent-500/50 focus:outline-none"
             />
             <p className="mt-1 text-xs text-dark-500">
-              {t('admin.paymentMethods.displayNameHint', 'Оставьте пустым для имени по умолчанию')}:{' '}
-              {config.default_display_name}
+              {t('admin.paymentMethods.displayNameHint')}: {config.default_display_name}
             </p>
           </div>
 
@@ -407,7 +403,7 @@ function PaymentMethodDetailModal({
           {config.available_sub_options && config.available_sub_options.length > 0 && (
             <div>
               <label className="mb-2 block text-sm font-medium text-dark-200">
-                {t('admin.paymentMethods.subOptions', 'Варианты оплаты')}
+                {t('admin.paymentMethods.subOptions')}
               </label>
               <div className="space-y-2">
                 {config.available_sub_options.map((opt) => {
@@ -443,7 +439,7 @@ function PaymentMethodDetailModal({
           <div className="grid grid-cols-2 gap-3">
             <div>
               <label className="mb-2 block text-sm font-medium text-dark-200">
-                {t('admin.paymentMethods.minAmount', 'Мин. сумма (коп.)')}
+                {t('admin.paymentMethods.minAmount')}
               </label>
               <input
                 type="number"
@@ -455,7 +451,7 @@ function PaymentMethodDetailModal({
             </div>
             <div>
               <label className="mb-2 block text-sm font-medium text-dark-200">
-                {t('admin.paymentMethods.maxAmount', 'Макс. сумма (коп.)')}
+                {t('admin.paymentMethods.maxAmount')}
               </label>
               <input
                 type="number"
@@ -470,13 +466,13 @@ function PaymentMethodDetailModal({
           {/* Display conditions */}
           <div className="border-t border-dark-700 pt-3">
             <h3 className="mb-4 text-sm font-semibold text-dark-200">
-              {t('admin.paymentMethods.conditions', 'Условия отображения')}
+              {t('admin.paymentMethods.conditions')}
             </h3>
 
             {/* User type filter */}
             <div className="mb-4">
               <label className="mb-2 block text-sm text-dark-300">
-                {t('admin.paymentMethods.userTypeFilter', 'Тип пользователя')}
+                {t('admin.paymentMethods.userTypeFilter')}
               </label>
               <div className="flex gap-2">
                 {(['all', 'telegram', 'email'] as const).map((val) => (
@@ -490,7 +486,7 @@ function PaymentMethodDetailModal({
                     }`}
                   >
                     {val === 'all'
-                      ? t('admin.paymentMethods.userTypeAll', 'Все')
+                      ? t('admin.paymentMethods.userTypeAll')
                       : val === 'telegram'
                         ? 'Telegram'
                         : 'Email'}
@@ -502,7 +498,7 @@ function PaymentMethodDetailModal({
             {/* First topup filter */}
             <div className="mb-4">
               <label className="mb-2 block text-sm text-dark-300">
-                {t('admin.paymentMethods.firstTopupFilter', 'Первое пополнение')}
+                {t('admin.paymentMethods.firstTopupFilter')}
               </label>
               <div className="flex gap-2">
                 {(['any', 'yes', 'no'] as const).map((val) => (
@@ -516,10 +512,10 @@ function PaymentMethodDetailModal({
                     }`}
                   >
                     {val === 'any'
-                      ? t('admin.paymentMethods.firstTopupAny', 'Не важно')
+                      ? t('admin.paymentMethods.firstTopupAny')
                       : val === 'yes'
-                        ? t('admin.paymentMethods.firstTopupYes', 'Было')
-                        : t('admin.paymentMethods.firstTopupNo', 'Не было')}
+                        ? t('admin.paymentMethods.firstTopupWas')
+                        : t('admin.paymentMethods.firstTopupWasNot')}
                   </button>
                 ))}
               </div>
@@ -528,7 +524,7 @@ function PaymentMethodDetailModal({
             {/* Promo groups filter */}
             <div>
               <label className="mb-2 block text-sm text-dark-300">
-                {t('admin.paymentMethods.promoGroupFilter', 'Промо-группы')}
+                {t('admin.paymentMethods.promoGroupFilter')}
               </label>
               <div className="mb-3 flex gap-2">
                 {(['all', 'selected'] as const).map((val) => (
@@ -542,8 +538,8 @@ function PaymentMethodDetailModal({
                     }`}
                   >
                     {val === 'all'
-                      ? t('admin.paymentMethods.promoGroupAll', 'Все группы')
-                      : t('admin.paymentMethods.promoGroupSelected', 'Выбранные')}
+                      ? t('admin.paymentMethods.promoGroupAll')
+                      : t('admin.paymentMethods.promoGroupSelected')}
                   </button>
                 ))}
               </div>
@@ -552,7 +548,7 @@ function PaymentMethodDetailModal({
                 <div className="max-h-48 space-y-1.5 overflow-y-auto rounded-xl border border-dark-700/50 bg-dark-900/30 p-3">
                   {promoGroups.length === 0 ? (
                     <p className="py-2 text-center text-sm text-dark-500">
-                      {t('admin.paymentMethods.noPromoGroups', 'Нет промо-групп')}
+                      {t('admin.paymentMethods.noPromoGroups')}
                     </p>
                   ) : (
                     promoGroups.map((group) => {
@@ -591,7 +587,7 @@ function PaymentMethodDetailModal({
             onClick={onClose}
             className="flex-1 rounded-xl bg-dark-700 px-4 py-2.5 font-medium text-dark-300 transition-colors hover:bg-dark-600"
           >
-            {t('common.cancel', 'Отмена')}
+            {t('admin.paymentMethods.cancelButton')}
           </button>
           <button
             onClick={handleSave}
@@ -603,7 +599,7 @@ function PaymentMethodDetailModal({
             ) : (
               <SaveIcon />
             )}
-            {t('common.save', 'Сохранить')}
+            {t('admin.paymentMethods.saveButton')}
           </button>
         </div>
       </div>
@@ -663,10 +659,10 @@ export default function AdminPaymentMethods() {
     onSuccess: () => {
       setOrderChanged(false);
       queryClient.invalidateQueries({ queryKey: ['admin-payment-methods'] });
-      setToastMessage(t('admin.paymentMethods.orderSaved', 'Порядок сохранён'));
+      setToastMessage(t('admin.paymentMethods.orderSaved'));
     },
     onError: () => {
-      setToastMessage(t('common.error', 'Ошибка'));
+      setToastMessage(t('common.error'));
     },
   });
 
@@ -677,10 +673,10 @@ export default function AdminPaymentMethods() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['admin-payment-methods'] });
       setSelectedMethod(null);
-      setToastMessage(t('admin.paymentMethods.saved', 'Настройки сохранены'));
+      setToastMessage(t('admin.paymentMethods.saved'));
     },
     onError: () => {
-      setToastMessage(t('common.error', 'Ошибка'));
+      setToastMessage(t('common.error'));
     },
   });
 
@@ -726,12 +722,8 @@ export default function AdminPaymentMethods() {
             <BackIcon />
           </Link>
           <div>
-            <h1 className="text-2xl font-bold text-dark-50">
-              {t('admin.paymentMethods.title', 'Платёжные методы')}
-            </h1>
-            <p className="text-sm text-dark-400">
-              {t('admin.paymentMethods.description', 'Настройка порядка и условий отображения')}
-            </p>
+            <h1 className="text-2xl font-bold text-dark-50">{t('admin.paymentMethods.title')}</h1>
+            <p className="text-sm text-dark-400">{t('admin.paymentMethods.description')}</p>
           </div>
         </div>
         {orderChanged && (
@@ -745,7 +737,7 @@ export default function AdminPaymentMethods() {
             ) : (
               <SaveIcon />
             )}
-            {t('admin.paymentMethods.saveOrder', 'Сохранить порядок')}
+            {t('admin.paymentMethods.saveOrder')}
           </button>
         )}
       </div>
@@ -753,10 +745,7 @@ export default function AdminPaymentMethods() {
       {/* Drag hint */}
       <div className="flex items-center gap-2 text-sm text-dark-500">
         <GripIcon />
-        {t(
-          'admin.paymentMethods.dragHint',
-          'Перетаскивайте карточки для изменения порядка. Нажмите для настройки.',
-        )}
+        {t('admin.paymentMethods.dragHint')}
       </div>
 
       {/* Methods list */}
@@ -791,9 +780,7 @@ export default function AdminPaymentMethods() {
             <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-2xl bg-dark-800">
               <span className="text-3xl">{'\uD83D\uDCB3'}</span>
             </div>
-            <div className="text-dark-400">
-              {t('admin.paymentMethods.noMethods', 'Нет настроенных платёжных методов')}
-            </div>
+            <div className="text-dark-400">{t('admin.paymentMethods.noMethods')}</div>
           </div>
         )}
       </div>

@@ -1,6 +1,8 @@
 import { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router-dom';
+import i18n from '../i18n';
 import {
   promocodesApi,
   PromoCode,
@@ -117,11 +119,11 @@ const UserIcon = () => (
 // Helper functions
 const getTypeLabel = (type: PromoCodeType): string => {
   const labels: Record<PromoCodeType, string> = {
-    balance: 'Баланс',
-    subscription_days: 'Дни подписки',
-    trial_subscription: 'Тестовая подписка',
-    promo_group: 'Группа скидок',
-    discount: 'Скидка %',
+    balance: i18n.t('admin.promocodes.type.balance'),
+    subscription_days: i18n.t('admin.promocodes.type.subscriptionDays'),
+    trial_subscription: i18n.t('admin.promocodes.type.trialSubscription'),
+    promo_group: i18n.t('admin.promocodes.type.promoGroup'),
+    discount: i18n.t('admin.promocodes.type.discount'),
   };
   return labels[type] || type;
 };
@@ -139,7 +141,9 @@ const getTypeColor = (type: PromoCodeType): string => {
 
 const formatDate = (date: string | null): string => {
   if (!date) return '-';
-  return new Date(date).toLocaleDateString('ru-RU', {
+  const localeMap: Record<string, string> = { ru: 'ru-RU', en: 'en-US', zh: 'zh-CN', fa: 'fa-IR' };
+  const locale = localeMap[i18n.language] || 'ru-RU';
+  return new Date(date).toLocaleDateString(locale, {
     day: '2-digit',
     month: '2-digit',
     year: 'numeric',
@@ -148,7 +152,9 @@ const formatDate = (date: string | null): string => {
 
 const formatDateTime = (date: string | null): string => {
   if (!date) return '-';
-  return new Date(date).toLocaleString('ru-RU', {
+  const localeMap: Record<string, string> = { ru: 'ru-RU', en: 'en-US', zh: 'zh-CN', fa: 'fa-IR' };
+  const locale = localeMap[i18n.language] || 'ru-RU';
+  return new Date(date).toLocaleString(locale, {
     day: '2-digit',
     month: '2-digit',
     year: 'numeric',
@@ -173,6 +179,7 @@ function PromocodeModal({
   onClose,
   isLoading,
 }: PromocodeModalProps) {
+  const { t } = useTranslation();
   const isEdit = !!promocode;
 
   const [code, setCode] = useState(promocode?.code || '');
@@ -233,7 +240,9 @@ function PromocodeModal({
         {/* Header */}
         <div className="flex items-center justify-between border-b border-dark-700 p-4">
           <h2 className="text-lg font-semibold text-dark-100">
-            {isEdit ? 'Редактирование промокода' : 'Новый промокод'}
+            {isEdit
+              ? t('admin.promocodes.modal.editPromocode')
+              : t('admin.promocodes.modal.newPromocode')}
           </h2>
           <button onClick={onClose} className="rounded-lg p-1 transition-colors hover:bg-dark-700">
             <XIcon />
@@ -244,7 +253,9 @@ function PromocodeModal({
         <div className="flex-1 space-y-4 overflow-y-auto p-4">
           {/* Code */}
           <div>
-            <label className="mb-1 block text-sm text-dark-300">Код промокода</label>
+            <label className="mb-1 block text-sm text-dark-300">
+              {t('admin.promocodes.form.code')}
+            </label>
             <input
               type="text"
               value={code}
@@ -256,24 +267,32 @@ function PromocodeModal({
 
           {/* Type */}
           <div>
-            <label className="mb-1 block text-sm text-dark-300">Тип промокода</label>
+            <label className="mb-1 block text-sm text-dark-300">
+              {t('admin.promocodes.form.type')}
+            </label>
             <select
               value={type}
               onChange={(e) => setType(e.target.value as PromoCodeType)}
               className="w-full rounded-lg border border-dark-600 bg-dark-700 px-3 py-2 text-dark-100 focus:border-accent-500 focus:outline-none"
             >
-              <option value="balance">Пополнение баланса</option>
-              <option value="subscription_days">Дни подписки</option>
-              <option value="trial_subscription">Тестовая подписка</option>
-              <option value="promo_group">Группа скидок</option>
-              <option value="discount">Процентная скидка</option>
+              <option value="balance">{t('admin.promocodes.form.typeBalance')}</option>
+              <option value="subscription_days">
+                {t('admin.promocodes.form.typeSubscriptionDays')}
+              </option>
+              <option value="trial_subscription">
+                {t('admin.promocodes.form.typeTrialSubscription')}
+              </option>
+              <option value="promo_group">{t('admin.promocodes.form.typePromoGroup')}</option>
+              <option value="discount">{t('admin.promocodes.form.typeDiscount')}</option>
             </select>
           </div>
 
           {/* Type-specific fields */}
           {type === 'balance' && (
             <div>
-              <label className="mb-1 block text-sm text-dark-300">Сумма бонуса</label>
+              <label className="mb-1 block text-sm text-dark-300">
+                {t('admin.promocodes.form.bonusAmount')}
+              </label>
               <div className="flex items-center gap-2">
                 <input
                   type="number"
@@ -285,14 +304,16 @@ function PromocodeModal({
                   min={0}
                   step={1}
                 />
-                <span className="text-dark-400">руб.</span>
+                <span className="text-dark-400">{t('admin.promocodes.form.rub')}</span>
               </div>
             </div>
           )}
 
           {(type === 'subscription_days' || type === 'trial_subscription') && (
             <div>
-              <label className="mb-1 block text-sm text-dark-300">Количество дней</label>
+              <label className="mb-1 block text-sm text-dark-300">
+                {t('admin.promocodes.form.daysCount')}
+              </label>
               <div className="flex items-center gap-2">
                 <input
                   type="number"
@@ -301,20 +322,22 @@ function PromocodeModal({
                   className="w-32 rounded-lg border border-dark-600 bg-dark-700 px-3 py-2 text-dark-100 focus:border-accent-500 focus:outline-none"
                   min={1}
                 />
-                <span className="text-dark-400">дней</span>
+                <span className="text-dark-400">{t('admin.promocodes.form.days')}</span>
               </div>
             </div>
           )}
 
           {type === 'promo_group' && (
             <div>
-              <label className="mb-1 block text-sm text-dark-300">Группа скидок</label>
+              <label className="mb-1 block text-sm text-dark-300">
+                {t('admin.promocodes.form.discountGroup')}
+              </label>
               <select
                 value={promoGroupId || ''}
                 onChange={(e) => setPromoGroupId(e.target.value ? parseInt(e.target.value) : null)}
                 className="w-full rounded-lg border border-dark-600 bg-dark-700 px-3 py-2 text-dark-100 focus:border-accent-500 focus:outline-none"
               >
-                <option value="">Выберите группу...</option>
+                <option value="">{t('admin.promocodes.form.selectGroup')}</option>
                 {promoGroups.map((group) => (
                   <option key={group.id} value={group.id}>
                     {group.name}
@@ -327,7 +350,9 @@ function PromocodeModal({
           {type === 'discount' && (
             <>
               <div>
-                <label className="mb-1 block text-sm text-dark-300">Процент скидки</label>
+                <label className="mb-1 block text-sm text-dark-300">
+                  {t('admin.promocodes.form.discountPercent')}
+                </label>
                 <div className="flex items-center gap-2">
                   <input
                     type="number"
@@ -343,10 +368,14 @@ function PromocodeModal({
                   />
                   <span className="text-dark-400">%</span>
                 </div>
-                <p className="mt-1 text-xs text-dark-500">Скидка применяется один раз при оплате</p>
+                <p className="mt-1 text-xs text-dark-500">
+                  {t('admin.promocodes.form.discountHint')}
+                </p>
               </div>
               <div>
-                <label className="mb-1 block text-sm text-dark-300">Время действия</label>
+                <label className="mb-1 block text-sm text-dark-300">
+                  {t('admin.promocodes.form.validityPeriod')}
+                </label>
                 <div className="flex items-center gap-2">
                   <input
                     type="number"
@@ -357,10 +386,10 @@ function PromocodeModal({
                     className="w-32 rounded-lg border border-dark-600 bg-dark-700 px-3 py-2 text-dark-100 focus:border-accent-500 focus:outline-none"
                     min={1}
                   />
-                  <span className="text-dark-400">часов</span>
+                  <span className="text-dark-400">{t('admin.promocodes.form.hours')}</span>
                 </div>
                 <p className="mt-1 text-xs text-dark-500">
-                  Сколько часов после активации скидка действует
+                  {t('admin.promocodes.form.validityHint')}
                 </p>
               </div>
             </>
@@ -368,7 +397,9 @@ function PromocodeModal({
 
           {/* Max Uses */}
           <div>
-            <label className="mb-1 block text-sm text-dark-300">Макс. использований</label>
+            <label className="mb-1 block text-sm text-dark-300">
+              {t('admin.promocodes.form.maxUses')}
+            </label>
             <div className="flex items-center gap-2">
               <input
                 type="number"
@@ -377,20 +408,26 @@ function PromocodeModal({
                 className="w-32 rounded-lg border border-dark-600 bg-dark-700 px-3 py-2 text-dark-100 focus:border-accent-500 focus:outline-none"
                 min={0}
               />
-              <span className="text-xs text-dark-500">0 = безлимит</span>
+              <span className="text-xs text-dark-500">
+                {t('admin.promocodes.form.unlimitedHint')}
+              </span>
             </div>
           </div>
 
           {/* Valid Until */}
           <div>
-            <label className="mb-1 block text-sm text-dark-300">Действует до</label>
+            <label className="mb-1 block text-sm text-dark-300">
+              {t('admin.promocodes.form.validUntil')}
+            </label>
             <input
               type="date"
               value={validUntil}
               onChange={(e) => setValidUntil(e.target.value)}
               className="w-full rounded-lg border border-dark-600 bg-dark-700 px-3 py-2 text-dark-100 focus:border-accent-500 focus:outline-none"
             />
-            <p className="mt-1 text-xs text-dark-500">Оставьте пустым для бессрочного промокода</p>
+            <p className="mt-1 text-xs text-dark-500">
+              {t('admin.promocodes.form.validUntilHint')}
+            </p>
           </div>
 
           {/* Options */}
@@ -409,7 +446,7 @@ function PromocodeModal({
                   }`}
                 />
               </button>
-              <span className="text-sm text-dark-200">Активен</span>
+              <span className="text-sm text-dark-200">{t('admin.promocodes.form.active')}</span>
             </label>
 
             <label className="flex cursor-pointer items-center gap-3">
@@ -426,7 +463,9 @@ function PromocodeModal({
                   }`}
                 />
               </button>
-              <span className="text-sm text-dark-200">Только для первой покупки</span>
+              <span className="text-sm text-dark-200">
+                {t('admin.promocodes.form.firstPurchaseOnly')}
+              </span>
             </label>
           </div>
         </div>
@@ -437,14 +476,14 @@ function PromocodeModal({
             onClick={onClose}
             className="px-4 py-2 text-dark-300 transition-colors hover:text-dark-100"
           >
-            Отмена
+            {t('admin.promocodes.form.cancel')}
           </button>
           <button
             onClick={handleSubmit}
             disabled={!isValid() || isLoading}
             className="rounded-lg bg-accent-500 px-4 py-2 text-white transition-colors hover:bg-accent-600 disabled:cursor-not-allowed disabled:opacity-50"
           >
-            {isLoading ? 'Сохранение...' : 'Сохранить'}
+            {isLoading ? t('admin.promocodes.form.saving') : t('admin.promocodes.form.save')}
           </button>
         </div>
       </div>
@@ -466,6 +505,7 @@ interface PeriodDiscount {
 }
 
 function PromoGroupModal({ group, onSave, onClose, isLoading }: PromoGroupModalProps) {
+  const { t } = useTranslation();
   const isEdit = !!group;
 
   const [name, setName] = useState(group?.name || '');
@@ -531,7 +571,7 @@ function PromoGroupModal({ group, onSave, onClose, isLoading }: PromoGroupModalP
         {/* Header */}
         <div className="flex items-center justify-between border-b border-dark-700 p-4">
           <h2 className="text-lg font-semibold text-dark-100">
-            {isEdit ? 'Редактирование группы' : 'Новая группа скидок'}
+            {isEdit ? t('admin.promocodes.modal.editGroup') : t('admin.promocodes.modal.newGroup')}
           </h2>
           <button onClick={onClose} className="rounded-lg p-1 transition-colors hover:bg-dark-700">
             <XIcon />
@@ -542,22 +582,28 @@ function PromoGroupModal({ group, onSave, onClose, isLoading }: PromoGroupModalP
         <div className="flex-1 space-y-4 overflow-y-auto p-4">
           {/* Name */}
           <div>
-            <label className="mb-1 block text-sm text-dark-300">Название группы</label>
+            <label className="mb-1 block text-sm text-dark-300">
+              {t('admin.promocodes.groups.name')}
+            </label>
             <input
               type="text"
               value={name}
               onChange={(e) => setName(e.target.value)}
               className="w-full rounded-lg border border-dark-600 bg-dark-700 px-3 py-2 text-dark-100 focus:border-accent-500 focus:outline-none"
-              placeholder="VIP клиенты"
+              placeholder={t('admin.promocodes.groups.namePlaceholder')}
             />
           </div>
 
           {/* Category Discounts */}
           <div className="space-y-3 rounded-lg bg-dark-700/50 p-4">
-            <h4 className="mb-3 text-sm font-medium text-dark-200">Скидки по категориям</h4>
+            <h4 className="mb-3 text-sm font-medium text-dark-200">
+              {t('admin.promocodes.groups.categoryDiscounts')}
+            </h4>
 
             <div className="flex items-center gap-3">
-              <span className="w-32 text-sm text-dark-400">На серверы:</span>
+              <span className="w-32 text-sm text-dark-400">
+                {t('admin.promocodes.groups.servers')}:
+              </span>
               <input
                 type="number"
                 value={serverDiscount}
@@ -572,7 +618,9 @@ function PromoGroupModal({ group, onSave, onClose, isLoading }: PromoGroupModalP
             </div>
 
             <div className="flex items-center gap-3">
-              <span className="w-32 text-sm text-dark-400">На трафик:</span>
+              <span className="w-32 text-sm text-dark-400">
+                {t('admin.promocodes.groups.traffic')}:
+              </span>
               <input
                 type="number"
                 value={trafficDiscount}
@@ -587,7 +635,9 @@ function PromoGroupModal({ group, onSave, onClose, isLoading }: PromoGroupModalP
             </div>
 
             <div className="flex items-center gap-3">
-              <span className="w-32 text-sm text-dark-400">На устройства:</span>
+              <span className="w-32 text-sm text-dark-400">
+                {t('admin.promocodes.groups.devices')}:
+              </span>
               <input
                 type="number"
                 value={deviceDiscount}
@@ -605,22 +655,26 @@ function PromoGroupModal({ group, onSave, onClose, isLoading }: PromoGroupModalP
           {/* Period Discounts */}
           <div className="space-y-3 rounded-lg bg-dark-700/50 p-4">
             <div className="mb-2 flex items-center justify-between">
-              <h4 className="text-sm font-medium text-dark-200">Скидки по периодам</h4>
+              <h4 className="text-sm font-medium text-dark-200">
+                {t('admin.promocodes.groups.periodDiscounts')}
+              </h4>
               <button
                 type="button"
                 onClick={addPeriodDiscount}
                 className="flex items-center gap-1 rounded bg-accent-500/20 px-2 py-1 text-xs text-accent-400 transition-colors hover:bg-accent-500/30"
               >
                 <PlusIcon />
-                Добавить
+                {t('admin.promocodes.groups.add')}
               </button>
             </div>
             <p className="mb-3 text-xs text-dark-500">
-              Скидка применяется при покупке подписки на указанное кол-во дней
+              {t('admin.promocodes.groups.periodDiscountsHint')}
             </p>
 
             {periodDiscounts.length === 0 ? (
-              <p className="py-2 text-center text-sm text-dark-500">Нет скидок по периодам</p>
+              <p className="py-2 text-center text-sm text-dark-500">
+                {t('admin.promocodes.groups.noPeriodDiscounts')}
+              </p>
             ) : (
               <div className="space-y-2">
                 {periodDiscounts.map((pd, index) => (
@@ -637,9 +691,11 @@ function PromoGroupModal({ group, onSave, onClose, isLoading }: PromoGroupModalP
                       }
                       className="w-20 rounded border border-dark-500 bg-dark-600 px-2 py-1 text-dark-100 focus:border-accent-500 focus:outline-none"
                       min={1}
-                      placeholder="Дни"
+                      placeholder={t('admin.promocodes.groups.daysPlaceholder')}
                     />
-                    <span className="text-xs text-dark-400">дней →</span>
+                    <span className="text-xs text-dark-400">
+                      {t('admin.promocodes.groups.daysArrow')}
+                    </span>
                     <input
                       type="number"
                       value={pd.percent}
@@ -672,7 +728,7 @@ function PromoGroupModal({ group, onSave, onClose, isLoading }: PromoGroupModalP
           {/* Auto-assign */}
           <div>
             <label className="mb-1 block text-sm text-dark-300">
-              Авто-назначение при тратах от
+              {t('admin.promocodes.groups.autoAssign')}
             </label>
             <div className="flex items-center gap-2">
               <input
@@ -682,9 +738,11 @@ function PromoGroupModal({ group, onSave, onClose, isLoading }: PromoGroupModalP
                 className="w-32 rounded-lg border border-dark-600 bg-dark-700 px-3 py-2 text-dark-100 focus:border-accent-500 focus:outline-none"
                 min={0}
               />
-              <span className="text-dark-400">руб.</span>
+              <span className="text-dark-400">{t('admin.promocodes.form.rub')}</span>
             </div>
-            <p className="mt-1 text-xs text-dark-500">0 = не назначать автоматически</p>
+            <p className="mt-1 text-xs text-dark-500">
+              {t('admin.promocodes.groups.autoAssignHint')}
+            </p>
           </div>
 
           {/* Apply to addons */}
@@ -702,7 +760,9 @@ function PromoGroupModal({ group, onSave, onClose, isLoading }: PromoGroupModalP
                 }`}
               />
             </button>
-            <span className="text-sm text-dark-200">Применять к дополнительным услугам</span>
+            <span className="text-sm text-dark-200">
+              {t('admin.promocodes.groups.applyToAddons')}
+            </span>
           </label>
         </div>
 
@@ -712,14 +772,14 @@ function PromoGroupModal({ group, onSave, onClose, isLoading }: PromoGroupModalP
             onClick={onClose}
             className="px-4 py-2 text-dark-300 transition-colors hover:text-dark-100"
           >
-            Отмена
+            {t('admin.promocodes.form.cancel')}
           </button>
           <button
             onClick={handleSubmit}
             disabled={!name.trim() || isLoading}
             className="rounded-lg bg-accent-500 px-4 py-2 text-white transition-colors hover:bg-accent-600 disabled:cursor-not-allowed disabled:opacity-50"
           >
-            {isLoading ? 'Сохранение...' : 'Сохранить'}
+            {isLoading ? t('admin.promocodes.form.saving') : t('admin.promocodes.form.save')}
           </button>
         </div>
       </div>
@@ -735,6 +795,7 @@ interface PromocodeStatsModalProps {
 }
 
 function PromocodeStatsModal({ promocode, onClose, onEdit }: PromocodeStatsModalProps) {
+  const { t } = useTranslation();
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
       <div className="flex max-h-[90vh] w-full max-w-2xl flex-col overflow-hidden rounded-xl bg-dark-800">
@@ -751,7 +812,7 @@ function PromocodeStatsModal({ promocode, onClose, onEdit }: PromocodeStatsModal
             </span>
             {!promocode.is_active && (
               <span className="rounded bg-dark-600 px-2 py-0.5 text-xs text-dark-400">
-                Неактивен
+                {t('admin.promocodes.stats.inactive')}
               </span>
             )}
           </div>
@@ -766,79 +827,95 @@ function PromocodeStatsModal({ promocode, onClose, onEdit }: PromocodeStatsModal
           <div className="grid grid-cols-3 gap-4">
             <div className="rounded-xl bg-dark-700/50 p-4 text-center">
               <div className="mb-1 text-3xl font-bold text-dark-100">{promocode.total_uses}</div>
-              <div className="text-sm text-dark-400">Всего использований</div>
+              <div className="text-sm text-dark-400">{t('admin.promocodes.stats.totalUses')}</div>
             </div>
             <div className="rounded-xl bg-dark-700/50 p-4 text-center">
               <div className="mb-1 text-3xl font-bold text-emerald-400">{promocode.today_uses}</div>
-              <div className="text-sm text-dark-400">Сегодня</div>
+              <div className="text-sm text-dark-400">{t('admin.promocodes.stats.today')}</div>
             </div>
             <div className="rounded-xl bg-dark-700/50 p-4 text-center">
               <div className="mb-1 text-3xl font-bold text-accent-400">
                 {promocode.max_uses === 0 ? '∞' : promocode.uses_left}
               </div>
-              <div className="text-sm text-dark-400">Осталось</div>
+              <div className="text-sm text-dark-400">{t('admin.promocodes.stats.remaining')}</div>
             </div>
           </div>
 
           {/* Details */}
           <div className="space-y-3 rounded-xl bg-dark-700/50 p-4">
-            <h4 className="mb-3 font-medium text-dark-200">Детали промокода</h4>
+            <h4 className="mb-3 font-medium text-dark-200">
+              {t('admin.promocodes.stats.details')}
+            </h4>
             <div className="grid grid-cols-2 gap-3 text-sm">
               <div className="flex justify-between">
-                <span className="text-dark-400">Тип:</span>
+                <span className="text-dark-400">{t('admin.promocodes.stats.type')}:</span>
                 <span className="text-dark-200">{getTypeLabel(promocode.type)}</span>
               </div>
               {promocode.type === 'balance' && (
                 <div className="flex justify-between">
-                  <span className="text-dark-400">Бонус:</span>
-                  <span className="text-emerald-400">+{promocode.balance_bonus_rubles} руб.</span>
+                  <span className="text-dark-400">{t('admin.promocodes.stats.bonus')}:</span>
+                  <span className="text-emerald-400">
+                    +{promocode.balance_bonus_rubles} {t('admin.promocodes.form.rub')}
+                  </span>
                 </div>
               )}
               {(promocode.type === 'subscription_days' ||
                 promocode.type === 'trial_subscription') && (
                 <div className="flex justify-between">
-                  <span className="text-dark-400">Дней:</span>
+                  <span className="text-dark-400">{t('admin.promocodes.stats.daysLabel')}:</span>
                   <span className="text-blue-400">+{promocode.subscription_days}</span>
                 </div>
               )}
               {promocode.type === 'discount' && (
                 <>
                   <div className="flex justify-between">
-                    <span className="text-dark-400">Скидка:</span>
+                    <span className="text-dark-400">
+                      {t('admin.promocodes.stats.discountLabel')}:
+                    </span>
                     <span className="text-pink-400">-{promocode.balance_bonus_kopeks}%</span>
                   </div>
                   <div className="flex justify-between">
-                    <span className="text-dark-400">Действует:</span>
-                    <span className="text-pink-400">{promocode.subscription_days} часов</span>
+                    <span className="text-dark-400">{t('admin.promocodes.stats.validFor')}:</span>
+                    <span className="text-pink-400">
+                      {t('admin.promocodes.stats.hoursValue', {
+                        count: promocode.subscription_days,
+                      })}
+                    </span>
                   </div>
                 </>
               )}
               <div className="flex justify-between">
-                <span className="text-dark-400">Лимит:</span>
+                <span className="text-dark-400">{t('admin.promocodes.stats.limit')}:</span>
                 <span className="text-dark-200">
                   {promocode.current_uses}/{promocode.max_uses === 0 ? '∞' : promocode.max_uses}
                 </span>
               </div>
               <div className="flex justify-between">
-                <span className="text-dark-400">Статус:</span>
+                <span className="text-dark-400">{t('admin.promocodes.stats.status')}:</span>
                 <span className={promocode.is_valid ? 'text-emerald-400' : 'text-error-400'}>
-                  {promocode.is_valid ? 'Активен' : 'Неактивен'}
+                  {promocode.is_valid
+                    ? t('admin.promocodes.stats.active')
+                    : t('admin.promocodes.stats.inactive')}
                 </span>
               </div>
               <div className="flex justify-between">
-                <span className="text-dark-400">Создан:</span>
+                <span className="text-dark-400">{t('admin.promocodes.stats.created')}:</span>
                 <span className="text-dark-200">{formatDateTime(promocode.created_at)}</span>
               </div>
               <div className="flex justify-between">
-                <span className="text-dark-400">Действует до:</span>
+                <span className="text-dark-400">{t('admin.promocodes.stats.validUntil')}:</span>
                 <span className="text-dark-200">
-                  {promocode.valid_until ? formatDate(promocode.valid_until) : 'Бессрочно'}
+                  {promocode.valid_until
+                    ? formatDate(promocode.valid_until)
+                    : t('admin.promocodes.stats.unlimited')}
                 </span>
               </div>
               {promocode.first_purchase_only && (
                 <div className="col-span-2 flex justify-between">
-                  <span className="text-dark-400">Ограничение:</span>
-                  <span className="text-amber-400">Только первая покупка</span>
+                  <span className="text-dark-400">{t('admin.promocodes.stats.restriction')}:</span>
+                  <span className="text-amber-400">
+                    {t('admin.promocodes.stats.firstPurchaseOnly')}
+                  </span>
                 </div>
               )}
             </div>
@@ -848,11 +925,11 @@ function PromocodeStatsModal({ promocode, onClose, onEdit }: PromocodeStatsModal
           <div className="rounded-xl bg-dark-700/50 p-4">
             <h4 className="mb-3 flex items-center gap-2 font-medium text-dark-200">
               <ClockIcon />
-              История использования
+              {t('admin.promocodes.stats.usageHistory')}
             </h4>
             {promocode.recent_uses.length === 0 ? (
               <p className="py-4 text-center text-sm text-dark-500">
-                Промокод еще не использовался
+                {t('admin.promocodes.stats.noUsages')}
               </p>
             ) : (
               <div className="max-h-64 space-y-2 overflow-y-auto">
@@ -888,14 +965,14 @@ function PromocodeStatsModal({ promocode, onClose, onEdit }: PromocodeStatsModal
             onClick={onClose}
             className="px-4 py-2 text-dark-300 transition-colors hover:text-dark-100"
           >
-            Закрыть
+            {t('admin.promocodes.modal.close')}
           </button>
           <button
             onClick={onEdit}
             className="flex items-center gap-2 rounded-lg bg-accent-500 px-4 py-2 text-white transition-colors hover:bg-accent-600"
           >
             <EditIcon />
-            Редактировать
+            {t('admin.promocodes.modal.edit')}
           </button>
         </div>
       </div>
@@ -904,6 +981,7 @@ function PromocodeStatsModal({ promocode, onClose, onEdit }: PromocodeStatsModal
 }
 
 export default function AdminPromocodes() {
+  const { t } = useTranslation();
   const queryClient = useQueryClient();
 
   const [activeTab, setActiveTab] = useState<'promocodes' | 'groups'>('promocodes');
@@ -1048,8 +1126,8 @@ export default function AdminPromocodes() {
             <BackIcon />
           </Link>
           <div>
-            <h1 className="text-xl font-semibold text-dark-100">Промокоды</h1>
-            <p className="text-sm text-dark-400">Управление промокодами и группами скидок</p>
+            <h1 className="text-xl font-semibold text-dark-100">{t('admin.promocodes.title')}</h1>
+            <p className="text-sm text-dark-400">{t('admin.promocodes.subtitle')}</p>
           </div>
         </div>
         <button
@@ -1065,7 +1143,9 @@ export default function AdminPromocodes() {
           className="flex items-center gap-2 rounded-lg bg-accent-500 px-4 py-2 text-white transition-colors hover:bg-accent-600"
         >
           <PlusIcon />
-          {activeTab === 'promocodes' ? 'Добавить промокод' : 'Добавить группу'}
+          {activeTab === 'promocodes'
+            ? t('admin.promocodes.addPromocode')
+            : t('admin.promocodes.addGroup')}
         </button>
       </div>
 
@@ -1074,25 +1154,27 @@ export default function AdminPromocodes() {
         <div className="mb-6 grid grid-cols-2 gap-3 sm:grid-cols-4">
           <div className="rounded-xl border border-dark-700 bg-dark-800 p-4">
             <div className="text-2xl font-bold text-dark-100">{promocodes.length}</div>
-            <div className="text-xs text-dark-400">Всего промокодов</div>
+            <div className="text-xs text-dark-400">
+              {t('admin.promocodes.stats.totalPromocodes')}
+            </div>
           </div>
           <div className="rounded-xl border border-dark-700 bg-dark-800 p-4">
             <div className="text-2xl font-bold text-emerald-400">
               {promocodes.filter((p) => p.is_active && p.is_valid).length}
             </div>
-            <div className="text-xs text-dark-400">Активных</div>
+            <div className="text-xs text-dark-400">{t('admin.promocodes.stats.activeCount')}</div>
           </div>
           <div className="rounded-xl border border-dark-700 bg-dark-800 p-4">
             <div className="text-2xl font-bold text-accent-400">
               {promocodes.reduce((sum, p) => sum + p.current_uses, 0)}
             </div>
-            <div className="text-xs text-dark-400">Использований</div>
+            <div className="text-xs text-dark-400">{t('admin.promocodes.stats.usagesCount')}</div>
           </div>
           <div className="rounded-xl border border-dark-700 bg-dark-800 p-4">
             <div className="text-2xl font-bold text-amber-400">
               {promocodes.filter((p) => p.uses_left === 0 && p.max_uses > 0).length}
             </div>
-            <div className="text-xs text-dark-400">Исчерпано</div>
+            <div className="text-xs text-dark-400">{t('admin.promocodes.stats.exhausted')}</div>
           </div>
         </div>
       )}
@@ -1107,7 +1189,7 @@ export default function AdminPromocodes() {
               : 'text-dark-400 hover:text-dark-200'
           }`}
         >
-          Промокоды ({promocodes.length})
+          {t('admin.promocodes.tabs.promocodes', { count: promocodes.length })}
         </button>
         <button
           onClick={() => setActiveTab('groups')}
@@ -1117,7 +1199,7 @@ export default function AdminPromocodes() {
               : 'text-dark-400 hover:text-dark-200'
           }`}
         >
-          Группы скидок ({groups.length})
+          {t('admin.promocodes.tabs.groups', { count: groups.length })}
         </button>
       </div>
 
@@ -1130,7 +1212,7 @@ export default function AdminPromocodes() {
             </div>
           ) : promocodes.length === 0 ? (
             <div className="py-12 text-center">
-              <p className="text-dark-400">Нет промокодов</p>
+              <p className="text-dark-400">{t('admin.promocodes.noPromocodes')}</p>
             </div>
           ) : (
             <div className="space-y-3">
@@ -1156,35 +1238,44 @@ export default function AdminPromocodes() {
                         </span>
                         {!promo.is_active && (
                           <span className="rounded bg-dark-600 px-2 py-0.5 text-xs text-dark-400">
-                            Неактивен
+                            {t('admin.promocodes.stats.inactive')}
                           </span>
                         )}
                         {promo.first_purchase_only && (
                           <span className="rounded bg-amber-500/20 px-2 py-0.5 text-xs text-amber-400">
-                            Первая покупка
+                            {t('admin.promocodes.firstPurchase')}
                           </span>
                         )}
                       </div>
                       <div className="flex flex-wrap gap-x-4 gap-y-1 text-sm text-dark-400">
                         {promo.type === 'balance' && (
                           <span className="text-emerald-400">
-                            +{promo.balance_bonus_rubles} руб.
+                            +{promo.balance_bonus_rubles} {t('admin.promocodes.form.rub')}
                           </span>
                         )}
                         {(promo.type === 'subscription_days' ||
                           promo.type === 'trial_subscription') && (
-                          <span className="text-blue-400">+{promo.subscription_days} дней</span>
+                          <span className="text-blue-400">
+                            +{promo.subscription_days} {t('admin.promocodes.form.days')}
+                          </span>
                         )}
                         {promo.type === 'discount' && (
                           <span className="text-pink-400">
-                            -{promo.balance_bonus_kopeks}% на {promo.subscription_days}ч
+                            {t('admin.promocodes.discountForHours', {
+                              percent: promo.balance_bonus_kopeks,
+                              hours: promo.subscription_days,
+                            })}
                           </span>
                         )}
                         <span>
-                          Использовано: {promo.current_uses}/
+                          {t('admin.promocodes.used')}: {promo.current_uses}/
                           {promo.max_uses === 0 ? '∞' : promo.max_uses}
                         </span>
-                        {promo.valid_until && <span>До: {formatDate(promo.valid_until)}</span>}
+                        {promo.valid_until && (
+                          <span>
+                            {t('admin.promocodes.until')}: {formatDate(promo.valid_until)}
+                          </span>
+                        )}
                       </div>
                     </div>
 
@@ -1192,21 +1283,21 @@ export default function AdminPromocodes() {
                       <button
                         onClick={() => handleViewStats(promo.id)}
                         className="rounded-lg bg-dark-700 p-2 text-dark-300 transition-colors hover:bg-accent-500/20 hover:text-accent-400"
-                        title="Статистика"
+                        title={t('admin.promocodes.actions.stats')}
                       >
                         <ChartIcon />
                       </button>
                       <button
                         onClick={() => handleEditPromocode(promo.id)}
                         className="rounded-lg bg-dark-700 p-2 text-dark-300 transition-colors hover:bg-dark-600 hover:text-dark-100"
-                        title="Редактировать"
+                        title={t('admin.promocodes.actions.edit')}
                       >
                         <EditIcon />
                       </button>
                       <button
                         onClick={() => setDeleteConfirm({ type: 'promocode', id: promo.id })}
                         className="rounded-lg bg-dark-700 p-2 text-dark-300 transition-colors hover:bg-error-500/20 hover:text-error-400"
-                        title="Удалить"
+                        title={t('admin.promocodes.actions.delete')}
                       >
                         <TrashIcon />
                       </button>
@@ -1228,7 +1319,7 @@ export default function AdminPromocodes() {
             </div>
           ) : groups.length === 0 ? (
             <div className="py-12 text-center">
-              <p className="text-dark-400">Нет групп скидок</p>
+              <p className="text-dark-400">{t('admin.promocodes.noGroups')}</p>
             </div>
           ) : (
             <div className="space-y-3">
@@ -1240,36 +1331,47 @@ export default function AdminPromocodes() {
                         <h3 className="font-medium text-dark-100">{group.name}</h3>
                         {group.is_default && (
                           <span className="rounded bg-accent-500/20 px-2 py-0.5 text-xs text-accent-400">
-                            По умолчанию
+                            {t('admin.promocodes.groups.default')}
                           </span>
                         )}
                       </div>
                       <div className="flex flex-wrap gap-x-4 gap-y-1 text-sm text-dark-400">
                         {group.server_discount_percent > 0 && (
-                          <span>Серверы: -{group.server_discount_percent}%</span>
+                          <span>
+                            {t('admin.promocodes.groups.servers')}: -{group.server_discount_percent}
+                            %
+                          </span>
                         )}
                         {group.traffic_discount_percent > 0 && (
-                          <span>Трафик: -{group.traffic_discount_percent}%</span>
+                          <span>
+                            {t('admin.promocodes.groups.traffic')}: -
+                            {group.traffic_discount_percent}%
+                          </span>
                         )}
                         {group.device_discount_percent > 0 && (
-                          <span>Устройства: -{group.device_discount_percent}%</span>
+                          <span>
+                            {t('admin.promocodes.groups.devices')}: -{group.device_discount_percent}
+                            %
+                          </span>
                         )}
                         {group.period_discounts &&
                           Object.keys(group.period_discounts).length > 0 &&
                           Object.entries(group.period_discounts).map(([days, percent]) => (
                             <span key={days} className="text-accent-400">
-                              {days} дн.: -{percent}%
+                              {t('admin.promocodes.groups.daysShort', { days })}: -{percent}%
                             </span>
                           ))}
                         {group.auto_assign_total_spent_kopeks &&
                           group.auto_assign_total_spent_kopeks > 0 && (
                             <span className="text-amber-400">
-                              Авто от {group.auto_assign_total_spent_kopeks / 100} руб.
+                              {t('admin.promocodes.groups.autoFrom', {
+                                amount: group.auto_assign_total_spent_kopeks / 100,
+                              })}
                             </span>
                           )}
                         <span className="flex items-center gap-1">
                           <UsersIcon />
-                          {group.members_count} участников
+                          {t('admin.promocodes.groups.members', { count: group.members_count })}
                         </span>
                       </div>
                     </div>
@@ -1281,14 +1383,14 @@ export default function AdminPromocodes() {
                           setShowGroupModal(true);
                         }}
                         className="rounded-lg bg-dark-700 p-2 text-dark-300 transition-colors hover:bg-dark-600 hover:text-dark-100"
-                        title="Редактировать"
+                        title={t('admin.promocodes.actions.edit')}
                       >
                         <EditIcon />
                       </button>
                       <button
                         onClick={() => setDeleteConfirm({ type: 'group', id: group.id })}
                         className="rounded-lg bg-dark-700 p-2 text-dark-300 transition-colors hover:bg-error-500/20 hover:text-error-400"
-                        title="Удалить"
+                        title={t('admin.promocodes.actions.delete')}
                         disabled={group.is_default}
                       >
                         <TrashIcon />
@@ -1347,25 +1449,27 @@ export default function AdminPromocodes() {
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
           <div className="w-full max-w-sm rounded-xl bg-dark-800 p-6">
             <h3 className="mb-2 text-lg font-semibold text-dark-100">
-              {deleteConfirm.type === 'promocode' ? 'Удалить промокод?' : 'Удалить группу?'}
+              {deleteConfirm.type === 'promocode'
+                ? t('admin.promocodes.confirm.deletePromocode')
+                : t('admin.promocodes.confirm.deleteGroup')}
             </h3>
             <p className="mb-6 text-dark-400">
               {deleteConfirm.type === 'promocode'
-                ? 'Промокод будет удален безвозвратно.'
-                : 'Группа будет удалена. Пользователи потеряют скидки этой группы.'}
+                ? t('admin.promocodes.confirm.deletePromocodeText')
+                : t('admin.promocodes.confirm.deleteGroupText')}
             </p>
             <div className="flex justify-end gap-3">
               <button
                 onClick={() => setDeleteConfirm(null)}
                 className="px-4 py-2 text-dark-300 transition-colors hover:text-dark-100"
               >
-                Отмена
+                {t('admin.promocodes.form.cancel')}
               </button>
               <button
                 onClick={handleDelete}
                 className="rounded-lg bg-error-500 px-4 py-2 text-white transition-colors hover:bg-error-600"
               >
-                Удалить
+                {t('admin.promocodes.confirm.deleteButton')}
               </button>
             </div>
           </div>

@@ -83,12 +83,8 @@ export default function AdminPayments() {
             </svg>
           </Link>
           <div>
-            <h1 className="text-2xl font-bold text-dark-50">
-              {t('admin.payments.title', 'Проверка платежей')}
-            </h1>
-            <p className="text-sm text-dark-400">
-              {t('admin.payments.description', 'Ожидающие платежи за последние 24 часа')}
-            </p>
+            <h1 className="text-2xl font-bold text-dark-50">{t('admin.payments.title')}</h1>
+            <p className="text-sm text-dark-400">{t('admin.payments.description')}</p>
           </div>
         </div>
         <button onClick={() => refetch()} className="btn-secondary flex items-center gap-2">
@@ -105,7 +101,7 @@ export default function AdminPayments() {
               d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0l3.181 3.183a8.25 8.25 0 0013.803-3.7M4.031 9.865a8.25 8.25 0 0113.803-3.7l3.181 3.182m0-4.991v4.99"
             />
           </svg>
-          {t('common.refresh', 'Обновить')}
+          {t('common.refresh')}
         </button>
       </div>
 
@@ -114,9 +110,7 @@ export default function AdminPayments() {
         <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4">
           <div className="rounded-xl border border-dark-700/50 bg-dark-800/50 p-4">
             <div className="text-2xl font-bold text-dark-50">{stats.total_pending}</div>
-            <div className="text-sm text-dark-400">
-              {t('admin.payments.totalPending', 'Всего ожидает')}
-            </div>
+            <div className="text-sm text-dark-400">{t('admin.payments.totalPending')}</div>
           </div>
           {Object.entries(stats.by_method).map(([method, count]) => (
             <div
@@ -138,9 +132,7 @@ export default function AdminPayments() {
       {/* Filter */}
       {methodOptions.length > 0 && (
         <div className="flex flex-wrap items-center gap-3">
-          <span className="text-sm text-dark-400">
-            {t('admin.payments.filterByMethod', 'Фильтр по методу')}:
-          </span>
+          <span className="text-sm text-dark-400">{t('admin.payments.filterByMethod')}:</span>
           <button
             onClick={() => setMethodFilter('')}
             className={`rounded-lg px-3 py-1.5 text-sm transition-all ${
@@ -149,7 +141,7 @@ export default function AdminPayments() {
                 : 'bg-dark-800 text-dark-300 hover:bg-dark-700'
             }`}
           >
-            {t('common.all', 'Все')}
+            {t('common.all')}
           </button>
           {methodOptions.map((method) => (
             <button
@@ -195,7 +187,7 @@ export default function AdminPayments() {
                         </span>
                         {payment.is_paid && (
                           <span className="rounded-full bg-success-500/20 px-2 py-0.5 text-sm text-success-400">
-                            {t('admin.payments.paid', 'Оплачено')}
+                            {t('admin.payments.paid')}
                           </span>
                         )}
                       </div>
@@ -211,9 +203,7 @@ export default function AdminPayments() {
                       {/* User info */}
                       {(payment.user_username || payment.user_telegram_id) && (
                         <div className="mt-2 text-sm text-dark-400">
-                          <span className="text-dark-500">
-                            {t('admin.payments.user', 'Пользователь')}:
-                          </span>{' '}
+                          <span className="text-dark-500">{t('admin.payments.user')}:</span>{' '}
                           {payment.user_username ? (
                             <span className="text-dark-200">@{payment.user_username}</span>
                           ) : (
@@ -230,7 +220,7 @@ export default function AdminPayments() {
                           rel="noopener noreferrer"
                           className="btn-secondary px-3 py-1.5 text-xs"
                         >
-                          {t('admin.payments.openLink', 'Открыть ссылку')}
+                          {t('admin.payments.openLink')}
                         </a>
                       )}
                       {payment.is_checkable && (
@@ -256,10 +246,10 @@ export default function AdminPayments() {
                                   d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
                                 />
                               </svg>
-                              {t('admin.payments.checking', 'Проверка...')}
+                              {t('admin.payments.checking')}
                             </span>
                           ) : (
-                            t('admin.payments.checkStatus', 'Проверить статус')
+                            t('admin.payments.checkStatus')
                           )}
                         </button>
                       )}
@@ -299,9 +289,7 @@ export default function AdminPayments() {
                 />
               </svg>
             </div>
-            <div className="text-dark-400">
-              {t('admin.payments.noPayments', 'Нет ожидающих платежей')}
-            </div>
+            <div className="text-dark-400">{t('admin.payments.noPayments')}</div>
           </div>
         )}
 
@@ -316,7 +304,7 @@ export default function AdminPayments() {
                 payments.page <= 1 ? 'cursor-not-allowed opacity-50' : ''
               }`}
             >
-              {t('common.back', 'Назад')}
+              {t('admin.payments.prev')}
             </button>
             <div className="flex-1 text-center">
               {t('balance.page', '{current} / {total}', {
@@ -332,7 +320,7 @@ export default function AdminPayments() {
                 payments.page >= payments.pages ? 'cursor-not-allowed opacity-50' : ''
               }`}
             >
-              {t('common.next', 'Далее')}
+              {t('admin.payments.next')}
             </button>
           </div>
         )}

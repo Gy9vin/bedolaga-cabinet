@@ -74,14 +74,20 @@ export function SettingsSearchResults({
   searchQuery: string;
   resultsCount: number;
 }) {
+  const { t } = useTranslation();
+
   if (!searchQuery.trim()) return null;
 
   return (
     <div className="mt-3 flex items-center gap-2 text-sm">
       <span className="text-dark-400">
-        {resultsCount > 0 ? `Найдено: ${resultsCount}` : 'Ничего не найдено'}
+        {resultsCount > 0
+          ? t('admin.settings.foundCount', { count: resultsCount })
+          : t('admin.settings.notFound')}
       </span>
-      {resultsCount > 0 && <span className="text-dark-500">по запросу «{searchQuery}»</span>}
+      {resultsCount > 0 && (
+        <span className="text-dark-500">{t('admin.settings.byQuery', { query: searchQuery })}</span>
+      )}
     </div>
   );
 }

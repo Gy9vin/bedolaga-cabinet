@@ -344,8 +344,8 @@ export default function Dashboard() {
               <div className="mb-1 text-sm text-dark-500">{t('subscription.timeLeft')}</div>
               <div className="font-medium text-dark-100">
                 {subscription.days_left > 0
-                  ? `${subscription.days_left} ${t('subscription.days')}`
-                  : `${subscription.hours_left}${t('subscription.hours')} ${subscription.minutes_left}${t('subscription.minutes')}`}
+                  ? t('subscription.days', { count: subscription.days_left })
+                  : `${t('subscription.hours', { count: subscription.hours_left })} ${t('subscription.minutes', { count: subscription.minutes_left })}`}
               </div>
             </div>
           </div>
@@ -503,9 +503,7 @@ export default function Dashboard() {
                   <div className="text-2xl font-bold text-accent-400">
                     {trialInfo.duration_days}
                   </div>
-                  <div className="text-xs text-dark-500">
-                    {t('subscription.trial.days', 'days')}
-                  </div>
+                  <div className="text-xs text-dark-500">{t('subscription.trial.days')}</div>
                 </div>
                 <div className="text-center">
                   <div className="text-2xl font-bold text-accent-400">
@@ -515,9 +513,7 @@ export default function Dashboard() {
                 </div>
                 <div className="text-center">
                   <div className="text-2xl font-bold text-accent-400">{trialInfo.device_limit}</div>
-                  <div className="text-xs text-dark-500">
-                    {t('subscription.trial.devices', 'devices')}
-                  </div>
+                  <div className="text-xs text-dark-500">{t('subscription.trial.devices')}</div>
                 </div>
               </div>
 

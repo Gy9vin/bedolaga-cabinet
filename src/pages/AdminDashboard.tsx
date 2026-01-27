@@ -568,8 +568,8 @@ export default function AdminDashboard() {
                   <ChevronDownIcon />
                 </span>
                 {showAllNodes
-                  ? `Скрыть (${stats.nodes.nodes.length - 3})`
-                  : `Показать еще ${stats.nodes.nodes.length - 3} нод`}
+                  ? t('adminDashboard.nodes.hide', { count: stats.nodes.nodes.length - 3 })
+                  : t('adminDashboard.nodes.showMore', { count: stats.nodes.nodes.length - 3 })}
               </button>
             )}
           </>
@@ -799,10 +799,11 @@ export default function AdminDashboard() {
                 </div>
                 <div>
                   <h2 className="text-base font-semibold text-dark-100 sm:text-lg">
-                    Топ рефералов
+                    {t('adminDashboard.topReferrers.title')}
                   </h2>
                   <p className="text-xs text-dark-400 sm:text-sm">
-                    {referrers.total_referrers} реф., {referrers.total_referrals} пригл.
+                    {referrers.total_referrers}{' '}
+                    {t('adminDashboard.topReferrers.stats', { count: referrers.total_referrals })}
                   </p>
                 </div>
               </div>
@@ -818,7 +819,7 @@ export default function AdminDashboard() {
                     : 'bg-dark-700/50 text-dark-400 hover:text-dark-200'
                 }`}
               >
-                По доходу
+                {t('adminDashboard.topReferrers.byEarnings')}
               </button>
               <button
                 onClick={() => setReferrersTab('invited')}
@@ -828,7 +829,7 @@ export default function AdminDashboard() {
                     : 'bg-dark-700/50 text-dark-400 hover:text-dark-200'
                 }`}
               >
-                По пригл.
+                {t('adminDashboard.topReferrers.byInvited')}
               </button>
             </div>
 
@@ -862,13 +863,13 @@ export default function AdminDashboard() {
                             {formatAmount(ref.earnings_total_kopeks / 100)} {currencySymbol}
                           </div>
                           <div className="text-[10px] text-dark-500 sm:text-xs">
-                            {ref.invited_count} пригл.
+                            {ref.invited_count} {t('adminDashboard.topReferrers.invites')}
                           </div>
                         </>
                       ) : (
                         <>
                           <div className="text-xs font-semibold text-accent-400 sm:text-sm">
-                            {ref.invited_count} чел.
+                            {ref.invited_count} {t('adminDashboard.topReferrers.people')}
                           </div>
                           <div className="text-[10px] text-dark-500 sm:text-xs">
                             {formatAmount(ref.earnings_total_kopeks / 100)} {currencySymbol}
@@ -883,7 +884,9 @@ export default function AdminDashboard() {
             {/* Period Stats */}
             <div className="mt-4 grid grid-cols-3 gap-2 border-t border-dark-700 pt-4 sm:gap-3">
               <div className="text-center">
-                <div className="mb-1 text-[10px] text-dark-500 sm:text-xs">Сегодня</div>
+                <div className="mb-1 text-[10px] text-dark-500 sm:text-xs">
+                  {t('adminDashboard.period.today')}
+                </div>
                 <div className="truncate text-xs font-semibold text-dark-200 sm:text-base">
                   {formatAmount(
                     (referrersTab === 'earnings'
@@ -895,7 +898,9 @@ export default function AdminDashboard() {
                 </div>
               </div>
               <div className="text-center">
-                <div className="mb-1 text-[10px] text-dark-500 sm:text-xs">Неделя</div>
+                <div className="mb-1 text-[10px] text-dark-500 sm:text-xs">
+                  {t('adminDashboard.period.week')}
+                </div>
                 <div className="truncate text-xs font-semibold text-dark-200 sm:text-base">
                   {formatAmount(
                     (referrersTab === 'earnings'
@@ -907,7 +912,9 @@ export default function AdminDashboard() {
                 </div>
               </div>
               <div className="text-center">
-                <div className="mb-1 text-[10px] text-dark-500 sm:text-xs">Месяц</div>
+                <div className="mb-1 text-[10px] text-dark-500 sm:text-xs">
+                  {t('adminDashboard.period.month')}
+                </div>
                 <div className="truncate text-xs font-semibold text-dark-200 sm:text-base">
                   {formatAmount(
                     (referrersTab === 'earnings'
@@ -930,9 +937,12 @@ export default function AdminDashboard() {
                 <MegaphoneIcon />
               </div>
               <div>
-                <h2 className="text-base font-semibold text-dark-100 sm:text-lg">Топ РК ссылок</h2>
+                <h2 className="text-base font-semibold text-dark-100 sm:text-lg">
+                  {t('adminDashboard.topCampaigns.title')}
+                </h2>
                 <p className="text-xs text-dark-400 sm:text-sm">
-                  {campaigns.total_campaigns} камп., {campaigns.total_registrations} рег.
+                  {campaigns.total_campaigns}{' '}
+                  {t('adminDashboard.topCampaigns.stats', { count: campaigns.total_registrations })}
                 </p>
               </div>
             </div>
@@ -970,7 +980,9 @@ export default function AdminDashboard() {
 
             <div className="mt-4 border-t border-dark-700 pt-4">
               <div className="flex items-center justify-between">
-                <span className="text-xs text-dark-400 sm:text-sm">Всего от РК</span>
+                <span className="text-xs text-dark-400 sm:text-sm">
+                  {t('adminDashboard.topCampaigns.total')}
+                </span>
                 <span className="text-sm font-bold text-warning-400 sm:text-base">
                   {formatAmount(campaigns.total_revenue_kopeks / 100)} {currencySymbol}
                 </span>
@@ -990,13 +1002,18 @@ export default function AdminDashboard() {
               </div>
               <div>
                 <h2 className="text-base font-semibold text-dark-100 sm:text-lg">
-                  Последние платежи
+                  {t('adminDashboard.recentPayments.title')}
                 </h2>
                 <p className="text-xs text-dark-400 sm:text-sm">
-                  Сегодня: {formatAmount(payments.total_today_kopeks / 100)} {currencySymbol}
+                  {t('adminDashboard.recentPayments.today', {
+                    amount: `${formatAmount(payments.total_today_kopeks / 100)} ${currencySymbol}`,
+                  })}
                   <span className="hidden sm:inline">
                     {' '}
-                    · За неделю: {formatAmount(payments.total_week_kopeks / 100)} {currencySymbol}
+                    ·{' '}
+                    {t('adminDashboard.recentPayments.week', {
+                      amount: `${formatAmount(payments.total_week_kopeks / 100)} ${currencySymbol}`,
+                    })}
                   </span>
                 </p>
               </div>
@@ -1009,12 +1026,20 @@ export default function AdminDashboard() {
               <thead>
                 <tr className="border-b border-dark-700">
                   <th className="px-2 py-3 text-left text-xs font-medium text-dark-500">
-                    Пользователь
+                    {t('adminDashboard.table.user')}
                   </th>
-                  <th className="px-2 py-3 text-left text-xs font-medium text-dark-500">Тип</th>
-                  <th className="px-2 py-3 text-right text-xs font-medium text-dark-500">Сумма</th>
-                  <th className="px-2 py-3 text-left text-xs font-medium text-dark-500">Метод</th>
-                  <th className="px-2 py-3 text-right text-xs font-medium text-dark-500">Дата</th>
+                  <th className="px-2 py-3 text-left text-xs font-medium text-dark-500">
+                    {t('adminDashboard.table.type')}
+                  </th>
+                  <th className="px-2 py-3 text-right text-xs font-medium text-dark-500">
+                    {t('adminDashboard.table.amount')}
+                  </th>
+                  <th className="px-2 py-3 text-left text-xs font-medium text-dark-500">
+                    {t('adminDashboard.table.method')}
+                  </th>
+                  <th className="px-2 py-3 text-right text-xs font-medium text-dark-500">
+                    {t('adminDashboard.table.date')}
+                  </th>
                 </tr>
               </thead>
               <tbody>

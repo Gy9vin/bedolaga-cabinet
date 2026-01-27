@@ -1,6 +1,8 @@
 import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Link } from 'react-router-dom';
+import i18n from '../i18n';
 import {
   promoOffersApi,
   PromoOfferTemplate,
@@ -91,7 +93,9 @@ const UsersIcon = () => (
 // Helper functions
 const formatDateTime = (date: string | null): string => {
   if (!date) return '-';
-  return new Date(date).toLocaleString('ru-RU', {
+  const localeMap: Record<string, string> = { ru: 'ru-RU', en: 'en-US', zh: 'zh-CN', fa: 'fa-IR' };
+  const locale = localeMap[i18n.language] || 'ru-RU';
+  return new Date(date).toLocaleString(locale, {
     day: '2-digit',
     month: '2-digit',
     year: 'numeric',
@@ -102,10 +106,10 @@ const formatDateTime = (date: string | null): string => {
 
 const getActionLabel = (action: string): string => {
   const labels: Record<string, string> = {
-    created: 'Создано',
-    claimed: 'Активировано',
-    consumed: 'Использовано',
-    disabled: 'Деактивировано',
+    created: i18n.t('admin.promoOffers.actions.created'),
+    claimed: i18n.t('admin.promoOffers.actions.claimed'),
+    consumed: i18n.t('admin.promoOffers.actions.consumed'),
+    disabled: i18n.t('admin.promoOffers.actions.disabled'),
   };
   return labels[action] || action;
 };
@@ -125,7 +129,8 @@ const getOfferTypeIcon = (offerType: string): string => {
 };
 
 const getOfferTypeLabel = (offerType: string): string => {
-  return OFFER_TYPE_CONFIG[offerType as OfferType]?.label || offerType;
+  const config = OFFER_TYPE_CONFIG[offerType as OfferType];
+  return config ? i18n.t(config.labelKey) : offerType;
 };
 
 // Template Edit Modal
@@ -137,6 +142,7 @@ interface TemplateEditModalProps {
 }
 
 function TemplateEditModal({ template, onSave, onClose, isLoading }: TemplateEditModalProps) {
+  const { t } = useTranslation();
   const [name, setName] = useState(template.name);
   const [messageText, setMessageText] = useState(template.message_text);
   const [buttonText, setButtonText] = useState(template.button_text);
@@ -174,7 +180,9 @@ function TemplateEditModal({ template, onSave, onClose, isLoading }: TemplateEdi
         <div className="flex items-center justify-between border-b border-dark-700 p-4">
           <div className="flex items-center gap-3">
             <span className="text-2xl">{getOfferTypeIcon(template.offer_type)}</span>
-            <h2 className="text-lg font-semibold text-dark-100">Редактирование шаблона</h2>
+            <h2 className="text-lg font-semibold text-dark-100">
+              {t('admin.promoOffers.form.editTemplate')}
+            </h2>
           </div>
           <button onClick={onClose} className="rounded-lg p-1 transition-colors hover:bg-dark-700">
             <XIcon />
@@ -184,7 +192,9 @@ function TemplateEditModal({ template, onSave, onClose, isLoading }: TemplateEdi
         {/* Content */}
         <div className="flex-1 space-y-4 overflow-y-auto p-4">
           <div>
-            <label className="mb-1 block text-sm text-dark-300">Название шаблона</label>
+            <label className="mb-1 block text-sm text-dark-300">
+              {t('admin.promoOffers.form.templateName')}
+            </label>
             <input
               type="text"
               value={name}
@@ -194,7 +204,9 @@ function TemplateEditModal({ template, onSave, onClose, isLoading }: TemplateEdi
           </div>
 
           <div>
-            <label className="mb-1 block text-sm text-dark-300">Текст сообщения</label>
+            <label className="mb-1 block text-sm text-dark-300">
+              {t('admin.promoOffers.form.messageText')}
+            </label>
             <textarea
               value={messageText}
               onChange={(e) => setMessageText(e.target.value)}
@@ -204,7 +216,9 @@ function TemplateEditModal({ template, onSave, onClose, isLoading }: TemplateEdi
           </div>
 
           <div>
-            <label className="mb-1 block text-sm text-dark-300">Текст кнопки</label>
+            <label className="mb-1 block text-sm text-dark-300">
+              {t('admin.promoOffers.form.buttonText')}
+            </label>
             <input
               type="text"
               value={buttonText}
@@ -215,7 +229,9 @@ function TemplateEditModal({ template, onSave, onClose, isLoading }: TemplateEdi
 
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <label className="mb-1 block text-sm text-dark-300">Срок предложения (часы)</label>
+              <label className="mb-1 block text-sm text-dark-300">
+                {t('admin.promoOffers.form.validHours')}
+              </label>
               <input
                 type="number"
                 value={validHours}
@@ -223,12 +239,16 @@ function TemplateEditModal({ template, onSave, onClose, isLoading }: TemplateEdi
                 className="w-full rounded-lg border border-dark-600 bg-dark-700 px-3 py-2 text-dark-100 focus:border-accent-500 focus:outline-none"
                 min={1}
               />
-              <p className="mt-1 text-xs text-dark-500">Время на активацию</p>
+              <p className="mt-1 text-xs text-dark-500">
+                {t('admin.promoOffers.form.activationTime')}
+              </p>
             </div>
 
             {!isTestAccess && (
               <div>
-                <label className="mb-1 block text-sm text-dark-300">Скидка (%)</label>
+                <label className="mb-1 block text-sm text-dark-300">
+                  {t('admin.promoOffers.form.discountPercent')}
+                </label>
                 <input
                   type="number"
                   value={discountPercent}
@@ -246,7 +266,7 @@ function TemplateEditModal({ template, onSave, onClose, isLoading }: TemplateEdi
           {isTestAccess ? (
             <div>
               <label className="mb-1 block text-sm text-dark-300">
-                Длительность доступа (часы)
+                {t('admin.promoOffers.form.testDurationHours')}
               </label>
               <input
                 type="number"
@@ -255,11 +275,15 @@ function TemplateEditModal({ template, onSave, onClose, isLoading }: TemplateEdi
                 className="w-full rounded-lg border border-dark-600 bg-dark-700 px-3 py-2 text-dark-100 focus:border-accent-500 focus:outline-none"
                 min={0}
               />
-              <p className="mt-1 text-xs text-dark-500">0 = по умолчанию</p>
+              <p className="mt-1 text-xs text-dark-500">
+                {t('admin.promoOffers.form.defaultZero')}
+              </p>
             </div>
           ) : (
             <div>
-              <label className="mb-1 block text-sm text-dark-300">Действие скидки (часы)</label>
+              <label className="mb-1 block text-sm text-dark-300">
+                {t('admin.promoOffers.form.activeDiscountHours')}
+              </label>
               <input
                 type="number"
                 value={activeDiscountHours}
@@ -267,7 +291,9 @@ function TemplateEditModal({ template, onSave, onClose, isLoading }: TemplateEdi
                 className="w-full rounded-lg border border-dark-600 bg-dark-700 px-3 py-2 text-dark-100 focus:border-accent-500 focus:outline-none"
                 min={0}
               />
-              <p className="mt-1 text-xs text-dark-500">Сколько действует скидка после активации</p>
+              <p className="mt-1 text-xs text-dark-500">
+                {t('admin.promoOffers.form.discountDurationHint')}
+              </p>
             </div>
           )}
 
@@ -285,7 +311,9 @@ function TemplateEditModal({ template, onSave, onClose, isLoading }: TemplateEdi
                 }`}
               />
             </button>
-            <span className="text-sm text-dark-200">Шаблон активен</span>
+            <span className="text-sm text-dark-200">
+              {t('admin.promoOffers.form.templateActive')}
+            </span>
           </label>
         </div>
 
@@ -295,14 +323,14 @@ function TemplateEditModal({ template, onSave, onClose, isLoading }: TemplateEdi
             onClick={onClose}
             className="px-4 py-2 text-dark-300 transition-colors hover:text-dark-100"
           >
-            Отмена
+            {t('common.cancel')}
           </button>
           <button
             onClick={handleSubmit}
             disabled={!name.trim() || isLoading}
             className="rounded-lg bg-accent-500 px-4 py-2 text-white transition-colors hover:bg-accent-600 disabled:cursor-not-allowed disabled:opacity-50"
           >
-            {isLoading ? 'Сохранение...' : 'Сохранить'}
+            {isLoading ? t('admin.promoOffers.form.saving') : t('common.save')}
           </button>
         </div>
       </div>
@@ -319,6 +347,7 @@ interface SendOfferModalProps {
 }
 
 function SendOfferModal({ templates, onSend, onClose, isLoading }: SendOfferModalProps) {
+  const { t } = useTranslation();
   const [selectedTemplateId, setSelectedTemplateId] = useState<number | null>(
     templates[0]?.id || null,
   );
@@ -355,7 +384,9 @@ function SendOfferModal({ templates, onSend, onClose, isLoading }: SendOfferModa
             <div className="rounded-lg bg-accent-500/20 p-2">
               <SendIcon />
             </div>
-            <h2 className="text-lg font-semibold text-dark-100">Отправка промопредложения</h2>
+            <h2 className="text-lg font-semibold text-dark-100">
+              {t('admin.promoOffers.send.title')}
+            </h2>
           </div>
           <button onClick={onClose} className="rounded-lg p-1 transition-colors hover:bg-dark-700">
             <XIcon />
@@ -366,7 +397,9 @@ function SendOfferModal({ templates, onSend, onClose, isLoading }: SendOfferModa
         <div className="flex-1 space-y-4 overflow-y-auto p-4">
           {/* Template Selection */}
           <div>
-            <label className="mb-2 block text-sm text-dark-300">Шаблон предложения</label>
+            <label className="mb-2 block text-sm text-dark-300">
+              {t('admin.promoOffers.send.offerTemplate')}
+            </label>
             <div className="space-y-2">
               {activeTemplates.map((template) => (
                 <button
@@ -383,10 +416,16 @@ function SendOfferModal({ templates, onSend, onClose, isLoading }: SendOfferModa
                     <div className="flex-1">
                       <div className="font-medium text-dark-100">{template.name}</div>
                       <div className="text-sm text-dark-400">
-                        {template.discount_percent > 0 && `${template.discount_percent}% скидка`}
-                        {template.offer_type === 'test_access' && 'Тестовый доступ'}
+                        {template.discount_percent > 0 &&
+                          t('admin.promoOffers.send.discountLabel', {
+                            percent: template.discount_percent,
+                          })}
+                        {template.offer_type === 'test_access' &&
+                          t('admin.promoOffers.offerType.testAccess')}
                         <span className="mx-1">•</span>
-                        {template.valid_hours}ч на активацию
+                        {t('admin.promoOffers.send.hoursToActivate', {
+                          hours: template.valid_hours,
+                        })}
                       </div>
                     </div>
                     {selectedTemplateId === template.id && <CheckIcon />}
@@ -398,7 +437,9 @@ function SendOfferModal({ templates, onSend, onClose, isLoading }: SendOfferModa
 
           {/* Send Mode */}
           <div>
-            <label className="mb-2 block text-sm text-dark-300">Кому отправить</label>
+            <label className="mb-2 block text-sm text-dark-300">
+              {t('admin.promoOffers.send.sendTo')}
+            </label>
             <div className="mb-3 flex gap-2">
               <button
                 onClick={() => setSendMode('segment')}
@@ -409,7 +450,7 @@ function SendOfferModal({ templates, onSend, onClose, isLoading }: SendOfferModa
                 }`}
               >
                 <UsersIcon />
-                <span className="ml-2">Сегмент</span>
+                <span className="ml-2">{t('admin.promoOffers.send.segment')}</span>
               </button>
               <button
                 onClick={() => setSendMode('user')}
@@ -420,7 +461,7 @@ function SendOfferModal({ templates, onSend, onClose, isLoading }: SendOfferModa
                 }`}
               >
                 <UserIcon />
-                <span className="ml-2">Пользователь</span>
+                <span className="ml-2">{t('admin.promoOffers.send.user')}</span>
               </button>
             </div>
 
@@ -430,9 +471,9 @@ function SendOfferModal({ templates, onSend, onClose, isLoading }: SendOfferModa
                 onChange={(e) => setSelectedTarget(e.target.value as TargetSegment)}
                 className="w-full rounded-lg border border-dark-600 bg-dark-700 px-3 py-2 text-dark-100 focus:border-accent-500 focus:outline-none"
               >
-                {Object.entries(TARGET_SEGMENTS).map(([key, label]) => (
+                {Object.entries(TARGET_SEGMENTS).map(([key, labelKey]) => (
                   <option key={key} value={key}>
-                    {label}
+                    {t(labelKey)}
                   </option>
                 ))}
               </select>
@@ -441,7 +482,7 @@ function SendOfferModal({ templates, onSend, onClose, isLoading }: SendOfferModa
                 type="text"
                 value={userId}
                 onChange={(e) => setUserId(e.target.value)}
-                placeholder="Telegram ID или User ID"
+                placeholder={t('admin.promoOffers.send.userIdPlaceholder')}
                 className="w-full rounded-lg border border-dark-600 bg-dark-700 px-3 py-2 text-dark-100 focus:border-accent-500 focus:outline-none"
               />
             )}
@@ -450,7 +491,9 @@ function SendOfferModal({ templates, onSend, onClose, isLoading }: SendOfferModa
           {/* Preview */}
           {selectedTemplate && (
             <div className="rounded-lg bg-dark-700/50 p-4">
-              <h4 className="mb-2 text-sm font-medium text-dark-300">Предпросмотр</h4>
+              <h4 className="mb-2 text-sm font-medium text-dark-300">
+                {t('admin.promoOffers.send.preview')}
+              </h4>
               <div className="whitespace-pre-wrap text-sm text-dark-200">
                 {selectedTemplate.message_text}
               </div>
@@ -469,7 +512,7 @@ function SendOfferModal({ templates, onSend, onClose, isLoading }: SendOfferModa
             onClick={onClose}
             className="px-4 py-2 text-dark-300 transition-colors hover:text-dark-100"
           >
-            Отмена
+            {t('common.cancel')}
           </button>
           <button
             onClick={handleSubmit}
@@ -477,7 +520,9 @@ function SendOfferModal({ templates, onSend, onClose, isLoading }: SendOfferModa
             className="flex items-center gap-2 rounded-lg bg-accent-500 px-4 py-2 text-white transition-colors hover:bg-accent-600 disabled:cursor-not-allowed disabled:opacity-50"
           >
             <SendIcon />
-            {isLoading ? 'Отправка...' : 'Отправить'}
+            {isLoading
+              ? t('admin.promoOffers.send.sending')
+              : t('admin.promoOffers.send.sendButton')}
           </button>
         </div>
       </div>
@@ -494,6 +539,7 @@ interface ResultModalProps {
 }
 
 function ResultModal({ title, message, isSuccess, onClose }: ResultModalProps) {
+  const { t } = useTranslation();
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
       <div className="w-full max-w-sm rounded-xl bg-dark-800 p-6 text-center">
@@ -530,7 +576,7 @@ function ResultModal({ title, message, isSuccess, onClose }: ResultModalProps) {
           onClick={onClose}
           className="rounded-lg bg-accent-500 px-6 py-2 text-white transition-colors hover:bg-accent-600"
         >
-          Закрыть
+          {t('common.close')}
         </button>
       </div>
     </div>
@@ -538,6 +584,7 @@ function ResultModal({ title, message, isSuccess, onClose }: ResultModalProps) {
 }
 
 export default function AdminPromoOffers() {
+  const { t } = useTranslation();
   const queryClient = useQueryClient();
 
   const [activeTab, setActiveTab] = useState<'templates' | 'send' | 'logs'>('templates');
@@ -577,16 +624,22 @@ export default function AdminPromoOffers() {
       queryClient.invalidateQueries({ queryKey: ['admin-promo-logs'] });
       setShowSendModal(false);
 
-      let message = `Создано предложений: ${result.created_offers}`;
+      let message = t('admin.promoOffers.result.offersCreated', { count: result.created_offers });
       if (result.notifications_sent > 0 || result.notifications_failed > 0) {
-        message += `\nУведомлений отправлено: ${result.notifications_sent}`;
+        message +=
+          '\n' +
+          t('admin.promoOffers.result.notificationsSent', { count: result.notifications_sent });
         if (result.notifications_failed > 0) {
-          message += ` (не доставлено: ${result.notifications_failed})`;
+          message +=
+            ' ' +
+            t('admin.promoOffers.result.notificationsFailed', {
+              count: result.notifications_failed,
+            });
         }
       }
 
       setResultModal({
-        title: 'Отправлено!',
+        title: t('admin.promoOffers.result.sentTitle'),
         message,
         isSuccess: true,
       });
@@ -594,8 +647,8 @@ export default function AdminPromoOffers() {
     onError: (error: unknown) => {
       const axiosErr = error as { response?: { data?: { detail?: string } } };
       setResultModal({
-        title: 'Ошибка',
-        message: axiosErr.response?.data?.detail || 'Не удалось отправить предложение',
+        title: t('common.error'),
+        message: axiosErr.response?.data?.detail || t('admin.promoOffers.result.sendError'),
         isSuccess: false,
       });
     },
@@ -642,8 +695,8 @@ export default function AdminPromoOffers() {
             <BackIcon />
           </Link>
           <div>
-            <h1 className="text-xl font-semibold text-dark-100">Промопредложения</h1>
-            <p className="text-sm text-dark-400">Шаблоны, рассылка и логи предложений</p>
+            <h1 className="text-xl font-semibold text-dark-100">{t('admin.promoOffers.title')}</h1>
+            <p className="text-sm text-dark-400">{t('admin.promoOffers.subtitle')}</p>
           </div>
         </div>
         <button
@@ -651,7 +704,7 @@ export default function AdminPromoOffers() {
           className="flex items-center gap-2 rounded-lg bg-accent-500 px-4 py-2 text-white transition-colors hover:bg-accent-600"
         >
           <SendIcon />
-          Отправить
+          {t('admin.promoOffers.sendButton')}
         </button>
       </div>
 
@@ -665,7 +718,7 @@ export default function AdminPromoOffers() {
               : 'text-dark-400 hover:text-dark-200'
           }`}
         >
-          Шаблоны ({templates.length})
+          {t('admin.promoOffers.tabs.templates', { count: templates.length })}
         </button>
         <button
           onClick={() => setActiveTab('logs')}
@@ -673,7 +726,7 @@ export default function AdminPromoOffers() {
             activeTab === 'logs' ? 'bg-dark-700 text-dark-100' : 'text-dark-400 hover:text-dark-200'
           }`}
         >
-          Логи
+          {t('admin.promoOffers.tabs.logs')}
         </button>
       </div>
 
@@ -686,7 +739,7 @@ export default function AdminPromoOffers() {
             </div>
           ) : templates.length === 0 ? (
             <div className="py-12 text-center">
-              <p className="text-dark-400">Нет шаблонов</p>
+              <p className="text-dark-400">{t('admin.promoOffers.noData.templates')}</p>
             </div>
           ) : (
             <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
@@ -718,26 +771,44 @@ export default function AdminPromoOffers() {
                   <div className="space-y-2 text-sm">
                     {template.discount_percent > 0 && (
                       <div className="flex justify-between">
-                        <span className="text-dark-400">Скидка:</span>
+                        <span className="text-dark-400">
+                          {t('admin.promoOffers.table.discount')}:
+                        </span>
                         <span className="font-medium text-accent-400">
                           {template.discount_percent}%
                         </span>
                       </div>
                     )}
                     <div className="flex justify-between">
-                      <span className="text-dark-400">Срок предложения:</span>
-                      <span className="text-dark-200">{template.valid_hours}ч</span>
+                      <span className="text-dark-400">
+                        {t('admin.promoOffers.table.offerDuration')}:
+                      </span>
+                      <span className="text-dark-200">
+                        {t('admin.promoOffers.table.hoursShort', { hours: template.valid_hours })}
+                      </span>
                     </div>
                     {template.active_discount_hours && (
                       <div className="flex justify-between">
-                        <span className="text-dark-400">Действие скидки:</span>
-                        <span className="text-dark-200">{template.active_discount_hours}ч</span>
+                        <span className="text-dark-400">
+                          {t('admin.promoOffers.table.discountDuration')}:
+                        </span>
+                        <span className="text-dark-200">
+                          {t('admin.promoOffers.table.hoursShort', {
+                            hours: template.active_discount_hours,
+                          })}
+                        </span>
                       </div>
                     )}
                     {template.test_duration_hours && (
                       <div className="flex justify-between">
-                        <span className="text-dark-400">Тестовый доступ:</span>
-                        <span className="text-dark-200">{template.test_duration_hours}ч</span>
+                        <span className="text-dark-400">
+                          {t('admin.promoOffers.table.testAccess')}:
+                        </span>
+                        <span className="text-dark-200">
+                          {t('admin.promoOffers.table.hoursShort', {
+                            hours: template.test_duration_hours,
+                          })}
+                        </span>
                       </div>
                     )}
                   </div>
@@ -746,11 +817,11 @@ export default function AdminPromoOffers() {
                     <div className="flex items-center gap-2">
                       {template.is_active ? (
                         <span className="rounded bg-emerald-500/20 px-2 py-0.5 text-xs text-emerald-400">
-                          Активен
+                          {t('admin.promoOffers.status.active')}
                         </span>
                       ) : (
                         <span className="rounded bg-dark-600 px-2 py-0.5 text-xs text-dark-400">
-                          Неактивен
+                          {t('admin.promoOffers.status.inactive')}
                         </span>
                       )}
                     </div>
@@ -771,7 +842,7 @@ export default function AdminPromoOffers() {
             </div>
           ) : logs.length === 0 ? (
             <div className="py-12 text-center">
-              <p className="text-dark-400">Нет записей</p>
+              <p className="text-dark-400">{t('admin.promoOffers.noData.logs')}</p>
             </div>
           ) : (
             <div className="space-y-3">

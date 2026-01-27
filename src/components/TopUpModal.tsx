@@ -204,11 +204,11 @@ export default function TopUpModal({ method, onClose, initialAmountRubles }: Top
     onSuccess: (data) => {
       const webApp = window.Telegram?.WebApp;
       if (!data.invoice_url) {
-        setError('Сервер не вернул ссылку на оплату');
+        setError(t('balance.errors.noPaymentLink'));
         return;
       }
       if (!webApp?.openInvoice) {
-        setError('Оплата Stars доступна только в Telegram Mini App');
+        setError(t('balance.errors.starsOnlyInTelegram'));
         return;
       }
       try {
@@ -221,12 +221,12 @@ export default function TopUpModal({ method, onClose, initialAmountRubles }: Top
           }
         });
       } catch (e) {
-        setError('Ошибка: ' + String(e));
+        setError(t('balance.errors.generic', { details: String(e) }));
       }
     },
     onError: (err: unknown) => {
       const axiosError = err as { response?: { data?: { detail?: string }; status?: number } };
-      setError(`Ошибка: ${axiosError?.response?.data?.detail || 'Не удалось создать счёт'}`);
+      setError(axiosError?.response?.data?.detail || t('balance.errors.invoiceFailed'));
     },
   });
 
@@ -268,21 +268,23 @@ export default function TopUpModal({ method, onClose, initialAmountRubles }: Top
     inputRef.current?.blur();
 
     if (!checkRateLimit(RATE_LIMIT_KEYS.PAYMENT, 3, 30000)) {
-      setError('Подождите ' + getRateLimitResetTime(RATE_LIMIT_KEYS.PAYMENT) + ' сек.');
+      setError(
+        t('balance.errors.rateLimit', { seconds: getRateLimitResetTime(RATE_LIMIT_KEYS.PAYMENT) }),
+      );
       return;
     }
     if (hasOptions && !selectedOption) {
-      setError('Выберите способ');
+      setError(t('balance.errors.selectMethod'));
       return;
     }
     const amountCurrency = parseFloat(amount);
     if (isNaN(amountCurrency) || amountCurrency <= 0) {
-      setError('Введите сумму');
+      setError(t('balance.errors.enterAmount'));
       return;
     }
     const amountRubles = convertToRub(amountCurrency);
     if (amountRubles < minRubles || amountRubles > maxRubles) {
-      setError(`Сумма: ${minRubles} – ${maxRubles} ₽`);
+      setError(t('balance.errors.amountRange', { min: minRubles, max: maxRubles }));
       return;
     }
 
@@ -498,17 +500,10 @@ export default function TopUpModal({ method, onClose, initialAmountRubles }: Top
         <div className="space-y-3 rounded-2xl border border-success-500/20 bg-success-500/10 p-4">
           <div className="flex items-center gap-2 text-success-400">
             <CheckIcon />
-            <span className="font-semibold">
-              {t('balance.paymentReady', 'Ссылка на оплату готова')}
-            </span>
+            <span className="font-semibold">{t('balance.paymentReady')}</span>
           </div>
 
-          <p className="text-sm text-dark-400">
-            {t(
-              'balance.clickToOpenPayment',
-              'Нажмите кнопку ниже, чтобы открыть страницу оплаты в новой вкладке',
-            )}
-          </p>
+          <p className="text-sm text-dark-400">{t('balance.clickToOpenPayment')}</p>
 
           {/* Main open button - NO preventDefault, let <a> work natively for iOS Safari */}
           <a
@@ -518,7 +513,7 @@ export default function TopUpModal({ method, onClose, initialAmountRubles }: Top
             className="flex h-12 w-full items-center justify-center gap-2 rounded-xl bg-success-500 font-bold text-white transition-colors hover:bg-success-400 active:bg-success-600"
           >
             <ExternalLinkIcon />
-            <span>{t('balance.openPaymentPage', 'Открыть страницу оплаты')}</span>
+            <span>{t('balance.openPaymentPage')}</span>
           </a>
 
           {/* Copy and link display */}
@@ -534,7 +529,7 @@ export default function TopUpModal({ method, onClose, initialAmountRubles }: Top
                   ? 'bg-success-500/20 text-success-400'
                   : 'bg-dark-800/70 text-dark-400 hover:bg-dark-700 hover:text-dark-200'
               }`}
-              title={t('common.copy', 'Копировать')}
+              title={t('common.copy')}
             >
               {copied ? <CheckIcon /> : <CopyIcon />}
             </button>
