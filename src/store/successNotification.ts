@@ -1,3 +1,4 @@
+import { useEffect } from 'react';
 import { create } from 'zustand';
 
 export type SuccessNotificationType =
@@ -25,6 +26,8 @@ export interface SuccessNotificationData {
 interface SuccessNotificationState {
   isOpen: boolean;
   data: SuccessNotificationData | null;
+  /** Signal that increments when other modals should close */
+  closeOthersSignal: number;
 
   show: (data: SuccessNotificationData) => void;
   hide: () => void;
@@ -33,7 +36,30 @@ interface SuccessNotificationState {
 export const useSuccessNotification = create<SuccessNotificationState>((set) => ({
   isOpen: false,
   data: null,
+  closeOthersSignal: 0,
 
-  show: (data) => set({ isOpen: true, data }),
+  show: (data) =>
+    set((state) => ({
+      isOpen: true,
+      data,
+      // Increment signal to tell other modals to close
+      closeOthersSignal: state.closeOthersSignal + 1,
+    })),
   hide: () => set({ isOpen: false, data: null }),
 }));
+
+/**
+ * Hook that calls onClose when a success notification appears.
+ * Use this in modals that should auto-close on success events.
+ */
+export function useCloseOnSuccessNotification(onClose: () => void) {
+  const closeOthersSignal = useSuccessNotification((state) => state.closeOthersSignal);
+
+  useEffect(() => {
+    // Skip the initial render (signal = 0)
+    if (closeOthersSignal > 0) {
+      onClose();
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [closeOthersSignal]);
+}
