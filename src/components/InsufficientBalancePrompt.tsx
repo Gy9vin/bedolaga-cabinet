@@ -16,6 +16,8 @@ interface InsufficientBalancePromptProps {
   compact?: boolean;
   /** Additional className */
   className?: string;
+  /** Callback to execute before opening top-up modal (e.g., save cart) */
+  onBeforeTopUp?: () => Promise<void>;
 }
 
 export default function InsufficientBalancePrompt({
@@ -23,11 +25,13 @@ export default function InsufficientBalancePrompt({
   message,
   compact = false,
   className = '',
+  onBeforeTopUp,
 }: InsufficientBalancePromptProps) {
   const { t } = useTranslation();
   const { formatAmount, currencySymbol } = useCurrency();
   const [showMethodSelect, setShowMethodSelect] = useState(false);
   const [selectedMethod, setSelectedMethod] = useState<PaymentMethod | null>(null);
+  const [isPreparingTopUp, setIsPreparingTopUp] = useState(false);
 
   // Auto-close modals when success notification appears
   const handleCloseAll = useCallback(() => {
@@ -48,6 +52,20 @@ export default function InsufficientBalancePrompt({
   const handleMethodSelect = (method: PaymentMethod) => {
     setSelectedMethod(method);
     setShowMethodSelect(false);
+  };
+
+  const handleTopUpClick = async () => {
+    if (onBeforeTopUp) {
+      setIsPreparingTopUp(true);
+      try {
+        await onBeforeTopUp();
+      } catch {
+        // Silently ignore errors - still open the modal
+      } finally {
+        setIsPreparingTopUp(false);
+      }
+    }
+    setShowMethodSelect(true);
   };
 
   if (compact) {
@@ -78,10 +96,15 @@ export default function InsufficientBalancePrompt({
             </span>
           </div>
           <button
-            onClick={() => setShowMethodSelect(true)}
+            onClick={handleTopUpClick}
+            disabled={isPreparingTopUp}
             className="btn-primary whitespace-nowrap px-3 py-1.5 text-xs"
           >
-            {t('balance.topUp')}
+            {isPreparingTopUp ? (
+              <span className="h-3 w-3 animate-spin rounded-full border border-white/30 border-t-white" />
+            ) : (
+              t('balance.topUp')
+            )}
           </button>
         </div>
 
@@ -139,19 +162,26 @@ export default function InsufficientBalancePrompt({
           </div>
         </div>
         <button
-          onClick={() => setShowMethodSelect(true)}
+          onClick={handleTopUpClick}
+          disabled={isPreparingTopUp}
           className="btn-primary mt-4 flex w-full items-center justify-center gap-2 py-2.5"
         >
-          <svg
-            className="h-5 w-5"
-            fill="none"
-            viewBox="0 0 24 24"
-            stroke="currentColor"
-            strokeWidth={2}
-          >
-            <path strokeLinecap="round" strokeLinejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
-          </svg>
-          {t('balance.topUpBalance')}
+          {isPreparingTopUp ? (
+            <span className="h-4 w-4 animate-spin rounded-full border-2 border-white/30 border-t-white" />
+          ) : (
+            <>
+              <svg
+                className="h-5 w-5"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+                strokeWidth={2}
+              >
+                <path strokeLinecap="round" strokeLinejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
+              </svg>
+              {t('balance.topUpBalance')}
+            </>
+          )}
         </button>
       </div>
 

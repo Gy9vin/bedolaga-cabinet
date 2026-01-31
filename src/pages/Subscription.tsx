@@ -1117,6 +1117,9 @@ export default function Subscription() {
                           devicePriceData.total_price_kopeks - purchaseOptions.balance_kopeks
                         }
                         compact
+                        onBeforeTopUp={async () => {
+                          await subscriptionApi.saveDevicesCart(devicesToAdd);
+                        }}
                       />
                     )}
 

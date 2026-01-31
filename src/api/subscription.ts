@@ -98,6 +98,11 @@ export const subscriptionApi = {
     return response.data;
   },
 
+  // Save devices cart for later purchase after top-up
+  saveDevicesCart: async (devices: number): Promise<void> => {
+    await apiClient.post('/cabinet/subscription/devices/save-cart', { devices });
+  },
+
   // Update autopay settings
   updateAutopay: async (
     enabled: boolean,
