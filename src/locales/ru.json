@@ -988,8 +988,25 @@
         "registration": "По регистрации",
         "activity": "По активности",
         "source": "По источнику",
-        "tariff": "По тарифу"
-      }
+        "tariff": "По тарифу",
+        "email": "Email-пользователи"
+      },
+      "channel": {
+        "telegram": "Telegram",
+        "email": "Email",
+        "both": "Оба"
+      },
+      "selectChannel": "Канал рассылки",
+      "telegramSection": "Telegram-рассылка",
+      "emailSection": "Email-рассылка",
+      "selectEmailFilter": "Выберите email-аудиторию",
+      "selectEmailFilterPlaceholder": "Выберите фильтр...",
+      "emailSubject": "Тема письма",
+      "emailSubjectPlaceholder": "Введите тему письма...",
+      "emailContent": "Содержимое письма",
+      "emailContentHint": "Поддерживается HTML",
+      "emailContentPlaceholder": "<p>Здравствуйте, {{user_name}}!</p>\n<p>Текст вашего письма...</p>",
+      "emailVariables": "Доступные переменные"
     },
     "settings": {
       "title": "Настройки системы",

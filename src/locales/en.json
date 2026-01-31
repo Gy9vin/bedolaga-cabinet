@@ -971,8 +971,25 @@
         "registration": "By registration",
         "activity": "By activity",
         "source": "By source",
-        "tariff": "By tariff"
-      }
+        "tariff": "By tariff",
+        "email": "Email users"
+      },
+      "channel": {
+        "telegram": "Telegram",
+        "email": "Email",
+        "both": "Both"
+      },
+      "selectChannel": "Broadcast channel",
+      "telegramSection": "Telegram broadcast",
+      "emailSection": "Email broadcast",
+      "selectEmailFilter": "Select email audience",
+      "selectEmailFilterPlaceholder": "Select filter...",
+      "emailSubject": "Email subject",
+      "emailSubjectPlaceholder": "Enter email subject...",
+      "emailContent": "Email content",
+      "emailContentHint": "HTML supported",
+      "emailContentPlaceholder": "<p>Hello, {{user_name}}!</p>\n<p>Your message here...</p>",
+      "emailVariables": "Available variables"
     },
     "settings": {
       "title": "System Settings",
