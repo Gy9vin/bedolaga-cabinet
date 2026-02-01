@@ -1,13 +1,8 @@
-import { useState, useRef, useMemo } from 'react';
+import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { useQuery } from '@tanstack/react-query';
 import { useTranslation } from 'react-i18next';
-import {
-  adminBroadcastsApi,
-  BroadcastFilter,
-  TariffFilter,
-  BroadcastCreateRequest,
-} from '../api/adminBroadcasts';
+import { adminBroadcastsApi } from '../api/adminBroadcasts';
 import { AdminBackButton } from '../components/admin';
 
 // Icons
@@ -25,12 +20,6 @@ const BroadcastIcon = () => (
 const PlusIcon = () => (
   <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
     <path strokeLinecap="round" strokeLinejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
-  </svg>
-);
-
-const XIcon = () => (
-  <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-    <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
   </svg>
 );
 
@@ -71,22 +60,6 @@ const DocumentIcon = () => (
       strokeLinejoin="round"
       d="M19.5 14.25v-2.625a3.375 3.375 0 00-3.375-3.375h-1.5A1.125 1.125 0 0113.5 7.125v-1.5a3.375 3.375 0 00-3.375-3.375H8.25m2.25 0H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 00-9-9z"
     />
-  </svg>
-);
-
-const UsersIcon = () => (
-  <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-    <path
-      strokeLinecap="round"
-      strokeLinejoin="round"
-      d="M15 19.128a9.38 9.38 0 002.625.372 9.337 9.337 0 004.121-.952 4.125 4.125 0 00-7.533-2.493M15 19.128v-.003c0-1.113-.285-2.16-.786-3.07M15 19.128v.106A12.318 12.318 0 018.624 21c-2.331 0-4.512-.645-6.374-1.766l-.001-.109a6.375 6.375 0 0111.964-3.07M12 6.375a3.375 3.375 0 11-6.75 0 3.375 3.375 0 016.75 0zm8.25 2.25a2.625 2.625 0 11-5.25 0 2.625 2.625 0 015.25 0z"
-    />
-  </svg>
-);
-
-const ChevronDownIcon = () => (
-  <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-    <path strokeLinecap="round" strokeLinejoin="round" d="M19.5 8.25l-7.5 7.5-7.5-7.5" />
   </svg>
 );
 
@@ -139,395 +112,11 @@ function StatusBadge({ status }: { status: string }) {
   );
 }
 
-// Filter labels (labelKey pattern: store i18n keys, resolve at render time with t())
-const FILTER_GROUP_LABEL_KEYS: Record<string, string> = {
-  basic: 'admin.broadcasts.filterGroups.basic',
-  subscription: 'admin.broadcasts.filterGroups.subscription',
-  traffic: 'admin.broadcasts.filterGroups.traffic',
-  registration: 'admin.broadcasts.filterGroups.registration',
-  activity: 'admin.broadcasts.filterGroups.activity',
-  source: 'admin.broadcasts.filterGroups.source',
-  tariff: 'admin.broadcasts.filterGroups.tariff',
-};
-
-// Create broadcast modal
-interface CreateModalProps {
-  onClose: () => void;
-  onSuccess: () => void;
-}
-
-function CreateBroadcastModal({ onClose, onSuccess }: CreateModalProps) {
-  const { t } = useTranslation();
-  const queryClient = useQueryClient();
-  const fileInputRef = useRef<HTMLInputElement>(null);
-
-  const [target, setTarget] = useState('');
-  const [messageText, setMessageText] = useState('');
-  const [selectedButtons, setSelectedButtons] = useState<string[]>(['home']);
-  const [mediaFile, setMediaFile] = useState<File | null>(null);
-  const [mediaType, setMediaType] = useState<'photo' | 'video' | 'document'>('photo');
-  const [mediaPreview, setMediaPreview] = useState<string | null>(null);
-  const [uploadedFileId, setUploadedFileId] = useState<string | null>(null);
-  const [isUploading, setIsUploading] = useState(false);
-  const [showFilters, setShowFilters] = useState(false);
-
-  // Fetch filters
-  const { data: filtersData, isLoading: filtersLoading } = useQuery({
-    queryKey: ['admin', 'broadcasts', 'filters'],
-    queryFn: adminBroadcastsApi.getFilters,
-  });
-
-  // Fetch buttons
-  const { data: buttonsData } = useQuery({
-    queryKey: ['admin', 'broadcasts', 'buttons'],
-    queryFn: adminBroadcastsApi.getButtons,
-  });
-
-  // Preview mutation
-  const previewMutation = useMutation({
-    mutationFn: adminBroadcastsApi.preview,
-  });
-
-  // Create mutation
-  const createMutation = useMutation({
-    mutationFn: adminBroadcastsApi.create,
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['admin', 'broadcasts'] });
-      onSuccess();
-      onClose();
-    },
-  });
-
-  // Group filters
-  const groupedFilters = useMemo(() => {
-    if (!filtersData) return {};
-    const groups: Record<string, (BroadcastFilter | TariffFilter)[]> = {};
-
-    // Basic filters
-    filtersData.filters.forEach((f) => {
-      const group = f.group || 'basic';
-      if (!groups[group]) groups[group] = [];
-      groups[group].push(f);
-    });
-
-    // Tariff filters
-    if (filtersData.tariff_filters.length > 0) {
-      groups['tariff'] = filtersData.tariff_filters;
-    }
-
-    // Custom filters
-    filtersData.custom_filters.forEach((f) => {
-      const group = f.group || 'custom';
-      if (!groups[group]) groups[group] = [];
-      groups[group].push(f);
-    });
-
-    return groups;
-  }, [filtersData]);
-
-  // Selected filter info
-  const selectedFilter = useMemo(() => {
-    if (!target || !filtersData) return null;
-    const all = [
-      ...filtersData.filters,
-      ...filtersData.tariff_filters,
-      ...filtersData.custom_filters,
-    ];
-    return all.find((f) => f.key === target);
-  }, [target, filtersData]);
-
-  // Handle file selection
-  const handleFileSelect = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-
-    setMediaFile(file);
-
-    // Determine media type
-    if (file.type.startsWith('image/')) {
-      setMediaType('photo');
-      setMediaPreview(URL.createObjectURL(file));
-    } else if (file.type.startsWith('video/')) {
-      setMediaType('video');
-      setMediaPreview(null);
-    } else {
-      setMediaType('document');
-      setMediaPreview(null);
-    }
-
-    // Upload file
-    setIsUploading(true);
-    try {
-      const result = await adminBroadcastsApi.uploadMedia(file, mediaType);
-      setUploadedFileId(result.file_id);
-    } catch (err) {
-      console.error('Upload failed:', err);
-      setMediaFile(null);
-      setMediaPreview(null);
-    } finally {
-      setIsUploading(false);
-    }
-  };
-
-  // Remove media
-  const handleRemoveMedia = () => {
-    setMediaFile(null);
-    setMediaPreview(null);
-    setUploadedFileId(null);
-    if (fileInputRef.current) {
-      fileInputRef.current.value = '';
-    }
-  };
-
-  // Toggle button
-  const toggleButton = (key: string) => {
-    setSelectedButtons((prev) =>
-      prev.includes(key) ? prev.filter((b) => b !== key) : [...prev, key],
-    );
-  };
-
-  // Submit
-  const handleSubmit = () => {
-    if (!target || !messageText.trim()) return;
-
-    const data: BroadcastCreateRequest = {
-      target,
-      message_text: messageText,
-      selected_buttons: selectedButtons,
-    };
-
-    if (uploadedFileId) {
-      data.media = {
-        type: mediaType,
-        file_id: uploadedFileId,
-      };
-    }
-
-    createMutation.mutate(data);
-  };
-
-  const recipientsCount = previewMutation.data?.count ?? selectedFilter?.count ?? null;
-
-  return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center overflow-y-auto p-4">
-      <div className="my-4 w-full max-w-2xl rounded-xl bg-dark-800">
-        {/* Header */}
-        <div className="flex items-center justify-between border-b border-dark-700 p-4">
-          <div className="flex items-center gap-3">
-            <div className="rounded-lg bg-accent-500/20 p-2 text-accent-400">
-              <BroadcastIcon />
-            </div>
-            <h2 className="text-lg font-semibold text-dark-100">{t('admin.broadcasts.create')}</h2>
-          </div>
-          <button onClick={onClose} className="rounded-lg p-2 transition-colors hover:bg-dark-700">
-            <XIcon />
-          </button>
-        </div>
-
-        {/* Content */}
-        <div className="max-h-[70vh] space-y-4 overflow-y-auto p-4">
-          {/* Filter selection */}
-          <div>
-            <label className="mb-2 block text-sm font-medium text-dark-300">
-              {t('admin.broadcasts.selectFilter')}
-            </label>
-            <div className="relative">
-              <button
-                onClick={() => setShowFilters(!showFilters)}
-                className="flex w-full items-center justify-between rounded-lg bg-dark-700 p-3 text-left transition-colors hover:bg-dark-600"
-              >
-                <div className="flex items-center gap-2">
-                  <UsersIcon />
-                  <span className={selectedFilter ? 'text-dark-100' : 'text-dark-400'}>
-                    {selectedFilter
-                      ? selectedFilter.label
-                      : t('admin.broadcasts.selectFilterPlaceholder')}
-                  </span>
-                  {recipientsCount !== null && (
-                    <span className="rounded-full bg-accent-500/20 px-2 py-0.5 text-xs text-accent-400">
-                      {recipientsCount} {t('admin.broadcasts.recipients')}
-                    </span>
-                  )}
-                </div>
-                <ChevronDownIcon />
-              </button>
-
-              {showFilters && (
-                <div className="absolute left-0 right-0 top-full z-10 mt-1 max-h-64 overflow-y-auto rounded-lg bg-dark-700 shadow-xl">
-                  {filtersLoading ? (
-                    <div className="p-4 text-center text-dark-400">Loading...</div>
-                  ) : (
-                    Object.entries(groupedFilters).map(([group, filters]) => (
-                      <div key={group}>
-                        <div className="sticky top-0 bg-dark-800 px-3 py-2 text-xs font-medium text-dark-400">
-                          {FILTER_GROUP_LABEL_KEYS[group]
-                            ? t(FILTER_GROUP_LABEL_KEYS[group])
-                            : group}
-                        </div>
-                        {filters.map((filter) => (
-                          <button
-                            key={filter.key}
-                            onClick={() => {
-                              setTarget(filter.key);
-                              setShowFilters(false);
-                              previewMutation.mutate(filter.key);
-                            }}
-                            className={`flex w-full items-center justify-between px-3 py-2 text-left transition-colors hover:bg-dark-600 ${
-                              target === filter.key ? 'bg-accent-500/20' : ''
-                            }`}
-                          >
-                            <span className="text-dark-100">{filter.label}</span>
-                            {filter.count !== null && filter.count !== undefined && (
-                              <span className="text-xs text-dark-400">{filter.count}</span>
-                            )}
-                          </button>
-                        ))}
-                      </div>
-                    ))
-                  )}
-                </div>
-              )}
-            </div>
-          </div>
-
-          {/* Message text */}
-          <div>
-            <label className="mb-2 block text-sm font-medium text-dark-300">
-              {t('admin.broadcasts.messageText')}
-            </label>
-            <textarea
-              value={messageText}
-              onChange={(e) => setMessageText(e.target.value)}
-              placeholder={t('admin.broadcasts.messageTextPlaceholder')}
-              rows={5}
-              maxLength={4000}
-              className="w-full resize-none rounded-lg bg-dark-700 p-3 text-dark-100 placeholder-dark-400 focus:outline-none focus:ring-2 focus:ring-accent-500"
-            />
-            <div className="mt-1 text-right text-xs text-dark-400">{messageText.length}/4000</div>
-          </div>
-
-          {/* Media upload */}
-          <div>
-            <label className="mb-2 block text-sm font-medium text-dark-300">
-              {t('admin.broadcasts.media')}
-            </label>
-            {mediaFile ? (
-              <div className="rounded-lg bg-dark-700 p-3">
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-3">
-                    {mediaType === 'photo' && <PhotoIcon />}
-                    {mediaType === 'video' && <VideoIcon />}
-                    {mediaType === 'document' && <DocumentIcon />}
-                    <div>
-                      <p className="text-sm text-dark-100">{mediaFile.name}</p>
-                      <p className="text-xs text-dark-400">
-                        {(mediaFile.size / 1024 / 1024).toFixed(2)} MB
-                      </p>
-                    </div>
-                  </div>
-                  <button
-                    onClick={handleRemoveMedia}
-                    className="rounded-lg p-2 text-dark-400 hover:bg-dark-600 hover:text-error-400"
-                    disabled={isUploading}
-                  >
-                    <XIcon />
-                  </button>
-                </div>
-                {mediaPreview && (
-                  <img
-                    src={mediaPreview}
-                    alt="Preview"
-                    className="mt-3 max-h-40 rounded-lg object-cover"
-                  />
-                )}
-                {isUploading && (
-                  <div className="mt-2 text-sm text-accent-400">
-                    {t('admin.broadcasts.uploading')}
-                  </div>
-                )}
-              </div>
-            ) : (
-              <div className="flex gap-2">
-                <input
-                  ref={fileInputRef}
-                  type="file"
-                  accept="image/*,video/*,application/*"
-                  onChange={handleFileSelect}
-                  className="hidden"
-                />
-                <button
-                  onClick={() => fileInputRef.current?.click()}
-                  className="flex flex-1 items-center justify-center gap-2 rounded-lg bg-dark-700 p-3 text-dark-400 transition-colors hover:bg-dark-600 hover:text-dark-100"
-                >
-                  <PhotoIcon />
-                  <span>{t('admin.broadcasts.addMedia')}</span>
-                </button>
-              </div>
-            )}
-          </div>
-
-          {/* Buttons selection */}
-          <div>
-            <label className="mb-2 block text-sm font-medium text-dark-300">
-              {t('admin.broadcasts.buttons')}
-            </label>
-            <div className="flex flex-wrap gap-2">
-              {buttonsData?.buttons.map((button) => (
-                <button
-                  key={button.key}
-                  onClick={() => toggleButton(button.key)}
-                  className={`rounded-lg px-3 py-2 text-sm transition-colors ${
-                    selectedButtons.includes(button.key)
-                      ? 'bg-accent-500 text-white'
-                      : 'bg-dark-700 text-dark-300 hover:bg-dark-600'
-                  }`}
-                >
-                  {button.label}
-                </button>
-              ))}
-            </div>
-          </div>
-        </div>
-
-        {/* Footer */}
-        <div className="flex items-center justify-between border-t border-dark-700 p-4">
-          <div className="text-sm text-dark-400">
-            {recipientsCount !== null && (
-              <span>
-                {t('admin.broadcasts.willBeSent')}:{' '}
-                <strong className="text-accent-400">{recipientsCount}</strong>{' '}
-                {t('admin.broadcasts.users')}
-              </span>
-            )}
-          </div>
-          <div className="flex gap-2">
-            <button
-              onClick={onClose}
-              className="rounded-lg bg-dark-700 px-4 py-2 text-dark-300 transition-colors hover:bg-dark-600"
-            >
-              {t('common.cancel')}
-            </button>
-            <button
-              onClick={handleSubmit}
-              disabled={!target || !messageText.trim() || createMutation.isPending || isUploading}
-              className="flex items-center gap-2 rounded-lg bg-accent-500 px-4 py-2 text-white transition-colors hover:bg-accent-600 disabled:cursor-not-allowed disabled:opacity-50"
-            >
-              {createMutation.isPending ? <RefreshIcon /> : <BroadcastIcon />}
-              {t('admin.broadcasts.send')}
-            </button>
-          </div>
-        </div>
-      </div>
-    </div>
-  );
-}
-
 // Main component
 export default function AdminBroadcasts() {
   const { t } = useTranslation();
   const navigate = useNavigate();
 
-  const [showCreateModal, setShowCreateModal] = useState(false);
   const [page, setPage] = useState(0);
   const limit = 20;
 
@@ -561,7 +150,7 @@ export default function AdminBroadcasts() {
             <RefreshIcon />
           </button>
           <button
-            onClick={() => setShowCreateModal(true)}
+            onClick={() => navigate('/admin/broadcasts/create')}
             className="flex items-center gap-2 rounded-lg bg-accent-500 px-4 py-2 text-white transition-colors hover:bg-accent-600"
           >
             <PlusIcon />
@@ -651,16 +240,6 @@ export default function AdminBroadcasts() {
             {t('admin.broadcasts.next')}
           </button>
         </div>
-      )}
-
-      {/* Create Modal */}
-      {showCreateModal && (
-        <CreateBroadcastModal
-          onClose={() => setShowCreateModal(false)}
-          onSuccess={() => {
-            refetch();
-          }}
-        />
       )}
     </div>
   );

@@ -38,6 +38,7 @@ const AdminServers = lazy(() => import('./pages/AdminServers'));
 const AdminDashboard = lazy(() => import('./pages/AdminDashboard'));
 const AdminBanSystem = lazy(() => import('./pages/AdminBanSystem'));
 const AdminBroadcasts = lazy(() => import('./pages/AdminBroadcasts'));
+const AdminBroadcastCreate = lazy(() => import('./pages/AdminBroadcastCreate'));
 const AdminPromocodes = lazy(() => import('./pages/AdminPromocodes'));
 const AdminCampaigns = lazy(() => import('./pages/AdminCampaigns'));
 const AdminUsers = lazy(() => import('./pages/AdminUsers'));
@@ -323,6 +324,16 @@ function App() {
             <AdminRoute>
               <LazyPage>
                 <AdminBroadcasts />
+              </LazyPage>
+            </AdminRoute>
+          }
+        />
+        <Route
+          path="/admin/broadcasts/create"
+          element={
+            <AdminRoute>
+              <LazyPage>
+                <AdminBroadcastCreate />
               </LazyPage>
             </AdminRoute>
           }
