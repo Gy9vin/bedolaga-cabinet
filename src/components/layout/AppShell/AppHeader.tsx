@@ -182,7 +182,7 @@ export function AppHeader({
         className="glass fixed left-0 right-0 top-0 z-50 shadow-lg shadow-black/10 lg:hidden"
         style={{
           paddingTop: isFullscreen
-            ? `${Math.max(safeAreaInset.top, contentSafeAreaInset.top) + (telegramPlatform === 'android' ? 0 : 45)}px`
+            ? `${Math.max(safeAreaInset.top, contentSafeAreaInset.top) + (telegramPlatform === 'android' ? 56 : 45)}px`
             : undefined,
         }}
       >

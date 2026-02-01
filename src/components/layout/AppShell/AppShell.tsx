@@ -363,9 +363,11 @@ export function AppShell({ children }: AppShellProps) {
   };
 
   // Calculate header height based on fullscreen mode (only on mobile Telegram)
-  // On Android, don't add extra 45px padding as the native header is already accounted for
+  // On iOS: contentSafeAreaInset.top includes status bar + dynamic island + Telegram header
+  // On Android: safeAreaInset.top only includes status bar, need to add Telegram header height (~56px)
+  const telegramHeaderHeight = platform === 'android' ? 56 : 45;
   const headerHeight = isMobileFullscreen
-    ? 64 + Math.max(safeAreaInset.top, contentSafeAreaInset.top) + (platform === 'android' ? 0 : 45)
+    ? 64 + Math.max(safeAreaInset.top, contentSafeAreaInset.top) + telegramHeaderHeight
     : 64;
 
   return (
