@@ -626,6 +626,7 @@
       "payments": "支付",
       "promoOffers": "促销优惠",
       "promocodes": "促销码",
+      "promoGroups": "折扣组",
       "remnawave": "RemnaWave",
       "users": "用户"
     },
@@ -647,6 +648,7 @@
       "paymentsDesc": "支付验证",
       "promoOffersDesc": "个性化折扣",
       "promocodesDesc": "管理促销码",
+      "promoGroupsDesc": "用户折扣组",
       "remnawaveDesc": "面板管理和统计",
       "usersDesc": "管理机器人用户"
     },
@@ -1388,6 +1390,62 @@
         "deletePromocodeText": "促销码将被永久删除。",
         "deleteGroupText": "该组将被删除。用户将失去该组的折扣。",
         "deleteButton": "删除"
+      },
+      "validation": {
+        "codeRequired": "请输入促销码",
+        "balanceRequired": "奖金金额必须大于0",
+        "daysRequired": "天数必须大于0",
+        "groupRequired": "请选择折扣组",
+        "discountPercentInvalid": "折扣百分比必须在1到100之间",
+        "discountHoursRequired": "请指定折扣有效期（小时）"
+      }
+    },
+    "promoGroups": {
+      "title": "折扣组",
+      "subtitle": "管理用户折扣组",
+      "addGroup": "添加组",
+      "noGroups": "没有折扣组",
+      "default": "默认",
+      "servers": "服务器",
+      "traffic": "流量",
+      "devices": "设备",
+      "daysShort": "{{days}} 天",
+      "autoFrom": "自动 从 {{amount}} 卢布",
+      "members": "{{count}} 名成员",
+      "createTitle": "创建折扣组",
+      "editTitle": "编辑组",
+      "stats": {
+        "total": "组总数",
+        "members": "成员",
+        "autoAssign": "自动分配"
+      },
+      "actions": {
+        "edit": "编辑",
+        "delete": "删除"
+      },
+      "confirm": {
+        "title": "删除组？",
+        "text": "该组将被删除。用户将失去该组的折扣。",
+        "cancel": "取消",
+        "delete": "删除"
+      },
+      "form": {
+        "name": "组名称",
+        "namePlaceholder": "VIP客户",
+        "categoryDiscounts": "分类折扣",
+        "periodDiscounts": "期间折扣",
+        "add": "添加",
+        "periodHint": "购买指定天数订阅时应用折扣",
+        "noPeriods": "没有期间折扣",
+        "daysPlaceholder": "天",
+        "arrow": "天 →",
+        "autoAssign": "消费满额自动分配",
+        "rub": "卢布",
+        "autoAssignHint": "0 = 不自动分配",
+        "applyToAddons": "应用于附加服务",
+        "cancel": "取消",
+        "saving": "保存中...",
+        "save": "保存"
       }
     },
     "users": {

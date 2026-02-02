@@ -626,6 +626,7 @@
       "payments": "پرداخت‌ها",
       "promoOffers": "پیشنهادات تبلیغاتی",
       "promocodes": "کدهای تخفیف",
+      "promoGroups": "گروه‌های تخفیف",
       "remnawave": "RemnaWave",
       "users": "کاربران"
     },
@@ -647,6 +648,7 @@
       "paymentsDesc": "تأیید پرداخت",
       "promoOffersDesc": "تخفیف‌های شخصی",
       "promocodesDesc": "مدیریت کدهای تخفیف",
+      "promoGroupsDesc": "گروه‌های تخفیف برای کاربران",
       "remnawaveDesc": "مدیریت پنل و آمار",
       "usersDesc": "مدیریت کاربران ربات"
     },
@@ -1389,6 +1391,62 @@
         "deletePromocodeText": "کد تخفیف به طور دائم حذف خواهد شد.",
         "deleteGroupText": "گروه حذف خواهد شد. کاربران تخفیف‌های این گروه را از دست خواهند داد.",
         "deleteButton": "حذف"
+      },
+      "validation": {
+        "codeRequired": "کد تخفیف را وارد کنید",
+        "balanceRequired": "مبلغ پاداش باید بیشتر از 0 باشد",
+        "daysRequired": "تعداد روزها باید بیشتر از 0 باشد",
+        "groupRequired": "یک گروه تخفیف انتخاب کنید",
+        "discountPercentInvalid": "درصد تخفیف باید بین 1 تا 100 باشد",
+        "discountHoursRequired": "مدت اعتبار تخفیف را به ساعت مشخص کنید"
+      }
+    },
+    "promoGroups": {
+      "title": "گروه‌های تخفیف",
+      "subtitle": "مدیریت گروه‌های تخفیف برای کاربران",
+      "addGroup": "افزودن گروه",
+      "noGroups": "گروه تخفیفی وجود ندارد",
+      "default": "پیش‌فرض",
+      "servers": "سرورها",
+      "traffic": "ترافیک",
+      "devices": "دستگاه‌ها",
+      "daysShort": "{{days}} روز",
+      "autoFrom": "خودکار از {{amount}} روبل",
+      "members": "{{count}} عضو",
+      "createTitle": "ایجاد گروه تخفیف",
+      "editTitle": "ویرایش گروه",
+      "stats": {
+        "total": "کل گروه‌ها",
+        "members": "اعضا",
+        "autoAssign": "با تخصیص خودکار"
+      },
+      "actions": {
+        "edit": "ویرایش",
+        "delete": "حذف"
+      },
+      "confirm": {
+        "title": "گروه حذف شود؟",
+        "text": "گروه حذف خواهد شد. کاربران تخفیف‌های این گروه را از دست خواهند داد.",
+        "cancel": "انصراف",
+        "delete": "حذف"
+      },
+      "form": {
+        "name": "نام گروه",
+        "namePlaceholder": "مشتریان VIP",
+        "categoryDiscounts": "تخفیف‌های دسته‌بندی",
+        "periodDiscounts": "تخفیف‌های دوره‌ای",
+        "add": "افزودن",
+        "periodHint": "تخفیف هنگام خرید اشتراک برای تعداد روز مشخص شده اعمال می‌شود",
+        "noPeriods": "تخفیف دوره‌ای وجود ندارد",
+        "daysPlaceholder": "روز",
+        "arrow": "روز ←",
+        "autoAssign": "تخصیص خودکار هنگام هزینه از",
+        "rub": "روبل",
+        "autoAssignHint": "0 = تخصیص خودکار نشود",
+        "applyToAddons": "اعمال به خدمات اضافی",
+        "cancel": "انصراف",
+        "saving": "در حال ذخیره...",
+        "save": "ذخیره"
       }
     },
     "users": {

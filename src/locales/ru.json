@@ -753,7 +753,8 @@
       "paymentMethods": "Платёжные методы",
       "campaigns": "Кампании",
       "promoOffers": "Промопредложения",
-      "promocodes": "Промокоды"
+      "promocodes": "Промокоды",
+      "promoGroups": "Группы скидок"
     },
     "panel": {
       "title": "Панель администратора",
@@ -774,7 +775,8 @@
       "paymentMethodsDesc": "Настройка и порядок платежек",
       "campaignsDesc": "Рекламные кампании",
       "promoOffersDesc": "Персональные скидки",
-      "promocodesDesc": "Управление промокодами"
+      "promocodesDesc": "Управление промокодами",
+      "promoGroupsDesc": "Группы скидок для пользователей"
     },
     "emailTemplates": {
       "title": "Email-шаблоны",
@@ -2107,6 +2109,62 @@
         "deletePromocodeText": "Промокод будет удален безвозвратно.",
         "deleteGroupText": "Группа будет удалена. Пользователи потеряют скидки этой группы.",
         "deleteButton": "Удалить"
+      },
+      "validation": {
+        "codeRequired": "Введите код промокода",
+        "balanceRequired": "Сумма бонуса должна быть больше 0",
+        "daysRequired": "Количество дней должно быть больше 0",
+        "groupRequired": "Выберите группу скидок",
+        "discountPercentInvalid": "Процент скидки должен быть от 1 до 100",
+        "discountHoursRequired": "Укажите время действия скидки в часах"
+      }
+    },
+    "promoGroups": {
+      "title": "Группы скидок",
+      "subtitle": "Управление группами скидок для пользователей",
+      "addGroup": "Добавить группу",
+      "noGroups": "Нет групп скидок",
+      "default": "По умолчанию",
+      "servers": "Серверы",
+      "traffic": "Трафик",
+      "devices": "Устройства",
+      "daysShort": "{{days}} дн.",
+      "autoFrom": "Авто от {{amount}} руб.",
+      "members": "{{count}} участников",
+      "createTitle": "Создание группы скидок",
+      "editTitle": "Редактирование группы",
+      "stats": {
+        "total": "Всего групп",
+        "members": "Участников",
+        "autoAssign": "С авто-назначением"
+      },
+      "actions": {
+        "edit": "Редактировать",
+        "delete": "Удалить"
+      },
+      "confirm": {
+        "title": "Удалить группу?",
+        "text": "Группа будет удалена. Пользователи потеряют скидки этой группы.",
+        "cancel": "Отмена",
+        "delete": "Удалить"
+      },
+      "form": {
+        "name": "Название группы",
+        "namePlaceholder": "VIP клиенты",
+        "categoryDiscounts": "Скидки по категориям",
+        "periodDiscounts": "Скидки по периодам",
+        "add": "Добавить",
+        "periodHint": "Скидка применяется при покупке подписки на указанное кол-во дней",
+        "noPeriods": "Нет скидок по периодам",
+        "daysPlaceholder": "Дни",
+        "arrow": "дней →",
+        "autoAssign": "Авто-назначение при тратах от",
+        "rub": "руб.",
+        "autoAssignHint": "0 = не назначать автоматически",
+        "applyToAddons": "Применять к дополнительным услугам",
+        "cancel": "Отмена",
+        "saving": "Сохранение...",
+        "save": "Сохранить"
       }
     },
     "users": {

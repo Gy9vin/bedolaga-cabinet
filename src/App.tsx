@@ -41,6 +41,9 @@ const AdminBanSystem = lazy(() => import('./pages/AdminBanSystem'));
 const AdminBroadcasts = lazy(() => import('./pages/AdminBroadcasts'));
 const AdminBroadcastCreate = lazy(() => import('./pages/AdminBroadcastCreate'));
 const AdminPromocodes = lazy(() => import('./pages/AdminPromocodes'));
+const AdminPromocodeCreate = lazy(() => import('./pages/AdminPromocodeCreate'));
+const AdminPromoGroups = lazy(() => import('./pages/AdminPromoGroups'));
+const AdminPromoGroupCreate = lazy(() => import('./pages/AdminPromoGroupCreate'));
 const AdminCampaigns = lazy(() => import('./pages/AdminCampaigns'));
 const AdminCampaignCreate = lazy(() => import('./pages/AdminCampaignCreate'));
 const AdminUsers = lazy(() => import('./pages/AdminUsers'));
@@ -366,6 +369,56 @@ function App() {
             <AdminRoute>
               <LazyPage>
                 <AdminPromocodes />
+              </LazyPage>
+            </AdminRoute>
+          }
+        />
+        <Route
+          path="/admin/promocodes/create"
+          element={
+            <AdminRoute>
+              <LazyPage>
+                <AdminPromocodeCreate />
+              </LazyPage>
+            </AdminRoute>
+          }
+        />
+        <Route
+          path="/admin/promocodes/:id/edit"
+          element={
+            <AdminRoute>
+              <LazyPage>
+                <AdminPromocodeCreate />
+              </LazyPage>
+            </AdminRoute>
+          }
+        />
+        <Route
+          path="/admin/promo-groups"
+          element={
+            <AdminRoute>
+              <LazyPage>
+                <AdminPromoGroups />
+              </LazyPage>
+            </AdminRoute>
+          }
+        />
+        <Route
+          path="/admin/promo-groups/create"
+          element={
+            <AdminRoute>
+              <LazyPage>
+                <AdminPromoGroupCreate />
+              </LazyPage>
+            </AdminRoute>
+          }
+        />
+        <Route
+          path="/admin/promo-groups/:id/edit"
+          element={
+            <AdminRoute>
+              <LazyPage>
+                <AdminPromoGroupCreate />
               </LazyPage>
             </AdminRoute>
           }

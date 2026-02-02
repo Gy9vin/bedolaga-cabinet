@@ -737,7 +737,8 @@
       "paymentMethods": "Payment Methods",
       "campaigns": "Campaigns",
       "promoOffers": "Promo Offers",
-      "promocodes": "Promo Codes"
+      "promocodes": "Promo Codes",
+      "promoGroups": "Discount Groups"
     },
     "panel": {
       "title": "Admin Panel",
@@ -758,7 +759,8 @@
       "paymentMethodsDesc": "Configure payment methods and order",
       "campaignsDesc": "Advertising campaigns",
       "promoOffersDesc": "Personal discounts",
-      "promocodesDesc": "Manage promo codes"
+      "promocodesDesc": "Manage promo codes",
+      "promoGroupsDesc": "Discount groups for users"
     },
     "emailTemplates": {
       "title": "Email Templates",
@@ -1596,6 +1598,62 @@
         "deletePromocodeText": "The promo code will be permanently deleted.",
         "deleteGroupText": "The group will be deleted. Users will lose discounts from this group.",
         "deleteButton": "Delete"
+      },
+      "validation": {
+        "codeRequired": "Enter promo code",
+        "balanceRequired": "Bonus amount must be greater than 0",
+        "daysRequired": "Number of days must be greater than 0",
+        "groupRequired": "Select a discount group",
+        "discountPercentInvalid": "Discount percent must be between 1 and 100",
+        "discountHoursRequired": "Specify the discount validity period in hours"
+      }
+    },
+    "promoGroups": {
+      "title": "Discount Groups",
+      "subtitle": "Manage discount groups for users",
+      "addGroup": "Add Group",
+      "noGroups": "No discount groups",
+      "default": "Default",
+      "servers": "Servers",
+      "traffic": "Traffic",
+      "devices": "Devices",
+      "daysShort": "{{days}} days",
+      "autoFrom": "Auto from {{amount}} rub.",
+      "members": "{{count}} members",
+      "createTitle": "Create Discount Group",
+      "editTitle": "Edit Group",
+      "stats": {
+        "total": "Total groups",
+        "members": "Members",
+        "autoAssign": "With auto-assign"
+      },
+      "actions": {
+        "edit": "Edit",
+        "delete": "Delete"
+      },
+      "confirm": {
+        "title": "Delete group?",
+        "text": "The group will be deleted. Users will lose discounts from this group.",
+        "cancel": "Cancel",
+        "delete": "Delete"
+      },
+      "form": {
+        "name": "Group name",
+        "namePlaceholder": "VIP customers",
+        "categoryDiscounts": "Category discounts",
+        "periodDiscounts": "Period discounts",
+        "add": "Add",
+        "periodHint": "Discount is applied when purchasing a subscription for the specified number of days",
+        "noPeriods": "No period discounts",
+        "daysPlaceholder": "Days",
+        "arrow": "days →",
+        "autoAssign": "Auto-assign when spent from",
+        "rub": "rub.",
+        "autoAssignHint": "0 = don't auto-assign",
+        "applyToAddons": "Apply to additional services",
+        "cancel": "Cancel",
+        "saving": "Saving...",
+        "save": "Save"
       }
     },
     "users": {
