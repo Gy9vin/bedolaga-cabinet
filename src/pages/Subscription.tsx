@@ -3,7 +3,6 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useTranslation } from 'react-i18next';
 import { useLocation } from 'react-router-dom';
 import { AxiosError } from 'axios';
-import { motion } from 'framer-motion';
 import { subscriptionApi } from '../api/subscription';
 import { promoApi } from '../api/promo';
 import type {
@@ -18,8 +17,6 @@ import InsufficientBalancePrompt from '../components/InsufficientBalancePrompt';
 import { useCurrency } from '../hooks/useCurrency';
 import { useCloseOnSuccessNotification } from '../store/successNotification';
 import i18n from '../i18n';
-import { Card } from '@/components/data-display/Card';
-import { staggerContainer, staggerItem } from '@/components/motion/transitions';
 
 // Helper to extract error message from axios/api errors
 const getErrorMessage = (error: unknown): string => {
@@ -599,60 +596,47 @@ export default function Subscription() {
   }
 
   return (
-    <motion.div
-      className="space-y-6"
-      variants={staggerContainer}
-      initial="initial"
-      animate="animate"
-    >
-      <motion.div variants={staggerItem}>
-        <h1 className="text-2xl font-bold text-dark-50 sm:text-3xl">{t('subscription.title')}</h1>
-      </motion.div>
+    <div className="space-y-6">
+      <h1 className="text-2xl font-bold text-dark-50 sm:text-3xl">{t('subscription.title')}</h1>
 
       {/* Current Subscription */}
       {subscription ? (
-        <motion.div variants={staggerItem}>
-          <Card>
-            <div className="mb-6 flex items-center justify-between">
-              <div>
-                <h2 className="text-lg font-semibold text-dark-100">
-                  {t('subscription.currentPlan')}
-                </h2>
-                {subscription.tariff_name && (
-                  <div className="mt-1 text-sm text-accent-400">{subscription.tariff_name}</div>
-                )}
-              </div>
-              <span
-                className={
-                  subscription.is_active
-                    ? subscription.is_trial
-                      ? 'badge-warning'
-                      : 'badge-success'
-                    : 'badge-error'
-                }
-              >
-                {subscription.is_trial
-                  ? t('subscription.trialStatus')
-                  : subscription.is_active
-                    ? t('subscription.active')
-                    : t('subscription.expired')}
-              </span>
+        <div
+          className={`bento-card ${subscription.is_trial ? 'border-warning-500/30 bg-gradient-to-br from-warning-500/5 to-transparent' : ''}`}
+        >
+          <div className="mb-6 flex items-center justify-between">
+            <div>
+              <h2 className="text-lg font-semibold text-dark-100">
+                {t('subscription.currentPlan')}
+              </h2>
+              {subscription.tariff_name && (
+                <div className="mt-1 text-sm text-accent-400">{subscription.tariff_name}</div>
+              )}
             </div>
+            <span
+              className={
+                subscription.is_active
+                  ? subscription.is_trial
+                    ? 'badge-warning'
+                    : 'badge-success'
+                  : 'badge-error'
+              }
+            >
+              {subscription.is_trial
+                ? t('subscription.trialStatus')
+                : subscription.is_active
+                  ? t('subscription.active')
+                  : t('subscription.expired')}
+            </span>
+          </div>
 
-            {/* Connection Data - Top Priority */}
-            {subscription.subscription_url && (
-              <div className="mb-6 rounded-xl border border-accent-500/30 bg-accent-500/10 p-4">
-                <div className="mb-3 font-medium text-dark-100">
-                  {t('subscription.connectionInfo')}
-                </div>
-
-                {/* Get Config Button */}
-                <button
-                  onClick={() => setShowConnectionModal(true)}
-                  className="btn-primary mb-3 flex w-full items-center justify-center gap-2 py-3"
-                >
+          {/* Trial Period Info Banner */}
+          {subscription.is_trial && subscription.is_active && (
+            <div className="mb-6 rounded-xl border border-warning-500/30 bg-warning-500/10 p-4">
+              <div className="flex items-start gap-3">
+                <div className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-xl bg-warning-500/20 text-lg">
                   <svg
-                    className="h-5 w-5"
+                    className="h-5 w-5 text-warning-400"
                     fill="none"
                     viewBox="0 0 24 24"
                     stroke="currentColor"
@@ -661,151 +645,231 @@ export default function Subscription() {
                     <path
                       strokeLinecap="round"
                       strokeLinejoin="round"
-                      d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5M16.5 12L12 16.5m0 0L7.5 12m4.5 4.5V3"
+                      d="M12 6v6h4.5m4.5 0a9 9 0 11-18 0 9 9 0 0118 0z"
                     />
                   </svg>
-                  {t('subscription.getConfig')}
-                </button>
-
-                {/* Subscription URL - hidden when hide_subscription_link is true */}
-                {!subscription.hide_subscription_link && (
-                  <div className="flex gap-2">
-                    <code className="scrollbar-hide flex-1 overflow-x-auto break-all rounded-lg border border-dark-700/50 bg-dark-900/50 px-3 py-2 text-xs text-dark-300">
-                      {subscription.subscription_url}
-                    </code>
-                    <button
-                      onClick={copyUrl}
-                      className={`btn-secondary px-3 ${copied ? 'border-success-500/30 text-success-400' : ''}`}
-                      title={t('subscription.copyLink')}
-                    >
-                      {copied ? <CheckIcon /> : <CopyIcon />}
-                    </button>
+                </div>
+                <div className="flex-1">
+                  <div className="font-medium text-warning-300">
+                    {t('subscription.trialInfo.title')}
                   </div>
-                )}
-              </div>
-            )}
-
-            <div className="mb-6 grid grid-cols-2 gap-6 md:grid-cols-4">
-              <div>
-                <div className="mb-1 text-sm text-dark-500">{t('subscription.daysLeft')}</div>
-                <div className="text-xl font-semibold text-dark-100">
-                  {subscription.days_left > 0 ? (
-                    t('subscription.days', { count: subscription.days_left })
-                  ) : subscription.hours_left > 0 ? (
-                    `${t('subscription.hours', { count: subscription.hours_left })} ${t('subscription.minutes', { count: subscription.minutes_left })}`
-                  ) : subscription.minutes_left > 0 ? (
-                    t('subscription.minutes', { count: subscription.minutes_left })
-                  ) : (
-                    <span className="text-error-400">{t('subscription.expired')}</span>
-                  )}
-                </div>
-              </div>
-              <div>
-                <div className="mb-1 text-sm text-dark-500">{t('subscription.expiresAt')}</div>
-                <div className="text-xl font-semibold text-dark-100">
-                  {new Date(subscription.end_date).toLocaleDateString()}
-                </div>
-              </div>
-              <div>
-                <div className="mb-1 flex items-center gap-2">
-                  <span className="text-sm text-dark-500">{t('subscription.traffic')}</span>
-                  <button
-                    onClick={() => refreshTrafficMutation.mutate()}
-                    disabled={refreshTrafficMutation.isPending || trafficRefreshCooldown > 0}
-                    className="rounded-full p-1 text-dark-400 transition-colors hover:bg-dark-700/50 hover:text-accent-400 disabled:cursor-not-allowed disabled:opacity-50"
-                    title={
-                      trafficRefreshCooldown > 0
-                        ? `${trafficRefreshCooldown}s`
-                        : t('common.refresh')
-                    }
-                  >
-                    <svg
-                      className={`h-3.5 w-3.5 ${refreshTrafficMutation.isPending ? 'animate-spin' : ''}`}
-                      fill="none"
-                      viewBox="0 0 24 24"
-                      stroke="currentColor"
-                      strokeWidth={2}
-                    >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"
-                      />
-                    </svg>
-                  </button>
-                </div>
-                <div className="text-xl font-semibold text-dark-100">
-                  {(trafficData?.traffic_used_gb ?? subscription.traffic_used_gb).toFixed(1)} /{' '}
-                  {subscription.traffic_limit_gb || '∞'} GB
-                </div>
-              </div>
-              <div>
-                <div className="mb-1 text-sm text-dark-500">{t('subscription.devices')}</div>
-                <div className="text-xl font-semibold text-dark-100">
-                  {subscription.device_limit}
+                  <div className="mt-1 text-sm text-dark-400">
+                    {t('subscription.trialInfo.description')}
+                  </div>
+                  <div className="mt-3 flex flex-wrap gap-4 text-sm">
+                    <div className="flex items-center gap-1.5">
+                      <span className="text-warning-400">
+                        {subscription.days_left > 0
+                          ? t('subscription.days', { count: subscription.days_left })
+                          : `${subscription.hours_left}${t('subscription.hours')} ${subscription.minutes_left}${t('subscription.minutes')}`}
+                      </span>
+                      <span className="text-dark-500">{t('subscription.trialInfo.remaining')}</span>
+                    </div>
+                    <div className="flex items-center gap-1.5">
+                      <span className="text-warning-400">
+                        {subscription.traffic_limit_gb || '∞'} GB
+                      </span>
+                      <span className="text-dark-500">{t('subscription.traffic')}</span>
+                    </div>
+                    <div className="flex items-center gap-1.5">
+                      <span className="text-warning-400">{subscription.device_limit}</span>
+                      <span className="text-dark-500">{t('subscription.devices')}</span>
+                    </div>
+                  </div>
                 </div>
               </div>
             </div>
+          )}
 
-            {/* Servers */}
-            {subscription.servers && subscription.servers.length > 0 && (
-              <div className="mb-6">
-                <div className="mb-2 text-sm text-dark-500">{t('subscription.serversLabel')}</div>
-                <div className="flex flex-wrap gap-2">
-                  {subscription.servers.map((server) => (
-                    <span
-                      key={server.uuid}
-                      className="inline-flex items-center gap-1.5 rounded-lg border border-dark-700/50 bg-dark-800/50 px-3 py-1.5 text-sm text-dark-200"
-                    >
-                      {server.country_code && (
-                        <span className="text-base">{getFlagEmoji(server.country_code)}</span>
-                      )}
-                      {server.name}
-                    </span>
-                  ))}
-                </div>
+          {/* Connection Data - Top Priority */}
+          {subscription.subscription_url && (
+            <div className="mb-6 rounded-xl border border-accent-500/30 bg-accent-500/10 p-4">
+              <div className="mb-3 font-medium text-dark-100">
+                {t('subscription.connectionInfo')}
               </div>
-            )}
 
-            {/* Traffic Usage */}
-            {subscription.traffic_limit_gb > 0 && (
-              <div className="mb-6">
-                <div className="mb-2 flex justify-between text-sm">
-                  <span className="text-dark-400">{t('subscription.trafficUsed')}</span>
-                  <span className="text-dark-300">
-                    {(
-                      trafficData?.traffic_used_percent ?? subscription.traffic_used_percent
-                    ).toFixed(1)}
-                    %
-                  </span>
-                </div>
-                <div className="progress-bar">
-                  <div
-                    className={`progress-fill ${getTrafficColor(trafficData?.traffic_used_percent ?? subscription.traffic_used_percent)}`}
-                    style={{
-                      width: `${Math.min(trafficData?.traffic_used_percent ?? subscription.traffic_used_percent, 100)}%`,
-                    }}
+              {/* Get Config Button */}
+              <button
+                onClick={() => setShowConnectionModal(true)}
+                className="btn-primary mb-3 flex w-full items-center justify-center gap-2 py-3"
+              >
+                <svg
+                  className="h-5 w-5"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                  strokeWidth={1.5}
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5M16.5 12L12 16.5m0 0L7.5 12m4.5 4.5V3"
                   />
-                </div>
-              </div>
-            )}
+                </svg>
+                {t('subscription.getConfig')}
+              </button>
 
-            {/* Purchased Traffic Packages */}
-            {subscription.traffic_purchases && subscription.traffic_purchases.length > 0 && (
-              <div className="mb-6">
-                <div className="mb-3 text-sm text-dark-500">
-                  {t('subscription.purchasedTraffic')}
+              {/* Subscription URL - hidden when hide_subscription_link is true */}
+              {!subscription.hide_subscription_link && (
+                <div className="flex gap-2">
+                  <code className="scrollbar-hide flex-1 overflow-x-auto break-all rounded-lg border border-dark-700/50 bg-dark-900/50 px-3 py-2 text-xs text-dark-300">
+                    {subscription.subscription_url}
+                  </code>
+                  <button
+                    onClick={copyUrl}
+                    className={`btn-secondary px-3 ${copied ? 'border-success-500/30 text-success-400' : ''}`}
+                    title={t('subscription.copyLink')}
+                  >
+                    {copied ? <CheckIcon /> : <CopyIcon />}
+                  </button>
                 </div>
-                <div className="space-y-3">
-                  {subscription.traffic_purchases.map((purchase) => (
-                    <div
-                      key={purchase.id}
-                      className="rounded-lg border border-dark-700/50 bg-dark-800/50 p-3"
-                    >
-                      <div className="mb-2 flex items-center justify-between">
-                        <div className="flex items-center gap-2">
+              )}
+            </div>
+          )}
+
+          <div className="mb-6 grid grid-cols-2 gap-6 md:grid-cols-4">
+            <div>
+              <div className="mb-1 text-sm text-dark-500">{t('subscription.daysLeft')}</div>
+              <div className="text-xl font-semibold text-dark-100">
+                {subscription.days_left > 0 ? (
+                  t('subscription.days', { count: subscription.days_left })
+                ) : subscription.hours_left > 0 ? (
+                  `${t('subscription.hours', { count: subscription.hours_left })} ${t('subscription.minutes', { count: subscription.minutes_left })}`
+                ) : subscription.minutes_left > 0 ? (
+                  t('subscription.minutes', { count: subscription.minutes_left })
+                ) : (
+                  <span className="text-error-400">{t('subscription.expired')}</span>
+                )}
+              </div>
+            </div>
+            <div>
+              <div className="mb-1 text-sm text-dark-500">{t('subscription.expiresAt')}</div>
+              <div className="text-xl font-semibold text-dark-100">
+                {new Date(subscription.end_date).toLocaleDateString()}
+              </div>
+            </div>
+            <div>
+              <div className="mb-1 flex items-center gap-2">
+                <span className="text-sm text-dark-500">{t('subscription.traffic')}</span>
+                <button
+                  onClick={() => refreshTrafficMutation.mutate()}
+                  disabled={refreshTrafficMutation.isPending || trafficRefreshCooldown > 0}
+                  className="rounded-full p-1 text-dark-400 transition-colors hover:bg-dark-700/50 hover:text-accent-400 disabled:cursor-not-allowed disabled:opacity-50"
+                  title={
+                    trafficRefreshCooldown > 0 ? `${trafficRefreshCooldown}s` : t('common.refresh')
+                  }
+                >
+                  <svg
+                    className={`h-3.5 w-3.5 ${refreshTrafficMutation.isPending ? 'animate-spin' : ''}`}
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                    strokeWidth={2}
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"
+                    />
+                  </svg>
+                </button>
+              </div>
+              <div className="text-xl font-semibold text-dark-100">
+                {(trafficData?.traffic_used_gb ?? subscription.traffic_used_gb).toFixed(1)} /{' '}
+                {subscription.traffic_limit_gb || '∞'} GB
+              </div>
+            </div>
+            <div>
+              <div className="mb-1 text-sm text-dark-500">{t('subscription.devices')}</div>
+              <div className="text-xl font-semibold text-dark-100">{subscription.device_limit}</div>
+            </div>
+          </div>
+
+          {/* Servers */}
+          {subscription.servers && subscription.servers.length > 0 && (
+            <div className="mb-6">
+              <div className="mb-2 text-sm text-dark-500">{t('subscription.serversLabel')}</div>
+              <div className="flex flex-wrap gap-2">
+                {subscription.servers.map((server) => (
+                  <span
+                    key={server.uuid}
+                    className="inline-flex items-center gap-1.5 rounded-lg border border-dark-700/50 bg-dark-800/50 px-3 py-1.5 text-sm text-dark-200"
+                  >
+                    {server.country_code && (
+                      <span className="text-base">{getFlagEmoji(server.country_code)}</span>
+                    )}
+                    {server.name}
+                  </span>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* Traffic Usage */}
+          {subscription.traffic_limit_gb > 0 && (
+            <div className="mb-6">
+              <div className="mb-2 flex justify-between text-sm">
+                <span className="text-dark-400">{t('subscription.trafficUsed')}</span>
+                <span className="text-dark-300">
+                  {(trafficData?.traffic_used_percent ?? subscription.traffic_used_percent).toFixed(
+                    1,
+                  )}
+                  %
+                </span>
+              </div>
+              <div className="progress-bar">
+                <div
+                  className={`progress-fill ${getTrafficColor(trafficData?.traffic_used_percent ?? subscription.traffic_used_percent)}`}
+                  style={{
+                    width: `${Math.min(trafficData?.traffic_used_percent ?? subscription.traffic_used_percent, 100)}%`,
+                  }}
+                />
+              </div>
+            </div>
+          )}
+
+          {/* Purchased Traffic Packages */}
+          {subscription.traffic_purchases && subscription.traffic_purchases.length > 0 && (
+            <div className="mb-6">
+              <div className="mb-3 text-sm text-dark-500">{t('subscription.purchasedTraffic')}</div>
+              <div className="space-y-3">
+                {subscription.traffic_purchases.map((purchase) => (
+                  <div
+                    key={purchase.id}
+                    className="rounded-lg border border-dark-700/50 bg-dark-800/50 p-3"
+                  >
+                    <div className="mb-2 flex items-center justify-between">
+                      <div className="flex items-center gap-2">
+                        <svg
+                          className="h-5 w-5 text-accent-500"
+                          fill="none"
+                          viewBox="0 0 24 24"
+                          stroke="currentColor"
+                          strokeWidth={2}
+                        >
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"
+                          />
+                        </svg>
+                        <span className="text-base font-semibold text-dark-100">
+                          {purchase.traffic_gb} {t('common.units.gb')}
+                        </span>
+                      </div>
+                      <div className="flex flex-col items-end gap-1">
+                        <div className="text-sm text-dark-400">
+                          {purchase.days_remaining === 0 ? (
+                            <span className="text-orange-500">{t('subscription.expired')}</span>
+                          ) : (
+                            <span>
+                              {t('subscription.days', { count: purchase.days_remaining })}
+                            </span>
+                          )}
+                        </div>
+                        <div className="flex items-center gap-1 text-xs text-dark-500">
                           <svg
-                            className="h-5 w-5 text-accent-500"
+                            className="h-3.5 w-3.5"
                             fill="none"
                             viewBox="0 0 24 24"
                             stroke="currentColor"
@@ -814,118 +878,85 @@ export default function Subscription() {
                             <path
                               strokeLinecap="round"
                               strokeLinejoin="round"
-                              d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"
+                              d="M12 6v6h4.5m4.5 0a9 9 0 11-18 0 9 9 0 0118 0z"
                             />
                           </svg>
-                          <span className="text-base font-semibold text-dark-100">
-                            {purchase.traffic_gb} {t('common.units.gb')}
+                          <span>
+                            {t('subscription.trafficResetAt')}:{' '}
+                            {new Date(purchase.expires_at).toLocaleDateString(undefined, {
+                              day: '2-digit',
+                              month: '2-digit',
+                              year: 'numeric',
+                            })}
                           </span>
                         </div>
-                        <div className="flex flex-col items-end gap-1">
-                          <div className="text-sm text-dark-400">
-                            {purchase.days_remaining === 0 ? (
-                              <span className="text-orange-500">{t('subscription.expired')}</span>
-                            ) : (
-                              <span>
-                                {t('subscription.days', { count: purchase.days_remaining })}
-                              </span>
-                            )}
-                          </div>
-                          <div className="flex items-center gap-1 text-xs text-dark-500">
-                            <svg
-                              className="h-3.5 w-3.5"
-                              fill="none"
-                              viewBox="0 0 24 24"
-                              stroke="currentColor"
-                              strokeWidth={2}
-                            >
-                              <path
-                                strokeLinecap="round"
-                                strokeLinejoin="round"
-                                d="M12 6v6h4.5m4.5 0a9 9 0 11-18 0 9 9 0 0118 0z"
-                              />
-                            </svg>
-                            <span>
-                              {t('subscription.trafficResetAt')}:{' '}
-                              {new Date(purchase.expires_at).toLocaleDateString(undefined, {
-                                day: '2-digit',
-                                month: '2-digit',
-                                year: 'numeric',
-                              })}
-                            </span>
-                          </div>
-                        </div>
-                      </div>
-                      <div className="relative h-1.5 overflow-hidden rounded-full bg-dark-700">
-                        <div
-                          className="absolute inset-0 bg-gradient-to-r from-accent-500 to-accent-600 transition-all duration-300"
-                          style={{ width: `${purchase.progress_percent}%` }}
-                        />
-                      </div>
-                      <div className="mt-1 flex justify-between text-xs text-dark-500">
-                        <span>{new Date(purchase.created_at).toLocaleDateString()}</span>
-                        <span>{new Date(purchase.expires_at).toLocaleDateString()}</span>
                       </div>
                     </div>
-                  ))}
-                </div>
-              </div>
-            )}
-
-            {/* Autopay Toggle - hide for daily tariffs */}
-            {!subscription.is_trial && !subscription.is_daily && (
-              <div className="flex items-center justify-between border-t border-dark-800/50 py-4">
-                <div>
-                  <div className="font-medium text-dark-100">{t('subscription.autoRenewal')}</div>
-                  <div className="text-sm text-dark-500">
-                    {t('subscription.daysBeforeExpiry', {
-                      count: subscription.autopay_days_before,
-                    })}
+                    <div className="relative h-1.5 overflow-hidden rounded-full bg-dark-700">
+                      <div
+                        className="absolute inset-0 bg-gradient-to-r from-accent-500 to-accent-600 transition-all duration-300"
+                        style={{ width: `${purchase.progress_percent}%` }}
+                      />
+                    </div>
+                    <div className="mt-1 flex justify-between text-xs text-dark-500">
+                      <span>{new Date(purchase.created_at).toLocaleDateString()}</span>
+                      <span>{new Date(purchase.expires_at).toLocaleDateString()}</span>
+                    </div>
                   </div>
-                </div>
-                <button
-                  onClick={() => autopayMutation.mutate(!subscription.autopay_enabled)}
-                  disabled={autopayMutation.isPending}
-                  className={`relative h-6 w-12 rounded-full transition-colors ${
-                    subscription.autopay_enabled ? 'bg-accent-500' : 'bg-dark-700'
-                  }`}
-                >
-                  <span
-                    className={`absolute left-1 top-1 h-4 w-4 rounded-full bg-white transition-transform ${
-                      subscription.autopay_enabled ? 'translate-x-6' : 'translate-x-0'
-                    }`}
-                  />
-                </button>
+                ))}
               </div>
-            )}
-          </Card>
-        </motion.div>
-      ) : (
-        <motion.div variants={staggerItem}>
-          <Card className="py-12 text-center">
-            <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-2xl bg-dark-800">
-              <svg
-                className="h-8 w-8 text-dark-500"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke="currentColor"
-                strokeWidth={1.5}
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  d="M20.25 7.5l-.625 10.632a2.25 2.25 0 01-2.247 2.118H6.622a2.25 2.25 0 01-2.247-2.118L3.75 7.5M10 11.25h4M3.375 7.5h17.25c.621 0 1.125-.504 1.125-1.125v-1.5c0-.621-.504-1.125-1.125-1.125H3.375c-.621 0-1.125.504-1.125 1.125v1.5c0 .621.504 1.125 1.125 1.125z"
-                />
-              </svg>
             </div>
-            <div className="mb-4 text-dark-400">{t('subscription.noSubscription')}</div>
-          </Card>
-        </motion.div>
+          )}
+
+          {/* Autopay Toggle - hide for daily tariffs */}
+          {!subscription.is_trial && !subscription.is_daily && (
+            <div className="flex items-center justify-between border-t border-dark-800/50 py-4">
+              <div>
+                <div className="font-medium text-dark-100">{t('subscription.autoRenewal')}</div>
+                <div className="text-sm text-dark-500">
+                  {t('subscription.daysBeforeExpiry', { count: subscription.autopay_days_before })}
+                </div>
+              </div>
+              <button
+                onClick={() => autopayMutation.mutate(!subscription.autopay_enabled)}
+                disabled={autopayMutation.isPending}
+                className={`relative h-6 w-12 rounded-full transition-colors ${
+                  subscription.autopay_enabled ? 'bg-accent-500' : 'bg-dark-700'
+                }`}
+              >
+                <span
+                  className={`absolute left-1 top-1 h-4 w-4 rounded-full bg-white transition-transform ${
+                    subscription.autopay_enabled ? 'translate-x-6' : 'translate-x-0'
+                  }`}
+                />
+              </button>
+            </div>
+          )}
+        </div>
+      ) : (
+        <div className="card py-12 text-center">
+          <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-2xl bg-dark-800">
+            <svg
+              className="h-8 w-8 text-dark-500"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+              strokeWidth={1.5}
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                d="M20.25 7.5l-.625 10.632a2.25 2.25 0 01-2.247 2.118H6.622a2.25 2.25 0 01-2.247-2.118L3.75 7.5M10 11.25h4M3.375 7.5h17.25c.621 0 1.125-.504 1.125-1.125v-1.5c0-.621-.504-1.125-1.125-1.125H3.375c-.621 0-1.125.504-1.125 1.125v1.5c0 .621.504 1.125 1.125 1.125z"
+              />
+            </svg>
+          </div>
+          <div className="mb-4 text-dark-400">{t('subscription.noSubscription')}</div>
+        </div>
       )}
 
       {/* Daily Subscription Pause */}
       {subscription && subscription.is_daily && !subscription.is_trial && (
-        <Card>
+        <div className="bento-card">
           <div className="flex items-center justify-between">
             <div>
               <h2 className="text-lg font-semibold text-dark-100">
@@ -1043,12 +1074,12 @@ export default function Subscription() {
               );
             })()
           )}
-        </Card>
+        </div>
       )}
 
       {/* Additional Options (Buy Devices) */}
       {subscription && subscription.is_active && !subscription.is_trial && (
-        <Card>
+        <div className="bento-card">
           <h2 className="mb-4 text-lg font-semibold text-dark-100">
             {t('subscription.additionalOptions.title')}
           </h2>
@@ -1253,10 +1284,8 @@ export default function Subscription() {
 
                 {deviceReductionInfo?.available === false ? (
                   <div className="py-4 text-center text-sm text-dark-400">
-                    {deviceReductionInfo.reason?.includes('minimum device limit')
-                      ? t('subscription.additionalOptions.alreadyAtMinDeviceLimit')
-                      : deviceReductionInfo.reason ||
-                        t('subscription.additionalOptions.reduceUnavailable')}
+                    {deviceReductionInfo.reason ||
+                      t('subscription.additionalOptions.reduceUnavailable')}
                   </div>
                 ) : deviceReductionInfo ? (
                   <div className="space-y-4">
@@ -1788,12 +1817,12 @@ export default function Subscription() {
               )}
             </div>
           )}
-        </Card>
+        </div>
       )}
 
       {/* My Devices Section */}
       {subscription && (
-        <Card>
+        <div className="bento-card">
           <div className="mb-4 flex items-center justify-between">
             <h2 className="text-lg font-semibold text-dark-100">{t('subscription.myDevices')}</h2>
             {devicesData && devicesData.devices.length > 0 && (
@@ -1879,12 +1908,12 @@ export default function Subscription() {
           ) : (
             <div className="py-8 text-center text-dark-400">{t('subscription.noDevices')}</div>
           )}
-        </Card>
+        </div>
       )}
 
       {/* Tariffs Section - Combined Purchase/Extend/Switch like MiniApp */}
       {isTariffsMode && tariffs.length > 0 && (
-        <Card ref={tariffsCardRef}>
+        <div ref={tariffsCardRef} className="bento-card">
           <div className="mb-4 flex items-center justify-between">
             <h2 className="text-lg font-semibold text-dark-100">
               {subscription?.is_daily && !subscription?.is_trial
@@ -1895,17 +1924,48 @@ export default function Subscription() {
             </h2>
           </div>
 
+          {/* Trial upgrade prompt */}
+          {subscription?.is_trial && (
+            <div className="mb-6 rounded-xl border border-warning-500/30 bg-gradient-to-r from-warning-500/10 to-accent-500/10 p-4">
+              <div className="flex items-start gap-3">
+                <div className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-xl bg-warning-500/20">
+                  <svg
+                    className="h-5 w-5 text-warning-400"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                    strokeWidth={1.5}
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      d="M9.813 15.904L9 18.75l-.813-2.846a4.5 4.5 0 00-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 003.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 003.09 3.09L15.75 12l-2.846.813a4.5 4.5 0 00-3.09 3.09z"
+                    />
+                  </svg>
+                </div>
+                <div>
+                  <div className="font-medium text-warning-300">
+                    {t('subscription.trialUpgrade.title')}
+                  </div>
+                  <div className="mt-1 text-sm text-dark-400">
+                    {t('subscription.trialUpgrade.description')}
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
+
           {/* Legacy subscription notice - if user has subscription without tariff */}
           {subscription && !subscription.is_trial && !subscription.tariff_id && (
             <div className="mb-6 rounded-xl border border-accent-500/30 bg-accent-500/10 p-4">
               <div className="mb-2 font-medium text-accent-400">
-                📦 {t('subscription.legacy.selectTariffTitle')}
+                {t('subscription.legacy.selectTariffTitle')}
               </div>
               <div className="text-sm text-dark-300">
                 {t('subscription.legacy.selectTariffDescription')}
               </div>
               <div className="mt-2 text-xs text-dark-500">
-                ⚠️ {t('subscription.legacy.currentSubContinues')}
+                {t('subscription.legacy.currentSubContinues')}
               </div>
             </div>
           )}
@@ -2094,20 +2154,64 @@ export default function Subscription() {
                             </span>
                           )}
                         </div>
-                        <div className="flex flex-wrap gap-3 text-sm text-dark-300">
-                          <span className="flex items-center gap-1">
-                            <span className="text-accent-400">{tariff.traffic_limit_label}</span>
-                          </span>
-                          <span className="flex items-center gap-1">
-                            <span className="text-dark-400">
+                        <div className="flex flex-wrap gap-4 text-sm">
+                          {/* Traffic */}
+                          <div className="flex items-center gap-1.5">
+                            <svg
+                              className="h-4 w-4 text-accent-400"
+                              fill="none"
+                              viewBox="0 0 24 24"
+                              stroke="currentColor"
+                              strokeWidth={1.5}
+                            >
+                              <path
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                                d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5m-13.5-9L12 3m0 0l4.5 4.5M12 3v13.5"
+                              />
+                            </svg>
+                            <span className="font-medium text-dark-200">
+                              {tariff.traffic_limit_label}
+                            </span>
+                          </div>
+                          {/* Devices */}
+                          <div className="flex items-center gap-1.5">
+                            <svg
+                              className="h-4 w-4 text-dark-400"
+                              fill="none"
+                              viewBox="0 0 24 24"
+                              stroke="currentColor"
+                              strokeWidth={1.5}
+                            >
+                              <path
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                                d="M10.5 1.5H8.25A2.25 2.25 0 006 3.75v16.5a2.25 2.25 0 002.25 2.25h7.5A2.25 2.25 0 0018 20.25V3.75a2.25 2.25 0 00-2.25-2.25H13.5m-3 0V3h3V1.5m-3 0h3m-3 18.75h3"
+                              />
+                            </svg>
+                            <span className="text-dark-300">
                               {t('subscription.devices', { count: tariff.device_limit })}
                             </span>
-                          </span>
-                          <span className="flex items-center gap-1">
-                            <span className="text-dark-400">
+                          </div>
+                          {/* Servers */}
+                          <div className="flex items-center gap-1.5">
+                            <svg
+                              className="h-4 w-4 text-dark-400"
+                              fill="none"
+                              viewBox="0 0 24 24"
+                              stroke="currentColor"
+                              strokeWidth={1.5}
+                            >
+                              <path
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                                d="M12 21a9.004 9.004 0 008.716-6.747M12 21a9.004 9.004 0 01-8.716-6.747M12 21c2.485 0 4.5-4.03 4.5-9S14.485 3 12 3m0 18c-2.485 0-4.5-4.03-4.5-9S9.515 3 12 3m0 0a8.997 8.997 0 017.843 4.582M12 3a8.997 8.997 0 00-7.843 4.582m15.686 0A11.953 11.953 0 0112 10.5c-2.998 0-5.74-1.1-7.843-2.918m15.686 0A8.959 8.959 0 0121 12c0 .778-.099 1.533-.284 2.253m0 0A17.919 17.919 0 0112 16.5c-3.162 0-6.133-.815-8.716-2.247m0 0A9.015 9.015 0 013 12c0-1.605.42-3.113 1.157-4.418"
+                              />
+                            </svg>
+                            <span className="text-dark-300">
                               {t('subscription.servers', { count: tariff.servers_count })}
                             </span>
-                          </span>
+                          </div>
                         </div>
                         {/* Price info - daily or period-based */}
                         <div className="mt-3 border-t border-dark-700/50 pt-3 text-sm text-dark-400">
@@ -2847,12 +2951,12 @@ export default function Subscription() {
               </div>
             )
           )}
-        </Card>
+        </div>
       )}
 
       {/* Purchase/Extend Section - Classic Mode */}
       {classicOptions && classicOptions.periods.length > 0 && (
-        <Card ref={tariffsCardRef}>
+        <div ref={tariffsCardRef} className="bento-card">
           <div className="mb-4 flex items-center justify-between">
             <h2 className="text-lg font-semibold text-dark-100">
               {subscription && !subscription.is_trial
@@ -3255,11 +3359,11 @@ export default function Subscription() {
               )}
             </div>
           )}
-        </Card>
+        </div>
       )}
 
       {/* Connection Modal */}
       {showConnectionModal && <ConnectionModal onClose={() => setShowConnectionModal(false)} />}
-    </motion.div>
+    </div>
   );
 }
