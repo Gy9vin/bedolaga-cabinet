@@ -94,16 +94,17 @@ export default function AdminTariffCreate() {
   // Step: null = type selection, 'period' or 'daily' = form
   const [tariffType, setTariffType] = useState<TariffType>(null);
 
-  // Form state
+  // Form state - matches bot fields
   const [name, setName] = useState('');
   const [description, setDescription] = useState('');
-  const [trafficLimitGb, setTrafficLimitGb] = useState<number | ''>('');
+  const [trafficLimitGb, setTrafficLimitGb] = useState<number | ''>(100);
   const [deviceLimit, setDeviceLimit] = useState<number | ''>(1);
   const [devicePriceKopeks, setDevicePriceKopeks] = useState<number | ''>(0);
   const [maxDeviceLimit, setMaxDeviceLimit] = useState<number | ''>(0);
   const [tierLevel, setTierLevel] = useState<number | ''>(1);
   const [periodPrices, setPeriodPrices] = useState<PeriodPrice[]>([]);
   const [selectedSquads, setSelectedSquads] = useState<string[]>([]);
+  const [selectedPromoGroups, setSelectedPromoGroups] = useState<number[]>([]);
   const [dailyPriceKopeks, setDailyPriceKopeks] = useState<number | ''>(0);
 
   // Traffic topup
@@ -111,24 +112,22 @@ export default function AdminTariffCreate() {
   const [maxTopupTrafficGb, setMaxTopupTrafficGb] = useState<number | ''>(0);
   const [trafficTopupPackages, setTrafficTopupPackages] = useState<Record<string, number>>({});
 
+  // New traffic package for adding
+  const [newPackageGb, setNewPackageGb] = useState<number | ''>(10);
+  const [newPackagePrice, setNewPackagePrice] = useState<number | ''>(100);
+
+  // Track editing state for traffic package prices
+  const [editingPackagePrices, setEditingPackagePrices] = useState<Record<string, string>>({});
+
   // Traffic reset mode
   const [trafficResetMode, setTrafficResetMode] = useState<string | null>(null);
-
-  // Custom days (period tariff)
-  const [customDaysEnabled, setCustomDaysEnabled] = useState(false);
-  const [pricePerDayKopeks, setPricePerDayKopeks] = useState<number | ''>(0);
-  const [minDays, setMinDays] = useState<number | ''>(1);
-  const [maxDays, setMaxDays] = useState<number | ''>(365);
-
-  // Custom traffic (period tariff)
-  const [customTrafficEnabled, setCustomTrafficEnabled] = useState(false);
-  const [trafficPricePerGbKopeks, setTrafficPricePerGbKopeks] = useState<number | ''>(0);
-  const [minTrafficGb, setMinTrafficGb] = useState<number | ''>(1);
-  const [maxTrafficGb, setMaxTrafficGb] = useState<number | ''>(1000);
 
   // New period for adding
   const [newPeriodDays, setNewPeriodDays] = useState<number | ''>(30);
   const [newPeriodPrice, setNewPeriodPrice] = useState<number | ''>(300);
+
+  // Track editing state for period prices
+  const [editingPeriodPrices, setEditingPeriodPrices] = useState<Record<number, string>>({});
 
   const [activeTab, setActiveTab] = useState<'basic' | 'periods' | 'servers' | 'extra'>('basic');
 
@@ -136,6 +135,12 @@ export default function AdminTariffCreate() {
   const { data: servers = [] } = useQuery({
     queryKey: ['admin-tariffs-servers'],
     queryFn: () => tariffsApi.getAvailableServers(),
+  });
+
+  // Fetch promo groups
+  const { data: promoGroups = [] } = useQuery({
+    queryKey: ['admin-tariffs-promo-groups'],
+    queryFn: () => tariffsApi.getAvailablePromoGroups(),
   });
 
   // Fetch tariff for editing
@@ -158,19 +163,14 @@ export default function AdminTariffCreate() {
       setTierLevel(data.tier_level || 1);
       setPeriodPrices(data.period_prices?.length ? data.period_prices : []);
       setSelectedSquads(data.allowed_squads || []);
+      setSelectedPromoGroups(
+        data.promo_groups?.filter((pg) => pg.is_selected).map((pg) => pg.id) || [],
+      );
       setDailyPriceKopeks(data.daily_price_kopeks || 0);
       setTrafficTopupEnabled(data.traffic_topup_enabled || false);
       setMaxTopupTrafficGb(data.max_topup_traffic_gb || 0);
       setTrafficTopupPackages(data.traffic_topup_packages || {});
       setTrafficResetMode(data.traffic_reset_mode || null);
-      setCustomDaysEnabled(data.custom_days_enabled || false);
-      setPricePerDayKopeks(data.price_per_day_kopeks || 0);
-      setMinDays(data.min_days || 1);
-      setMaxDays(data.max_days || 365);
-      setCustomTrafficEnabled(data.custom_traffic_enabled || false);
-      setTrafficPricePerGbKopeks(data.traffic_price_per_gb_kopeks || 0);
-      setMinTrafficGb(data.min_traffic_gb || 1);
-      setMaxTrafficGb(data.max_traffic_gb || 1000);
       return data;
     }, []),
   });
@@ -200,7 +200,7 @@ export default function AdminTariffCreate() {
     const data: TariffCreateRequest | TariffUpdateRequest = {
       name,
       description: description || undefined,
-      traffic_limit_gb: toNumber(trafficLimitGb, 0),
+      traffic_limit_gb: toNumber(trafficLimitGb, 100),
       device_limit: toNumber(deviceLimit, 1),
       device_price_kopeks:
         toNumber(devicePriceKopeks) > 0 ? toNumber(devicePriceKopeks) : undefined,
@@ -208,6 +208,7 @@ export default function AdminTariffCreate() {
       tier_level: toNumber(tierLevel, 1),
       period_prices: isDaily ? [] : periodPrices.filter((p) => p.price_kopeks >= 0),
       allowed_squads: selectedSquads,
+      promo_group_ids: selectedPromoGroups.length > 0 ? selectedPromoGroups : undefined,
       traffic_topup_enabled: trafficTopupEnabled,
       traffic_topup_packages: trafficTopupPackages,
       max_topup_traffic_gb: toNumber(maxTopupTrafficGb),
@@ -215,17 +216,6 @@ export default function AdminTariffCreate() {
       daily_price_kopeks: isDaily ? toNumber(dailyPriceKopeks) : 0,
       traffic_reset_mode: trafficResetMode,
     };
-
-    if (!isDaily) {
-      data.custom_days_enabled = customDaysEnabled;
-      data.price_per_day_kopeks = toNumber(pricePerDayKopeks);
-      data.min_days = toNumber(minDays, 1);
-      data.max_days = toNumber(maxDays, 365);
-      data.custom_traffic_enabled = customTrafficEnabled;
-      data.traffic_price_per_gb_kopeks = toNumber(trafficPricePerGbKopeks);
-      data.min_traffic_gb = toNumber(minTrafficGb, 1);
-      data.max_traffic_gb = toNumber(maxTrafficGb, 1000);
-    }
 
     if (isEdit) {
       updateMutation.mutate({ id: Number(id), data });
@@ -237,6 +227,12 @@ export default function AdminTariffCreate() {
   const toggleServer = (uuid: string) => {
     setSelectedSquads((prev) =>
       prev.includes(uuid) ? prev.filter((s) => s !== uuid) : [...prev, uuid],
+    );
+  };
+
+  const togglePromoGroup = (groupId: number) => {
+    setSelectedPromoGroups((prev) =>
+      prev.includes(groupId) ? prev.filter((id) => id !== groupId) : [...prev, groupId],
     );
   };
 
@@ -267,12 +263,47 @@ export default function AdminTariffCreate() {
 
   const isLoading = createMutation.isPending || updateMutation.isPending;
 
-  // Validate required numeric fields are not empty
-  const hasRequiredFields = deviceLimit !== '' && tierLevel !== '';
-  const isValidPeriod = name && hasRequiredFields && (periodPrices.length > 0 || customDaysEnabled);
-  const isValidDaily = name && hasRequiredFields && toNumber(dailyPriceKopeks) > 0;
+  // Validation like bot: name 2-50 chars, device_limit >= 1, tier_level 1-10
+  const isNameValid = name.length >= 2 && name.length <= 50;
+  const isDeviceLimitValid = deviceLimit !== '' && toNumber(deviceLimit) >= 1;
+  const isTierLevelValid =
+    tierLevel !== '' && toNumber(tierLevel) >= 1 && toNumber(tierLevel) <= 10;
+  const hasTrafficPackages = !trafficTopupEnabled || Object.keys(trafficTopupPackages).length > 0;
+  const isValidPeriod =
+    isNameValid &&
+    isDeviceLimitValid &&
+    isTierLevelValid &&
+    periodPrices.length > 0 &&
+    hasTrafficPackages;
+  const isValidDaily =
+    isNameValid &&
+    isDeviceLimitValid &&
+    isTierLevelValid &&
+    toNumber(dailyPriceKopeks) > 0 &&
+    hasTrafficPackages;
   const isValid =
     tariffType === 'period' ? isValidPeriod : tariffType === 'daily' ? isValidDaily : false;
+
+  // Collect validation errors for display
+  const validationErrors: string[] = [];
+  if (!isNameValid) {
+    if (name.length === 0) {
+      validationErrors.push('nameRequired');
+    } else if (name.length < 2 || name.length > 50) {
+      validationErrors.push('nameLength');
+    }
+  }
+  if (!isDeviceLimitValid) validationErrors.push('deviceLimitRequired');
+  if (!isTierLevelValid) validationErrors.push('tierLevelInvalid');
+  if (tariffType === 'period' && periodPrices.length === 0) {
+    validationErrors.push('periodsRequired');
+  }
+  if (tariffType === 'daily' && toNumber(dailyPriceKopeks) === 0) {
+    validationErrors.push('dailyPriceRequired');
+  }
+  if (trafficTopupEnabled && Object.keys(trafficTopupPackages).length === 0) {
+    validationErrors.push('trafficPackagesRequired');
+  }
 
   // Loading state
   if (isEdit && isLoadingTariff) {
@@ -394,16 +425,24 @@ export default function AdminTariffCreate() {
           <div>
             <label className="mb-2 block text-sm font-medium text-dark-300">
               {t('admin.tariffs.nameLabel')}
+              <span className="text-error-400">*</span>
             </label>
             <input
               type="text"
               value={name}
               onChange={(e) => setName(e.target.value)}
-              className="input"
+              className={`input ${!isNameValid && name.length > 0 ? 'border-error-500/50' : ''}`}
               placeholder={
                 isDaily ? t('admin.tariffs.nameExampleDaily') : t('admin.tariffs.nameExamplePeriod')
               }
+              maxLength={50}
             />
+            <p className="mt-1 text-xs text-dark-500">{t('admin.tariffs.nameHint')}</p>
+            {name.length > 0 && (name.length < 2 || name.length > 50) && (
+              <p className="mt-1 text-xs text-error-400">
+                {t('admin.tariffs.validation.nameLength')}
+              </p>
+            )}
           </div>
 
           {/* Description */}
@@ -442,16 +481,11 @@ export default function AdminTariffCreate() {
                   className={`input w-32 ${dailyPriceKopeks === '' || dailyPriceKopeks === 0 ? 'border-error-500/50' : ''}`}
                   min={0}
                   step={0.1}
-                  placeholder="0.00"
+                  placeholder="50"
                 />
                 <span className="text-dark-400">{t('admin.tariffs.currencyPerDay')}</span>
               </div>
               <p className="mt-2 text-xs text-dark-500">{t('admin.tariffs.dailyDeductionDesc')}</p>
-              {(dailyPriceKopeks === '' || dailyPriceKopeks === 0) && (
-                <p className="mt-1 text-xs text-error-400">
-                  {t('admin.tariffs.dailyPriceRequired')}
-                </p>
-              )}
             </div>
           )}
 
@@ -467,7 +501,7 @@ export default function AdminTariffCreate() {
                 onChange={createNumberInputHandler(setTrafficLimitGb, 0)}
                 className="input w-32"
                 min={0}
-                placeholder="0"
+                placeholder="100"
               />
               <span className="text-dark-400">{t('admin.tariffs.gbUnit')}</span>
               {(trafficLimitGb === 0 || trafficLimitGb === '') && (
@@ -490,13 +524,10 @@ export default function AdminTariffCreate() {
               type="number"
               value={deviceLimit}
               onChange={createNumberInputHandler(setDeviceLimit, 1)}
-              className={`input w-32 ${deviceLimit === '' ? 'border-error-500/50' : ''}`}
+              className={`input w-32 ${!isDeviceLimitValid ? 'border-error-500/50' : ''}`}
               min={1}
               placeholder="1"
             />
-            {deviceLimit === '' && (
-              <p className="mt-1 text-xs text-error-400">{t('admin.tariffs.fieldRequired')}</p>
-            )}
           </div>
 
           {/* Tier Level */}
@@ -509,15 +540,12 @@ export default function AdminTariffCreate() {
               type="number"
               value={tierLevel}
               onChange={createNumberInputHandler(setTierLevel, 1, 10)}
-              className={`input w-32 ${tierLevel === '' ? 'border-error-500/50' : ''}`}
+              className={`input w-32 ${!isTierLevelValid ? 'border-error-500/50' : ''}`}
               min={1}
               max={10}
               placeholder="1"
             />
             <p className="mt-1 text-xs text-dark-500">{t('admin.tariffs.tierLevelHint')}</p>
-            {tierLevel === '' && (
-              <p className="mt-1 text-xs text-error-400">{t('admin.tariffs.fieldRequired')}</p>
-            )}
           </div>
         </div>
       )}
@@ -541,7 +569,6 @@ export default function AdminTariffCreate() {
                   value={newPeriodDays}
                   onChange={createNumberInputHandler(setNewPeriodDays, 1)}
                   className="input w-24"
-                  min={1}
                   placeholder="30"
                 />
               </div>
@@ -554,7 +581,6 @@ export default function AdminTariffCreate() {
                   value={newPeriodPrice}
                   onChange={createNumberInputHandler(setNewPeriodPrice, 1)}
                   className="input w-28"
-                  min={1}
                   placeholder="300"
                 />
               </div>
@@ -584,12 +610,33 @@ export default function AdminTariffCreate() {
                   </div>
                   <input
                     type="number"
-                    value={period.price_kopeks / 100}
-                    onChange={(e) =>
-                      updatePeriodPrice(period.days, Math.max(0, parseFloat(e.target.value) || 0))
+                    value={
+                      editingPeriodPrices[period.days] !== undefined
+                        ? editingPeriodPrices[period.days]
+                        : period.price_kopeks / 100
                     }
+                    onChange={(e) => {
+                      const val = e.target.value;
+                      setEditingPeriodPrices((prev) => ({ ...prev, [period.days]: val }));
+                      if (val !== '') {
+                        const num = parseFloat(val);
+                        if (!isNaN(num)) {
+                          updatePeriodPrice(period.days, Math.max(0, num));
+                        }
+                      }
+                    }}
+                    onBlur={(e) => {
+                      const val = e.target.value;
+                      if (val === '') {
+                        updatePeriodPrice(period.days, 0);
+                      }
+                      setEditingPeriodPrices((prev) => {
+                        const copy = { ...prev };
+                        delete copy[period.days];
+                        return copy;
+                      });
+                    }}
                     className="input w-28"
-                    min={0}
                     step={1}
                     placeholder="0"
                   />
@@ -609,49 +656,97 @@ export default function AdminTariffCreate() {
       )}
 
       {activeTab === 'servers' && (
-        <div className="card space-y-4">
-          <p className="text-sm text-dark-400">{t('admin.tariffs.serversTabHint')}</p>
-          {servers.length === 0 ? (
-            <p className="py-4 text-center text-dark-500">
-              {t('admin.tariffs.noServersAvailable')}
-            </p>
-          ) : (
-            <div className="max-h-64 space-y-2 overflow-y-auto">
-              {servers.map((server: ServerInfo) => {
-                const isSelected = selectedSquads.includes(server.squad_uuid);
-                return (
-                  <button
-                    key={server.id}
-                    type="button"
-                    onClick={() => toggleServer(server.squad_uuid)}
-                    className={`flex w-full items-center gap-3 rounded-lg p-3 text-left transition-colors ${
-                      isSelected
-                        ? isDaily
-                          ? 'bg-warning-500/20 text-warning-300'
-                          : 'bg-accent-500/20 text-accent-300'
-                        : 'bg-dark-800 text-dark-300 hover:bg-dark-700'
-                    }`}
-                  >
-                    <div
-                      className={`flex h-5 w-5 items-center justify-center rounded ${
+        <div className="space-y-4">
+          {/* Servers */}
+          <div className="card space-y-4">
+            <h4 className="text-sm font-medium text-dark-200">{t('admin.tariffs.serversTitle')}</h4>
+            <p className="text-sm text-dark-400">{t('admin.tariffs.serversTabHint')}</p>
+            {servers.length === 0 ? (
+              <p className="py-4 text-center text-dark-500">
+                {t('admin.tariffs.noServersAvailable')}
+              </p>
+            ) : (
+              <div className="max-h-48 space-y-2 overflow-y-auto">
+                {servers.map((server: ServerInfo) => {
+                  const isSelected = selectedSquads.includes(server.squad_uuid);
+                  return (
+                    <button
+                      key={server.id}
+                      type="button"
+                      onClick={() => toggleServer(server.squad_uuid)}
+                      className={`flex w-full items-center gap-3 rounded-lg p-3 text-left transition-colors ${
                         isSelected
                           ? isDaily
-                            ? 'bg-warning-500 text-white'
-                            : 'bg-accent-500 text-white'
-                          : 'bg-dark-600'
+                            ? 'bg-warning-500/20 text-warning-300'
+                            : 'bg-accent-500/20 text-accent-300'
+                          : 'bg-dark-800 text-dark-300 hover:bg-dark-700'
                       }`}
                     >
-                      {isSelected && <CheckIcon />}
-                    </div>
-                    <span className="flex-1 text-sm font-medium">{server.display_name}</span>
-                    {server.country_code && (
-                      <span className="text-xs text-dark-500">{server.country_code}</span>
-                    )}
-                  </button>
-                );
-              })}
-            </div>
-          )}
+                      <div
+                        className={`flex h-5 w-5 items-center justify-center rounded ${
+                          isSelected
+                            ? isDaily
+                              ? 'bg-warning-500 text-white'
+                              : 'bg-accent-500 text-white'
+                            : 'bg-dark-600'
+                        }`}
+                      >
+                        {isSelected && <CheckIcon />}
+                      </div>
+                      <span className="flex-1 text-sm font-medium">{server.display_name}</span>
+                      {server.country_code && (
+                        <span className="text-xs text-dark-500">{server.country_code}</span>
+                      )}
+                    </button>
+                  );
+                })}
+              </div>
+            )}
+          </div>
+
+          {/* Promo Groups */}
+          <div className="card space-y-4">
+            <h4 className="text-sm font-medium text-dark-200">
+              {t('admin.tariffs.promoGroupsTitle')}
+            </h4>
+            <p className="text-sm text-dark-400">{t('admin.tariffs.promoGroupsHint')}</p>
+            {promoGroups.length === 0 ? (
+              <p className="py-4 text-center text-dark-500">{t('admin.tariffs.noPromoGroups')}</p>
+            ) : (
+              <div className="max-h-48 space-y-2 overflow-y-auto">
+                {promoGroups.map((group) => {
+                  const isSelected = selectedPromoGroups.includes(group.id);
+                  return (
+                    <button
+                      key={group.id}
+                      type="button"
+                      onClick={() => togglePromoGroup(group.id)}
+                      className={`flex w-full items-center gap-3 rounded-lg p-3 text-left transition-colors ${
+                        isSelected
+                          ? isDaily
+                            ? 'bg-warning-500/20 text-warning-300'
+                            : 'bg-accent-500/20 text-accent-300'
+                          : 'bg-dark-800 text-dark-300 hover:bg-dark-700'
+                      }`}
+                    >
+                      <div
+                        className={`flex h-5 w-5 items-center justify-center rounded ${
+                          isSelected
+                            ? isDaily
+                              ? 'bg-warning-500 text-white'
+                              : 'bg-accent-500 text-white'
+                            : 'bg-dark-600'
+                        }`}
+                      >
+                        {isSelected && <CheckIcon />}
+                      </div>
+                      <span className="flex-1 text-sm font-medium">{group.name}</span>
+                    </button>
+                  );
+                })}
+              </div>
+            )}
+          </div>
         </div>
       )}
 
@@ -737,199 +832,145 @@ export default function AdminTariffCreate() {
                   />
                   <span className="text-dark-400">{t('admin.tariffs.gbUnit')}</span>
                 </div>
+                {/* Add new package */}
+                <div className="rounded-lg border border-dashed border-dark-600 bg-dark-800/50 p-3">
+                  <h5 className="mb-2 text-xs font-medium text-dark-400">
+                    {t('admin.tariffs.addPackageTitle')}
+                  </h5>
+                  <div className="flex flex-wrap items-end gap-2">
+                    <div>
+                      <label className="mb-1 block text-xs text-dark-500">
+                        {t('admin.tariffs.gbUnit')}
+                      </label>
+                      <input
+                        type="number"
+                        value={newPackageGb}
+                        onChange={createNumberInputHandler(setNewPackageGb, 1)}
+                        className="input w-20"
+                        placeholder="10"
+                      />
+                    </div>
+                    <div>
+                      <label className="mb-1 block text-xs text-dark-500">
+                        {t('admin.tariffs.priceLabel')}
+                      </label>
+                      <input
+                        type="number"
+                        value={newPackagePrice}
+                        onChange={createNumberInputHandler(setNewPackagePrice, 1)}
+                        className="input w-24"
+                        placeholder="100"
+                      />
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        const gb = toNumber(newPackageGb, 0);
+                        const price = toNumber(newPackagePrice, 0);
+                        if (gb > 0 && price > 0 && !trafficTopupPackages[String(gb)]) {
+                          setTrafficTopupPackages((prev) => ({
+                            ...prev,
+                            [String(gb)]: price * 100,
+                          }));
+                          setNewPackageGb(10);
+                          setNewPackagePrice(100);
+                        }
+                      }}
+                      disabled={
+                        newPackageGb === '' ||
+                        newPackagePrice === '' ||
+                        !!trafficTopupPackages[String(newPackageGb)]
+                      }
+                      className="btn-primary flex items-center gap-1 px-3 py-2 text-sm"
+                    >
+                      <PlusIcon />
+                      {t('admin.tariffs.addButton')}
+                    </button>
+                  </div>
+                </div>
+
+                {/* Package list */}
                 <div>
                   <span className="text-sm text-dark-400">
                     {t('admin.tariffs.trafficPackagesLabel')}
                   </span>
-                  <div className="mt-2 grid grid-cols-2 gap-2">
-                    {[5, 10, 20, 50].map((gb) => (
-                      <div key={gb} className="flex items-center gap-2">
-                        <span className="w-12 text-sm text-dark-300">
-                          {gb} {t('admin.tariffs.gbPackageUnit')}
-                        </span>
-                        <input
-                          type="number"
-                          value={(trafficTopupPackages[String(gb)] || 0) / 100}
-                          onChange={(e) => {
-                            const price = Math.max(0, parseFloat(e.target.value) || 0) * 100;
-                            setTrafficTopupPackages((prev) => ({
-                              ...prev,
-                              [String(gb)]: price,
-                            }));
-                          }}
-                          className="input w-20"
-                          min={0}
-                          step={1}
-                          placeholder="0"
-                        />
-                        <span className="text-xs text-dark-400">₽</span>
-                      </div>
-                    ))}
-                  </div>
+                  {Object.keys(trafficTopupPackages).length === 0 ? (
+                    <div className="mt-2 py-4 text-center text-sm text-dark-500">
+                      {t('admin.tariffs.noPackagesHint')}
+                    </div>
+                  ) : (
+                    <div className="mt-2 space-y-2">
+                      {Object.entries(trafficTopupPackages)
+                        .sort(([a], [b]) => Number(a) - Number(b))
+                        .map(([gb, priceKopeks]) => (
+                          <div
+                            key={gb}
+                            className="flex items-center gap-2 rounded-lg bg-dark-800 p-2"
+                          >
+                            <span className="w-16 text-sm font-medium text-dark-300">
+                              {gb} {t('admin.tariffs.gbPackageUnit')}
+                            </span>
+                            <input
+                              type="number"
+                              value={
+                                editingPackagePrices[gb] !== undefined
+                                  ? editingPackagePrices[gb]
+                                  : priceKopeks / 100
+                              }
+                              onChange={(e) => {
+                                const val = e.target.value;
+                                setEditingPackagePrices((prev) => ({ ...prev, [gb]: val }));
+                                if (val !== '') {
+                                  const num = parseFloat(val);
+                                  if (!isNaN(num)) {
+                                    setTrafficTopupPackages((prev) => ({
+                                      ...prev,
+                                      [gb]: Math.max(0, num) * 100,
+                                    }));
+                                  }
+                                }
+                              }}
+                              onBlur={(e) => {
+                                const val = e.target.value;
+                                if (val === '') {
+                                  setTrafficTopupPackages((prev) => ({
+                                    ...prev,
+                                    [gb]: 0,
+                                  }));
+                                }
+                                setEditingPackagePrices((prev) => {
+                                  const copy = { ...prev };
+                                  delete copy[gb];
+                                  return copy;
+                                });
+                              }}
+                              className="input w-24"
+                              step={1}
+                              placeholder="0"
+                            />
+                            <span className="text-xs text-dark-400">₽</span>
+                            <div className="flex-1" />
+                            <button
+                              type="button"
+                              onClick={() => {
+                                setTrafficTopupPackages((prev) => {
+                                  const copy = { ...prev };
+                                  delete copy[gb];
+                                  return copy;
+                                });
+                              }}
+                              className="rounded-lg p-2 text-dark-400 transition-colors hover:bg-error-500/20 hover:text-error-400"
+                            >
+                              <TrashIcon />
+                            </button>
+                          </div>
+                        ))}
+                    </div>
+                  )}
                 </div>
               </>
             )}
           </div>
-
-          {/* Custom days (period only) */}
-          {!isDaily && (
-            <div className="card space-y-3">
-              <div className="flex items-center justify-between">
-                <div>
-                  <h4 className="text-sm font-medium text-dark-200">
-                    {t('admin.tariffs.customDaysTitle')}
-                  </h4>
-                  <p className="mt-1 text-xs text-dark-500">{t('admin.tariffs.customDaysDesc')}</p>
-                </div>
-                <button
-                  type="button"
-                  onClick={() => setCustomDaysEnabled(!customDaysEnabled)}
-                  className={`relative h-6 w-11 rounded-full transition-colors ${
-                    customDaysEnabled ? 'bg-accent-500' : 'bg-dark-600'
-                  }`}
-                >
-                  <span
-                    className={`absolute top-1 h-4 w-4 rounded-full bg-white transition-transform ${
-                      customDaysEnabled ? 'left-6' : 'left-1'
-                    }`}
-                  />
-                </button>
-              </div>
-              {customDaysEnabled && (
-                <div className="space-y-3 border-t border-dark-700 pt-3">
-                  <div className="flex items-center gap-3">
-                    <span className="w-32 text-sm text-dark-400">
-                      {t('admin.tariffs.pricePerDayLabel')}
-                    </span>
-                    <input
-                      type="number"
-                      value={pricePerDayKopeks === '' ? '' : pricePerDayKopeks / 100}
-                      onChange={(e) => {
-                        const val = e.target.value;
-                        if (val === '') {
-                          setPricePerDayKopeks('');
-                        } else {
-                          setPricePerDayKopeks(Math.max(0, parseFloat(val) || 0) * 100);
-                        }
-                      }}
-                      className="input w-24"
-                      min={0}
-                      step={0.1}
-                      placeholder="0"
-                    />
-                    <span className="text-dark-400">₽</span>
-                  </div>
-                  <div className="flex items-center gap-3">
-                    <span className="w-32 text-sm text-dark-400">
-                      {t('admin.tariffs.minDaysLabel')}
-                    </span>
-                    <input
-                      type="number"
-                      value={minDays}
-                      onChange={createNumberInputHandler(setMinDays, 1)}
-                      className="input w-24"
-                      min={1}
-                      placeholder="1"
-                    />
-                  </div>
-                  <div className="flex items-center gap-3">
-                    <span className="w-32 text-sm text-dark-400">
-                      {t('admin.tariffs.maxDaysLabel')}
-                    </span>
-                    <input
-                      type="number"
-                      value={maxDays}
-                      onChange={createNumberInputHandler(setMaxDays, 1)}
-                      className="input w-24"
-                      min={1}
-                      placeholder="365"
-                    />
-                  </div>
-                </div>
-              )}
-            </div>
-          )}
-
-          {/* Custom traffic (period only) */}
-          {!isDaily && (
-            <div className="card space-y-3">
-              <div className="flex items-center justify-between">
-                <div>
-                  <h4 className="text-sm font-medium text-dark-200">
-                    {t('admin.tariffs.customTrafficTitle')}
-                  </h4>
-                  <p className="mt-1 text-xs text-dark-500">
-                    {t('admin.tariffs.customTrafficDesc')}
-                  </p>
-                </div>
-                <button
-                  type="button"
-                  onClick={() => setCustomTrafficEnabled(!customTrafficEnabled)}
-                  className={`relative h-6 w-11 rounded-full transition-colors ${
-                    customTrafficEnabled ? 'bg-accent-500' : 'bg-dark-600'
-                  }`}
-                >
-                  <span
-                    className={`absolute top-1 h-4 w-4 rounded-full bg-white transition-transform ${
-                      customTrafficEnabled ? 'left-6' : 'left-1'
-                    }`}
-                  />
-                </button>
-              </div>
-              {customTrafficEnabled && (
-                <div className="space-y-3 border-t border-dark-700 pt-3">
-                  <div className="flex items-center gap-3">
-                    <span className="w-32 text-sm text-dark-400">
-                      {t('admin.tariffs.pricePerGbLabel')}
-                    </span>
-                    <input
-                      type="number"
-                      value={trafficPricePerGbKopeks === '' ? '' : trafficPricePerGbKopeks / 100}
-                      onChange={(e) => {
-                        const val = e.target.value;
-                        if (val === '') {
-                          setTrafficPricePerGbKopeks('');
-                        } else {
-                          setTrafficPricePerGbKopeks(Math.max(0, parseFloat(val) || 0) * 100);
-                        }
-                      }}
-                      className="input w-24"
-                      min={0}
-                      step={0.1}
-                      placeholder="0"
-                    />
-                    <span className="text-dark-400">₽</span>
-                  </div>
-                  <div className="flex items-center gap-3">
-                    <span className="w-32 text-sm text-dark-400">
-                      {t('admin.tariffs.minTrafficLabel')}
-                    </span>
-                    <input
-                      type="number"
-                      value={minTrafficGb}
-                      onChange={createNumberInputHandler(setMinTrafficGb, 1)}
-                      className="input w-24"
-                      min={1}
-                      placeholder="1"
-                    />
-                  </div>
-                  <div className="flex items-center gap-3">
-                    <span className="w-32 text-sm text-dark-400">
-                      {t('admin.tariffs.maxTrafficLabel')}
-                    </span>
-                    <input
-                      type="number"
-                      value={maxTrafficGb}
-                      onChange={createNumberInputHandler(setMaxTrafficGb, 1)}
-                      className="input w-24"
-                      min={1}
-                      placeholder="1000"
-                    />
-                  </div>
-                </div>
-              )}
-            </div>
-          )}
 
           {/* Traffic reset mode */}
           <div className="card space-y-3">
@@ -966,15 +1007,29 @@ export default function AdminTariffCreate() {
       )}
 
       {/* Footer */}
-      <div className="card flex items-center justify-end gap-3">
-        <button
-          onClick={handleSubmit}
-          disabled={!isValid || isLoading}
-          className="btn-primary flex items-center gap-2"
-        >
-          {isLoading && <RefreshIcon />}
-          {isLoading ? t('admin.tariffs.savingButton') : t('admin.tariffs.saveButton')}
-        </button>
+      <div className="card space-y-3">
+        {validationErrors.length > 0 && (
+          <div className="rounded-lg border border-error-500/30 bg-error-500/10 p-3">
+            <p className="mb-1 text-sm font-medium text-error-400">
+              {t('admin.tariffs.cannotSave')}
+            </p>
+            <ul className="list-inside list-disc space-y-1 text-xs text-error-300">
+              {validationErrors.map((error) => (
+                <li key={error}>{t(`admin.tariffs.validation.${error}`)}</li>
+              ))}
+            </ul>
+          </div>
+        )}
+        <div className="flex justify-end">
+          <button
+            onClick={handleSubmit}
+            disabled={!isValid || isLoading}
+            className="btn-primary flex items-center gap-2"
+          >
+            {isLoading && <RefreshIcon />}
+            {isLoading ? t('admin.tariffs.savingButton') : t('admin.tariffs.saveButton')}
+          </button>
+        </div>
       </div>
     </div>
   );
