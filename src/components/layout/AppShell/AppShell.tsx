@@ -300,7 +300,7 @@ export function AppShell({ children }: AppShellProps) {
 
   // BackButton for Telegram Mini App
   // Don't show back button on main tab pages (bottom nav) - users navigate via tabs
-  const mainTabPaths = ['/', '/subscription', '/balance', '/referral', '/support'];
+  const mainTabPaths = ['/', '/subscription', '/balance', '/referral', '/support', '/wheel'];
   const isMainTabPage = mainTabPaths.includes(location.pathname);
   const handleBack = useCallback(() => {
     if (mobileMenuOpen) {
@@ -505,6 +505,7 @@ export function AppShell({ children }: AppShellProps) {
       <MobileBottomNav
         isKeyboardOpen={isKeyboardOpen}
         referralEnabled={referralTerms?.is_enabled}
+        wheelEnabled={wheelConfig?.is_enabled}
       />
     </div>
   );

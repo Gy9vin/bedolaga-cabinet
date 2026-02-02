@@ -19,6 +19,7 @@
     "and": "and",
     "edit": "Edit",
     "delete": "Delete",
+    "collapse": "Collapse",
     "currency": "$",
     "refresh": "Refresh",
     "copy": "Copy",
@@ -952,21 +953,27 @@
         "prizes": "Prizes",
         "statistics": "Statistics"
       },
+      "preview": "Preview",
       "settings": {
         "enableWheel": "Enable Wheel",
         "allowSpins": "Allow users to spin the wheel",
+        "spinCost": "Spin Cost",
         "costInStars": "Cost in Stars",
         "costInDays": "Cost in Days",
+        "limitsAndRtp": "Limits & RTP",
         "rtpPercent": "RTP (Return to Player) %",
         "dailyLimit": "Daily Spin Limit (0 = unlimited)",
         "minSubDays": "Min subscription days for day payment",
+        "promocodes": "Promocodes",
         "promoPrefix": "Promo code prefix"
       },
       "prizes": {
         "addPrize": "Add Prize",
         "editPrize": "Edit Prize",
         "noPrizes": "No prizes configured. Add some prizes to enable the wheel.",
-        "deletePrize": "Delete this prize?",
+        "deletePrize": "Delete Prize",
+        "confirmDelete": "Are you sure you want to delete this prize? This action cannot be undone.",
+        "dragToReorder": "Drag to reorder",
         "types": {
           "subscription_days": "Subscription Days",
           "balance_bonus": "Balance Bonus",

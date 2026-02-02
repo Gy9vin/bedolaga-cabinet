@@ -5,16 +5,7 @@ import { wheelApi, type SpinResult, type SpinHistoryItem } from '../api/wheel';
 import FortuneWheel from '../components/wheel/FortuneWheel';
 import InsufficientBalancePrompt from '../components/InsufficientBalancePrompt';
 import { useCurrency } from '../hooks/useCurrency';
-import { usePlatform } from '@/platform';
-
-// Pre-calculated confetti positions (stable across re-renders)
-const CONFETTI_POSITIONS = Array.from({ length: 20 }, (_, i) => ({
-  color: ['#fbbf24', '#a855f7', '#3b82f6', '#10b981', '#f43f5e'][i % 5],
-  left: `${(i * 17 + 5) % 95}%`,
-  top: `${(i * 23 + 3) % 90}%`,
-  delay: `${(i * 0.1) % 2}s`,
-  duration: `${1 + (i % 3) * 0.3}s`,
-}));
+import { usePlatform, useHaptic } from '@/platform';
 
 // Icons
 const StarIcon = () => (
@@ -74,11 +65,11 @@ export default function Wheel() {
   const queryClient = useQueryClient();
   const { formatAmount, currencySymbol } = useCurrency();
   const { platform, openInvoice, capabilities } = usePlatform();
+  const haptic = useHaptic();
 
   const [isSpinning, setIsSpinning] = useState(false);
   const [targetRotation, setTargetRotation] = useState<number | null>(null);
   const [spinResult, setSpinResult] = useState<SpinResult | null>(null);
-  const [showResultModal, setShowResultModal] = useState(false);
   const [paymentType, setPaymentType] = useState<'telegram_stars' | 'subscription_days'>(
     'telegram_stars',
   );
@@ -290,7 +281,6 @@ export default function Wheel() {
             promocode: null,
             error: 'payment_failed',
           });
-          setShowResultModal(true);
         } else {
           setIsPayingStars(false);
         }
@@ -311,7 +301,6 @@ export default function Wheel() {
           promocode: null,
           error: null,
         });
-        setShowResultModal(true);
       }
     },
     onError: () => {
@@ -329,7 +318,6 @@ export default function Wheel() {
         promocode: null,
         error: 'network_error',
       });
-      setShowResultModal(true);
     },
   });
 
@@ -347,7 +335,6 @@ export default function Wheel() {
       } else {
         setIsSpinning(false);
         setSpinResult(result);
-        setShowResultModal(true);
       }
     },
     onError: () => {
@@ -365,7 +352,6 @@ export default function Wheel() {
         rotation_degrees: 0,
         promocode: null,
       });
-      setShowResultModal(true);
     },
   });
 
@@ -385,6 +371,12 @@ export default function Wheel() {
       // Use the pending result from polling, or show a fallback
       if (pendingStarsResultRef.current) {
         setSpinResult(pendingStarsResultRef.current);
+        // Haptic feedback based on result
+        if (pendingStarsResultRef.current.prize_type === 'nothing') {
+          haptic.notification('warning');
+        } else {
+          haptic.notification('success');
+        }
         pendingStarsResultRef.current = null;
       } else {
         // Polling still in progress or failed - show fallback
@@ -401,16 +393,22 @@ export default function Wheel() {
           promocode: null,
           error: null,
         });
+        haptic.notification('success');
+      }
+    } else if (spinResult) {
+      // Regular spin - haptic based on result
+      if (spinResult.success && spinResult.prize_type !== 'nothing') {
+        haptic.notification('success');
+      } else {
+        haptic.notification('warning');
       }
     }
 
-    setShowResultModal(true);
     queryClient.invalidateQueries({ queryKey: ['wheel-config'] });
     queryClient.invalidateQueries({ queryKey: ['wheel-history'] });
-  }, [queryClient, t]);
+  }, [queryClient, t, haptic, spinResult]);
 
   const closeResultModal = () => {
-    setShowResultModal(false);
     setSpinResult(null);
     setTargetRotation(null);
   };
@@ -675,6 +673,58 @@ export default function Wheel() {
                   )}
                 </>
               )}
+
+              {/* Inline Result Card */}
+              {spinResult && !isSpinning && (
+                <div
+                  className={`animate-fade-in rounded-xl border p-4 ${
+                    spinResult.success
+                      ? 'border-purple-500/30 bg-gradient-to-br from-purple-500/10 to-indigo-500/10'
+                      : 'border-red-500/30 bg-red-500/10'
+                  }`}
+                >
+                  <div className="flex items-center gap-3">
+                    <div
+                      className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl text-2xl"
+                      style={{
+                        backgroundColor: spinResult.success
+                          ? `${spinResult.color || '#8B5CF6'}20`
+                          : 'rgba(239, 68, 68, 0.2)',
+                      }}
+                    >
+                      {spinResult.success ? spinResult.emoji || '🎉' : '😔'}
+                    </div>
+                    <div className="min-w-0 flex-1">
+                      <div className="font-semibold text-dark-100">
+                        {spinResult.success && spinResult.prize_display_name
+                          ? spinResult.prize_display_name
+                          : spinResult.success
+                            ? spinResult.prize_type === 'nothing'
+                              ? t('wheel.noLuck')
+                              : t('wheel.congratulations')
+                            : t('wheel.oops')}
+                      </div>
+                      <div className="text-sm text-dark-400">{spinResult.message}</div>
+                    </div>
+                    <button
+                      onClick={closeResultModal}
+                      className="shrink-0 rounded-lg p-2 text-dark-400 transition-colors hover:bg-white/5 hover:text-dark-200"
+                    >
+                      <CloseIcon />
+                    </button>
+                  </div>
+
+                  {/* Promocode if won */}
+                  {spinResult.promocode && (
+                    <div className="mt-3 rounded-lg border border-purple-500/20 bg-purple-500/10 p-3 text-center">
+                      <p className="mb-1 text-xs text-purple-300">{t('wheel.yourPromoCode')}</p>
+                      <p className="select-all font-mono text-lg font-bold tracking-wider text-white">
+                        {spinResult.promocode}
+                      </p>
+                    </div>
+                  )}
+                </div>
+              )}
             </div>
           </div>
         </div>
@@ -697,7 +747,7 @@ export default function Wheel() {
               </div>
 
               {history && history.items.length > 0 ? (
-                <div className="max-h-[400px] overflow-y-auto">
+                <div className="max-h-[300px] overflow-y-auto">
                   {history.items.map((item: SpinHistoryItem, index: number) => (
                     <div
                       key={item.id}
@@ -738,99 +788,6 @@ export default function Wheel() {
           </div>
         )}
       </div>
-
-      {/* Result Modal */}
-      {showResultModal && spinResult && (
-        <div className="fixed inset-0 z-[60] flex animate-fade-in items-center justify-center bg-black/80 p-4 backdrop-blur-md">
-          <div
-            className={`relative w-full max-w-md overflow-hidden rounded-3xl p-8 text-center ${
-              spinResult.success
-                ? 'bg-gradient-to-br from-purple-900/90 via-indigo-900/90 to-purple-900/90'
-                : 'bg-gradient-to-br from-dark-800 via-dark-900 to-dark-800'
-            } border ${spinResult.success ? 'border-purple-500/30' : 'border-dark-700'}`}
-          >
-            {/* Decorative elements */}
-            {spinResult.success && (
-              <>
-                <div className="absolute left-0 top-0 h-32 w-32 rounded-full bg-purple-500/20 blur-3xl" />
-                <div className="absolute bottom-0 right-0 h-32 w-32 rounded-full bg-indigo-500/20 blur-3xl" />
-                {/* Confetti effect - using pre-calculated positions */}
-                <div className="pointer-events-none absolute inset-0 overflow-hidden">
-                  {CONFETTI_POSITIONS.map((pos, i) => (
-                    <div
-                      key={i}
-                      className="absolute h-2 w-2 animate-bounce rounded-full"
-                      style={{
-                        background: pos.color,
-                        left: pos.left,
-                        top: pos.top,
-                        animationDelay: pos.delay,
-                        animationDuration: pos.duration,
-                      }}
-                    />
-                  ))}
-                </div>
-              </>
-            )}
-
-            {/* Close button */}
-            <button
-              onClick={closeResultModal}
-              className="absolute right-4 top-4 rounded-lg p-2 text-dark-400 transition-colors hover:bg-white/5 hover:text-dark-200"
-            >
-              <CloseIcon />
-            </button>
-
-            {/* Content */}
-            <div className="relative space-y-6">
-              {/* Prize icon */}
-              <div
-                className="mx-auto flex h-28 w-28 items-center justify-center rounded-full text-6xl shadow-2xl"
-                style={{
-                  background: spinResult.success
-                    ? `linear-gradient(135deg, ${spinResult.color || '#8B5CF6'}40, ${spinResult.color || '#8B5CF6'}20)`
-                    : 'rgba(239, 68, 68, 0.1)',
-                  boxShadow: spinResult.success
-                    ? `0 0 60px ${spinResult.color || '#8B5CF6'}40`
-                    : 'none',
-                }}
-              >
-                {spinResult.success ? spinResult.emoji || '🎉' : '😔'}
-              </div>
-
-              {/* Title */}
-              <h2 className="text-3xl font-bold text-white">
-                {spinResult.success
-                  ? spinResult.prize_type === 'nothing'
-                    ? t('wheel.noLuck')
-                    : t('wheel.congratulations')
-                  : t('wheel.oops')}
-              </h2>
-
-              {/* Message */}
-              <p className="text-lg text-dark-200">{spinResult.message}</p>
-
-              {/* Promocode if won */}
-              {spinResult.promocode && (
-                <div className="rounded-2xl border border-purple-500/30 bg-gradient-to-r from-purple-500/20 via-indigo-500/20 to-purple-500/20 p-5">
-                  <p className="mb-3 text-sm text-purple-300">{t('wheel.yourPromoCode')}</p>
-                  <p className="select-all font-mono text-2xl font-bold tracking-wider text-white">
-                    {spinResult.promocode}
-                  </p>
-                </div>
-              )}
-
-              {/* Close button */}
-              <button
-                onClick={closeResultModal}
-                className="w-full rounded-xl bg-white/10 py-4 font-semibold text-white transition-all hover:bg-white/20"
-              >
-                {t('wheel.close')}
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
     </div>
   );
 }

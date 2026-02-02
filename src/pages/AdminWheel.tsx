@@ -1,8 +1,10 @@
-import { useState } from 'react';
+import { useState, useCallback, useRef } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useTranslation } from 'react-i18next';
 import { adminWheelApi, type WheelPrizeAdmin, type CreateWheelPrizeData } from '../api/wheel';
 import { AdminBackButton } from '../components/admin';
+import { useDestructiveConfirm } from '@/platform';
+import FortuneWheel from '../components/wheel/FortuneWheel';
 
 // Icons
 
@@ -52,6 +54,88 @@ const TrashIcon = () => (
   </svg>
 );
 
+const GripVerticalIcon = () => (
+  <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+    <path
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      d="M8 6h.01M8 12h.01M8 18h.01M16 6h.01M16 12h.01M16 18h.01"
+    />
+  </svg>
+);
+
+const ChevronDownIcon = () => (
+  <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+    <path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" />
+  </svg>
+);
+
+const ChevronUpIcon = () => (
+  <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+    <path strokeLinecap="round" strokeLinejoin="round" d="M5 15l7-7 7 7" />
+  </svg>
+);
+
+const XMarkIcon = () => (
+  <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+    <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+  </svg>
+);
+
+const CheckIcon = () => (
+  <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+    <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+  </svg>
+);
+
+const StarIcon = ({ className = 'h-4 w-4' }: { className?: string }) => (
+  <svg
+    className={className}
+    fill="none"
+    viewBox="0 0 24 24"
+    stroke="currentColor"
+    strokeWidth={1.5}
+  >
+    <path
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      d="M11.48 3.499a.562.562 0 011.04 0l2.125 5.111a.563.563 0 00.475.345l5.518.442c.499.04.701.663.321.988l-4.204 3.602a.563.563 0 00-.182.557l1.285 5.385a.562.562 0 01-.84.61l-4.725-2.885a.563.563 0 00-.586 0L6.982 20.54a.562.562 0 01-.84-.61l1.285-5.386a.562.562 0 00-.182-.557l-4.204-3.602a.563.563 0 01.321-.988l5.518-.442a.563.563 0 00.475-.345L11.48 3.5z"
+    />
+  </svg>
+);
+
+const AdjustmentsIcon = ({ className = 'h-4 w-4' }: { className?: string }) => (
+  <svg
+    className={className}
+    fill="none"
+    viewBox="0 0 24 24"
+    stroke="currentColor"
+    strokeWidth={1.5}
+  >
+    <path
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      d="M10.5 6h9.75M10.5 6a1.5 1.5 0 11-3 0m3 0a1.5 1.5 0 10-3 0M3.75 6H7.5m3 12h9.75m-9.75 0a1.5 1.5 0 01-3 0m3 0a1.5 1.5 0 00-3 0m-3.75 0H7.5m9-6h3.75m-3.75 0a1.5 1.5 0 01-3 0m3 0a1.5 1.5 0 00-3 0m-9.75 0h9.75"
+    />
+  </svg>
+);
+
+const TicketIcon = ({ className = 'h-4 w-4' }: { className?: string }) => (
+  <svg
+    className={className}
+    fill="none"
+    viewBox="0 0 24 24"
+    stroke="currentColor"
+    strokeWidth={1.5}
+  >
+    <path
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      d="M16.5 6v.75m0 3v.75m0 3v.75m0 3V18m-9-5.25h5.25M7.5 15h3M3.375 5.25c-.621 0-1.125.504-1.125 1.125v3.026a2.999 2.999 0 010 5.198v3.026c0 .621.504 1.125 1.125 1.125h17.25c.621 0 1.125-.504 1.125-1.125v-3.026a2.999 2.999 0 010-5.198V6.375c0-.621-.504-1.125-1.125-1.125H3.375z"
+    />
+  </svg>
+);
+
 const PRIZE_TYPE_KEYS = [
   { value: 'subscription_days', key: 'subscription_days', emoji: '📅' },
   { value: 'balance_bonus', key: 'balance_bonus', emoji: '💰' },
@@ -65,9 +149,15 @@ type Tab = 'settings' | 'prizes' | 'statistics';
 export default function AdminWheel() {
   const { t } = useTranslation();
   const queryClient = useQueryClient();
+  const confirmDelete = useDestructiveConfirm();
   const [activeTab, setActiveTab] = useState<Tab>('settings');
-  const [editingPrize, setEditingPrize] = useState<WheelPrizeAdmin | null>(null);
+  const [expandedPrizeId, setExpandedPrizeId] = useState<number | null>(null);
   const [isCreating, setIsCreating] = useState(false);
+
+  // Drag and drop state
+  const [draggedPrizeId, setDraggedPrizeId] = useState<number | null>(null);
+  const [dragOverPrizeId, setDragOverPrizeId] = useState<number | null>(null);
+  const dragRef = useRef<HTMLDivElement | null>(null);
 
   // Fetch config
   const { data: config, isLoading } = useQuery({
@@ -104,16 +194,94 @@ export default function AdminWheel() {
       adminWheelApi.updatePrize(id, data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['admin-wheel-config'] });
-      setEditingPrize(null);
+      setExpandedPrizeId(null);
     },
   });
 
+  // Reorder prizes mutation
+  const reorderPrizesMutation = useMutation({
+    mutationFn: adminWheelApi.reorderPrizes,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['admin-wheel-config'] });
+    },
+  });
+
+  // Delete prize mutation
   const deletePrizeMutation = useMutation({
     mutationFn: adminWheelApi.deletePrize,
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['admin-wheel-config'] });
     },
   });
+
+  // Handle delete with native confirm
+  const handleDeletePrize = useCallback(
+    async (prizeId: number) => {
+      const confirmed = await confirmDelete(
+        t('admin.wheel.prizes.confirmDelete'),
+        t('common.delete'),
+        t('admin.wheel.prizes.deletePrize'),
+      );
+      if (confirmed) {
+        deletePrizeMutation.mutate(prizeId);
+      }
+    },
+    [confirmDelete, deletePrizeMutation, t],
+  );
+
+  // Drag and drop handlers
+  const handleDragStart = useCallback((e: React.DragEvent, prizeId: number) => {
+    setDraggedPrizeId(prizeId);
+    e.dataTransfer.effectAllowed = 'move';
+    e.dataTransfer.setData('text/plain', prizeId.toString());
+    if (dragRef.current) {
+      dragRef.current.style.opacity = '0.5';
+    }
+  }, []);
+
+  const handleDragEnd = useCallback(() => {
+    setDraggedPrizeId(null);
+    setDragOverPrizeId(null);
+    if (dragRef.current) {
+      dragRef.current.style.opacity = '1';
+    }
+  }, []);
+
+  const handleDragOver = useCallback((e: React.DragEvent, prizeId: number) => {
+    e.preventDefault();
+    e.dataTransfer.dropEffect = 'move';
+    setDragOverPrizeId(prizeId);
+  }, []);
+
+  const handleDragLeave = useCallback(() => {
+    setDragOverPrizeId(null);
+  }, []);
+
+  const handleDrop = useCallback(
+    (e: React.DragEvent, targetPrizeId: number) => {
+      e.preventDefault();
+      setDragOverPrizeId(null);
+
+      if (!draggedPrizeId || draggedPrizeId === targetPrizeId || !config) return;
+
+      const prizes = [...config.prizes];
+      const draggedIndex = prizes.findIndex((p) => p.id === draggedPrizeId);
+      const targetIndex = prizes.findIndex((p) => p.id === targetPrizeId);
+
+      if (draggedIndex === -1 || targetIndex === -1) return;
+
+      // Reorder the array
+      const [draggedPrize] = prizes.splice(draggedIndex, 1);
+      prizes.splice(targetIndex, 0, draggedPrize);
+
+      // Get new order of IDs
+      const newOrder = prizes.map((p) => p.id);
+      reorderPrizesMutation.mutate(newOrder);
+
+      setDraggedPrizeId(null);
+    },
+    [draggedPrizeId, config, reorderPrizesMutation],
+  );
 
   if (isLoading) {
     return (
@@ -209,139 +377,162 @@ export default function AdminWheel() {
 
           <hr className="border-dark-700" />
 
-          {/* Spin costs */}
-          <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-            <div>
-              <label className="mb-1 block text-sm font-medium text-dark-300">
-                {t('admin.wheel.settings.costInStars')}
-              </label>
-              <div className="flex gap-2">
-                <input
-                  type="number"
-                  value={config.spin_cost_stars}
-                  onChange={(e) =>
-                    updateConfigMutation.mutate({ spin_cost_stars: parseInt(e.target.value) || 1 })
-                  }
-                  min={1}
-                  max={1000}
-                  className="input flex-1"
-                />
-                <label className="flex items-center gap-2">
-                  <input
-                    type="checkbox"
-                    checked={config.spin_cost_stars_enabled}
-                    onChange={(e) =>
-                      updateConfigMutation.mutate({ spin_cost_stars_enabled: e.target.checked })
-                    }
-                    className="rounded border-dark-600"
-                  />
-                  <span className="text-sm text-dark-400">{t('admin.wheel.enabled')}</span>
+          {/* Spin Cost Section */}
+          <div className="space-y-4">
+            <h3 className="flex items-center gap-2 text-sm font-medium text-dark-400">
+              <StarIcon className="h-4 w-4" />
+              {t('admin.wheel.settings.spinCost')}
+            </h3>
+            <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+              <div>
+                <label className="mb-1 block text-sm font-medium text-dark-300">
+                  {t('admin.wheel.settings.costInStars')}
                 </label>
+                <div className="flex gap-2">
+                  <input
+                    type="number"
+                    value={config.spin_cost_stars}
+                    onChange={(e) =>
+                      updateConfigMutation.mutate({
+                        spin_cost_stars: parseInt(e.target.value) || 1,
+                      })
+                    }
+                    min={1}
+                    max={1000}
+                    className="input flex-1"
+                  />
+                  <label className="flex items-center gap-2">
+                    <input
+                      type="checkbox"
+                      checked={config.spin_cost_stars_enabled}
+                      onChange={(e) =>
+                        updateConfigMutation.mutate({ spin_cost_stars_enabled: e.target.checked })
+                      }
+                      className="rounded border-dark-600"
+                    />
+                    <span className="text-sm text-dark-400">{t('admin.wheel.enabled')}</span>
+                  </label>
+                </div>
               </div>
-            </div>
 
-            <div>
-              <label className="mb-1 block text-sm font-medium text-dark-300">
-                {t('admin.wheel.settings.costInDays')}
-              </label>
-              <div className="flex gap-2">
-                <input
-                  type="number"
-                  value={config.spin_cost_days}
-                  onChange={(e) =>
-                    updateConfigMutation.mutate({ spin_cost_days: parseInt(e.target.value) || 1 })
-                  }
-                  min={1}
-                  max={30}
-                  className="input flex-1"
-                />
-                <label className="flex items-center gap-2">
-                  <input
-                    type="checkbox"
-                    checked={config.spin_cost_days_enabled}
-                    onChange={(e) =>
-                      updateConfigMutation.mutate({ spin_cost_days_enabled: e.target.checked })
-                    }
-                    className="rounded border-dark-600"
-                  />
-                  <span className="text-sm text-dark-400">{t('admin.wheel.enabled')}</span>
+              <div>
+                <label className="mb-1 block text-sm font-medium text-dark-300">
+                  {t('admin.wheel.settings.costInDays')}
                 </label>
+                <div className="flex gap-2">
+                  <input
+                    type="number"
+                    value={config.spin_cost_days}
+                    onChange={(e) =>
+                      updateConfigMutation.mutate({ spin_cost_days: parseInt(e.target.value) || 1 })
+                    }
+                    min={1}
+                    max={30}
+                    className="input flex-1"
+                  />
+                  <label className="flex items-center gap-2">
+                    <input
+                      type="checkbox"
+                      checked={config.spin_cost_days_enabled}
+                      onChange={(e) =>
+                        updateConfigMutation.mutate({ spin_cost_days_enabled: e.target.checked })
+                      }
+                      className="rounded border-dark-600"
+                    />
+                    <span className="text-sm text-dark-400">{t('admin.wheel.enabled')}</span>
+                  </label>
+                </div>
               </div>
             </div>
           </div>
 
           <hr className="border-dark-700" />
 
-          {/* RTP and limits */}
-          <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-            <div>
-              <label className="mb-1 block text-sm font-medium text-dark-300">
-                {t('admin.wheel.settings.rtpPercent')}
-              </label>
-              <input
-                type="range"
-                min={0}
-                max={100}
-                value={config.rtp_percent}
-                onChange={(e) =>
-                  updateConfigMutation.mutate({ rtp_percent: parseInt(e.target.value) })
-                }
-                className="w-full"
-              />
-              <div className="flex justify-between text-sm text-dark-400">
-                <span>0%</span>
-                <span className="font-bold text-accent-400">{config.rtp_percent}%</span>
-                <span>100%</span>
+          {/* Limits & RTP Section */}
+          <div className="space-y-4">
+            <h3 className="flex items-center gap-2 text-sm font-medium text-dark-400">
+              <AdjustmentsIcon className="h-4 w-4" />
+              {t('admin.wheel.settings.limitsAndRtp')}
+            </h3>
+            <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+              <div>
+                <label className="mb-1 block text-sm font-medium text-dark-300">
+                  {t('admin.wheel.settings.rtpPercent')}
+                </label>
+                <input
+                  type="range"
+                  min={0}
+                  max={100}
+                  value={config.rtp_percent}
+                  onChange={(e) =>
+                    updateConfigMutation.mutate({ rtp_percent: parseInt(e.target.value) })
+                  }
+                  className="w-full"
+                />
+                <div className="flex justify-between text-sm text-dark-400">
+                  <span>0%</span>
+                  <span className="font-bold text-accent-400">{config.rtp_percent}%</span>
+                  <span>100%</span>
+                </div>
               </div>
-            </div>
 
-            <div>
-              <label className="mb-1 block text-sm font-medium text-dark-300">
-                {t('admin.wheel.settings.dailyLimit')}
-              </label>
-              <input
-                type="number"
-                value={config.daily_spin_limit}
-                onChange={(e) =>
-                  updateConfigMutation.mutate({ daily_spin_limit: parseInt(e.target.value) || 0 })
-                }
-                min={0}
-                max={100}
-                className="input w-full"
-              />
+              <div>
+                <label className="mb-1 block text-sm font-medium text-dark-300">
+                  {t('admin.wheel.settings.dailyLimit')}
+                </label>
+                <input
+                  type="number"
+                  value={config.daily_spin_limit}
+                  onChange={(e) =>
+                    updateConfigMutation.mutate({ daily_spin_limit: parseInt(e.target.value) || 0 })
+                  }
+                  min={0}
+                  max={100}
+                  className="input w-full"
+                />
+              </div>
+
+              <div>
+                <label className="mb-1 block text-sm font-medium text-dark-300">
+                  {t('admin.wheel.settings.minSubDays')}
+                </label>
+                <input
+                  type="number"
+                  value={config.min_subscription_days_for_day_payment}
+                  onChange={(e) =>
+                    updateConfigMutation.mutate({
+                      min_subscription_days_for_day_payment: parseInt(e.target.value) || 1,
+                    })
+                  }
+                  min={1}
+                  max={30}
+                  className="input w-full"
+                />
+              </div>
             </div>
           </div>
 
-          <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-            <div>
-              <label className="mb-1 block text-sm font-medium text-dark-300">
-                {t('admin.wheel.settings.minSubDays')}
-              </label>
-              <input
-                type="number"
-                value={config.min_subscription_days_for_day_payment}
-                onChange={(e) =>
-                  updateConfigMutation.mutate({
-                    min_subscription_days_for_day_payment: parseInt(e.target.value) || 1,
-                  })
-                }
-                min={1}
-                max={30}
-                className="input w-full"
-              />
-            </div>
+          <hr className="border-dark-700" />
 
-            <div>
-              <label className="mb-1 block text-sm font-medium text-dark-300">
-                {t('admin.wheel.settings.promoPrefix')}
-              </label>
-              <input
-                type="text"
-                value={config.promo_prefix}
-                onChange={(e) => updateConfigMutation.mutate({ promo_prefix: e.target.value })}
-                maxLength={20}
-                className="input w-full"
-              />
+          {/* Promocodes Section */}
+          <div className="space-y-4">
+            <h3 className="flex items-center gap-2 text-sm font-medium text-dark-400">
+              <TicketIcon className="h-4 w-4" />
+              {t('admin.wheel.settings.promocodes')}
+            </h3>
+            <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+              <div>
+                <label className="mb-1 block text-sm font-medium text-dark-300">
+                  {t('admin.wheel.settings.promoPrefix')}
+                </label>
+                <input
+                  type="text"
+                  value={config.promo_prefix}
+                  onChange={(e) => updateConfigMutation.mutate({ promo_prefix: e.target.value })}
+                  maxLength={20}
+                  className="input w-full"
+                />
+              </div>
             </div>
           </div>
         </div>
@@ -349,62 +540,139 @@ export default function AdminWheel() {
 
       {/* Prizes Tab */}
       {activeTab === 'prizes' && (
-        <div className="space-y-4">
-          <div className="flex justify-end">
-            <button
-              onClick={() => setIsCreating(true)}
-              className="btn-primary flex items-center gap-2"
-            >
-              <PlusIcon />
-              {t('admin.wheel.prizes.addPrize')}
-            </button>
-          </div>
-
+        <div className="grid gap-6 lg:grid-cols-[1fr,300px]">
           {/* Prize list */}
-          <div className="space-y-3">
-            {config.prizes.map((prize) => (
-              <div key={prize.id} className={`card p-4 ${!prize.is_active ? 'opacity-50' : ''}`}>
-                <div className="flex items-center gap-4">
-                  <div
-                    className="flex h-12 w-12 items-center justify-center rounded-lg text-2xl"
-                    style={{ backgroundColor: prize.color + '30' }}
-                  >
-                    {prize.emoji}
-                  </div>
-                  <div className="flex-1">
-                    <div className="font-semibold text-dark-100">{prize.display_name}</div>
-                    <div className="text-sm text-dark-400">
-                      {t(`admin.wheel.prizes.types.${prize.prize_type}`)} •
-                      {t('admin.wheel.prizes.fields.value')}: {prize.prize_value} •
-                      {t('admin.wheel.prizes.fields.worth')}:{' '}
-                      {(prize.prize_value_kopeks / 100).toFixed(2)}₽
+          <div className="space-y-4">
+            <div className="flex items-center justify-between">
+              <p className="text-sm text-dark-400">{t('admin.wheel.prizes.dragToReorder')}</p>
+              <button
+                onClick={() => setIsCreating(true)}
+                className="btn-primary flex items-center gap-2"
+              >
+                <PlusIcon />
+                {t('admin.wheel.prizes.addPrize')}
+              </button>
+            </div>
+
+            {/* Create new prize inline form */}
+            {isCreating && (
+              <InlinePrizeForm
+                prize={null}
+                onSave={(data) => {
+                  createPrizeMutation.mutate(data as CreateWheelPrizeData);
+                }}
+                onCancel={() => setIsCreating(false)}
+                isLoading={createPrizeMutation.isPending}
+              />
+            )}
+
+            {/* Prize list */}
+            <div className="space-y-3">
+              {config.prizes.map((prize) => (
+                <div
+                  key={prize.id}
+                  ref={draggedPrizeId === prize.id ? dragRef : null}
+                  draggable={expandedPrizeId !== prize.id}
+                  onDragStart={(e) => handleDragStart(e, prize.id)}
+                  onDragEnd={handleDragEnd}
+                  onDragOver={(e) => handleDragOver(e, prize.id)}
+                  onDragLeave={handleDragLeave}
+                  onDrop={(e) => handleDrop(e, prize.id)}
+                  className={`card overflow-hidden transition-all duration-200 ${
+                    !prize.is_active ? 'opacity-50' : ''
+                  } ${dragOverPrizeId === prize.id ? 'ring-2 ring-accent-500 ring-offset-2 ring-offset-dark-900' : ''} ${
+                    draggedPrizeId === prize.id ? 'opacity-50' : ''
+                  }`}
+                >
+                  {/* Prize header - always visible */}
+                  <div className="flex items-center gap-3 p-4">
+                    {/* Drag handle */}
+                    <div
+                      className="cursor-grab text-dark-500 hover:text-dark-300 active:cursor-grabbing"
+                      title={t('admin.wheel.prizes.dragToReorder')}
+                    >
+                      <GripVerticalIcon />
+                    </div>
+
+                    {/* Prize icon */}
+                    <div
+                      className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-lg text-xl"
+                      style={{ backgroundColor: prize.color + '30' }}
+                    >
+                      {prize.emoji}
+                    </div>
+
+                    {/* Prize info */}
+                    <div className="min-w-0 flex-1">
+                      <div className="font-semibold text-dark-100">{prize.display_name}</div>
+                      <div className="truncate text-sm text-dark-400">
+                        {t(`admin.wheel.prizes.types.${prize.prize_type}`)} •{' '}
+                        {t('admin.wheel.prizes.fields.value')}: {prize.prize_value} •{' '}
+                        {(prize.prize_value_kopeks / 100).toFixed(2)}₽
+                      </div>
+                    </div>
+
+                    {/* Actions */}
+                    <div className="flex items-center gap-1">
+                      <button
+                        onClick={() =>
+                          setExpandedPrizeId(expandedPrizeId === prize.id ? null : prize.id)
+                        }
+                        className="btn-ghost p-2"
+                        title={
+                          expandedPrizeId === prize.id ? t('common.collapse') : t('common.edit')
+                        }
+                      >
+                        {expandedPrizeId === prize.id ? <ChevronUpIcon /> : <ChevronDownIcon />}
+                      </button>
+                      <button
+                        onClick={() => handleDeletePrize(prize.id)}
+                        className="btn-ghost p-2 text-error-400 hover:bg-error-500/10"
+                        title={t('common.delete')}
+                      >
+                        <TrashIcon />
+                      </button>
                     </div>
                   </div>
-                  <div className="flex items-center gap-2">
-                    <button onClick={() => setEditingPrize(prize)} className="btn-ghost text-sm">
-                      {t('common.edit')}
-                    </button>
-                    <button
-                      onClick={() => {
-                        if (confirm(t('admin.wheel.prizes.deletePrize'))) {
-                          deletePrizeMutation.mutate(prize.id);
-                        }
-                      }}
-                      className="btn-ghost text-error-400"
-                    >
-                      <TrashIcon />
-                    </button>
-                  </div>
+
+                  {/* Expanded edit form */}
+                  {expandedPrizeId === prize.id && (
+                    <div className="border-t border-dark-700 bg-dark-800/50 p-4">
+                      <InlinePrizeForm
+                        prize={prize}
+                        onSave={(data) => {
+                          updatePrizeMutation.mutate({ id: prize.id, data });
+                        }}
+                        onCancel={() => setExpandedPrizeId(null)}
+                        isLoading={updatePrizeMutation.isPending}
+                      />
+                    </div>
+                  )}
                 </div>
+              ))}
+            </div>
+
+            {config.prizes.length === 0 && !isCreating && (
+              <div className="py-12 text-center text-dark-400">
+                {t('admin.wheel.prizes.noPrizes')}
               </div>
-            ))}
+            )}
           </div>
 
-          {config.prizes.length === 0 && (
-            <div className="py-12 text-center text-dark-400">
-              {t('admin.wheel.prizes.noPrizes')}
+          {/* Wheel Preview */}
+          <div className="hidden lg:sticky lg:top-24 lg:block">
+            <div className="card p-4">
+              <h3 className="mb-4 text-sm font-medium text-dark-400">{t('admin.wheel.preview')}</h3>
+              <div className="mx-auto max-w-[250px]">
+                <FortuneWheel
+                  prizes={config.prizes}
+                  isSpinning={false}
+                  targetRotation={null}
+                  onSpinComplete={() => {}}
+                />
+              </div>
             </div>
-          )}
+          </div>
         </div>
       )}
 
@@ -485,37 +753,21 @@ export default function AdminWheel() {
           )}
         </div>
       )}
-
-      {/* Create/Edit Prize Modal */}
-      {(isCreating || editingPrize) && (
-        <PrizeModal
-          prize={editingPrize}
-          onClose={() => {
-            setIsCreating(false);
-            setEditingPrize(null);
-          }}
-          onSave={(data) => {
-            if (editingPrize) {
-              updatePrizeMutation.mutate({ id: editingPrize.id, data });
-            } else {
-              createPrizeMutation.mutate(data as CreateWheelPrizeData);
-            }
-          }}
-        />
-      )}
     </div>
   );
 }
 
-// Prize Modal Component
-function PrizeModal({
+// Inline Prize Form Component
+function InlinePrizeForm({
   prize,
-  onClose,
   onSave,
+  onCancel,
+  isLoading,
 }: {
   prize: WheelPrizeAdmin | null;
-  onClose: () => void;
   onSave: (data: Partial<WheelPrizeAdmin>) => void;
+  onCancel: () => void;
+  isLoading?: boolean;
 }) {
   const { t } = useTranslation();
   const [formData, setFormData] = useState({
@@ -538,192 +790,214 @@ function PrizeModal({
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 p-4 backdrop-blur-sm">
-      <div className="card max-h-[90vh] w-full max-w-md overflow-y-auto p-6">
-        <h2 className="mb-4 text-xl font-bold text-dark-50">
-          {prize ? t('admin.wheel.prizes.editPrize') : t('admin.wheel.prizes.addPrize')}
-        </h2>
+    <form onSubmit={handleSubmit} className={`space-y-4 ${!prize ? 'card p-4' : ''}`}>
+      {/* Header for new prize */}
+      {!prize && (
+        <div className="flex items-center justify-between border-b border-dark-700 pb-3">
+          <h3 className="font-semibold text-dark-100">{t('admin.wheel.prizes.addPrize')}</h3>
+          <button type="button" onClick={onCancel} className="btn-ghost p-1">
+            <XMarkIcon />
+          </button>
+        </div>
+      )}
 
-        <form onSubmit={handleSubmit} className="space-y-4">
-          {/* Prize type */}
+      {/* Two-column layout for main fields */}
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+        {/* Prize type */}
+        <div>
+          <label className="mb-1 block text-sm font-medium text-dark-300">
+            {t('admin.wheel.prizes.fields.type')}
+          </label>
+          <select
+            value={formData.prize_type}
+            onChange={(e) => setFormData({ ...formData, prize_type: e.target.value })}
+            className="input w-full"
+          >
+            {PRIZE_TYPE_KEYS.map((type) => (
+              <option key={type.value} value={type.value}>
+                {type.emoji} {t(`admin.wheel.prizes.types.${type.key}`)}
+              </option>
+            ))}
+          </select>
+        </div>
+
+        {/* Display name */}
+        <div>
+          <label className="mb-1 block text-sm font-medium text-dark-300">
+            {t('admin.wheel.prizes.fields.displayName')}
+          </label>
+          <input
+            type="text"
+            value={formData.display_name}
+            onChange={(e) => setFormData({ ...formData, display_name: e.target.value })}
+            required
+            maxLength={100}
+            className="input w-full"
+            placeholder="e.g. 7 Days Free"
+          />
+        </div>
+
+        {/* Prize value */}
+        {formData.prize_type !== 'nothing' && (
           <div>
             <label className="mb-1 block text-sm font-medium text-dark-300">
-              {t('admin.wheel.prizes.fields.type')}
-            </label>
-            <select
-              value={formData.prize_type}
-              onChange={(e) => setFormData({ ...formData, prize_type: e.target.value })}
-              className="input w-full"
-            >
-              {PRIZE_TYPE_KEYS.map((type) => (
-                <option key={type.value} value={type.value}>
-                  {type.emoji} {t(`admin.wheel.prizes.types.${type.key}`)}
-                </option>
-              ))}
-            </select>
-          </div>
-
-          {/* Display name */}
-          <div>
-            <label className="mb-1 block text-sm font-medium text-dark-300">
-              {t('admin.wheel.prizes.fields.displayName')}
+              {t('admin.wheel.prizes.fields.value')} (
+              {formData.prize_type === 'balance_bonus'
+                ? 'kopeks'
+                : formData.prize_type === 'subscription_days'
+                  ? 'days'
+                  : 'GB'}
+              )
             </label>
             <input
-              type="text"
-              value={formData.display_name}
-              onChange={(e) => setFormData({ ...formData, display_name: e.target.value })}
-              required
-              maxLength={100}
+              type="number"
+              value={formData.prize_value}
+              onChange={(e) =>
+                setFormData({ ...formData, prize_value: parseInt(e.target.value) || 0 })
+              }
+              min={0}
               className="input w-full"
-              placeholder="e.g. 7 Days Free"
             />
           </div>
+        )}
 
-          {/* Prize value */}
-          {formData.prize_type !== 'nothing' && (
+        {/* Prize value in kopeks (for RTP calculation) */}
+        <div>
+          <label className="mb-1 block text-sm font-medium text-dark-300">
+            {t('admin.wheel.prizes.fields.valueKopeks')}
+          </label>
+          <input
+            type="number"
+            value={formData.prize_value_kopeks}
+            onChange={(e) =>
+              setFormData({ ...formData, prize_value_kopeks: parseInt(e.target.value) || 0 })
+            }
+            min={0}
+            className="input w-full"
+          />
+          <p className="mt-1 text-xs text-dark-500">
+            = {(formData.prize_value_kopeks / 100).toFixed(2)} RUB
+          </p>
+        </div>
+
+        {/* Emoji */}
+        <div>
+          <label className="mb-1 block text-sm font-medium text-dark-300">
+            {t('admin.wheel.prizes.fields.emoji')}
+          </label>
+          <input
+            type="text"
+            value={formData.emoji}
+            onChange={(e) => setFormData({ ...formData, emoji: e.target.value })}
+            maxLength={10}
+            className="input w-full text-center text-2xl"
+          />
+        </div>
+
+        {/* Color */}
+        <div>
+          <label className="mb-1 block text-sm font-medium text-dark-300">
+            {t('admin.wheel.prizes.fields.color')}
+          </label>
+          <div className="flex gap-2">
+            <input
+              type="color"
+              value={formData.color}
+              onChange={(e) => setFormData({ ...formData, color: e.target.value })}
+              className="h-10 w-12 cursor-pointer rounded"
+            />
+            <input
+              type="text"
+              value={formData.color}
+              onChange={(e) => setFormData({ ...formData, color: e.target.value })}
+              className="input flex-1"
+              pattern="^#[0-9A-Fa-f]{6}$"
+            />
+          </div>
+        </div>
+      </div>
+
+      {/* Active toggle */}
+      <div className="flex items-center gap-2">
+        <input
+          type="checkbox"
+          id={`is_active_${prize?.id || 'new'}`}
+          checked={formData.is_active}
+          onChange={(e) => setFormData({ ...formData, is_active: e.target.checked })}
+          className="rounded border-dark-600"
+        />
+        <label htmlFor={`is_active_${prize?.id || 'new'}`} className="text-sm text-dark-300">
+          {t('admin.wheel.prizes.fields.active')}
+        </label>
+      </div>
+
+      {/* Promocode settings */}
+      {formData.prize_type === 'promocode' && (
+        <div className="space-y-3 rounded-lg bg-dark-700/50 p-3">
+          <h4 className="font-medium text-dark-200">{t('admin.wheel.prizes.promo.title')}</h4>
+          <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
             <div>
-              <label className="mb-1 block text-sm font-medium text-dark-300">
-                {t('admin.wheel.prizes.fields.value')} (
-                {formData.prize_type === 'balance_bonus'
-                  ? 'kopeks'
-                  : formData.prize_type === 'subscription_days'
-                    ? 'days'
-                    : 'GB'}
-                )
+              <label className="mb-1 block text-sm text-dark-400">
+                {t('admin.wheel.prizes.promo.balanceBonus')}
               </label>
               <input
                 type="number"
-                value={formData.prize_value}
+                value={formData.promo_balance_bonus_kopeks}
                 onChange={(e) =>
-                  setFormData({ ...formData, prize_value: parseInt(e.target.value) || 0 })
+                  setFormData({
+                    ...formData,
+                    promo_balance_bonus_kopeks: parseInt(e.target.value) || 0,
+                  })
                 }
                 min={0}
                 className="input w-full"
               />
             </div>
-          )}
-
-          {/* Prize value in kopeks (for RTP calculation) */}
-          <div>
-            <label className="mb-1 block text-sm font-medium text-dark-300">
-              {t('admin.wheel.prizes.fields.valueKopeks')}
-            </label>
-            <input
-              type="number"
-              value={formData.prize_value_kopeks}
-              onChange={(e) =>
-                setFormData({ ...formData, prize_value_kopeks: parseInt(e.target.value) || 0 })
-              }
-              min={0}
-              className="input w-full"
-            />
-            <p className="mt-1 text-xs text-dark-500">
-              = {(formData.prize_value_kopeks / 100).toFixed(2)} RUB
-            </p>
-          </div>
-
-          {/* Emoji and color */}
-          <div className="grid grid-cols-2 gap-4">
             <div>
-              <label className="mb-1 block text-sm font-medium text-dark-300">
-                {t('admin.wheel.prizes.fields.emoji')}
+              <label className="mb-1 block text-sm text-dark-400">
+                {t('admin.wheel.prizes.promo.subscriptionDays')}
               </label>
               <input
-                type="text"
-                value={formData.emoji}
-                onChange={(e) => setFormData({ ...formData, emoji: e.target.value })}
-                maxLength={10}
-                className="input w-full text-center text-2xl"
+                type="number"
+                value={formData.promo_subscription_days}
+                onChange={(e) =>
+                  setFormData({
+                    ...formData,
+                    promo_subscription_days: parseInt(e.target.value) || 0,
+                  })
+                }
+                min={0}
+                className="input w-full"
               />
             </div>
-            <div>
-              <label className="mb-1 block text-sm font-medium text-dark-300">
-                {t('admin.wheel.prizes.fields.color')}
-              </label>
-              <div className="flex gap-2">
-                <input
-                  type="color"
-                  value={formData.color}
-                  onChange={(e) => setFormData({ ...formData, color: e.target.value })}
-                  className="h-10 w-12 cursor-pointer rounded"
-                />
-                <input
-                  type="text"
-                  value={formData.color}
-                  onChange={(e) => setFormData({ ...formData, color: e.target.value })}
-                  className="input flex-1"
-                  pattern="^#[0-9A-Fa-f]{6}$"
-                />
-              </div>
-            </div>
           </div>
+        </div>
+      )}
 
-          {/* Active toggle */}
-          <div className="flex items-center gap-2">
-            <input
-              type="checkbox"
-              id="is_active"
-              checked={formData.is_active}
-              onChange={(e) => setFormData({ ...formData, is_active: e.target.checked })}
-              className="rounded border-dark-600"
-            />
-            <label htmlFor="is_active" className="text-sm text-dark-300">
-              {t('admin.wheel.prizes.fields.active')}
-            </label>
-          </div>
-
-          {/* Promocode settings */}
-          {formData.prize_type === 'promocode' && (
-            <div className="space-y-3 rounded-lg bg-dark-800 p-3">
-              <h4 className="font-medium text-dark-200">{t('admin.wheel.prizes.promo.title')}</h4>
-              <div>
-                <label className="mb-1 block text-sm text-dark-400">
-                  {t('admin.wheel.prizes.promo.balanceBonus')}
-                </label>
-                <input
-                  type="number"
-                  value={formData.promo_balance_bonus_kopeks}
-                  onChange={(e) =>
-                    setFormData({
-                      ...formData,
-                      promo_balance_bonus_kopeks: parseInt(e.target.value) || 0,
-                    })
-                  }
-                  min={0}
-                  className="input w-full"
-                />
-              </div>
-              <div>
-                <label className="mb-1 block text-sm text-dark-400">
-                  {t('admin.wheel.prizes.promo.subscriptionDays')}
-                </label>
-                <input
-                  type="number"
-                  value={formData.promo_subscription_days}
-                  onChange={(e) =>
-                    setFormData({
-                      ...formData,
-                      promo_subscription_days: parseInt(e.target.value) || 0,
-                    })
-                  }
-                  min={0}
-                  className="input w-full"
-                />
-              </div>
-            </div>
+      {/* Action buttons */}
+      <div className="flex justify-end gap-2 border-t border-dark-700 pt-4">
+        <button
+          type="button"
+          onClick={onCancel}
+          className="btn-ghost flex items-center gap-1 px-3 py-1.5"
+          disabled={isLoading}
+        >
+          <XMarkIcon />
+          {t('common.cancel')}
+        </button>
+        <button
+          type="submit"
+          className="btn-primary flex items-center gap-1 px-3 py-1.5"
+          disabled={isLoading}
+        >
+          {isLoading ? (
+            <div className="h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent" />
+          ) : (
+            <CheckIcon />
           )}
-
-          {/* Buttons */}
-          <div className="flex gap-3 pt-4">
-            <button type="button" onClick={onClose} className="btn-secondary flex-1">
-              {t('common.cancel')}
-            </button>
-            <button type="submit" className="btn-primary flex-1">
-              {prize ? t('common.save') : t('common.confirm')}
-            </button>
-          </div>
-        </form>
+          {prize ? t('common.save') : t('common.confirm')}
+        </button>
       </div>
-    </div>
+    </form>
   );
 }

@@ -6,14 +6,19 @@ import { cn } from '@/lib/utils';
 import { usePlatform } from '@/platform';
 
 // Icons
-import { HomeIcon, SubscriptionIcon, WalletIcon, UsersIcon, ChatIcon } from './icons';
+import { HomeIcon, SubscriptionIcon, WalletIcon, UsersIcon, ChatIcon, WheelIcon } from './icons';
 
 interface MobileBottomNavProps {
   isKeyboardOpen: boolean;
   referralEnabled?: boolean;
+  wheelEnabled?: boolean;
 }
 
-export function MobileBottomNav({ isKeyboardOpen, referralEnabled }: MobileBottomNavProps) {
+export function MobileBottomNav({
+  isKeyboardOpen,
+  referralEnabled,
+  wheelEnabled,
+}: MobileBottomNavProps) {
   const { t } = useTranslation();
   const location = useLocation();
   const { haptic } = usePlatform();
@@ -21,12 +26,15 @@ export function MobileBottomNav({ isKeyboardOpen, referralEnabled }: MobileBotto
   const isActive = (path: string) => location.pathname === path;
 
   // Core navigation items for bottom bar
+  // When wheel is enabled, it replaces Support in the bottom nav (Support is still accessible via hamburger menu)
   const coreItems = [
     { path: '/', label: t('nav.dashboard'), icon: HomeIcon },
     { path: '/subscription', label: t('nav.subscription'), icon: SubscriptionIcon },
     { path: '/balance', label: t('nav.balance'), icon: WalletIcon },
     ...(referralEnabled ? [{ path: '/referral', label: t('nav.referral'), icon: UsersIcon }] : []),
-    { path: '/support', label: t('nav.support'), icon: ChatIcon },
+    ...(wheelEnabled
+      ? [{ path: '/wheel', label: t('nav.wheel'), icon: WheelIcon }]
+      : [{ path: '/support', label: t('nav.support'), icon: ChatIcon }]),
   ];
 
   const handleNavClick = () => {

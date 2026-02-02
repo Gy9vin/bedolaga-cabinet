@@ -29,7 +29,8 @@
     "refresh": "بازخوانی",
     "retry": "تلاش مجدد",
     "saving": "در حال ذخیره...",
-    "understand": "متوجه شدم"
+    "understand": "متوجه شدم",
+    "collapse": "جمع کردن"
   },
   "nav": {
     "dashboard": "داشبورد",
@@ -676,6 +677,7 @@
     },
     "wheel": {
       "title": "تنظیمات چرخ شانس",
+      "preview": "پیش‌نمایش",
       "enabled": "فعال",
       "disabled": "غیرفعال",
       "tabs": {
@@ -691,13 +693,18 @@
         "rtpPercent": "درصد RTP",
         "dailyLimit": "محدودیت روزانه (0 = نامحدود)",
         "minSubDays": "حداقل روز اشتراک برای پرداخت روزانه",
-        "promoPrefix": "پیشوند کد تخفیف"
+        "promoPrefix": "پیشوند کد تخفیف",
+        "spinCost": "هزینه چرخش",
+        "limitsAndRtp": "محدودیت‌ها و RTP",
+        "promocodes": "کدهای تخفیف"
       },
       "prizes": {
         "addPrize": "افزودن جایزه",
         "editPrize": "ویرایش جایزه",
         "noPrizes": "جایزه‌ای تنظیم نشده. برای فعال‌سازی چرخ جایزه اضافه کنید.",
         "deletePrize": "این جایزه حذف شود؟",
+        "dragToReorder": "کشیدن برای مرتب‌سازی",
+        "confirmDelete": "آیا از حذف این جایزه مطمئن هستید؟",
         "types": {
           "subscription_days": "روز اشتراک",
           "balance_bonus": "جایزه موجودی",

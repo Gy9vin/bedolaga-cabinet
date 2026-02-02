@@ -30,7 +30,7 @@ const FortuneWheel = memo(function FortuneWheel({
     if (isSpinning) {
       const interval = setInterval(() => {
         setLightPhase((p) => (p + 1) % 3); // Just toggle phase 0-1-2
-      }, 250); // Slower interval = better performance
+      }, 600); // Slower interval = better performance
       return () => clearInterval(interval);
     } else {
       setLightPhase(0);

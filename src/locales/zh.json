@@ -26,6 +26,7 @@
     "retry": "重试",
     "saving": "保存中...",
     "understand": "明白了",
+    "collapse": "收起",
     "units": {
       "gb": "GB",
       "perGb": "/GB"
@@ -728,6 +729,7 @@
     },
     "wheel": {
       "title": "幸运转盘设置",
+      "preview": "预览",
       "enabled": "已启用",
       "disabled": "已禁用",
       "tabs": {
@@ -743,13 +745,18 @@
         "rtpPercent": "RTP (返还率) %",
         "dailyLimit": "每日限制 (0 = 无限)",
         "minSubDays": "天数支付最低订阅天数",
-        "promoPrefix": "优惠码前缀"
+        "promoPrefix": "优惠码前缀",
+        "spinCost": "旋转费用",
+        "limitsAndRtp": "限制和RTP",
+        "promocodes": "促销码"
       },
       "prizes": {
         "addPrize": "添加奖品",
         "editPrize": "编辑奖品",
         "noPrizes": "未配置奖品。添加奖品以启用转盘。",
         "deletePrize": "删除此奖品？",
+        "dragToReorder": "拖动排序",
+        "confirmDelete": "确定要删除这个奖品吗？",
         "types": {
           "subscription_days": "订阅天数",
           "balance_bonus": "余额奖励",

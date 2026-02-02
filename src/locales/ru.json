@@ -20,6 +20,7 @@
     "and": "и",
     "edit": "Редактировать",
     "delete": "Удалить",
+    "collapse": "Свернуть",
     "currency": "₽",
     "refresh": "Обновить",
     "copy": "Копировать",
@@ -971,21 +972,27 @@
         "prizes": "Призы",
         "statistics": "Статистика"
       },
+      "preview": "Предпросмотр",
       "settings": {
         "enableWheel": "Включить колесо",
         "allowSpins": "Разрешить пользователям крутить колесо",
+        "spinCost": "Стоимость вращения",
         "costInStars": "Стоимость в Stars",
         "costInDays": "Стоимость в днях",
+        "limitsAndRtp": "Лимиты и RTP",
         "rtpPercent": "RTP (Return to Player) %",
         "dailyLimit": "Дневной лимит вращений (0 = безлимит)",
         "minSubDays": "Мин. дней подписки для оплаты днями",
+        "promocodes": "Промокоды",
         "promoPrefix": "Префикс промокодов"
       },
       "prizes": {
         "addPrize": "Добавить приз",
         "editPrize": "Редактировать приз",
         "noPrizes": "Призы не настроены. Добавьте призы для активации колеса.",
-        "deletePrize": "Удалить этот приз?",
+        "deletePrize": "Удалить приз",
+        "confirmDelete": "Вы уверены, что хотите удалить этот приз? Это действие нельзя отменить.",
+        "dragToReorder": "Перетащите для изменения порядка",
         "types": {
           "subscription_days": "Дни подписки",
           "balance_bonus": "Бонус баланса",
