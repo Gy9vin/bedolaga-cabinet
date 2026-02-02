@@ -1,6 +1,23 @@
-import { useState, useCallback, useRef } from 'react';
+import { useState, useCallback, useEffect } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useTranslation } from 'react-i18next';
+import {
+  DndContext,
+  KeyboardSensor,
+  PointerSensor,
+  useSensor,
+  useSensors,
+  type DragEndEvent,
+} from '@dnd-kit/core';
+import { useTelegramDnd } from '../hooks/useTelegramDnd';
+import {
+  arrayMove,
+  SortableContext,
+  sortableKeyboardCoordinates,
+  useSortable,
+  verticalListSortingStrategy,
+} from '@dnd-kit/sortable';
+import { CSS } from '@dnd-kit/utilities';
 import { adminWheelApi, type WheelPrizeAdmin, type CreateWheelPrizeData } from '../api/wheel';
 import { AdminBackButton } from '../components/admin';
 import { useDestructiveConfirm } from '@/platform';
@@ -146,6 +163,108 @@ const PRIZE_TYPE_KEYS = [
 
 type Tab = 'settings' | 'prizes' | 'statistics';
 
+// ============ Sortable Prize Card ============
+
+interface SortablePrizeCardProps {
+  prize: WheelPrizeAdmin;
+  isExpanded: boolean;
+  onToggleExpand: () => void;
+  onDelete: () => void;
+  onSave: (data: Partial<WheelPrizeAdmin>) => void;
+  isLoading?: boolean;
+}
+
+function SortablePrizeCard({
+  prize,
+  isExpanded,
+  onToggleExpand,
+  onDelete,
+  onSave,
+  isLoading,
+}: SortablePrizeCardProps) {
+  const { t } = useTranslation();
+  const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({
+    id: prize.id,
+  });
+
+  const style: React.CSSProperties = {
+    transform: CSS.Transform.toString(transform),
+    transition,
+    zIndex: isDragging ? 50 : undefined,
+    position: isDragging ? 'relative' : undefined,
+  };
+
+  return (
+    <div
+      ref={setNodeRef}
+      style={style}
+      className={`card overflow-hidden transition-all duration-200 ${
+        !prize.is_active ? 'opacity-50' : ''
+      } ${isDragging ? 'shadow-xl shadow-accent-500/20 ring-2 ring-accent-500/50' : ''}`}
+    >
+      {/* Prize header - always visible */}
+      <div className="flex items-center gap-2 p-3 sm:gap-3 sm:p-4">
+        {/* Drag handle */}
+        <button
+          {...attributes}
+          {...listeners}
+          className="flex-shrink-0 cursor-grab touch-none rounded-lg p-1.5 text-dark-500 hover:bg-dark-700/50 hover:text-dark-300 active:cursor-grabbing sm:p-2.5"
+          title={t('admin.wheel.prizes.dragToReorder')}
+        >
+          <GripVerticalIcon />
+        </button>
+
+        {/* Prize icon */}
+        <div
+          className="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-lg text-lg sm:h-10 sm:w-10 sm:text-xl"
+          style={{ backgroundColor: prize.color + '30' }}
+        >
+          {prize.emoji}
+        </div>
+
+        {/* Prize info */}
+        <div className="min-w-0 flex-1">
+          <div className="truncate font-semibold text-dark-100">{prize.display_name}</div>
+          <div className="truncate text-xs text-dark-400 sm:text-sm">
+            {t(`admin.wheel.prizes.types.${prize.prize_type}`)} •{' '}
+            {(prize.prize_value_kopeks / 100).toFixed(0)}₽
+          </div>
+        </div>
+
+        {/* Actions */}
+        <div className="flex flex-shrink-0 items-center gap-0.5 sm:gap-1">
+          <button
+            onClick={onToggleExpand}
+            className="btn-ghost p-1.5 sm:p-2"
+            title={isExpanded ? t('common.collapse') : t('common.edit')}
+          >
+            {isExpanded ? <ChevronUpIcon /> : <ChevronDownIcon />}
+          </button>
+          <button
+            onClick={onDelete}
+            className="btn-ghost p-1.5 text-error-400 hover:bg-error-500/10 sm:p-2"
+            title={t('common.delete')}
+          >
+            <TrashIcon />
+          </button>
+        </div>
+      </div>
+
+      {/* Expanded edit form */}
+      {isExpanded && (
+        <div className="border-t border-dark-700 bg-dark-800/50 p-4">
+          <InlinePrizeForm
+            prize={prize}
+            onSave={onSave}
+            onCancel={onToggleExpand}
+            isLoading={isLoading}
+          />
+        </div>
+      )}
+    </div>
+  );
+}
+
 export default function AdminWheel() {
   const { t } = useTranslation();
   const queryClient = useQueryClient();
@@ -154,10 +273,18 @@ export default function AdminWheel() {
   const [expandedPrizeId, setExpandedPrizeId] = useState<number | null>(null);
   const [isCreating, setIsCreating] = useState(false);
 
-  // Drag and drop state
-  const [draggedPrizeId, setDraggedPrizeId] = useState<number | null>(null);
-  const [dragOverPrizeId, setDragOverPrizeId] = useState<number | null>(null);
-  const dragRef = useRef<HTMLDivElement | null>(null);
+  // Settings form state
+  const [settingsForm, setSettingsForm] = useState<{
+    is_enabled: boolean;
+    spin_cost_stars: number;
+    spin_cost_stars_enabled: boolean;
+    spin_cost_days: number;
+    spin_cost_days_enabled: boolean;
+    rtp_percent: number;
+    daily_spin_limit: number;
+    min_subscription_days_for_day_payment: number;
+    promo_prefix: string;
+  } | null>(null);
 
   // Fetch config
   const { data: config, isLoading } = useQuery({
@@ -172,11 +299,47 @@ export default function AdminWheel() {
     enabled: activeTab === 'statistics',
   });
 
+  // Initialize settings form when config is loaded
+  useEffect(() => {
+    if (config) {
+      setSettingsForm((prev) => {
+        if (prev) return prev; // Already initialized, don't overwrite
+        return {
+          is_enabled: config.is_enabled,
+          spin_cost_stars: config.spin_cost_stars,
+          spin_cost_stars_enabled: config.spin_cost_stars_enabled,
+          spin_cost_days: config.spin_cost_days,
+          spin_cost_days_enabled: config.spin_cost_days_enabled,
+          rtp_percent: config.rtp_percent,
+          daily_spin_limit: config.daily_spin_limit,
+          min_subscription_days_for_day_payment: config.min_subscription_days_for_day_payment,
+          promo_prefix: config.promo_prefix,
+        };
+      });
+    }
+  }, [config]);
+
+  // Check if settings form has changes
+  const hasSettingsChanges =
+    settingsForm &&
+    config &&
+    (settingsForm.is_enabled !== config.is_enabled ||
+      settingsForm.spin_cost_stars !== config.spin_cost_stars ||
+      settingsForm.spin_cost_stars_enabled !== config.spin_cost_stars_enabled ||
+      settingsForm.spin_cost_days !== config.spin_cost_days ||
+      settingsForm.spin_cost_days_enabled !== config.spin_cost_days_enabled ||
+      settingsForm.rtp_percent !== config.rtp_percent ||
+      settingsForm.daily_spin_limit !== config.daily_spin_limit ||
+      settingsForm.min_subscription_days_for_day_payment !==
+        config.min_subscription_days_for_day_payment ||
+      settingsForm.promo_prefix !== config.promo_prefix);
+
   // Update config mutation
   const updateConfigMutation = useMutation({
     mutationFn: adminWheelApi.updateConfig,
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['admin-wheel-config'] });
+      setSettingsForm(null); // Reset form so it reloads from config
     },
   });
 
@@ -229,58 +392,33 @@ export default function AdminWheel() {
     [confirmDelete, deletePrizeMutation, t],
   );
 
-  // Drag and drop handlers
-  const handleDragStart = useCallback((e: React.DragEvent, prizeId: number) => {
-    setDraggedPrizeId(prizeId);
-    e.dataTransfer.effectAllowed = 'move';
-    e.dataTransfer.setData('text/plain', prizeId.toString());
-    if (dragRef.current) {
-      dragRef.current.style.opacity = '0.5';
-    }
-  }, []);
+  // DnD sensors - PointerSensor handles both mouse and touch
+  const sensors = useSensors(
+    useSensor(PointerSensor, { activationConstraint: { distance: 5 } }),
+    useSensor(KeyboardSensor, { coordinateGetter: sortableKeyboardCoordinates }),
+  );
 
-  const handleDragEnd = useCallback(() => {
-    setDraggedPrizeId(null);
-    setDragOverPrizeId(null);
-    if (dragRef.current) {
-      dragRef.current.style.opacity = '1';
-    }
-  }, []);
+  // Telegram DnD support
+  const {
+    onDragStart: onTelegramDragStart,
+    onDragEnd: onTelegramDragEnd,
+    onDragCancel: onTelegramDragCancel,
+  } = useTelegramDnd();
 
-  const handleDragOver = useCallback((e: React.DragEvent, prizeId: number) => {
-    e.preventDefault();
-    e.dataTransfer.dropEffect = 'move';
-    setDragOverPrizeId(prizeId);
-  }, []);
-
-  const handleDragLeave = useCallback(() => {
-    setDragOverPrizeId(null);
-  }, []);
-
-  const handleDrop = useCallback(
-    (e: React.DragEvent, targetPrizeId: number) => {
-      e.preventDefault();
-      setDragOverPrizeId(null);
-
-      if (!draggedPrizeId || draggedPrizeId === targetPrizeId || !config) return;
-
-      const prizes = [...config.prizes];
-      const draggedIndex = prizes.findIndex((p) => p.id === draggedPrizeId);
-      const targetIndex = prizes.findIndex((p) => p.id === targetPrizeId);
-
-      if (draggedIndex === -1 || targetIndex === -1) return;
-
-      // Reorder the array
-      const [draggedPrize] = prizes.splice(draggedIndex, 1);
-      prizes.splice(targetIndex, 0, draggedPrize);
-
-      // Get new order of IDs
-      const newOrder = prizes.map((p) => p.id);
-      reorderPrizesMutation.mutate(newOrder);
-
-      setDraggedPrizeId(null);
+  const handleDragEnd = useCallback(
+    (event: DragEndEvent) => {
+      onTelegramDragEnd();
+      const { active, over } = event;
+      if (over && active.id !== over.id && config) {
+        const oldIndex = config.prizes.findIndex((p) => p.id === active.id);
+        const newIndex = config.prizes.findIndex((p) => p.id === over.id);
+        if (oldIndex !== -1 && newIndex !== -1) {
+          const newOrder = arrayMove(config.prizes, oldIndex, newIndex);
+          reorderPrizesMutation.mutate(newOrder.map((p) => p.id));
+        }
+      }
     },
-    [draggedPrizeId, config, reorderPrizesMutation],
+    [config, onTelegramDragEnd, reorderPrizesMutation],
   );
 
   if (isLoading) {
@@ -301,7 +439,7 @@ export default function AdminWheel() {
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-3">
           <AdminBackButton />
-          <h1 className="text-2xl font-bold text-dark-50 sm:text-3xl">{t('admin.wheel.title')}</h1>
+          <h1 className="text-xl font-bold text-dark-50 sm:text-2xl">{t('admin.wheel.title')}</h1>
         </div>
         <div className="flex items-center gap-2">
           <span
@@ -317,40 +455,42 @@ export default function AdminWheel() {
       </div>
 
       {/* Tabs */}
-      <div className="flex gap-2 border-b border-dark-700 pb-2">
-        <button
-          onClick={() => setActiveTab('settings')}
-          className={`flex items-center gap-2 rounded-t-lg px-4 py-2 transition-colors ${
-            activeTab === 'settings'
-              ? 'border-b-2 border-accent-500 bg-dark-800 text-accent-400'
-              : 'text-dark-400 hover:text-dark-200'
-          }`}
-        >
-          <CogIcon />
-          {t('admin.wheel.tabs.settings')}
-        </button>
-        <button
-          onClick={() => setActiveTab('prizes')}
-          className={`flex items-center gap-2 rounded-t-lg px-4 py-2 transition-colors ${
-            activeTab === 'prizes'
-              ? 'border-b-2 border-accent-500 bg-dark-800 text-accent-400'
-              : 'text-dark-400 hover:text-dark-200'
-          }`}
-        >
-          <GiftIcon />
-          {t('admin.wheel.tabs.prizes')} ({config.prizes.length})
-        </button>
-        <button
-          onClick={() => setActiveTab('statistics')}
-          className={`flex items-center gap-2 rounded-t-lg px-4 py-2 transition-colors ${
-            activeTab === 'statistics'
-              ? 'border-b-2 border-accent-500 bg-dark-800 text-accent-400'
-              : 'text-dark-400 hover:text-dark-200'
-          }`}
-        >
-          <ChartIcon />
-          {t('admin.wheel.tabs.statistics')}
-        </button>
+      <div className="-mx-4 overflow-x-auto px-4 sm:mx-0 sm:px-0">
+        <div className="flex gap-1 border-b border-dark-700 pb-2 sm:gap-2">
+          <button
+            onClick={() => setActiveTab('settings')}
+            className={`flex items-center gap-1.5 whitespace-nowrap rounded-t-lg px-3 py-2 text-sm transition-colors sm:gap-2 sm:px-4 sm:text-base ${
+              activeTab === 'settings'
+                ? 'border-b-2 border-accent-500 bg-dark-800 text-accent-400'
+                : 'text-dark-400 hover:text-dark-200'
+            }`}
+          >
+            <CogIcon />
+            {t('admin.wheel.tabs.settings')}
+          </button>
+          <button
+            onClick={() => setActiveTab('prizes')}
+            className={`flex items-center gap-1.5 whitespace-nowrap rounded-t-lg px-3 py-2 text-sm transition-colors sm:gap-2 sm:px-4 sm:text-base ${
+              activeTab === 'prizes'
+                ? 'border-b-2 border-accent-500 bg-dark-800 text-accent-400'
+                : 'text-dark-400 hover:text-dark-200'
+            }`}
+          >
+            <GiftIcon />
+            {t('admin.wheel.tabs.prizes')} ({config.prizes.length})
+          </button>
+          <button
+            onClick={() => setActiveTab('statistics')}
+            className={`flex items-center gap-1.5 whitespace-nowrap rounded-t-lg px-3 py-2 text-sm transition-colors sm:gap-2 sm:px-4 sm:text-base ${
+              activeTab === 'statistics'
+                ? 'border-b-2 border-accent-500 bg-dark-800 text-accent-400'
+                : 'text-dark-400 hover:text-dark-200'
+            }`}
+          >
+            <ChartIcon />
+            {t('admin.wheel.tabs.statistics')}
+          </button>
+        </div>
       </div>
 
       {/* Settings Tab */}
@@ -364,15 +504,23 @@ export default function AdminWheel() {
               </h3>
               <p className="text-sm text-dark-400">{t('admin.wheel.settings.allowSpins')}</p>
             </div>
-            <label className="relative inline-flex cursor-pointer items-center">
-              <input
-                type="checkbox"
-                checked={config.is_enabled}
-                onChange={(e) => updateConfigMutation.mutate({ is_enabled: e.target.checked })}
-                className="peer sr-only"
+            <button
+              type="button"
+              onClick={() =>
+                setSettingsForm((prev) => (prev ? { ...prev, is_enabled: !prev.is_enabled } : null))
+              }
+              className={`relative h-6 w-11 rounded-full transition-colors ${
+                (settingsForm?.is_enabled ?? config.is_enabled) ? 'bg-accent-500' : 'bg-dark-600'
+              }`}
+            >
+              <span
+                className={`absolute left-0.5 top-0.5 h-5 w-5 rounded-full bg-white transition-transform ${
+                  (settingsForm?.is_enabled ?? config.is_enabled)
+                    ? 'translate-x-5'
+                    : 'translate-x-0'
+                }`}
               />
-              <div className="peer h-6 w-11 rounded-full bg-dark-700 after:absolute after:left-[2px] after:top-[2px] after:h-5 after:w-5 after:rounded-full after:bg-white after:transition-all after:content-[''] peer-checked:bg-accent-500 peer-checked:after:translate-x-full peer-checked:after:border-white peer-focus:outline-none"></div>
-            </label>
+            </button>
           </div>
 
           <hr className="border-dark-700" />
@@ -391,11 +539,11 @@ export default function AdminWheel() {
                 <div className="flex gap-2">
                   <input
                     type="number"
-                    value={config.spin_cost_stars}
+                    value={settingsForm?.spin_cost_stars ?? config.spin_cost_stars}
                     onChange={(e) =>
-                      updateConfigMutation.mutate({
-                        spin_cost_stars: parseInt(e.target.value) || 1,
-                      })
+                      setSettingsForm((prev) =>
+                        prev ? { ...prev, spin_cost_stars: parseInt(e.target.value) || 1 } : null,
+                      )
                     }
                     min={1}
                     max={1000}
@@ -404,9 +552,13 @@ export default function AdminWheel() {
                   <label className="flex items-center gap-2">
                     <input
                       type="checkbox"
-                      checked={config.spin_cost_stars_enabled}
+                      checked={
+                        settingsForm?.spin_cost_stars_enabled ?? config.spin_cost_stars_enabled
+                      }
                       onChange={(e) =>
-                        updateConfigMutation.mutate({ spin_cost_stars_enabled: e.target.checked })
+                        setSettingsForm((prev) =>
+                          prev ? { ...prev, spin_cost_stars_enabled: e.target.checked } : null,
+                        )
                       }
                       className="rounded border-dark-600"
                     />
@@ -422,9 +574,11 @@ export default function AdminWheel() {
                 <div className="flex gap-2">
                   <input
                     type="number"
-                    value={config.spin_cost_days}
+                    value={settingsForm?.spin_cost_days ?? config.spin_cost_days}
                     onChange={(e) =>
-                      updateConfigMutation.mutate({ spin_cost_days: parseInt(e.target.value) || 1 })
+                      setSettingsForm((prev) =>
+                        prev ? { ...prev, spin_cost_days: parseInt(e.target.value) || 1 } : null,
+                      )
                     }
                     min={1}
                     max={30}
@@ -433,9 +587,13 @@ export default function AdminWheel() {
                   <label className="flex items-center gap-2">
                     <input
                       type="checkbox"
-                      checked={config.spin_cost_days_enabled}
+                      checked={
+                        settingsForm?.spin_cost_days_enabled ?? config.spin_cost_days_enabled
+                      }
                       onChange={(e) =>
-                        updateConfigMutation.mutate({ spin_cost_days_enabled: e.target.checked })
+                        setSettingsForm((prev) =>
+                          prev ? { ...prev, spin_cost_days_enabled: e.target.checked } : null,
+                        )
                       }
                       className="rounded border-dark-600"
                     />
@@ -463,15 +621,19 @@ export default function AdminWheel() {
                   type="range"
                   min={0}
                   max={100}
-                  value={config.rtp_percent}
+                  value={settingsForm?.rtp_percent ?? config.rtp_percent}
                   onChange={(e) =>
-                    updateConfigMutation.mutate({ rtp_percent: parseInt(e.target.value) })
+                    setSettingsForm((prev) =>
+                      prev ? { ...prev, rtp_percent: parseInt(e.target.value) } : null,
+                    )
                   }
                   className="w-full"
                 />
                 <div className="flex justify-between text-sm text-dark-400">
                   <span>0%</span>
-                  <span className="font-bold text-accent-400">{config.rtp_percent}%</span>
+                  <span className="font-bold text-accent-400">
+                    {settingsForm?.rtp_percent ?? config.rtp_percent}%
+                  </span>
                   <span>100%</span>
                 </div>
               </div>
@@ -482,9 +644,11 @@ export default function AdminWheel() {
                 </label>
                 <input
                   type="number"
-                  value={config.daily_spin_limit}
+                  value={settingsForm?.daily_spin_limit ?? config.daily_spin_limit}
                   onChange={(e) =>
-                    updateConfigMutation.mutate({ daily_spin_limit: parseInt(e.target.value) || 0 })
+                    setSettingsForm((prev) =>
+                      prev ? { ...prev, daily_spin_limit: parseInt(e.target.value) || 0 } : null,
+                    )
                   }
                   min={0}
                   max={100}
@@ -498,11 +662,19 @@ export default function AdminWheel() {
                 </label>
                 <input
                   type="number"
-                  value={config.min_subscription_days_for_day_payment}
+                  value={
+                    settingsForm?.min_subscription_days_for_day_payment ??
+                    config.min_subscription_days_for_day_payment
+                  }
                   onChange={(e) =>
-                    updateConfigMutation.mutate({
-                      min_subscription_days_for_day_payment: parseInt(e.target.value) || 1,
-                    })
+                    setSettingsForm((prev) =>
+                      prev
+                        ? {
+                            ...prev,
+                            min_subscription_days_for_day_payment: parseInt(e.target.value) || 1,
+                          }
+                        : null,
+                    )
                   }
                   min={1}
                   max={30}
@@ -527,14 +699,40 @@ export default function AdminWheel() {
                 </label>
                 <input
                   type="text"
-                  value={config.promo_prefix}
-                  onChange={(e) => updateConfigMutation.mutate({ promo_prefix: e.target.value })}
+                  value={settingsForm?.promo_prefix ?? config.promo_prefix}
+                  onChange={(e) =>
+                    setSettingsForm((prev) =>
+                      prev ? { ...prev, promo_prefix: e.target.value } : null,
+                    )
+                  }
                   maxLength={20}
                   className="input w-full"
                 />
               </div>
             </div>
           </div>
+
+          {/* Save Button */}
+          {hasSettingsChanges && (
+            <div className="flex justify-end border-t border-dark-700 pt-6">
+              <button
+                onClick={() => {
+                  if (settingsForm) {
+                    updateConfigMutation.mutate(settingsForm);
+                  }
+                }}
+                disabled={updateConfigMutation.isPending}
+                className="btn-primary flex items-center gap-2"
+              >
+                {updateConfigMutation.isPending ? (
+                  <div className="h-4 w-4 animate-spin rounded-full border-2 border-white/30 border-t-white" />
+                ) : (
+                  <CheckIcon />
+                )}
+                {t('common.save')}
+              </button>
+            </div>
+          )}
         </div>
       )}
 
@@ -543,14 +741,14 @@ export default function AdminWheel() {
         <div className="grid gap-6 lg:grid-cols-[1fr,300px]">
           {/* Prize list */}
           <div className="space-y-4">
-            <div className="flex items-center justify-between">
+            <div className="flex items-center justify-between gap-2">
               <p className="text-sm text-dark-400">{t('admin.wheel.prizes.dragToReorder')}</p>
               <button
                 onClick={() => setIsCreating(true)}
-                className="btn-primary flex items-center gap-2"
+                className="btn-primary flex flex-shrink-0 items-center gap-2"
               >
                 <PlusIcon />
-                {t('admin.wheel.prizes.addPrize')}
+                <span className="hidden sm:inline">{t('admin.wheel.prizes.addPrize')}</span>
               </button>
             </div>
 
@@ -566,91 +764,34 @@ export default function AdminWheel() {
               />
             )}
 
-            {/* Prize list */}
-            <div className="space-y-3">
-              {config.prizes.map((prize) => (
-                <div
-                  key={prize.id}
-                  ref={draggedPrizeId === prize.id ? dragRef : null}
-                  draggable={expandedPrizeId !== prize.id}
-                  onDragStart={(e) => handleDragStart(e, prize.id)}
-                  onDragEnd={handleDragEnd}
-                  onDragOver={(e) => handleDragOver(e, prize.id)}
-                  onDragLeave={handleDragLeave}
-                  onDrop={(e) => handleDrop(e, prize.id)}
-                  className={`card overflow-hidden transition-all duration-200 ${
-                    !prize.is_active ? 'opacity-50' : ''
-                  } ${dragOverPrizeId === prize.id ? 'ring-2 ring-accent-500 ring-offset-2 ring-offset-dark-900' : ''} ${
-                    draggedPrizeId === prize.id ? 'opacity-50' : ''
-                  }`}
-                >
-                  {/* Prize header - always visible */}
-                  <div className="flex items-center gap-3 p-4">
-                    {/* Drag handle */}
-                    <div
-                      className="cursor-grab text-dark-500 hover:text-dark-300 active:cursor-grabbing"
-                      title={t('admin.wheel.prizes.dragToReorder')}
-                    >
-                      <GripVerticalIcon />
-                    </div>
-
-                    {/* Prize icon */}
-                    <div
-                      className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-lg text-xl"
-                      style={{ backgroundColor: prize.color + '30' }}
-                    >
-                      {prize.emoji}
-                    </div>
-
-                    {/* Prize info */}
-                    <div className="min-w-0 flex-1">
-                      <div className="font-semibold text-dark-100">{prize.display_name}</div>
-                      <div className="truncate text-sm text-dark-400">
-                        {t(`admin.wheel.prizes.types.${prize.prize_type}`)} •{' '}
-                        {t('admin.wheel.prizes.fields.value')}: {prize.prize_value} •{' '}
-                        {(prize.prize_value_kopeks / 100).toFixed(2)}₽
-                      </div>
-                    </div>
-
-                    {/* Actions */}
-                    <div className="flex items-center gap-1">
-                      <button
-                        onClick={() =>
-                          setExpandedPrizeId(expandedPrizeId === prize.id ? null : prize.id)
-                        }
-                        className="btn-ghost p-2"
-                        title={
-                          expandedPrizeId === prize.id ? t('common.collapse') : t('common.edit')
-                        }
-                      >
-                        {expandedPrizeId === prize.id ? <ChevronUpIcon /> : <ChevronDownIcon />}
-                      </button>
-                      <button
-                        onClick={() => handleDeletePrize(prize.id)}
-                        className="btn-ghost p-2 text-error-400 hover:bg-error-500/10"
-                        title={t('common.delete')}
-                      >
-                        <TrashIcon />
-                      </button>
-                    </div>
-                  </div>
-
-                  {/* Expanded edit form */}
-                  {expandedPrizeId === prize.id && (
-                    <div className="border-t border-dark-700 bg-dark-800/50 p-4">
-                      <InlinePrizeForm
-                        prize={prize}
-                        onSave={(data) => {
-                          updatePrizeMutation.mutate({ id: prize.id, data });
-                        }}
-                        onCancel={() => setExpandedPrizeId(null)}
-                        isLoading={updatePrizeMutation.isPending}
-                      />
-                    </div>
-                  )}
+            {/* Prize list with DnD */}
+            <DndContext
+              sensors={sensors}
+              onDragStart={onTelegramDragStart}
+              onDragEnd={handleDragEnd}
+              onDragCancel={onTelegramDragCancel}
+            >
+              <SortableContext
+                items={config.prizes.map((p) => p.id)}
+                strategy={verticalListSortingStrategy}
+              >
+                <div className="space-y-3">
+                  {config.prizes.map((prize) => (
+                    <SortablePrizeCard
+                      key={prize.id}
+                      prize={prize}
+                      isExpanded={expandedPrizeId === prize.id}
+                      onToggleExpand={() =>
+                        setExpandedPrizeId(expandedPrizeId === prize.id ? null : prize.id)
+                      }
+                      onDelete={() => handleDeletePrize(prize.id)}
+                      onSave={(data) => updatePrizeMutation.mutate({ id: prize.id, data })}
+                      isLoading={updatePrizeMutation.isPending}
+                    />
+                  ))}
                 </div>
-              ))}
-            </div>
+              </SortableContext>
+            </DndContext>
 
             {config.prizes.length === 0 && !isCreating && (
               <div className="py-12 text-center text-dark-400">

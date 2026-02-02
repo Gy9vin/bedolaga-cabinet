@@ -73,7 +73,6 @@ export default function Wheel() {
   const [paymentType, setPaymentType] = useState<'telegram_stars' | 'subscription_days'>(
     'telegram_stars',
   );
-  const [showHistory, setShowHistory] = useState(false);
   const [isPayingStars, setIsPayingStars] = useState(false);
 
   // Check if we're in Telegram Mini App environment
@@ -91,7 +90,6 @@ export default function Wheel() {
   const { data: history } = useQuery({
     queryKey: ['wheel-history'],
     queryFn: () => wheelApi.getHistory(1, 10),
-    enabled: showHistory,
   });
 
   // Auto-select payment type based on availability
@@ -481,17 +479,6 @@ export default function Wheel() {
               </div>
             )}
           </div>
-
-          <button
-            onClick={() => setShowHistory(!showHistory)}
-            className={`rounded-xl p-3 transition-all ${
-              showHistory
-                ? 'bg-purple-500/20 text-purple-300 ring-2 ring-purple-500/50'
-                : 'bg-white/5 text-dark-300 hover:bg-white/10 hover:text-white'
-            }`}
-          >
-            <HistoryIcon />
-          </button>
         </div>
       </div>
 
@@ -729,64 +716,56 @@ export default function Wheel() {
           </div>
         </div>
 
-        {/* History Sidebar */}
-        {showHistory && (
-          <div className="h-fit lg:sticky lg:top-24">
-            <div className="overflow-hidden rounded-2xl border border-dark-700/50 bg-dark-800/80 backdrop-blur-sm">
-              <div className="flex items-center justify-between border-b border-dark-700 p-4">
-                <h3 className="flex items-center gap-2 font-semibold text-dark-100">
-                  <HistoryIcon />
-                  {t('wheel.recentSpins')}
-                </h3>
-                <button
-                  onClick={() => setShowHistory(false)}
-                  className="p-1 text-dark-400 hover:text-dark-200 lg:hidden"
-                >
-                  <CloseIcon />
-                </button>
-              </div>
+        {/* History Sidebar - always visible on desktop */}
+        <div className="hidden h-fit lg:sticky lg:top-24 lg:block">
+          <div className="overflow-hidden rounded-2xl border border-dark-700/50 bg-dark-800/80 backdrop-blur-sm">
+            <div className="border-b border-dark-700 p-4">
+              <h3 className="flex items-center gap-2 font-semibold text-dark-100">
+                <HistoryIcon />
+                {t('wheel.recentSpins')}
+              </h3>
+            </div>
 
-              {history && history.items.length > 0 ? (
-                <div className="max-h-[300px] overflow-y-auto">
-                  {history.items.map((item: SpinHistoryItem, index: number) => (
+            {history && history.items.length > 0 ? (
+              <div className="max-h-[300px] overflow-y-auto">
+                {history.items.map((item: SpinHistoryItem, index: number) => (
+                  <div
+                    key={item.id}
+                    className={`flex items-center gap-3 p-4 ${
+                      index !== history.items.length - 1 ? 'border-b border-dark-700/50' : ''
+                    }`}
+                  >
                     <div
-                      key={item.id}
-                      className={`flex items-center gap-3 p-4 ${
-                        index !== history.items.length - 1 ? 'border-b border-dark-700/50' : ''
-                      }`}
+                      className="flex h-12 w-12 items-center justify-center rounded-xl text-2xl"
+                      style={{ backgroundColor: `${item.color}20` }}
                     >
-                      <div
-                        className="flex h-12 w-12 items-center justify-center rounded-xl text-2xl"
-                        style={{ backgroundColor: `${item.color}20` }}
-                      >
-                        {item.emoji}
+                      {item.emoji}
+                    </div>
+                    <div className="min-w-0 flex-1">
+                      <div className="truncate font-medium text-dark-100">
+                        {item.prize_display_name}
                       </div>
-                      <div className="min-w-0 flex-1">
-                        <div className="truncate font-medium text-dark-100">
-                          {item.prize_display_name}
-                        </div>
-                        <div className="text-xs text-dark-500">
-                          {new Date(item.created_at).toLocaleDateString()}
-                        </div>
-                      </div>
-                      <div className="whitespace-nowrap text-xs text-dark-400">
-                        -
-                        {item.payment_type === 'telegram_stars'
-                          ? `${item.payment_amount} ⭐`
-                          : `${item.payment_amount}${t('wheel.days').charAt(0)}`}
+                      <div className="text-xs text-dark-500">
+                        {new Date(item.created_at).toLocaleDateString()}
                       </div>
                     </div>
-                  ))}
-                </div>
-              ) : (
-                <div className="p-8 text-center text-dark-500">
-                  <div className="mb-2 text-4xl">🎰</div>
-                  {t('wheel.noHistory')}
-                </div>
-              )}
-            </div>
+                    <div className="whitespace-nowrap text-xs text-dark-400">
+                      -
+                      {item.payment_type === 'telegram_stars'
+                        ? `${item.payment_amount} ⭐`
+                        : `${item.payment_amount}${t('wheel.days').charAt(0)}`}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <div className="p-8 text-center text-dark-500">
+                <div className="mb-2 text-4xl">🎰</div>
+                {t('wheel.noHistory')}
+              </div>
+            )}
           </div>
-        )}
+        </div>
       </div>
     </div>
   );
