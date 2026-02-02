@@ -28,6 +28,7 @@ export default defineConfig({
   build: {
     outDir: 'dist',
     sourcemap: false,
+    chunkSizeWarningLimit: 550,
     rollupOptions: {
       output: {
         manualChunks: {
@@ -44,6 +45,8 @@ export default defineConfig({
             '@radix-ui/react-tabs',
             '@radix-ui/react-switch',
             '@radix-ui/react-alert-dialog',
+            '@radix-ui/react-slot',
+            '@radix-ui/react-visually-hidden',
           ],
           'vendor-dnd': ['@dnd-kit/core', '@dnd-kit/sortable', '@dnd-kit/utilities'],
           'vendor-telegram': ['@tma.js/sdk-react'],
@@ -53,9 +56,11 @@ export default defineConfig({
             'clsx',
             'tailwind-merge',
             'class-variance-authority',
+            'dompurify',
           ],
           'vendor-lottie': ['@lottiefiles/dotlottie-react'],
           'vendor-webgl': ['ogl'],
+          'vendor-cmdk': ['cmdk'],
         },
       },
     },
