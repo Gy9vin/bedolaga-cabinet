@@ -3139,7 +3139,7 @@ export default function Subscription() {
                       >
                         {displayDiscount && displayDiscount > 0 && (
                           <div
-                            className={`absolute -right-2 -top-2 rounded-full px-2 py-0.5 text-xs font-medium text-white ${
+                            className={`absolute right-2 top-2 z-10 rounded-full px-2 py-0.5 text-xs font-medium text-white shadow-sm ${
                               hasExistingDiscount ? 'bg-success-500' : 'bg-orange-500'
                             }`}
                           >
@@ -3147,7 +3147,7 @@ export default function Subscription() {
                           </div>
                         )}
                         <div className="text-lg font-semibold text-dark-100">{period.label}</div>
-                        <div className="flex items-center gap-2">
+                        <div className="mt-1 flex flex-wrap items-center gap-x-2 gap-y-1">
                           <span className="font-medium text-accent-400">
                             {formatPrice(promoPeriod.price)}
                           </span>
@@ -3186,20 +3186,41 @@ export default function Subscription() {
                             : ''
                         } ${!option.is_available ? 'cursor-not-allowed opacity-50' : ''}`}
                       >
-                        {promoTraffic.percent && (
-                          <div className="absolute -right-2 -top-2 rounded-full bg-orange-500 px-2 py-0.5 text-xs font-medium text-white">
-                            -{promoTraffic.percent}%
-                          </div>
-                        )}
-                        <div className="text-lg font-semibold text-dark-100">{option.label}</div>
-                        <div className="flex items-center justify-center gap-2">
-                          <span className="text-accent-400">{formatPrice(promoTraffic.price)}</span>
-                          {promoTraffic.original && (
-                            <span className="text-xs text-dark-500 line-through">
-                              {formatPrice(promoTraffic.original)}
-                            </span>
-                          )}
-                        </div>
+                        {(() => {
+                          const trafficDisplayDiscount = hasExistingDiscount
+                            ? option.discount_percent
+                            : promoTraffic.percent;
+                          const trafficDisplayOriginal = hasExistingDiscount
+                            ? option.original_price_kopeks
+                            : promoTraffic.original;
+                          return (
+                            <>
+                              {trafficDisplayDiscount && trafficDisplayDiscount > 0 && (
+                                <div
+                                  className={`absolute right-2 top-2 z-10 rounded-full px-2 py-0.5 text-xs font-medium text-white shadow-sm ${
+                                    hasExistingDiscount ? 'bg-success-500' : 'bg-orange-500'
+                                  }`}
+                                >
+                                  -{trafficDisplayDiscount}%
+                                </div>
+                              )}
+                              <div className="text-lg font-semibold text-dark-100">
+                                {option.label}
+                              </div>
+                              <div className="mt-1 flex flex-wrap items-center justify-center gap-x-2 gap-y-1">
+                                <span className="text-accent-400">
+                                  {formatPrice(promoTraffic.price)}
+                                </span>
+                                {trafficDisplayOriginal &&
+                                  trafficDisplayOriginal > promoTraffic.price && (
+                                    <span className="text-xs text-dark-500 line-through">
+                                      {formatPrice(trafficDisplayOriginal)}
+                                    </span>
+                                  )}
+                              </div>
+                            </>
+                          );
+                        })()}
                       </button>
                     );
                   })}
@@ -3240,11 +3261,20 @@ export default function Subscription() {
                                 : 'cursor-not-allowed border-dark-800/30 bg-dark-900/30 opacity-50'
                           }`}
                         >
-                          {promoServer.percent && (
-                            <div className="absolute -right-2 -top-2 rounded-full bg-orange-500 px-2 py-0.5 text-xs font-medium text-white">
-                              -{promoServer.percent}%
-                            </div>
-                          )}
+                          {(() => {
+                            const serverDisplayDiscount = hasExistingDiscount
+                              ? server.discount_percent
+                              : promoServer.percent;
+                            return serverDisplayDiscount && serverDisplayDiscount > 0 ? (
+                              <div
+                                className={`absolute right-2 top-2 z-10 rounded-full px-2 py-0.5 text-xs font-medium text-white shadow-sm ${
+                                  hasExistingDiscount ? 'bg-success-500' : 'bg-orange-500'
+                                }`}
+                              >
+                                -{serverDisplayDiscount}%
+                              </div>
+                            ) : null;
+                          })()}
                           <div className="flex items-center gap-3">
                             <div
                               className={`flex h-5 w-5 flex-shrink-0 items-center justify-center rounded border-2 ${
@@ -3257,16 +3287,21 @@ export default function Subscription() {
                             </div>
                             <div>
                               <div className="font-medium text-dark-100">{server.name}</div>
-                              <div className="flex items-center gap-2">
+                              <div className="flex flex-wrap items-center gap-x-2 gap-y-1">
                                 <span className="text-sm text-accent-400">
                                   {formatPrice(promoServer.price)}
                                   {t('subscription.perMonth')}
                                 </span>
-                                {promoServer.original && (
-                                  <span className="text-xs text-dark-500 line-through">
-                                    {formatPrice(promoServer.original)}
-                                  </span>
-                                )}
+                                {(() => {
+                                  const serverOriginal = hasExistingDiscount
+                                    ? server.original_price_kopeks
+                                    : promoServer.original;
+                                  return serverOriginal && serverOriginal > promoServer.price ? (
+                                    <span className="text-xs text-dark-500 line-through">
+                                      {formatPrice(serverOriginal)}
+                                    </span>
+                                  ) : null;
+                                })()}
                               </div>
                             </div>
                           </div>
