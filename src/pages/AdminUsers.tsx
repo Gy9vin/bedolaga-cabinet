@@ -205,10 +205,7 @@ function ConfirmationModal({
 
   return (
     <div className="fixed inset-0 z-[60] flex items-center justify-center p-4 backdrop-blur-sm">
-      <div
-        className="absolute inset-0 bg-black/50"
-        onClick={onClose}
-      />
+      <div className="absolute inset-0 bg-black/50" onClick={onClose} />
       <div className="relative w-full max-w-md rounded-2xl border border-dark-700 bg-dark-800 p-6 shadow-xl">
         <div className="mb-4 flex items-center gap-3">
           <div className="flex h-10 w-10 items-center justify-center rounded-full bg-rose-500/20 text-rose-400">
@@ -1314,7 +1311,10 @@ export default function AdminUsers() {
     const { action } = confirmModal;
     if (!action) return { title: '', message: '', confirmText: '', confirmButtonClass: '' };
 
-    const configs: Record<UserAction, { title: string; message: string; confirmText: string; confirmButtonClass: string }> = {
+    const configs: Record<
+      UserAction,
+      { title: string; message: string; confirmText: string; confirmButtonClass: string }
+    > = {
       delete: {
         title: t('admin.users.userActions.confirmDelete.title'),
         message: t('admin.users.userActions.confirmDelete.message'),
