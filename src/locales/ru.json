@@ -435,7 +435,9 @@
     "additionalOptions": {
       "title": "Дополнительные опции",
       "buyDevices": "Докупить устройства",
-      "currentDeviceLimit": "Текущий лимит: {{count}} устройств",
+      "currentDeviceLimit_one": "Текущий лимит: {{count}} устройство",
+      "currentDeviceLimit_few": "Текущий лимит: {{count}} устройства",
+      "currentDeviceLimit_many": "Текущий лимит: {{count}} устройств",
       "maxDevices": "максимум {{count}}",
       "devicesUnavailable": "Докупка устройств недоступна",
       "devicesUnit": "устройств",
@@ -443,14 +445,22 @@
       "reduceDevices": "Уменьшить устройства",
       "reduceDevicesTitle": "Уменьшить лимит устройств",
       "reduceDevicesDescription": "Вы можете уменьшить количество устройств до минимального на тарифе",
-      "minDeviceLimit": "Минимум на тарифе: {{count}} устройств",
-      "connectedDevices": "Подключено устройств: {{count}}",
-      "disconnectDevicesFirst": "Сначала отключите устройства, чтобы уменьшить лимит ниже {{count}}",
+      "minDeviceLimit_one": "Минимум на тарифе: {{count}} устройство",
+      "minDeviceLimit_few": "Минимум на тарифе: {{count}} устройства",
+      "minDeviceLimit_many": "Минимум на тарифе: {{count}} устройств",
+      "connectedDevices_one": "Подключено устройств: {{count}}",
+      "connectedDevices_few": "Подключено устройств: {{count}}",
+      "connectedDevices_many": "Подключено устройств: {{count}}",
+      "disconnectDevicesFirst_one": "Сначала отключите устройства, чтобы уменьшить лимит ниже {{count}} устройства",
+      "disconnectDevicesFirst_few": "Сначала отключите устройства, чтобы уменьшить лимит ниже {{count}} устройств",
+      "disconnectDevicesFirst_many": "Сначала отключите устройства, чтобы уменьшить лимит ниже {{count}} устройств",
       "reduceUnavailable": "Уменьшение устройств недоступно",
       "alreadyAtMinDeviceLimit": "Уже достигнут минимальный лимит устройств для вашего тарифа",
       "reduce": "Уменьшить",
       "reducing": "Уменьшение...",
-      "newDeviceLimit": "Новый лимит: {{count}} устройств",
+      "newDeviceLimit_one": "Новый лимит: {{count}} устройство",
+      "newDeviceLimit_few": "Новый лимит: {{count}} устройства",
+      "newDeviceLimit_many": "Новый лимит: {{count}} устройств",
       "buyTraffic": "Докупить трафик",
       "currentTrafficLimit": "Текущий лимит: {{limit}} ГБ (использовано {{used}} ГБ)",
       "buyTrafficTitle": "Докупить трафик",
@@ -1975,7 +1985,9 @@
       },
       "table": {
         "inactive": "Неактивна",
-        "registrations": "{{count}} регистраций",
+        "registrations_one": "{{count}} регистрация",
+        "registrations_few": "{{count}} регистрации",
+        "registrations_many": "{{count}} регистраций",
         "revenue": "{{amount}} доход",
         "conversion": "{{rate}}% конверсия",
         "statistics": "Статистика",
@@ -2021,8 +2033,12 @@
         "paidUsers": "Оплатили",
         "conversion": "Конверсия",
         "bonusesIssued": "Бонусы выданы",
-        "subscriptionsIssued": "{{count}} подписок",
-        "tariffsIssued": "{{count}} тарифов",
+        "subscriptionsIssued_one": "{{count}} подписка",
+        "subscriptionsIssued_few": "{{count}} подписки",
+        "subscriptionsIssued_many": "{{count}} подписок",
+        "tariffsIssued_one": "{{count}} тариф",
+        "tariffsIssued_few": "{{count}} тарифа",
+        "tariffsIssued_many": "{{count}} тарифов",
         "avgRevenuePerUser": "Средний доход с пользователя",
         "avgFirstPayment": "Средний первый платёж",
         "trialSubscriptions": "Пробных подписок",
@@ -2074,8 +2090,12 @@
       "until": "До",
       "discountForHours": "-{{percent}}% на {{hours}}ч",
       "tabs": {
-        "promocodes": "Промокоды ({{count}})",
-        "groups": "Группы скидок ({{count}})"
+        "promocodes_one": "Промокоды ({{count}} промокод)",
+        "promocodes_few": "Промокоды ({{count}} промокода)",
+        "promocodes_many": "Промокоды ({{count}} промокодов)",
+        "groups_one": "Группы скидок ({{count}} группа)",
+        "groups_few": "Группы скидок ({{count}} группы)",
+        "groups_many": "Группы скидок ({{count}} групп)"
       },
       "type": {
         "balance": "Баланс",
@@ -2133,7 +2153,9 @@
         "daysLabel": "Дней",
         "discountLabel": "Скидка",
         "validFor": "Действует",
-        "hoursValue": "{{count}} часов",
+        "hoursValue_one": "{{count}} час",
+        "hoursValue_few": "{{count}} часа",
+        "hoursValue_many": "{{count}} часов",
         "limit": "Лимит",
         "status": "Статус",
         "active": "Активен",
@@ -2174,7 +2196,9 @@
         "default": "По умолчанию",
         "daysShort": "{{days}} дн.",
         "autoFrom": "Авто от {{amount}} руб.",
-        "members": "{{count}} участников"
+        "members_one": "{{count}} участник",
+        "members_few": "{{count}} участника",
+        "members_many": "{{count}} участников"
       },
       "confirm": {
         "deletePromocode": "Удалить промокод?",
@@ -2246,7 +2270,9 @@
       "search": "Поиск по ID, имени, username...",
       "searchEmail": "Поиск по email...",
       "noData": "Пользователи не найдены",
-      "purchaseCount": "{{count}} покупок",
+      "purchaseCount_one": "{{count}} покупка",
+      "purchaseCount_few": "{{count}} покупки",
+      "purchaseCount_many": "{{count}} покупок",
       "noPurchases": "Нет покупок",
       "stats": {
         "total": "Всего",
@@ -2386,7 +2412,9 @@
       "subtitle": "Шаблоны, рассылка и логи предложений",
       "sendButton": "Отправить",
       "tabs": {
-        "templates": "Шаблоны ({{count}})",
+        "templates_one": "Шаблоны ({{count}} шаблон)",
+        "templates_few": "Шаблоны ({{count}} шаблона)",
+        "templates_many": "Шаблоны ({{count}} шаблонов)",
         "logs": "Логи"
       },
       "noData": {
@@ -2437,9 +2465,15 @@
       },
       "result": {
         "sentTitle": "Отправлено!",
-        "offersCreated": "Создано предложений: {{count}}",
-        "notificationsSent": "Уведомлений отправлено: {{count}}",
-        "notificationsFailed": "(не доставлено: {{count}})",
+        "offersCreated_one": "Создано предложение: {{count}}",
+        "offersCreated_few": "Создано предложения: {{count}}",
+        "offersCreated_many": "Создано предложений: {{count}}",
+        "notificationsSent_one": "Уведомление отправлено: {{count}}",
+        "notificationsSent_few": "Уведомления отправлено: {{count}}",
+        "notificationsSent_many": "Уведомлений отправлено: {{count}}",
+        "notificationsFailed_one": "(не доставлено: {{count}})",
+        "notificationsFailed_few": "(не доставлено: {{count}})",
+        "notificationsFailed_many": "(не доставлено: {{count}})",
         "sendError": "Не удалось отправить предложение"
       },
       "notFound": "Шаблон не найден",
@@ -2521,7 +2555,9 @@
       "enable": "Включить",
       "disable": "Отключить",
       "hide": "Скрыть ({{count}})",
-      "showMore": "Показать еще {{count}} нод"
+      "showMore_one": "Показать еще {{count}} ноду",
+      "showMore_few": "Показать еще {{count}} ноды",
+      "showMore_many": "Показать еще {{count}} нод"
     },
     "revenue": {
       "title": "Доходы",
@@ -2560,7 +2596,9 @@
     },
     "topReferrers": {
       "title": "Топ рефералов",
-      "stats": "реф., {{count}} пригл.",
+      "stats_one": "реф., {{count}} пригл.",
+      "stats_few": "реф., {{count}} пригл.",
+      "stats_many": "реф., {{count}} пригл.",
       "byEarnings": "По доходу",
       "byInvited": "По пригл.",
       "invites": "пригл.",
@@ -2573,7 +2611,9 @@
     },
     "topCampaigns": {
       "title": "Топ РК ссылок",
-      "stats": "камп., {{count}} рег.",
+      "stats_one": "камп., {{count}} рег.",
+      "stats_few": "камп., {{count}} рег.",
+      "stats_many": "камп., {{count}} рег.",
       "total": "Всего от РК"
     },
     "recentPayments": {

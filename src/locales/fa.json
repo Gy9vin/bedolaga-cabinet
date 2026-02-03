@@ -303,7 +303,7 @@
     "additionalOptions": {
       "title": "گزینه‌های اضافی",
       "buyDevices": "خرید دستگاه بیشتر",
-      "currentDeviceLimit": "محدودیت فعلی: {{count}} دستگاه",
+      "currentDeviceLimit_other": "محدودیت فعلی: {{count}} دستگاه",
       "maxDevices": "حداکثر {{count}}",
       "devicesUnavailable": "خرید دستگاه در دسترس نیست",
       "devicesUnit": "دستگاه",
@@ -1206,7 +1206,7 @@
       },
       "table": {
         "inactive": "غیرفعال",
-        "registrations": "{{count}} ثبت‌نام",
+        "registrations_other": "{{count}} ثبت‌نام",
         "revenue": "{{amount}} درآمد",
         "conversion": "{{rate}}% تبدیل",
         "statistics": "آمار",
@@ -1252,8 +1252,8 @@
         "paidUsers": "پرداخت کرده",
         "conversion": "نرخ تبدیل",
         "bonusesIssued": "پاداش‌های صادر شده",
-        "subscriptionsIssued": "{{count}} اشتراک",
-        "tariffsIssued": "{{count}} تعرفه",
+        "subscriptionsIssued_other": "{{count}} اشتراک",
+        "tariffsIssued_other": "{{count}} تعرفه",
         "avgRevenuePerUser": "میانگین درآمد هر کاربر",
         "avgFirstPayment": "میانگین اولین پرداخت",
         "trialSubscriptions": "اشتراک‌های آزمایشی",
@@ -1305,8 +1305,8 @@
       "until": "تا",
       "discountForHours": "-{{percent}}% برای {{hours}} ساعت",
       "tabs": {
-        "promocodes": "کدهای تخفیف ({{count}})",
-        "groups": "گروه‌های تخفیف ({{count}})"
+        "promocodes_other": "کدهای تخفیف ({{count}})",
+        "groups_other": "گروه‌های تخفیف ({{count}})"
       },
       "type": {
         "balance": "موجودی",
@@ -1364,7 +1364,7 @@
         "daysLabel": "روزها",
         "discountLabel": "تخفیف",
         "validFor": "معتبر برای",
-        "hoursValue": "{{count}} ساعت",
+        "hoursValue_other": "{{count}} ساعت",
         "limit": "محدودیت",
         "status": "وضعیت",
         "active": "فعال",
@@ -1405,7 +1405,7 @@
         "default": "پیش‌فرض",
         "daysShort": "{{days}} روز",
         "autoFrom": "خودکار از {{amount}} روبل",
-        "members": "{{count}} عضو"
+        "members_other": "{{count}} عضو"
       },
       "confirm": {
         "deletePromocode": "کد تخفیف حذف شود؟",
@@ -1477,7 +1477,7 @@
       "search": "جستجو بر اساس شناسه، نام، نام کاربری...",
       "searchEmail": "جستجو بر اساس ایمیل...",
       "noData": "کاربری یافت نشد",
-      "purchaseCount": "{{count}} خرید",
+      "purchaseCount_other": "{{count}} خرید",
       "noPurchases": "بدون خرید",
       "stats": {
         "total": "کل",
@@ -1588,7 +1588,7 @@
       "subtitle": "قالب‌ها، ارسال گروهی و گزارش پیشنهادات",
       "sendButton": "ارسال",
       "tabs": {
-        "templates": "قالب‌ها ({{count}})",
+        "templates_other": "قالب‌ها ({{count}})",
         "logs": "گزارش‌ها"
       },
       "noData": {
@@ -1639,8 +1639,8 @@
       },
       "result": {
         "sentTitle": "ارسال شد!",
-        "offersCreated": "پیشنهادات ایجاد شده: {{count}}",
-        "notificationsSent": "اعلان‌های ارسال شده: {{count}}",
+        "offersCreated_other": "پیشنهادات ایجاد شده: {{count}}",
+        "notificationsSent_other": "اعلان‌های ارسال شده: {{count}}",
         "notificationsFailed": "(ناموفق: {{count}})",
         "sendError": "ارسال پیشنهاد ناموفق بود"
       },
@@ -1827,7 +1827,7 @@
       "enable": "فعال",
       "disable": "غیرفعال",
       "hide": "پنهان کردن ({{count}})",
-      "showMore": "نمایش {{count}} گره بیشتر"
+      "showMore_other": "نمایش {{count}} گره بیشتر"
     },
     "revenue": {
       "title": "درآمد",
