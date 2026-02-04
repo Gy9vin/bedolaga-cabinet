@@ -1,102 +1,76 @@
-import { useEffect, useMemo } from 'react';
-import { BrowserRouter, Router } from 'react-router-dom';
-import { useIntegration } from '@telegram-apps/react-router-integration';
-import { initNavigator } from '@telegram-apps/sdk';
+import { useEffect } from 'react';
+import { BrowserRouter, useLocation, useNavigate } from 'react-router-dom';
+import {
+  showBackButton,
+  hideBackButton,
+  onBackButtonClick,
+  offBackButtonClick,
+} from '@telegram-apps/sdk-react';
 import App from './App';
 import { PlatformProvider } from './platform/PlatformProvider';
 import { ThemeColorsProvider } from './providers/ThemeColorsProvider';
 import { WebSocketProvider } from './providers/WebSocketProvider';
 import { ToastProvider } from './components/Toast';
 import { TooltipProvider } from './components/primitives/Tooltip';
+import { isInTelegramWebApp } from './hooks/useTelegramSDK';
 
 /**
- * Check if running inside Telegram Mini App
- * Uses multiple checks to reliably detect Telegram environment
+ * Manages Telegram BackButton visibility based on navigation location.
+ * Shows back button on non-root routes, hides on root.
  */
-function isTelegramMiniApp(): boolean {
-  if (typeof window === 'undefined') return false;
-
-  const webApp = window.Telegram?.WebApp;
-  if (!webApp) return false;
-
-  // Check 1: initDataUnsafe should have user data in real Telegram
-  const hasUserData = webApp.initDataUnsafe?.user?.id !== undefined;
-
-  // Check 2: Platform should not be 'unknown' (which is default in browser)
-  const validPlatform = webApp.platform !== 'unknown' && webApp.platform !== '';
-
-  // Check 3: Version should be present (SDK loads in Telegram only)
-  const hasVersion = webApp.version !== undefined && webApp.version !== '';
-
-  return hasUserData || (validPlatform && hasVersion);
-}
-
-/**
- * Component wrapper for Telegram navigator setup.
- * Integrates Telegram Mini Apps navigator with React Router to provide
- * automatic BackButton management based on navigation history.
- * Falls back to BrowserRouter when not in Telegram Mini App.
- */
-/**
- * Navigator-based router for Telegram Mini App
- */
-function TelegramRouter({ children }: { children: React.ReactNode }) {
-  const navigator = useMemo(() => initNavigator('app-navigation-state', { hashMode: null }), []);
-  const [location, reactNavigator] = useIntegration(navigator);
+function TelegramBackButton() {
+  const location = useLocation();
+  const navigate = useNavigate();
 
   useEffect(() => {
+    const isRoot = location.pathname === '/' || location.pathname === '';
     try {
-      navigator.attach();
-      return () => {
-        try {
-          navigator.detach();
-        } catch (err) {
-          console.warn('Failed to detach navigator:', err);
-        }
-      };
-    } catch (err) {
-      console.warn('Failed to attach navigator:', err);
+      if (isRoot) {
+        hideBackButton();
+      } else {
+        showBackButton();
+      }
+    } catch {
+      // Not in Telegram or back button not mounted
     }
-  }, [navigator]);
+  }, [location]);
 
-  return (
-    <Router location={location} navigator={reactNavigator}>
-      {children}
-    </Router>
-  );
+  useEffect(() => {
+    const handler = () => navigate(-1);
+    try {
+      onBackButtonClick(handler);
+    } catch {
+      // Not in Telegram
+    }
+    return () => {
+      try {
+        offBackButtonClick(handler);
+      } catch {
+        // Not in Telegram
+      }
+    };
+  }, [navigate]);
+
+  return null;
 }
 
 export function AppWithNavigator() {
-  const isTelegram = useMemo(() => {
-    const result = isTelegramMiniApp();
-    console.log('[AppWithNavigator] Platform detection:', {
-      isTelegram: result,
-      platform: window.Telegram?.WebApp?.platform,
-      hasUser: window.Telegram?.WebApp?.initDataUnsafe?.user?.id !== undefined,
-      version: window.Telegram?.WebApp?.version,
-    });
-    return result;
-  }, []);
+  const isTelegram = isInTelegramWebApp();
 
-  // Common app content
-  const appContent = (
-    <PlatformProvider>
-      <ThemeColorsProvider>
-        <TooltipProvider>
-          <ToastProvider>
-            <WebSocketProvider>
-              <App />
-            </WebSocketProvider>
-          </ToastProvider>
-        </TooltipProvider>
-      </ThemeColorsProvider>
-    </PlatformProvider>
+  return (
+    <BrowserRouter>
+      {isTelegram && <TelegramBackButton />}
+      <PlatformProvider>
+        <ThemeColorsProvider>
+          <TooltipProvider>
+            <ToastProvider>
+              <WebSocketProvider>
+                <App />
+              </WebSocketProvider>
+            </ToastProvider>
+          </TooltipProvider>
+        </ThemeColorsProvider>
+      </PlatformProvider>
+    </BrowserRouter>
   );
-
-  // Use Telegram navigator in Mini App, BrowserRouter elsewhere
-  if (isTelegram) {
-    return <TelegramRouter>{appContent}</TelegramRouter>;
-  }
-
-  return <BrowserRouter>{appContent}</BrowserRouter>;
 }

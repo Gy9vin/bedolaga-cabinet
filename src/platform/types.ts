@@ -131,10 +131,4 @@ export interface PlatformContext {
 
   // Closing confirmation
   setClosingConfirmation: (enabled: boolean) => void;
-
-  // Raw Telegram WebApp access (null in web)
-  telegram: TelegramWebApp | null;
 }
-
-// Note: TelegramWebApp types are defined in vite-env.d.ts
-// This file only re-exports the interface from the global scope

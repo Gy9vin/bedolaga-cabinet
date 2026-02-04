@@ -1,4 +1,5 @@
 import axios, { AxiosError, InternalAxiosRequestConfig } from 'axios';
+import { retrieveRawInitData } from '@telegram-apps/sdk-react';
 import {
   tokenStorage,
   isTokenExpired,
@@ -41,10 +42,14 @@ function ensureCsrfToken(): string {
 const getTelegramInitData = (): string | null => {
   if (typeof window === 'undefined') return null;
 
-  const initData = window.Telegram?.WebApp?.initData;
-  if (initData) {
-    tokenStorage.setTelegramInitData(initData);
-    return initData;
+  try {
+    const raw = retrieveRawInitData();
+    if (raw) {
+      tokenStorage.setTelegramInitData(raw);
+      return raw;
+    }
+  } catch {
+    // Not in Telegram or SDK not initialized
   }
 
   return tokenStorage.getTelegramInitData();

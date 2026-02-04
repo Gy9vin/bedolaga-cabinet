@@ -2,6 +2,7 @@ import { Link, useLocation } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { useQuery } from '@tanstack/react-query';
 import { useState, useEffect } from 'react';
+import { initDataUser } from '@telegram-apps/sdk-react';
 
 import { useAuthStore } from '@/store/auth';
 import { useTheme } from '@/hooks/useTheme';
@@ -113,17 +114,12 @@ export function AppHeader({
   // Get user photo from Telegram
   useEffect(() => {
     try {
-      const tg = (
-        window as unknown as {
-          Telegram?: { WebApp?: { initDataUnsafe?: { user?: { photo_url?: string } } } };
-        }
-      ).Telegram?.WebApp;
-      const photoUrl = tg?.initDataUnsafe?.user?.photo_url;
-      if (photoUrl) {
-        setUserPhotoUrl(photoUrl);
+      const user = initDataUser();
+      if (user?.photo_url) {
+        setUserPhotoUrl(user.photo_url);
       }
-    } catch (e) {
-      console.warn('Failed to get Telegram user photo:', e);
+    } catch {
+      // Not in Telegram or init data not available
     }
   }, []);
 

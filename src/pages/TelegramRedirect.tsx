@@ -74,7 +74,7 @@ export default function TelegramRedirect() {
         return;
       }
 
-      // Note: ready(), expand(), and theme CSS vars are already handled by initTelegramSDK in main.tsx
+      // Note: ready(), expand(), and theme CSS vars are already handled by SDK init in main.tsx
 
       try {
         await loginWithTelegram(initData);

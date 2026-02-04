@@ -271,7 +271,5 @@ export function createWebAdapter(): PlatformContext {
         window.onbeforeunload = null;
       }
     },
-
-    telegram: null,
   };
 }

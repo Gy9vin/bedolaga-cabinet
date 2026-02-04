@@ -115,7 +115,7 @@ export default function Login() {
       const initData = getTelegramInitData();
       if (isInTelegramWebApp() && initData) {
         setIsTelegramWebApp(true);
-        // Note: ready() and expand() are already called by initTelegramSDK in main.tsx
+        // Note: ready() and expand() are already called by SDK init in main.tsx
         setIsLoading(true);
         try {
           await loginWithTelegram(initData);

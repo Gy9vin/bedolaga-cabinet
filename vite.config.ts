@@ -49,11 +49,7 @@ export default defineConfig({
             '@radix-ui/react-visually-hidden',
           ],
           'vendor-dnd': ['@dnd-kit/core', '@dnd-kit/sortable', '@dnd-kit/utilities'],
-          'vendor-telegram': [
-            '@telegram-apps/sdk',
-            '@telegram-apps/sdk-react',
-            '@telegram-apps/react-router-integration',
-          ],
+          'vendor-telegram': ['@telegram-apps/sdk-react'],
           'vendor-utils': [
             'axios',
             'zustand',

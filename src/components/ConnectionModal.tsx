@@ -2,6 +2,7 @@ import { useState, useMemo, useEffect, useCallback, useRef } from 'react';
 import { createPortal } from 'react-dom';
 import { useTranslation } from 'react-i18next';
 import { useQuery } from '@tanstack/react-query';
+import { openLink as sdkOpenLink } from '@telegram-apps/sdk-react';
 import { subscriptionApi } from '../api/subscription';
 import { useTelegramWebApp } from '../hooks/useTelegramWebApp';
 import { useBackButton, useHaptic } from '@/platform';
@@ -300,19 +301,11 @@ export default function ConnectionModal({ onClose }: ConnectionModalProps) {
     // actual deep link URL. This works for both http(s) and custom schemes.
     const redirectUrl = `${window.location.origin}/miniapp/redirect.html?url=${encodeURIComponent(deepLink)}&lang=${i18n.language || 'en'}`;
 
-    const tg = (
-      window as unknown as {
-        Telegram?: { WebApp?: { openLink?: (url: string, options?: object) => void } };
-      }
-    ).Telegram?.WebApp;
-
-    if (tg?.openLink) {
-      try {
-        tg.openLink(redirectUrl, { try_instant_view: false, try_browser: true });
-        return;
-      } catch {
-        /* fallback */
-      }
+    try {
+      sdkOpenLink(redirectUrl, { tryInstantView: false });
+      return;
+    } catch {
+      // SDK not available, fallback
     }
     window.location.href = redirectUrl;
   };
