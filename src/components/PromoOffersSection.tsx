@@ -4,7 +4,7 @@ import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
 import { promoApi, PromoOffer } from '../api/promo';
 import { ClockIcon, CheckIcon } from './icons';
-import { useDestructiveConfirm } from '@/platform/hooks/useNativeDialog';
+import { usePlatform } from '@/platform/hooks/usePlatform';
 
 // Helper functions
 const formatTimeLeft = (
@@ -90,7 +90,7 @@ export default function PromoOffersSection({ className = '' }: PromoOffersSectio
   const { t } = useTranslation();
   const navigate = useNavigate();
   const queryClient = useQueryClient();
-  const destructiveConfirm = useDestructiveConfirm();
+  const { dialog, capabilities } = usePlatform();
   const [claimingId, setClaimingId] = useState<number | null>(null);
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
@@ -159,20 +159,36 @@ export default function PromoOffersSection({ className = '' }: PromoOffersSectio
     navigate('/subscription', { state: { scrollToExtend: true } });
   };
 
-  const handleDeactivateClick = async () => {
+  const handleDeactivateClick = () => {
     setErrorMessage(null);
     setSuccessMessage(null);
 
-    const confirmed = await destructiveConfirm(
-      t('promo.deactivate.confirmDescription', {
-        percent: activeDiscount?.discount_percent || 0,
-      }),
-      t('promo.deactivate.confirm'),
-      t('promo.deactivate.confirmTitle'),
-    );
-
-    if (confirmed) {
-      deactivateMutation.mutate();
+    if (capabilities.hasNativeDialogs) {
+      dialog
+        .popup({
+          title: t('promo.deactivate.confirmTitle'),
+          message: t('promo.deactivate.confirmDescription', {
+            percent: activeDiscount?.discount_percent || 0,
+          }),
+          buttons: [
+            { id: 'cancel', type: 'cancel', text: '' },
+            { id: 'confirm', type: 'destructive', text: t('promo.deactivate.confirm') },
+          ],
+        })
+        .then((buttonId) => {
+          if (buttonId === 'confirm') {
+            deactivateMutation.mutate();
+          }
+        });
+    } else {
+      const confirmed = window.confirm(
+        t('promo.deactivate.confirmDescription', {
+          percent: activeDiscount?.discount_percent || 0,
+        }),
+      );
+      if (confirmed) {
+        deactivateMutation.mutate();
+      }
     }
   };
 
