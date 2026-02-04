@@ -1,5 +1,6 @@
 import { useState, useRef, useEffect, useMemo, useCallback } from 'react';
 import { createPortal } from 'react-dom';
+import { isInTelegramWebApp } from '@/hooks/useTelegramSDK';
 
 interface ColorPickerProps {
   value: string;
@@ -8,11 +9,6 @@ interface ColorPickerProps {
   description?: string;
   disabled?: boolean;
 }
-
-// Check if running in Telegram WebApp
-const isTelegramWebApp = (): boolean => {
-  return !!(window as unknown as { Telegram?: { WebApp?: unknown } }).Telegram?.WebApp;
-};
 
 // Convert hex to RGB
 const hexToRgb = (hex: string): { r: number; g: number; b: number } => {
@@ -117,7 +113,7 @@ export function ColorPicker({ value, onChange, label, description, disabled }: C
   const pickerRef = useRef<HTMLDivElement>(null);
   const colorInputRef = useRef<HTMLInputElement>(null);
 
-  const isTelegram = useMemo(() => isTelegramWebApp(), []);
+  const isTelegram = useMemo(() => isInTelegramWebApp(), []);
 
   // Sync with external value
   useEffect(() => {

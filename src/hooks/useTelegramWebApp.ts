@@ -11,7 +11,6 @@ export {
   setCachedFullscreenEnabled,
   isInTelegramWebApp,
   isTelegramMobile,
-  initTelegramSDK as initTelegramWebApp, // Alias for backward compatibility
 } from './useTelegramSDK';
 
 /**
@@ -32,7 +31,6 @@ export function useTelegramWebApp() {
     toggleFullscreen: sdk.toggleFullscreen,
     disableVerticalSwipes: sdk.disableVerticalSwipes,
     enableVerticalSwipes: sdk.enableVerticalSwipes,
-    // For backward compatibility, expose webApp as the raw Telegram object
-    webApp: window.Telegram?.WebApp ?? null,
+    webApp: null,
   };
 }

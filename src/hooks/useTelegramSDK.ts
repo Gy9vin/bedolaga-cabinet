@@ -1,4 +1,20 @@
 import { useCallback, useMemo } from 'react';
+import {
+  useSignal,
+  isFullscreen as isFullscreenSignal,
+  viewportHeight as viewportHeightSignal,
+  viewportStableHeight as viewportStableHeightSignal,
+  isViewportExpanded as isViewportExpandedSignal,
+  viewportSafeAreaInsets,
+  viewportContentSafeAreaInsets,
+  requestFullscreen as sdkRequestFullscreen,
+  exitFullscreen as sdkExitFullscreen,
+  disableVerticalSwipes as sdkDisableVerticalSwipes,
+  enableVerticalSwipes as sdkEnableVerticalSwipes,
+  expandViewport,
+  retrieveLaunchParams,
+  retrieveRawInitData,
+} from '@telegram-apps/sdk-react';
 
 const FULLSCREEN_CACHE_KEY = 'cabinet_fullscreen_enabled';
 
@@ -24,60 +40,47 @@ export const setCachedFullscreenEnabled = (enabled: boolean) => {
   }
 };
 
+// Cached detection result (evaluated once at module load)
+let _isInTelegram: boolean | null = null;
+function detectTelegram(): boolean {
+  if (_isInTelegram === null) {
+    try {
+      retrieveLaunchParams();
+      _isInTelegram = true;
+    } catch {
+      _isInTelegram = false;
+    }
+  }
+  return _isInTelegram;
+}
+
 /**
  * Check if we're actually running inside Telegram Mini App
  */
 export function isInTelegramWebApp(): boolean {
-  const webApp = window.Telegram?.WebApp;
-  return Boolean(webApp?.initData && webApp.initData.length > 0);
+  return detectTelegram();
 }
 
 /**
  * Check if running on mobile Telegram client (iOS/Android)
  */
 export function isTelegramMobile(): boolean {
-  const webApp = window.Telegram?.WebApp;
-  if (!webApp?.platform) return false;
-  return webApp.platform === 'ios' || webApp.platform === 'android';
+  try {
+    const { tgWebAppPlatform } = retrieveLaunchParams();
+    return tgWebAppPlatform === 'ios' || tgWebAppPlatform === 'android';
+  } catch {
+    return false;
+  }
 }
 
 /**
  * Get Telegram init data for authentication
  */
 export function getTelegramInitData(): string | null {
-  const webApp = window.Telegram?.WebApp;
-  return webApp?.initData || null;
-}
-
-/**
- * Initialize Telegram WebApp (basic setup without SDK)
- */
-export function initTelegramSDK() {
-  if (!isInTelegramWebApp()) {
-    return;
-  }
-
-  const tg = window.Telegram?.WebApp;
-  if (!tg) return;
-
-  // Basic initialization
-  tg.ready();
-  tg.expand();
-
-  // Disable closing confirmation by default
-  tg.disableClosingConfirmation?.();
-
-  // Disable vertical swipes to prevent accidental closures
-  tg.disableVerticalSwipes?.();
-
-  // Auto-enter fullscreen if enabled in settings (mobile only)
-  const fullscreenEnabled = getCachedFullscreenEnabled();
-  if (fullscreenEnabled && isTelegramMobile() && tg.requestFullscreen) {
-    setTimeout(() => {
-      if (!tg.isFullscreen) {
-        tg.requestFullscreen?.();
-      }
-    }, 100);
+  try {
+    return retrieveRawInitData() || null;
+  } catch {
+    return null;
   }
 }
 
@@ -100,54 +103,72 @@ const defaultInsets = { top: 0, bottom: 0, left: 0, right: 0 };
 
 /**
  * Hook for Telegram WebApp integration
- * Uses native window.Telegram.WebApp API
+ * Uses @telegram-apps/sdk-react v3 signals
  */
 export function useTelegramSDK() {
-  const inTelegram = isInTelegramWebApp();
-  const tg = window.Telegram?.WebApp;
+  const inTelegram = detectTelegram();
 
   const platform = useMemo<TelegramPlatform>(() => {
-    if (!inTelegram) return undefined;
-    return tg?.platform as TelegramPlatform;
-  }, [inTelegram, tg?.platform]);
+    try {
+      return retrieveLaunchParams().tgWebAppPlatform as TelegramPlatform;
+    } catch {
+      return undefined;
+    }
+  }, []);
 
   const isMobile = platform === 'ios' || platform === 'android';
 
-  // Safe area insets from Telegram WebApp
+  // Always call useSignal unconditionally (Rules of Hooks).
+  // When not in Telegram, the signals will have their default values.
+  const fullscreenValue = useSignal(isFullscreenSignal);
+  const heightValue = useSignal(viewportHeightSignal);
+  const stableHeightValue = useSignal(viewportStableHeightSignal);
+  const expandedValue = useSignal(isViewportExpandedSignal);
+  const safeInsets = useSignal(viewportSafeAreaInsets);
+  const contentSafeInsets = useSignal(viewportContentSafeAreaInsets);
+
+  const isFullscreen = inTelegram ? (fullscreenValue ?? false) : false;
+  const viewportHeight = inTelegram ? (heightValue ?? 0) : 0;
+  const viewportStableHeight = inTelegram ? (stableHeightValue ?? 0) : 0;
+  const isExpanded = inTelegram ? (expandedValue ?? true) : true;
+
   const safeAreaInset = useMemo(() => {
-    if (!inTelegram || !tg?.safeAreaInset) return defaultInsets;
+    if (!inTelegram || !safeInsets) return defaultInsets;
     return {
-      top: tg.safeAreaInset.top || 0,
-      bottom: tg.safeAreaInset.bottom || 0,
-      left: tg.safeAreaInset.left || 0,
-      right: tg.safeAreaInset.right || 0,
+      top: safeInsets.top || 0,
+      bottom: safeInsets.bottom || 0,
+      left: safeInsets.left || 0,
+      right: safeInsets.right || 0,
     };
-  }, [inTelegram, tg?.safeAreaInset]);
+  }, [inTelegram, safeInsets]);
 
   const contentSafeAreaInset = useMemo(() => {
-    if (!inTelegram || !tg?.contentSafeAreaInset) return defaultInsets;
+    if (!inTelegram || !contentSafeInsets) return defaultInsets;
     return {
-      top: tg.contentSafeAreaInset.top || 0,
-      bottom: tg.contentSafeAreaInset.bottom || 0,
-      left: tg.contentSafeAreaInset.left || 0,
-      right: tg.contentSafeAreaInset.right || 0,
+      top: contentSafeInsets.top || 0,
+      bottom: contentSafeInsets.bottom || 0,
+      left: contentSafeInsets.left || 0,
+      right: contentSafeInsets.right || 0,
     };
-  }, [inTelegram, tg?.contentSafeAreaInset]);
-
-  const isFullscreen = tg?.isFullscreen ?? false;
-  const viewportHeight = tg?.viewportHeight ?? 0;
-  const viewportStableHeight = tg?.viewportStableHeight ?? 0;
-  const isExpanded = tg?.isExpanded ?? true;
+  }, [inTelegram, contentSafeInsets]);
 
   const requestFullscreen = useCallback(() => {
-    if (!inTelegram || !tg?.requestFullscreen) return;
-    tg.requestFullscreen();
-  }, [inTelegram, tg]);
+    if (!inTelegram) return;
+    try {
+      sdkRequestFullscreen();
+    } catch {
+      // Not supported
+    }
+  }, [inTelegram]);
 
   const exitFullscreen = useCallback(() => {
-    if (!inTelegram || !tg?.exitFullscreen) return;
-    tg.exitFullscreen();
-  }, [inTelegram, tg]);
+    if (!inTelegram) return;
+    try {
+      sdkExitFullscreen();
+    } catch {
+      // Not supported
+    }
+  }, [inTelegram]);
 
   const toggleFullscreen = useCallback(() => {
     if (isFullscreen) {
@@ -158,21 +179,33 @@ export function useTelegramSDK() {
   }, [isFullscreen, requestFullscreen, exitFullscreen]);
 
   const expand = useCallback(() => {
-    if (!inTelegram || !tg?.expand) return;
-    tg.expand();
-  }, [inTelegram, tg]);
+    if (!inTelegram) return;
+    try {
+      expandViewport();
+    } catch {
+      // Not supported
+    }
+  }, [inTelegram]);
 
   const disableVerticalSwipes = useCallback(() => {
-    if (!inTelegram || !tg?.disableVerticalSwipes) return;
-    tg.disableVerticalSwipes();
-  }, [inTelegram, tg]);
+    if (!inTelegram) return;
+    try {
+      sdkDisableVerticalSwipes();
+    } catch {
+      // Not supported
+    }
+  }, [inTelegram]);
 
   const enableVerticalSwipes = useCallback(() => {
-    if (!inTelegram || !tg?.enableVerticalSwipes) return;
-    tg.enableVerticalSwipes();
-  }, [inTelegram, tg]);
+    if (!inTelegram) return;
+    try {
+      sdkEnableVerticalSwipes();
+    } catch {
+      // Not supported
+    }
+  }, [inTelegram]);
 
-  const isFullscreenSupported = inTelegram && typeof tg?.requestFullscreen === 'function';
+  const isFullscreenSupported = inTelegram;
 
   return {
     isTelegramWebApp: inTelegram,
@@ -182,7 +215,7 @@ export function useTelegramSDK() {
     contentSafeAreaInset,
     viewportHeight,
     viewportStableHeight,
-    viewportWidth: 0, // Not available in native API
+    viewportWidth: 0,
     isExpanded,
     platform,
     isMobile,
