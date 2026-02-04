@@ -203,6 +203,8 @@ function createDialogController(): DialogController {
       popupOpen = true;
       let settled = false;
 
+      console.log('[popup] opening', JSON.stringify(params));
+
       const cleanup = () => {
         if (settled) return;
         settled = true;
@@ -211,10 +213,8 @@ function createDialogController(): DialogController {
         tg.offEvent?.('popupClosed', onPopupClosed);
       };
 
-      // Fallback: listen for popupClosed event in case the callback doesn't fire
-      // (known Telegram Desktop bug: popup_closed payload can be undefined,
-      // crashing the internal handler before it invokes the callback)
       const onPopupClosed = ((...args: unknown[]) => {
+        console.log('[popup] popupClosed event', JSON.stringify(args));
         if (settled) return;
         const event = args[0] as { button_id?: string } | undefined;
         const buttonId = event?.button_id ?? '';
@@ -222,22 +222,25 @@ function createDialogController(): DialogController {
         resolve(mapResult(buttonId));
       }) as (...args: unknown[]) => void;
 
-      // Safety timeout: reset state if neither callback nor event arrives
       const timer = setTimeout(() => {
+        console.log('[popup] timeout — force reset');
         if (settled) return;
         cleanup();
         resolve(mapResult(''));
-      }, 30_000);
+      }, 5_000);
 
       tg.onEvent?.('popupClosed', onPopupClosed);
 
       try {
         tg.showPopup(params, (buttonId) => {
+          console.log('[popup] callback fired, buttonId=', buttonId);
           if (settled) return;
           cleanup();
           resolve(mapResult(buttonId));
         });
-      } catch {
+        console.log('[popup] showPopup called OK');
+      } catch (e) {
+        console.error('[popup] showPopup threw', e);
         cleanup();
         resolve(fallback());
       }
