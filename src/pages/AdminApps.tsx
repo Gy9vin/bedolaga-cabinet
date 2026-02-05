@@ -1,4 +1,3 @@
-import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useTranslation } from 'react-i18next';
@@ -13,8 +12,6 @@ export default function AdminApps() {
   const { capabilities } = usePlatform();
 
   useBackButton(() => navigate('/admin'));
-
-  const [uuidInput, setUuidInput] = useState('');
 
   // RemnaWave status
   const { data: status } = useQuery({
@@ -40,9 +37,7 @@ export default function AdminApps() {
     },
   });
 
-  // Sync input with status on first load
   const currentUuid = status?.config_uuid || '';
-  const inputValue = uuidInput || currentUuid;
 
   return (
     <div className="space-y-6">
@@ -100,9 +95,13 @@ export default function AdminApps() {
             {configs.map((config) => (
               <button
                 key={config.uuid}
-                onClick={() => setUuidInput(config.uuid)}
+                onClick={() => {
+                  if (config.uuid !== currentUuid) {
+                    setUuidMutation.mutate(config.uuid);
+                  }
+                }}
                 className={`w-full rounded-lg border p-4 text-left transition-colors ${
-                  inputValue === config.uuid
+                  currentUuid === config.uuid
                     ? 'border-accent-500 bg-accent-500/10'
                     : 'border-dark-700 bg-dark-800/50 hover:border-dark-600'
                 }`}
@@ -117,49 +116,6 @@ export default function AdminApps() {
             {t('admin.apps.noConfigs', 'No configs available')}
           </div>
         )}
-      </div>
-
-      {/* UUID input */}
-      <div>
-        <label className="mb-2 block text-sm font-semibold text-dark-300">
-          {t('admin.apps.remnaWaveConfigUuid', 'Config UUID')}
-        </label>
-        <input
-          type="text"
-          value={inputValue}
-          onChange={(e) => setUuidInput(e.target.value)}
-          placeholder="xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"
-          className="input w-full font-mono text-sm"
-        />
-        <p className="mt-1 text-xs text-dark-500">
-          {t(
-            'admin.apps.remnaWaveConfigUuidHint',
-            'UUID of subscription page config from RemnaWave panel',
-          )}
-        </p>
-      </div>
-
-      {/* Actions */}
-      <div className="flex gap-3">
-        {status?.enabled && (
-          <button
-            onClick={() => {
-              setUuidInput('');
-              setUuidMutation.mutate(null);
-            }}
-            disabled={setUuidMutation.isPending}
-            className="btn-secondary"
-          >
-            {t('admin.apps.disconnect', 'Disconnect')}
-          </button>
-        )}
-        <button
-          onClick={() => setUuidMutation.mutate(inputValue || null)}
-          disabled={setUuidMutation.isPending || inputValue === currentUuid}
-          className="btn-primary"
-        >
-          {setUuidMutation.isPending ? t('common.loading') : t('common.save')}
-        </button>
       </div>
     </div>
   );
