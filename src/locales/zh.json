@@ -298,7 +298,8 @@
       "changeApp": "更换应用",
       "selectPlatform": "选择平台",
       "app": "个应用",
-      "apps": "个应用"
+      "apps": "个应用",
+      "tutorial": "教程"
     },
     "additionalOptions": {
       "title": "附加选项",

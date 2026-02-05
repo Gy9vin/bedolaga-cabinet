@@ -346,7 +346,8 @@
       "changeApp": "Change app",
       "selectPlatform": "Select platform",
       "app": "app",
-      "apps": "apps"
+      "apps": "apps",
+      "tutorial": "Tutorial"
     },
     "myDevices": "My Devices",
     "noDevices": "No connected devices",

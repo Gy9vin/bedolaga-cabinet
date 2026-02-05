@@ -116,13 +116,13 @@ function getLocalizedText(text: LocalizedText | undefined, lang: string): string
 }
 
 function renderSvgIcon(svgLibrary: Record<string, RemnawaveSvgItem>, key?: string, color?: string) {
-  if (!key || !svgLibrary[key]) return null;
+  if (!key || !svgLibrary[key]?.svgString) return null;
   const sanitized = DOMPurify.sanitize(svgLibrary[key].svgString, {
     USE_PROFILES: { svg: true, svgFilters: true },
   });
   return (
     <div
-      className="h-6 w-6 flex-shrink-0"
+      className="h-6 w-6 flex-shrink-0 [&>svg]:h-full [&>svg]:w-full"
       style={{ color: color || 'currentColor' }}
       dangerouslySetInnerHTML={{ __html: sanitized }}
     />
@@ -230,7 +230,17 @@ function AppCard({
         className="flex w-full items-center gap-4 p-4 text-left"
       >
         {/* Icon from first block */}
-        <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-dark-700/80 text-dark-300">
+        <div
+          className="flex h-10 w-10 items-center justify-center rounded-full"
+          style={
+            firstBlock?.svgIconColor
+              ? {
+                  backgroundColor: firstBlock.svgIconColor + '20',
+                  color: firstBlock.svgIconColor,
+                }
+              : undefined
+          }
+        >
           {renderSvgIcon(svgLibrary, firstBlock?.svgIconKey, firstBlock?.svgIconColor) || (
             <AppsIcon />
           )}
@@ -287,10 +297,18 @@ function BlockCard({
   const title = getLocalizedText(block.title, lang);
   const description = getLocalizedText(block.description, lang);
 
+  const iconColor = block.svgIconColor || '#8B5CF6';
+
   return (
     <div className="rounded-lg bg-dark-800/50 p-3">
       <div className="flex items-start gap-3">
-        <div className="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-lg bg-dark-700">
+        <div
+          className="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-full"
+          style={{
+            backgroundColor: iconColor + '20',
+            color: iconColor,
+          }}
+        >
           {renderSvgIcon(svgLibrary, block.svgIconKey, block.svgIconColor) || (
             <span className="text-xs font-bold text-dark-400">{index + 1}</span>
           )}
