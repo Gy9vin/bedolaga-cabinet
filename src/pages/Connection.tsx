@@ -423,9 +423,17 @@ export default function Connection() {
 
     // Get platform display name from config or fallback
     const getPlatformDisplayName = (key: string): string => {
+      // 1. displayName из данных платформы (RemnaWave)
+      const platformData = appConfig.platforms[key];
+      if (platformData && !Array.isArray(platformData) && platformData.displayName) {
+        const name = getLocalizedText(platformData.displayName);
+        if (name) return name;
+      }
+      // 2. platformNames из бэкенда (фоллбэк)
       if (appConfig.platformNames?.[key]) {
         return getLocalizedText(appConfig.platformNames[key]);
       }
+      // 3. Хардкод фоллбэк (последний рубеж)
       const fallback: Record<string, string> = {
         ios: 'iOS',
         android: 'Android',
@@ -516,9 +524,9 @@ export default function Connection() {
           )}
         </div>
 
-        {/* App cards row */}
+        {/* App cards grid (2 cols mobile, row on desktop) */}
         {currentPlatformApps.length > 0 && (
-          <div className="flex gap-2">
+          <div className="grid grid-cols-2 gap-2 sm:flex">
             {currentPlatformApps.map((app, idx) => {
               const isSelected = currentApp?.name === app.name;
               const appIconSvg = getSvgHtml(app.svgIconKey);
@@ -526,7 +534,7 @@ export default function Connection() {
                 <button
                   key={app.name + idx}
                   onClick={() => setSelectedRemnawaveApp(app)}
-                  className={`relative flex min-w-0 flex-1 items-center gap-2 overflow-hidden rounded-xl px-4 py-3 text-sm font-medium transition-all active:scale-[0.97] ${
+                  className={`relative flex min-w-0 items-center gap-2 overflow-hidden rounded-xl px-4 py-3 text-sm font-medium transition-all active:scale-[0.97] sm:flex-1 ${
                     isSelected
                       ? 'bg-accent-500/15 text-accent-400 ring-1 ring-accent-500/40'
                       : 'border border-dark-700/50 bg-dark-800/80 text-dark-200 hover:border-dark-600/50 hover:bg-dark-700/80'
@@ -536,7 +544,7 @@ export default function Connection() {
                   <span className="relative z-10 truncate">{app.name}</span>
                   {appIconSvg && (
                     <div
-                      className="ml-auto h-10 w-10 shrink-0 opacity-30 [&>svg]:h-full [&>svg]:w-full"
+                      className="ml-auto h-12 w-12 shrink-0 opacity-30 [&>svg]:h-full [&>svg]:w-full"
                       dangerouslySetInnerHTML={{ __html: appIconSvg }}
                     />
                   )}

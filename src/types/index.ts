@@ -530,6 +530,7 @@ export interface RemnawaveAppClient {
 
 export interface RemnawavePlatformData {
   svgIconKey?: string;
+  displayName?: LocalizedText;
   apps: RemnawaveAppClient[];
 }
 
