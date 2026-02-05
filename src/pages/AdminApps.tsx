@@ -36,6 +36,7 @@ export default function AdminApps() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['remnawave-status'] });
       queryClient.invalidateQueries({ queryKey: ['remnawave-config'] });
+      queryClient.invalidateQueries({ queryKey: ['appConfig'] });
     },
   });
 

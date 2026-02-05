@@ -1,0 +1,43 @@
+import { getColorGradientSolid } from '@/utils/colorParser';
+import { ThemeIcon } from './ThemeIcon';
+import type { BlockRendererProps } from './types';
+
+export function TimelineBlock({
+  blocks,
+  isMobile,
+  getLocalizedText,
+  getSvgHtml,
+  renderBlockButtons,
+}: BlockRendererProps) {
+  return (
+    <div className="space-y-0">
+      {blocks.map((block, index) => {
+        const gradientStyle = getColorGradientSolid(block.svgIconColor || 'cyan');
+        const isLast = index === blocks.length - 1;
+
+        return (
+          <div key={index} className="flex gap-3 sm:gap-4">
+            {/* Left column: bullet + line segment */}
+            <div className="flex flex-col items-center">
+              <ThemeIcon
+                getSvgHtml={getSvgHtml}
+                svgIconKey={block.svgIconKey}
+                gradientStyle={gradientStyle}
+                isMobile={isMobile}
+              />
+              {!isLast && <div className="w-0.5 flex-1 bg-dark-700" />}
+            </div>
+            {/* Right column: content */}
+            <div className={`min-w-0 flex-1 ${isLast ? '' : 'pb-6'}`}>
+              <h3 className="font-semibold text-dark-100">{getLocalizedText(block.title)}</h3>
+              <p className="mt-1 whitespace-pre-line text-sm leading-relaxed text-dark-400">
+                {getLocalizedText(block.description)}
+              </p>
+              {renderBlockButtons(block.buttons, 'light')}
+            </div>
+          </div>
+        );
+      })}
+    </div>
+  );
+}

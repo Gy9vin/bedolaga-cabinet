@@ -478,31 +478,7 @@ export interface LocalizedText {
   [key: string]: string;
 }
 
-export interface AppButton {
-  id?: string; // Unique identifier for React key (client-side only)
-  buttonLink: string;
-  buttonText: LocalizedText;
-}
-
-export interface AppStep {
-  description: LocalizedText;
-  buttons?: AppButton[];
-  title?: LocalizedText;
-}
-
-export interface AppInfo {
-  id: string;
-  name: string;
-  isFeatured: boolean;
-  deepLink?: string | null;
-  installationStep?: AppStep;
-  addSubscriptionStep?: AppStep;
-  connectAndUseStep?: AppStep;
-  additionalBeforeAddSubscriptionStep?: AppStep;
-  additionalAfterAddSubscriptionStep?: AppStep;
-}
-
-// RemnaWave original format types
+// RemnaWave format types
 export interface RemnawaveButtonClient {
   url?: string;
   link?: string;
@@ -545,14 +521,16 @@ export interface AppConfig {
     supportUrl?: string;
   };
 
-  // RemnaWave format (isRemnawave: true)
+  // RemnaWave
   isRemnawave?: boolean;
   svgLibrary?: Record<string, string | { svgString: string }>;
   baseTranslations?: Record<string, LocalizedText>;
   baseSettings?: { isShowTutorialButton: boolean; tutorialUrl: string };
+  uiConfig?: {
+    installationGuidesBlockType?: 'cards' | 'timeline' | 'accordion' | 'minimal';
+  };
 
-  // Platform data — either classic AppInfo[] or RemnaWave { apps: RemnawaveAppClient[] }
-  platforms: Record<string, AppInfo[] | RemnawavePlatformData>;
+  platforms: Record<string, RemnawavePlatformData>;
 }
 
 // Pending payment types
