@@ -26,6 +26,7 @@ const Contests = lazy(() => import('./pages/Contests'));
 const Polls = lazy(() => import('./pages/Polls'));
 const Info = lazy(() => import('./pages/Info'));
 const Wheel = lazy(() => import('./pages/Wheel'));
+const Connection = lazy(() => import('./pages/Connection'));
 const TopUpMethodSelect = lazy(() => import('./pages/TopUpMethodSelect'));
 const TopUpAmount = lazy(() => import('./pages/TopUpAmount'));
 
@@ -258,6 +259,16 @@ function App() {
             <ProtectedRoute>
               <LazyPage>
                 <Wheel />
+              </LazyPage>
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/connection"
+          element={
+            <ProtectedRoute>
+              <LazyPage>
+                <Connection />
               </LazyPage>
             </ProtectedRoute>
           }

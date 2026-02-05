@@ -1,14 +1,31 @@
-import { useState } from 'react';
+import { useEffect, useState, useRef, useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { themeColorsApi } from '../../api/themeColors';
-import { DEFAULT_THEME_COLORS } from '../../types/theme';
+import { DEFAULT_THEME_COLORS, ThemeColors } from '../../types/theme';
 import { ColorPicker } from '../ColorPicker';
 import { applyThemeColors } from '../../hooks/useThemeColors';
 import { updateEnabledThemesCache } from '../../hooks/useTheme';
 import { MoonIcon, SunIcon, ChevronDownIcon } from './icons';
 import { Toggle } from './Toggle';
 import { THEME_PRESETS } from './constants';
+
+function colorsEqual(a: ThemeColors, b: ThemeColors): boolean {
+  return (
+    a.accent === b.accent &&
+    a.darkBackground === b.darkBackground &&
+    a.darkSurface === b.darkSurface &&
+    a.darkText === b.darkText &&
+    a.darkTextSecondary === b.darkTextSecondary &&
+    a.lightBackground === b.lightBackground &&
+    a.lightSurface === b.lightSurface &&
+    a.lightText === b.lightText &&
+    a.lightTextSecondary === b.lightTextSecondary &&
+    a.success === b.success &&
+    a.warning === b.warning &&
+    a.error === b.error
+  );
+}
 
 export function ThemeTab() {
   const { t } = useTranslation();
@@ -29,7 +46,7 @@ export function ThemeTab() {
   };
 
   // Queries
-  const { data: themeColors } = useQuery({
+  const { data: serverColors } = useQuery({
     queryKey: ['theme-colors'],
     queryFn: themeColorsApi.getColors,
   });
@@ -39,20 +56,120 @@ export function ThemeTab() {
     queryFn: themeColorsApi.getEnabledThemes,
   });
 
+  // Local draft state
+  const [draftColors, setDraftColors] = useState<ThemeColors>(DEFAULT_THEME_COLORS);
+  const savedColorsRef = useRef<ThemeColors>(DEFAULT_THEME_COLORS);
+
+  // Sync server data into draft and saved snapshot when it arrives
+  useEffect(() => {
+    if (serverColors) {
+      const colors: ThemeColors = {
+        accent: serverColors.accent,
+        darkBackground: serverColors.darkBackground,
+        darkSurface: serverColors.darkSurface,
+        darkText: serverColors.darkText,
+        darkTextSecondary: serverColors.darkTextSecondary,
+        lightBackground: serverColors.lightBackground,
+        lightSurface: serverColors.lightSurface,
+        lightText: serverColors.lightText,
+        lightTextSecondary: serverColors.lightTextSecondary,
+        success: serverColors.success,
+        warning: serverColors.warning,
+        error: serverColors.error,
+      };
+      // Only sync if saved snapshot matches current draft (no unsaved changes)
+      if (
+        colorsEqual(savedColorsRef.current, draftColors) ||
+        colorsEqual(savedColorsRef.current, DEFAULT_THEME_COLORS)
+      ) {
+        setDraftColors(colors);
+      }
+      savedColorsRef.current = colors;
+    }
+  }, [serverColors]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  const hasUnsavedChanges = !colorsEqual(draftColors, savedColorsRef.current);
+
+  // Update a single color in the draft and apply preview instantly
+  const updateDraftColor = useCallback(
+    (key: keyof ThemeColors, value: string) => {
+      setDraftColors((prev) => {
+        const next = { ...prev, [key]: value };
+        applyThemeColors(next);
+        queryClient.setQueryData(['theme-colors'], next);
+        return next;
+      });
+    },
+    [queryClient],
+  );
+
+  // Apply a full preset to draft
+  const applyPreset = useCallback(
+    (colors: Partial<ThemeColors>) => {
+      setDraftColors((prev) => {
+        const next = { ...prev, ...colors };
+        applyThemeColors(next);
+        queryClient.setQueryData(['theme-colors'], next);
+        return next;
+      });
+    },
+    [queryClient],
+  );
+
+  // Cancel: revert draft to saved
+  const handleCancel = useCallback(() => {
+    const saved = savedColorsRef.current;
+    setDraftColors(saved);
+    applyThemeColors(saved);
+    queryClient.setQueryData(['theme-colors'], saved);
+  }, [queryClient]);
+
   // Mutations
   const updateColorsMutation = useMutation({
     mutationFn: themeColorsApi.updateColors,
     onSuccess: (data) => {
-      applyThemeColors(data);
-      queryClient.invalidateQueries({ queryKey: ['theme-colors'] });
+      const colors: ThemeColors = {
+        accent: data.accent,
+        darkBackground: data.darkBackground,
+        darkSurface: data.darkSurface,
+        darkText: data.darkText,
+        darkTextSecondary: data.darkTextSecondary,
+        lightBackground: data.lightBackground,
+        lightSurface: data.lightSurface,
+        lightText: data.lightText,
+        lightTextSecondary: data.lightTextSecondary,
+        success: data.success,
+        warning: data.warning,
+        error: data.error,
+      };
+      savedColorsRef.current = colors;
+      setDraftColors(colors);
+      applyThemeColors(colors);
+      queryClient.setQueryData(['theme-colors'], data);
     },
   });
 
   const resetColorsMutation = useMutation({
     mutationFn: themeColorsApi.resetColors,
     onSuccess: (data) => {
-      applyThemeColors(data);
-      queryClient.invalidateQueries({ queryKey: ['theme-colors'] });
+      const colors: ThemeColors = {
+        accent: data.accent,
+        darkBackground: data.darkBackground,
+        darkSurface: data.darkSurface,
+        darkText: data.darkText,
+        darkTextSecondary: data.darkTextSecondary,
+        lightBackground: data.lightBackground,
+        lightSurface: data.lightSurface,
+        lightText: data.lightText,
+        lightTextSecondary: data.lightTextSecondary,
+        success: data.success,
+        warning: data.warning,
+        error: data.error,
+      };
+      savedColorsRef.current = colors;
+      setDraftColors(colors);
+      applyThemeColors(colors);
+      queryClient.setQueryData(['theme-colors'], data);
     },
   });
 
@@ -130,8 +247,7 @@ export function ThemeTab() {
             {THEME_PRESETS.map((preset) => (
               <button
                 key={preset.id}
-                onClick={() => updateColorsMutation.mutate(preset.colors)}
-                disabled={updateColorsMutation.isPending}
+                onClick={() => applyPreset(preset.colors)}
                 className="rounded-xl border border-dark-600 p-3 transition-all hover:scale-[1.02] hover:border-dark-500"
                 style={{ backgroundColor: preset.colors.darkBackground }}
               >
@@ -189,9 +305,8 @@ export function ThemeTab() {
               </h4>
               <ColorPicker
                 label={t('theme.accent')}
-                value={themeColors?.accent || DEFAULT_THEME_COLORS.accent}
-                onChange={(color) => updateColorsMutation.mutate({ accent: color })}
-                disabled={updateColorsMutation.isPending}
+                value={draftColors.accent}
+                onChange={(color) => updateDraftColor('accent', color)}
               />
             </div>
 
@@ -203,27 +318,23 @@ export function ThemeTab() {
               <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                 <ColorPicker
                   label={t('admin.settings.colors.background')}
-                  value={themeColors?.darkBackground || DEFAULT_THEME_COLORS.darkBackground}
-                  onChange={(color) => updateColorsMutation.mutate({ darkBackground: color })}
-                  disabled={updateColorsMutation.isPending}
+                  value={draftColors.darkBackground}
+                  onChange={(color) => updateDraftColor('darkBackground', color)}
                 />
                 <ColorPicker
                   label={t('admin.settings.colors.surface')}
-                  value={themeColors?.darkSurface || DEFAULT_THEME_COLORS.darkSurface}
-                  onChange={(color) => updateColorsMutation.mutate({ darkSurface: color })}
-                  disabled={updateColorsMutation.isPending}
+                  value={draftColors.darkSurface}
+                  onChange={(color) => updateDraftColor('darkSurface', color)}
                 />
                 <ColorPicker
                   label={t('admin.settings.colors.text')}
-                  value={themeColors?.darkText || DEFAULT_THEME_COLORS.darkText}
-                  onChange={(color) => updateColorsMutation.mutate({ darkText: color })}
-                  disabled={updateColorsMutation.isPending}
+                  value={draftColors.darkText}
+                  onChange={(color) => updateDraftColor('darkText', color)}
                 />
                 <ColorPicker
                   label={t('admin.settings.colors.textSecondary')}
-                  value={themeColors?.darkTextSecondary || DEFAULT_THEME_COLORS.darkTextSecondary}
-                  onChange={(color) => updateColorsMutation.mutate({ darkTextSecondary: color })}
-                  disabled={updateColorsMutation.isPending}
+                  value={draftColors.darkTextSecondary}
+                  onChange={(color) => updateDraftColor('darkTextSecondary', color)}
                 />
               </div>
             </div>
@@ -236,27 +347,23 @@ export function ThemeTab() {
               <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                 <ColorPicker
                   label={t('admin.settings.colors.background')}
-                  value={themeColors?.lightBackground || DEFAULT_THEME_COLORS.lightBackground}
-                  onChange={(color) => updateColorsMutation.mutate({ lightBackground: color })}
-                  disabled={updateColorsMutation.isPending}
+                  value={draftColors.lightBackground}
+                  onChange={(color) => updateDraftColor('lightBackground', color)}
                 />
                 <ColorPicker
                   label={t('admin.settings.colors.surface')}
-                  value={themeColors?.lightSurface || DEFAULT_THEME_COLORS.lightSurface}
-                  onChange={(color) => updateColorsMutation.mutate({ lightSurface: color })}
-                  disabled={updateColorsMutation.isPending}
+                  value={draftColors.lightSurface}
+                  onChange={(color) => updateDraftColor('lightSurface', color)}
                 />
                 <ColorPicker
                   label={t('admin.settings.colors.text')}
-                  value={themeColors?.lightText || DEFAULT_THEME_COLORS.lightText}
-                  onChange={(color) => updateColorsMutation.mutate({ lightText: color })}
-                  disabled={updateColorsMutation.isPending}
+                  value={draftColors.lightText}
+                  onChange={(color) => updateDraftColor('lightText', color)}
                 />
                 <ColorPicker
                   label={t('admin.settings.colors.textSecondary')}
-                  value={themeColors?.lightTextSecondary || DEFAULT_THEME_COLORS.lightTextSecondary}
-                  onChange={(color) => updateColorsMutation.mutate({ lightTextSecondary: color })}
-                  disabled={updateColorsMutation.isPending}
+                  value={draftColors.lightTextSecondary}
+                  onChange={(color) => updateDraftColor('lightTextSecondary', color)}
                 />
               </div>
             </div>
@@ -269,33 +376,52 @@ export function ThemeTab() {
               <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
                 <ColorPicker
                   label={t('admin.settings.colors.success')}
-                  value={themeColors?.success || DEFAULT_THEME_COLORS.success}
-                  onChange={(color) => updateColorsMutation.mutate({ success: color })}
-                  disabled={updateColorsMutation.isPending}
+                  value={draftColors.success}
+                  onChange={(color) => updateDraftColor('success', color)}
                 />
                 <ColorPicker
                   label={t('admin.settings.colors.warning')}
-                  value={themeColors?.warning || DEFAULT_THEME_COLORS.warning}
-                  onChange={(color) => updateColorsMutation.mutate({ warning: color })}
-                  disabled={updateColorsMutation.isPending}
+                  value={draftColors.warning}
+                  onChange={(color) => updateDraftColor('warning', color)}
                 />
                 <ColorPicker
                   label={t('admin.settings.colors.error')}
-                  value={themeColors?.error || DEFAULT_THEME_COLORS.error}
-                  onChange={(color) => updateColorsMutation.mutate({ error: color })}
-                  disabled={updateColorsMutation.isPending}
+                  value={draftColors.error}
+                  onChange={(color) => updateDraftColor('error', color)}
                 />
               </div>
             </div>
 
-            {/* Reset button */}
-            <button
-              onClick={() => resetColorsMutation.mutate()}
-              disabled={resetColorsMutation.isPending}
-              className="rounded-xl bg-dark-700 px-4 py-2 text-dark-300 transition-colors hover:bg-dark-600 disabled:opacity-50"
-            >
-              {t('admin.settings.resetAllColors')}
-            </button>
+            {/* Save / Cancel / Reset buttons */}
+            <div className="flex flex-wrap items-center gap-3">
+              {hasUnsavedChanges && (
+                <>
+                  <button
+                    onClick={() => updateColorsMutation.mutate(draftColors)}
+                    disabled={updateColorsMutation.isPending}
+                    className="rounded-xl bg-accent-500 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-accent-600 disabled:opacity-50"
+                  >
+                    {updateColorsMutation.isPending
+                      ? t('common.saving', t('common.save'))
+                      : t('common.save')}
+                  </button>
+                  <button
+                    onClick={handleCancel}
+                    disabled={updateColorsMutation.isPending}
+                    className="rounded-xl bg-dark-700 px-4 py-2 text-sm font-medium text-dark-300 transition-colors hover:bg-dark-600 disabled:opacity-50"
+                  >
+                    {t('common.cancel')}
+                  </button>
+                </>
+              )}
+              <button
+                onClick={() => resetColorsMutation.mutate()}
+                disabled={resetColorsMutation.isPending}
+                className="rounded-xl bg-dark-700 px-4 py-2 text-sm text-dark-300 transition-colors hover:bg-dark-600 disabled:opacity-50"
+              >
+                {t('admin.settings.resetAllColors')}
+              </button>
+            </div>
           </div>
         )}
       </div>

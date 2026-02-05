@@ -1,13 +1,12 @@
 import { useState, useEffect, useMemo, useRef } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { useAuthStore } from '../store/auth';
 import { subscriptionApi } from '../api/subscription';
 import { referralApi } from '../api/referral';
 import { balanceApi } from '../api/balance';
 import { wheelApi } from '../api/wheel';
-import ConnectionModal from '../components/ConnectionModal';
 import Onboarding, { useOnboarding } from '../components/Onboarding';
 import PromoOffersSection from '../components/PromoOffersSection';
 import { useCurrency } from '../hooks/useCurrency';
@@ -49,9 +48,9 @@ export default function Dashboard() {
   const { t } = useTranslation();
   const { user, refreshUser } = useAuthStore();
   const queryClient = useQueryClient();
+  const navigate = useNavigate();
   const { formatAmount, currencySymbol, formatPositive } = useCurrency();
   const [trialError, setTrialError] = useState<string | null>(null);
-  const [showConnectionModal, setShowConnectionModal] = useState(false);
   const { isCompleted: isOnboardingCompleted, complete: completeOnboarding } = useOnboarding();
   const [showOnboarding, setShowOnboarding] = useState(false);
 
@@ -410,7 +409,7 @@ export default function Dashboard() {
             </Link>
             {subscription.subscription_url && (
               <button
-                onClick={() => setShowConnectionModal(true)}
+                onClick={() => navigate('/connection')}
                 className="btn-secondary py-2.5 text-sm"
                 data-onboarding="connect-devices"
               >
@@ -634,9 +633,6 @@ export default function Dashboard() {
           </div>
         </Link>
       )}
-
-      {/* Connection Modal */}
-      {showConnectionModal && <ConnectionModal onClose={() => setShowConnectionModal(false)} />}
 
       {/* Onboarding Tutorial */}
       {showOnboarding && (

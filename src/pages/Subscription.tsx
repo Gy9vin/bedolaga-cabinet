@@ -1,7 +1,7 @@
 import { useState, useEffect, useMemo, useRef, useCallback } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useTranslation } from 'react-i18next';
-import { useLocation } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import { AxiosError } from 'axios';
 import { subscriptionApi } from '../api/subscription';
 import { promoApi } from '../api/promo';
@@ -12,7 +12,6 @@ import type {
   TariffPeriod,
   ClassicPurchaseOptions,
 } from '../types';
-import ConnectionModal from '../components/ConnectionModal';
 import InsufficientBalancePrompt from '../components/InsufficientBalancePrompt';
 import { useCurrency } from '../hooks/useCurrency';
 import { useCloseOnSuccessNotification } from '../store/successNotification';
@@ -83,9 +82,9 @@ export default function Subscription() {
   const { t } = useTranslation();
   const queryClient = useQueryClient();
   const location = useLocation();
+  const navigate = useNavigate();
   const { formatAmount, currencySymbol } = useCurrency();
   const [copied, setCopied] = useState(false);
-  const [showConnectionModal, setShowConnectionModal] = useState(false);
 
   // Helper to format price from kopeks
   const formatPrice = (kopeks: number) => `${formatAmount(kopeks / 100)} ${currencySymbol}`;
@@ -293,7 +292,6 @@ export default function Subscription() {
 
   // Auto-close all modals/forms when success notification appears (e.g., subscription purchased via WebSocket)
   const handleCloseAllModals = useCallback(() => {
-    setShowConnectionModal(false);
     setShowPurchaseForm(false);
     setShowTariffPurchase(false);
     setShowDeviceTopup(false);
@@ -721,7 +719,7 @@ export default function Subscription() {
 
               {/* Get Config Button */}
               <button
-                onClick={() => setShowConnectionModal(true)}
+                onClick={() => navigate('/connection')}
                 className="btn-primary mb-3 flex w-full items-center justify-center gap-2 py-3"
               >
                 <svg
@@ -3501,9 +3499,6 @@ export default function Subscription() {
           )}
         </div>
       )}
-
-      {/* Connection Modal */}
-      {showConnectionModal && <ConnectionModal onClose={() => setShowConnectionModal(false)} />}
     </div>
   );
 }

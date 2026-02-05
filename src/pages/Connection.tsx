@@ -1,24 +1,16 @@
 import { useState, useMemo, useEffect, useCallback, useRef } from 'react';
-import { createPortal } from 'react-dom';
+import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { useQuery } from '@tanstack/react-query';
 import { openLink as sdkOpenLink } from '@telegram-apps/sdk-react';
 import { subscriptionApi } from '../api/subscription';
 import { useTelegramWebApp } from '../hooks/useTelegramWebApp';
 import { useBackButton, useHaptic } from '@/platform';
+import { resolveTemplate, hasTemplates } from '../utils/templateEngine';
+import { useAuthStore } from '../store/auth';
 import type { AppInfo, AppConfig, LocalizedText } from '../types';
 
-interface ConnectionModalProps {
-  onClose: () => void;
-}
-
 // Icons
-const CloseIcon = () => (
-  <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-    <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
-  </svg>
-);
-
 const CopyIcon = () => (
   <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
     <path
@@ -138,31 +130,17 @@ function detectPlatform(): string | null {
   return null;
 }
 
-function useIsMobile() {
-  const [isMobile, setIsMobile] = useState(() => {
-    if (typeof window === 'undefined') return false;
-    return window.innerWidth < 768;
-  });
-  useEffect(() => {
-    const check = () => setIsMobile(window.innerWidth < 768);
-    window.addEventListener('resize', check);
-    return () => window.removeEventListener('resize', check);
-  }, []);
-  return isMobile;
-}
-
-export default function ConnectionModal({ onClose }: ConnectionModalProps) {
+export default function Connection() {
   const { t, i18n } = useTranslation();
+  const navigate = useNavigate();
+  const { user } = useAuthStore();
   const [selectedApp, setSelectedApp] = useState<AppInfo | null>(null);
   const [copied, setCopied] = useState(false);
   const [showAppSelector, setShowAppSelector] = useState(false);
   const [selectedPlatform, setSelectedPlatform] = useState<string | null>(null);
 
-  const { isTelegramWebApp, isFullscreen, safeAreaInset, contentSafeAreaInset } =
-    useTelegramWebApp();
+  const { isTelegramWebApp } = useTelegramWebApp();
   const { impact: hapticImpact } = useHaptic();
-  const isMobileScreen = useIsMobile();
-  const isMobile = isMobileScreen;
   const scrollContainerRef = useRef<HTMLDivElement>(null);
 
   // Ref для хранения актуального обработчика BackButton (фикс мигания)
@@ -170,26 +148,6 @@ export default function ConnectionModal({ onClose }: ConnectionModalProps) {
   // Ref for haptic to avoid recreating handleBackButton
   const hapticRef = useRef(hapticImpact);
   hapticRef.current = hapticImpact;
-
-  // Prevent scroll events from bubbling to parent/Telegram
-  const handleScrollContainerWheel = useCallback((e: React.WheelEvent) => {
-    const container = e.currentTarget;
-    const { scrollTop, scrollHeight, clientHeight } = container;
-    const isAtTop = scrollTop === 0;
-    const isAtBottom = scrollTop + clientHeight >= scrollHeight - 1;
-
-    // Prevent scroll propagation when not at boundaries, or when scrolling away from boundary
-    if ((!isAtTop && !isAtBottom) || (isAtTop && e.deltaY > 0) || (isAtBottom && e.deltaY < 0)) {
-      e.stopPropagation();
-    }
-  }, []);
-
-  const safeBottom = isTelegramWebApp
-    ? Math.max(safeAreaInset.bottom, contentSafeAreaInset.bottom)
-    : 0;
-  const safeTop = isTelegramWebApp
-    ? Math.max(safeAreaInset.top, contentSafeAreaInset.top) + (isFullscreen ? 45 : 0)
-    : 0;
 
   const {
     data: appConfig,
@@ -214,9 +172,9 @@ export default function ConnectionModal({ onClose }: ConnectionModalProps) {
     if (app) setSelectedApp(app);
   }, [appConfig, detectedPlatform, selectedApp]);
 
-  const handleClose = useCallback(() => {
-    onClose();
-  }, [onClose]);
+  const handleGoBack = useCallback(() => {
+    navigate(-1);
+  }, [navigate]);
 
   const handleBack = useCallback(() => {
     if (selectedPlatform) {
@@ -231,17 +189,17 @@ export default function ConnectionModal({ onClose }: ConnectionModalProps) {
       if (e.key === 'Escape') {
         e.preventDefault();
         if (showAppSelector) handleBack();
-        else handleClose();
+        else handleGoBack();
       }
     };
     document.addEventListener('keydown', handleKeyDown);
     return () => document.removeEventListener('keydown', handleKeyDown);
-  }, [handleClose, handleBack, showAppSelector]);
+  }, [handleGoBack, handleBack, showAppSelector]);
 
   // Обновляем ref при изменении логики (без перезапуска эффекта BackButton)
   useEffect(() => {
-    backButtonHandlerRef.current = showAppSelector ? handleBack : handleClose;
-  }, [showAppSelector, handleBack, handleClose]);
+    backButtonHandlerRef.current = showAppSelector ? handleBack : handleGoBack;
+  }, [showAppSelector, handleBack, handleGoBack]);
 
   // BackButton using platform hook - always close/back, ref provides current handler
   const handleBackButton = useCallback(() => {
@@ -250,13 +208,6 @@ export default function ConnectionModal({ onClose }: ConnectionModalProps) {
   }, []);
 
   useBackButton(handleBackButton);
-
-  useEffect(() => {
-    document.body.style.overflow = 'hidden';
-    return () => {
-      document.body.style.overflow = '';
-    };
-  }, []);
 
   const getLocalizedText = (text: LocalizedText | undefined): string => {
     if (!text) return '';
@@ -272,6 +223,18 @@ export default function ConnectionModal({ onClose }: ConnectionModalProps) {
     }
     return available;
   }, [appConfig, detectedPlatform]);
+
+  // Resolve templates in a URL using subscription URL + username
+  const resolveUrl = useCallback(
+    (url: string): string => {
+      if (!hasTemplates(url) || !appConfig?.subscriptionUrl) return url;
+      return resolveTemplate(url, {
+        subscriptionUrl: appConfig.subscriptionUrl,
+        username: user?.username ?? undefined,
+      });
+    },
+    [appConfig?.subscriptionUrl, user?.username],
+  );
 
   const copySubscriptionLink = async () => {
     if (!appConfig?.subscriptionUrl) return;
@@ -293,12 +256,25 @@ export default function ConnectionModal({ onClose }: ConnectionModalProps) {
 
   const handleConnect = (app: AppInfo) => {
     if (!app.deepLink || !isValidDeepLink(app.deepLink)) return;
-    const deepLink = app.deepLink;
+    let deepLink = app.deepLink;
 
-    // All deep links (including custom schemes like happ://, clash://, etc.)
-    // go through redirect.html. Telegram's openLink opens the redirect page
-    // in an external browser, which then performs window.location.href to the
-    // actual deep link URL. This works for both http(s) and custom schemes.
+    // Resolve templates if present
+    if (hasTemplates(deepLink)) {
+      deepLink = resolveUrl(deepLink);
+    }
+
+    // On mobile (iOS/Android) apps handle URL schemes natively —
+    // open the deep link directly without the redirect.html intermediary.
+    const isMobilePlatform = detectedPlatform === 'ios' || detectedPlatform === 'android';
+    if (isMobilePlatform) {
+      window.location.href = deepLink;
+      return;
+    }
+
+    // Desktop platforms (macOS, Windows, Linux) and others go through
+    // redirect.html. Telegram's openLink opens the redirect page in an
+    // external browser, which then performs window.location.href to the
+    // actual deep link URL.
     const redirectUrl = `${window.location.origin}/miniapp/redirect.html?url=${encodeURIComponent(deepLink)}&lang=${i18n.language || 'en'}`;
 
     try {
@@ -310,79 +286,44 @@ export default function ConnectionModal({ onClose }: ConnectionModalProps) {
     window.location.href = redirectUrl;
   };
 
-  // Wrapper component
-  const Wrapper = ({ children }: { children: React.ReactNode }) => {
-    if (isMobile) {
-      const content = (
-        <div
-          className="fixed inset-0 z-[9999] flex flex-col bg-dark-900"
-          style={{
-            paddingTop: safeTop ? `${safeTop}px` : 'env(safe-area-inset-top, 0px)',
-            paddingBottom: safeBottom ? `${safeBottom}px` : 'env(safe-area-inset-bottom, 0px)',
-          }}
-        >
-          {children}
-        </div>
-      );
-      if (typeof document !== 'undefined') return createPortal(content, document.body);
-      return content;
-    }
-
-    // Desktop centered - positioned higher
-    return (
-      <div
-        className="fixed inset-0 z-[60] flex items-start justify-center p-4 pt-[8vh]"
-        onClick={handleClose}
-      >
-        <div
-          className="relative flex max-h-[85vh] w-full max-w-md flex-col overflow-hidden rounded-2xl border border-dark-700/50 bg-dark-900 shadow-2xl"
-          onClick={(e) => e.stopPropagation()}
-        >
-          {children}
-        </div>
-      </div>
-    );
+  // Resolve button links for step buttons
+  const resolveButtonLink = (link: string): string => {
+    return resolveUrl(link);
   };
 
   // Loading
   if (isLoading) {
     return (
-      <Wrapper>
-        <div className="flex flex-1 items-center justify-center">
-          <div className="h-10 w-10 animate-spin rounded-full border-[3px] border-accent-500/30 border-t-accent-500" />
-        </div>
-      </Wrapper>
+      <div className="flex flex-1 items-center justify-center py-20">
+        <div className="h-10 w-10 animate-spin rounded-full border-[3px] border-accent-500/30 border-t-accent-500" />
+      </div>
     );
   }
 
   // Error
   if (error || !appConfig) {
     return (
-      <Wrapper>
-        <div className="flex flex-1 flex-col items-center justify-center p-8 text-center">
-          <p className="mb-4 text-lg text-dark-300">{t('common.error')}</p>
-          <button onClick={handleClose} className="btn-primary px-6 py-2">
-            {t('common.close')}
-          </button>
-        </div>
-      </Wrapper>
+      <div className="flex flex-1 flex-col items-center justify-center p-8 text-center">
+        <p className="mb-4 text-lg text-dark-300">{t('common.error')}</p>
+        <button onClick={handleGoBack} className="btn-primary px-6 py-2">
+          {t('common.close')}
+        </button>
+      </div>
     );
   }
 
   // No subscription
   if (!appConfig.hasSubscription) {
     return (
-      <Wrapper>
-        <div className="flex flex-1 flex-col items-center justify-center p-8 text-center">
-          <h3 className="mb-2 text-xl font-bold text-dark-100">
-            {t('subscription.connection.title')}
-          </h3>
-          <p className="mb-4 text-dark-400">{t('subscription.connection.noSubscription')}</p>
-          <button onClick={handleClose} className="btn-primary px-6 py-2">
-            {t('common.close')}
-          </button>
-        </div>
-      </Wrapper>
+      <div className="flex flex-1 flex-col items-center justify-center p-8 text-center">
+        <h3 className="mb-2 text-xl font-bold text-dark-100">
+          {t('subscription.connection.title')}
+        </h3>
+        <p className="mb-4 text-dark-400">{t('subscription.connection.noSubscription')}</p>
+        <button onClick={handleGoBack} className="btn-primary px-6 py-2">
+          {t('common.close')}
+        </button>
+      </div>
     );
   }
 
@@ -439,8 +380,8 @@ export default function ConnectionModal({ onClose }: ConnectionModalProps) {
     // Step 1: Platform selection
     if (!selectedPlatform) {
       return (
-        <Wrapper>
-          <div className="flex items-center gap-3 border-b border-dark-800 p-4">
+        <div className="space-y-4">
+          <div className="flex items-center gap-3">
             {!isTelegramWebApp && (
               <button
                 onClick={handleBack}
@@ -453,7 +394,7 @@ export default function ConnectionModal({ onClose }: ConnectionModalProps) {
               {t('subscription.connection.selectPlatform')}
             </h2>
           </div>
-          <div className="space-y-2 p-4">
+          <div className="space-y-2">
             {availablePlatforms.map((platform) => {
               const apps = appConfig.platforms[platform];
               if (!apps?.length) return null;
@@ -504,7 +445,7 @@ export default function ConnectionModal({ onClose }: ConnectionModalProps) {
               );
             })}
           </div>
-        </Wrapper>
+        </div>
       );
     }
 
@@ -513,8 +454,8 @@ export default function ConnectionModal({ onClose }: ConnectionModalProps) {
     const isCurrentPlatform = selectedPlatform === detectedPlatform;
 
     return (
-      <Wrapper>
-        <div className="flex items-center gap-3 border-b border-dark-800 p-4">
+      <div className="space-y-4">
+        <div className="flex items-center gap-3">
           {!isTelegramWebApp && (
             <button
               onClick={handleBack}
@@ -534,12 +475,7 @@ export default function ConnectionModal({ onClose }: ConnectionModalProps) {
             )}
           </div>
         </div>
-        <div
-          ref={scrollContainerRef}
-          className={`${isMobile ? 'flex-1' : 'max-h-[60vh]'} overflow-y-auto p-4`}
-          style={{ overscrollBehavior: 'contain', WebkitOverflowScrolling: 'touch' }}
-          onWheel={handleScrollContainerWheel}
-        >
+        <div ref={scrollContainerRef}>
           <div className="grid grid-cols-3 gap-3">
             {apps.map((app) => {
               const isSelected = selectedApp?.id === app.id;
@@ -596,22 +532,22 @@ export default function ConnectionModal({ onClose }: ConnectionModalProps) {
             })}
           </div>
         </div>
-      </Wrapper>
+      </div>
     );
   }
 
   // Main view
   return (
-    <Wrapper>
-      <div className="border-b border-dark-800 p-4">
+    <div className="space-y-6">
+      <div>
         <div className="mb-3 flex items-center justify-between">
           <h2 className="text-lg font-bold text-dark-100">{t('subscription.connection.title')}</h2>
           {!isTelegramWebApp && (
             <button
-              onClick={handleClose}
+              onClick={handleGoBack}
               className="-mr-2 rounded-xl p-2 text-dark-400 hover:bg-dark-800"
             >
-              <CloseIcon />
+              <BackIcon />
             </button>
           )}
         </div>
@@ -630,11 +566,7 @@ export default function ConnectionModal({ onClose }: ConnectionModalProps) {
         </button>
       </div>
 
-      <div
-        className={`${isMobile ? 'flex-1' : 'max-h-[50vh]'} space-y-4 overflow-y-auto p-4`}
-        style={{ overscrollBehavior: 'contain', WebkitOverflowScrolling: 'touch' }}
-        onWheel={handleScrollContainerWheel}
-      >
+      <div className="space-y-4">
         {selectedApp?.installationStep && (
           <div className="space-y-2">
             <div className="flex items-center gap-2">
@@ -652,11 +584,11 @@ export default function ConnectionModal({ onClose }: ConnectionModalProps) {
               selectedApp.installationStep.buttons.length > 0 && (
                 <div className="ml-8 flex flex-wrap gap-2">
                   {selectedApp.installationStep.buttons
-                    .filter((btn) => isValidExternalUrl(btn.buttonLink))
+                    .filter((btn) => isValidExternalUrl(resolveButtonLink(btn.buttonLink)))
                     .map((btn, idx) => (
                       <a
                         key={idx}
-                        href={btn.buttonLink}
+                        href={resolveButtonLink(btn.buttonLink)}
                         target="_blank"
                         rel="noopener noreferrer"
                         className="inline-flex items-center gap-1.5 rounded-lg bg-dark-800 px-3 py-1.5 text-sm text-dark-200 hover:bg-dark-700"
@@ -728,6 +660,6 @@ export default function ConnectionModal({ onClose }: ConnectionModalProps) {
           </div>
         )}
       </div>
-    </Wrapper>
+    </div>
   );
 }
