@@ -88,20 +88,6 @@ const METHOD_ICONS: Record<string, string> = {
   cloudpayments: '\u2601\uFE0F',
 };
 
-const METHOD_LABELS: Record<string, string> = {
-  telegram_stars: 'Telegram Stars',
-  tribute: 'Tribute',
-  cryptobot: 'CryptoBot',
-  heleket: 'Heleket',
-  yookassa: 'YooKassa',
-  mulenpay: 'MulenPay',
-  pal24: 'PayPalych',
-  platega: 'Platega',
-  wata: 'WATA',
-  freekassa: 'Freekassa',
-  kassa_ai: 'Kassa AI',
-  cloudpayments: 'CloudPayments',
-};
 
 // ============ Sortable Card ============
 
