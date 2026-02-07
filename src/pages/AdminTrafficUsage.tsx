@@ -1500,12 +1500,17 @@ export default function AdminTrafficUsage() {
                             onMouseDown={header.getResizeHandler()}
                             onTouchStart={header.getResizeHandler()}
                             onClick={(e) => e.stopPropagation()}
-                            className={`absolute right-0 top-0 h-full w-1 cursor-col-resize touch-none select-none ${
-                              header.column.getIsResizing()
-                                ? 'bg-accent-500'
-                                : 'bg-transparent hover:bg-dark-500'
-                            }`}
-                          />
+                            className="absolute -right-2 top-0 z-20 h-full w-5 cursor-col-resize select-none"
+                            style={{ touchAction: 'none' }}
+                          >
+                            <div
+                              className={`absolute right-2 top-0 h-full w-1 ${
+                                header.column.getIsResizing()
+                                  ? 'bg-accent-500'
+                                  : 'bg-transparent hover:bg-dark-500'
+                              }`}
+                            />
+                          </div>
                         </th>
                       );
                     })}
