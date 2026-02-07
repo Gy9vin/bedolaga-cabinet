@@ -919,7 +919,7 @@ function CountryFilter({
       </button>
 
       {open && (
-        <div className="absolute left-0 top-full z-30 mt-1 w-48 rounded-xl border border-dark-700 bg-dark-800 py-1 shadow-xl">
+        <div className="absolute right-0 top-full z-30 mt-1 w-48 rounded-xl border border-dark-700 bg-dark-800 py-1 shadow-xl sm:left-0 sm:right-auto">
           <button
             onClick={selectAll}
             className={`flex w-full items-center gap-2 px-3 py-2 text-left text-xs transition-colors hover:bg-dark-700 ${
@@ -1673,12 +1673,12 @@ export default function AdminTrafficUsage() {
                       return (
                         <th
                           key={header.id}
-                          className={`relative px-3 py-2 text-xs font-medium ${
+                          className={`relative overflow-hidden text-ellipsis whitespace-nowrap px-3 py-2 text-xs font-medium ${
                             isBold ? 'font-semibold text-dark-200' : 'text-dark-400'
                           } ${align} ${
                             isSticky ? 'sticky left-0 z-10 bg-dark-800' : ''
                           } ${header.column.getCanSort() ? 'cursor-pointer select-none hover:text-dark-200' : ''}`}
-                          style={{ width: header.getSize() }}
+                          style={{ width: header.getSize(), maxWidth: header.getSize() }}
                           onClick={header.column.getToggleSortingHandler()}
                         >
                           {flexRender(header.column.columnDef.header, header.getContext())}
@@ -1733,10 +1733,13 @@ export default function AdminTrafficUsage() {
                         return (
                           <td
                             key={cell.id}
-                            className={`px-3 py-2 ${align} ${
+                            className={`overflow-hidden px-3 py-2 ${align} ${
                               isSticky ? 'sticky left-0 z-10 bg-dark-900' : ''
                             }`}
-                            style={{ width: cell.column.getSize() }}
+                            style={{
+                              width: cell.column.getSize(),
+                              maxWidth: cell.column.getSize(),
+                            }}
                           >
                             {flexRender(cell.column.columnDef.cell, cell.getContext())}
                           </td>
