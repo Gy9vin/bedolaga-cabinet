@@ -101,6 +101,7 @@ export const adminApi = {
       per_page?: number;
       status?: string;
       priority?: string;
+      user_id?: number;
     } = {},
   ): Promise<AdminTicketListResponse> => {
     const response = await apiClient.get('/cabinet/admin/tickets', { params });

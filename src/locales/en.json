@@ -1839,8 +1839,12 @@
           "info": "Information",
           "subscription": "Subscription",
           "balance": "Balance",
-          "sync": "Synchronization"
+          "sync": "Synchronization",
+          "tickets": "Tickets"
         },
+        "noTickets": "No tickets from this user",
+        "ticketsCount": "tickets",
+        "messagesCount": "messages",
         "status": "Status",
         "language": "Language",
         "registration": "Registration",

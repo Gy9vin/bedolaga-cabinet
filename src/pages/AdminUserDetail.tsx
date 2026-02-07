@@ -11,6 +11,7 @@ import {
   type PanelSyncStatusResponse,
   type UpdateSubscriptionRequest,
 } from '../api/adminUsers';
+import { adminApi, type AdminTicket } from '../api/admin';
 import { AdminBackButton } from '../components/admin';
 import { createNumberInputHandler, toNumber } from '../utils/inputHelpers';
 
@@ -89,7 +90,9 @@ export default function AdminUserDetail() {
 
   const [user, setUser] = useState<UserDetailResponse | null>(null);
   const [loading, setLoading] = useState(true);
-  const [activeTab, setActiveTab] = useState<'info' | 'subscription' | 'balance' | 'sync'>('info');
+  const [activeTab, setActiveTab] = useState<
+    'info' | 'subscription' | 'balance' | 'sync' | 'tickets'
+  >('info');
   const [syncStatus, setSyncStatus] = useState<PanelSyncStatusResponse | null>(null);
   const [tariffs, setTariffs] = useState<UserAvailableTariff[]>([]);
   const [actionLoading, setActionLoading] = useState(false);
@@ -101,6 +104,11 @@ export default function AdminUserDetail() {
   // Balance form
   const [balanceAmount, setBalanceAmount] = useState<number | ''>('');
   const [balanceDescription, setBalanceDescription] = useState('');
+
+  // Tickets
+  const [tickets, setTickets] = useState<AdminTicket[]>([]);
+  const [ticketsLoading, setTicketsLoading] = useState(false);
+  const [ticketsTotal, setTicketsTotal] = useState(0);
 
   // Subscription form
   const [subAction, setSubAction] = useState<string>('extend');
@@ -143,6 +151,20 @@ export default function AdminUserDetail() {
     }
   }, [userId]);
 
+  const loadTickets = useCallback(async () => {
+    if (!userId) return;
+    try {
+      setTicketsLoading(true);
+      const data = await adminApi.getTickets({ user_id: userId, per_page: 50 });
+      setTickets(data.items);
+      setTicketsTotal(data.total);
+    } catch (error) {
+      console.error('Failed to load tickets:', error);
+    } finally {
+      setTicketsLoading(false);
+    }
+  }, [userId]);
+
   useEffect(() => {
     if (!userId || isNaN(userId)) {
       navigate('/admin/users');
@@ -154,7 +176,8 @@ export default function AdminUserDetail() {
   useEffect(() => {
     if (activeTab === 'sync') loadSyncStatus();
     if (activeTab === 'subscription') loadTariffs();
-  }, [activeTab, loadSyncStatus, loadTariffs]);
+    if (activeTab === 'tickets') loadTickets();
+  }, [activeTab, loadSyncStatus, loadTariffs, loadTickets]);
 
   const handleUpdateBalance = async (isAdd: boolean) => {
     if (balanceAmount === '' || !userId) return;
@@ -407,7 +430,7 @@ export default function AdminUserDetail() {
         className="scrollbar-hide -mx-4 mb-6 flex gap-2 overflow-x-auto px-4 py-1"
         style={{ WebkitOverflowScrolling: 'touch' }}
       >
-        {(['info', 'subscription', 'balance', 'sync'] as const).map((tab) => (
+        {(['info', 'subscription', 'balance', 'sync', 'tickets'] as const).map((tab) => (
           <button
             key={tab}
             onClick={() => setActiveTab(tab)}
@@ -421,6 +444,7 @@ export default function AdminUserDetail() {
             {tab === 'subscription' && t('admin.users.detail.tabs.subscription')}
             {tab === 'balance' && t('admin.users.detail.tabs.balance')}
             {tab === 'sync' && t('admin.users.detail.tabs.sync')}
+            {tab === 'tickets' && t('admin.users.detail.tabs.tickets')}
           </button>
         ))}
       </div>
@@ -1007,6 +1031,80 @@ export default function AdminUserDetail() {
                 </span>
               </button>
             </div>
+          </div>
+        )}
+
+        {/* Tickets Tab */}
+        {activeTab === 'tickets' && (
+          <div className="space-y-4">
+            {ticketsLoading ? (
+              <div className="flex items-center justify-center py-12">
+                <div className="h-8 w-8 animate-spin rounded-full border-2 border-accent-500 border-t-transparent" />
+              </div>
+            ) : tickets.length === 0 ? (
+              <div className="flex flex-col items-center justify-center rounded-xl bg-dark-800/50 py-12">
+                <svg
+                  className="mb-3 h-12 w-12 text-dark-600"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                  strokeWidth={1.5}
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    d="M20.25 8.511c.884.284 1.5 1.128 1.5 2.097v4.286c0 1.136-.847 2.1-1.98 2.193-.34.027-.68.052-1.02.072v3.091l-3-3c-1.354 0-2.694-.055-4.02-.163a2.115 2.115 0 01-.825-.242m9.345-8.334a2.126 2.126 0 00-.476-.095 48.64 48.64 0 00-8.048 0c-1.131.094-1.976 1.057-1.976 2.192v4.286c0 .837.46 1.58 1.155 1.951m9.345-8.334V6.637c0-1.621-1.152-3.026-2.76-3.235A48.455 48.455 0 0011.25 3c-2.115 0-4.198.137-6.24.402-1.608.209-2.76 1.614-2.76 3.235v6.226c0 1.621 1.152 3.026 2.76 3.235.577.075 1.157.14 1.74.194V21l4.155-4.155"
+                  />
+                </svg>
+                <p className="text-dark-400">{t('admin.users.detail.noTickets')}</p>
+              </div>
+            ) : (
+              <>
+                <div className="text-sm text-dark-400">
+                  {ticketsTotal} {t('admin.users.detail.ticketsCount')}
+                </div>
+                <div className="space-y-2">
+                  {tickets.map((ticket) => {
+                    const statusStyles: Record<string, string> = {
+                      open: 'bg-blue-500/20 text-blue-400 border-blue-500/30',
+                      pending: 'bg-warning-500/20 text-warning-400 border-warning-500/30',
+                      answered: 'bg-success-500/20 text-success-400 border-success-500/30',
+                      closed: 'bg-dark-600 text-dark-400 border-dark-500',
+                    };
+                    return (
+                      <button
+                        key={ticket.id}
+                        onClick={() => navigate(`/admin/tickets?ticket=${ticket.id}`)}
+                        className="w-full rounded-xl bg-dark-800/50 p-4 text-left transition-colors hover:bg-dark-700/50"
+                      >
+                        <div className="mb-2 flex items-center justify-between">
+                          <span className="font-medium text-dark-100">
+                            #{ticket.id} {ticket.title}
+                          </span>
+                          <span
+                            className={`rounded-full border px-2 py-0.5 text-xs ${statusStyles[ticket.status] || statusStyles.closed}`}
+                          >
+                            {ticket.status}
+                          </span>
+                        </div>
+                        <div className="flex items-center justify-between text-xs text-dark-500">
+                          <span>{formatDate(ticket.created_at)}</span>
+                          <span>
+                            {ticket.messages_count} {t('admin.users.detail.messagesCount')}
+                          </span>
+                        </div>
+                        {ticket.last_message && (
+                          <div className="mt-2 truncate text-sm text-dark-400">
+                            {ticket.last_message.is_from_admin ? '> ' : ''}
+                            {ticket.last_message.message_text}
+                          </div>
+                        )}
+                      </button>
+                    );
+                  })}
+                </div>
+              </>
+            )}
           </div>
         )}
       </div>

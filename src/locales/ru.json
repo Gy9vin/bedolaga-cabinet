@@ -2366,8 +2366,12 @@
           "info": "Информация",
           "subscription": "Подписка",
           "balance": "Баланс",
-          "sync": "Синхронизация"
+          "sync": "Синхронизация",
+          "tickets": "Тикеты"
         },
+        "noTickets": "У пользователя нет тикетов",
+        "ticketsCount": "тикетов",
+        "messagesCount": "сообщений",
         "status": "Статус",
         "language": "Язык",
         "registration": "Регистрация",

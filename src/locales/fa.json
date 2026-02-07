@@ -1542,8 +1542,12 @@
           "info": "اطلاعات",
           "subscription": "اشتراک",
           "balance": "موجودی",
-          "sync": "همگام‌سازی"
+          "sync": "همگام‌سازی",
+          "tickets": "تیکت‌ها"
         },
+        "noTickets": "این کاربر تیکتی ندارد",
+        "ticketsCount": "تیکت",
+        "messagesCount": "پیام",
         "status": "وضعیت",
         "language": "زبان",
         "registration": "ثبت‌نام",

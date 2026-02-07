@@ -1541,8 +1541,12 @@
           "info": "信息",
           "subscription": "订阅",
           "balance": "余额",
-          "sync": "同步"
+          "sync": "同步",
+          "tickets": "工单"
         },
+        "noTickets": "该用户没有工单",
+        "ticketsCount": "个工单",
+        "messagesCount": "条消息",
         "status": "状态",
         "language": "语言",
         "registration": "注册时间",
