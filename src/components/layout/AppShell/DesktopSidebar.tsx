@@ -58,7 +58,7 @@ export function DesktopSidebar({
     queryFn: async () => {
       const data = await brandingApi.getBranding();
       setCachedBranding(data);
-      preloadLogo(data);
+      await preloadLogo(data);
       return data;
     },
     initialData: getCachedBranding() ?? undefined,

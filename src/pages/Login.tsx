@@ -79,7 +79,7 @@ export default function Login() {
     queryFn: async () => {
       const data = await brandingApi.getBranding();
       setCachedBranding(data);
-      preloadLogo(data);
+      await preloadLogo(data);
       return data;
     },
     staleTime: 60000,
