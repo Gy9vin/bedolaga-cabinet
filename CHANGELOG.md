@@ -1,5 +1,25 @@
 # Changelog
 
+## [1.12.0](https://github.com/BEDOLAGA-DEV/bedolaga-cabinet/compare/v1.11.1...v1.12.0) (2026-02-08)
+
+
+### Features
+
+* add admin traffic packages and device limit management UI ([2dfa520](https://github.com/BEDOLAGA-DEV/bedolaga-cabinet/commit/2dfa5206046b50f4bc22793dfb448f684286adef))
+* add admin updates page with release history ([a15b3d4](https://github.com/BEDOLAGA-DEV/bedolaga-cabinet/commit/a15b3d410157f916c6008f7dbbe24b1284d3d595))
+* add device management UI in admin user card ([6f31fbe](https://github.com/BEDOLAGA-DEV/bedolaga-cabinet/commit/6f31fbe6b5638e400db2ea16af65ab69979dca97))
+* add enrichment columns to admin traffic usage table ([893c69a](https://github.com/BEDOLAGA-DEV/bedolaga-cabinet/commit/893c69ab6fc05ddc4bb64d229ae20376471a4f07))
+* add inline referral commission editing in admin user card ([92d206f](https://github.com/BEDOLAGA-DEV/bedolaga-cabinet/commit/92d206f5b655cca2cceff172305f07d5edc551b7))
+* add system info card to admin dashboard ([ab0270a](https://github.com/BEDOLAGA-DEV/bedolaga-cabinet/commit/ab0270ac58565f883722f7b04aa300b644e7973b))
+* admin panel enhancements & release history ([3bd9abb](https://github.com/BEDOLAGA-DEV/bedolaga-cabinet/commit/3bd9abb1db2aef6b4428f62a020b4ea57b6a3c85))
+* enable sorting on enrichment columns ([5678dfd](https://github.com/BEDOLAGA-DEV/bedolaga-cabinet/commit/5678dfd55854d884220a02075fcc0f025752c189))
+* render GitHub markdown in release changelogs ([0c34668](https://github.com/BEDOLAGA-DEV/bedolaga-cabinet/commit/0c34668e40d9d4eb7037da7d6f5c2c40c87b208f))
+
+
+### Bug Fixes
+
+* show email for OAuth/email users in traffic table ([a8ea5c9](https://github.com/BEDOLAGA-DEV/bedolaga-cabinet/commit/a8ea5c958f846d84945ebbca2e30f002421786ff))
+
 ## [1.11.1](https://github.com/BEDOLAGA-DEV/bedolaga-cabinet/compare/v1.11.0...v1.11.1) (2026-02-08)
 
 
