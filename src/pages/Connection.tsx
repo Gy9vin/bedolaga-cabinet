@@ -108,22 +108,7 @@ export default function Connection() {
     );
   }
 
-  // No subscription
-  if (!appConfig.hasSubscription) {
-    return (
-      <div className="flex flex-1 flex-col items-center justify-center p-8 text-center">
-        <h3 className="mb-2 text-xl font-bold text-dark-100">
-          {t('subscription.connection.title')}
-        </h3>
-        <p className="mb-4 text-dark-400">{t('subscription.connection.noSubscription')}</p>
-        <button onClick={handleGoBack} className="btn-primary px-6 py-2">
-          {t('common.close')}
-        </button>
-      </div>
-    );
-  }
-
-  // No apps configured
+  // No apps configured — check before subscription since empty config also has no subscription
   if (!hasApps) {
     return (
       <div className="flex flex-1 flex-col items-center justify-center p-8 text-center">
@@ -173,6 +158,21 @@ export default function Connection() {
             {t('subscription.connection.goToApps')}
           </Link>
         )}
+      </div>
+    );
+  }
+
+  // No subscription
+  if (!appConfig.hasSubscription) {
+    return (
+      <div className="flex flex-1 flex-col items-center justify-center p-8 text-center">
+        <h3 className="mb-2 text-xl font-bold text-dark-100">
+          {t('subscription.connection.title')}
+        </h3>
+        <p className="mb-4 text-dark-400">{t('subscription.connection.noSubscription')}</p>
+        <button onClick={handleGoBack} className="btn-primary px-6 py-2">
+          {t('common.close')}
+        </button>
       </div>
     );
   }
