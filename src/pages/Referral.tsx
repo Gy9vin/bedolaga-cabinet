@@ -1,6 +1,9 @@
-import { useState } from 'react';
-import { useQuery } from '@tanstack/react-query';
+import { useCallback, useEffect, useState } from 'react';
+import { createPortal } from 'react-dom';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { useTranslation } from 'react-i18next';
+import { AnimatePresence, motion } from 'framer-motion';
+import QRCode from 'qrcode';
 import { referralApi } from '../api/referral';
 import { brandingApi } from '../api/branding';
 import { useCurrency } from '../hooks/useCurrency';
@@ -28,20 +31,61 @@ const ShareIcon = () => (
   </svg>
 );
 
+const QrCodeIcon = () => (
+  <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+    <path
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      d="M3.75 4.875c0-.621.504-1.125 1.125-1.125h4.5c.621 0 1.125.504 1.125 1.125v4.5c0 .621-.504 1.125-1.125 1.125h-4.5A1.125 1.125 0 013.75 9.375v-4.5zM3.75 14.625c0-.621.504-1.125 1.125-1.125h4.5c.621 0 1.125.504 1.125 1.125v4.5c0 .621-.504 1.125-1.125 1.125h-4.5a1.125 1.125 0 01-1.125-1.125v-4.5zM13.5 4.875c0-.621.504-1.125 1.125-1.125h4.5c.621 0 1.125.504 1.125 1.125v4.5c0 .621-.504 1.125-1.125 1.125h-4.5A1.125 1.125 0 0113.5 9.375v-4.5z"
+    />
+    <path
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      d="M6.75 6.75h.75v.75h-.75v-.75zM6.75 16.5h.75v.75h-.75v-.75zM16.5 6.75h.75v.75h-.75v-.75zM13.5 13.5h.75v.75h-.75v-.75zM13.5 19.5h.75v.75h-.75v-.75zM19.5 13.5h.75v.75h-.75v-.75zM19.5 19.5h.75v.75h-.75v-.75zM16.5 16.5h.75v.75h-.75v-.75z"
+    />
+  </svg>
+);
+
+const DownloadIcon = () => (
+  <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+    <path strokeLinecap="round" strokeLinejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5M16.5 12L12 16.5m0 0L7.5 12m4.5 4.5V3" />
+  </svg>
+);
+
+const WalletIcon = () => (
+  <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+    <path
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      d="M21 12a2.25 2.25 0 00-2.25-2.25H15a3 3 0 110-6h5.25A2.25 2.25 0 0121 6v6zm0 0v6a2.25 2.25 0 01-2.25 2.25H5.25A2.25 2.25 0 013 18V6a2.25 2.25 0 012.25-2.25h13.5A2.25 2.25 0 0121 6"
+    />
+  </svg>
+);
+
 export default function Referral() {
   const { t } = useTranslation();
   const { formatAmount, currencySymbol, formatPositive } = useCurrency();
+  const queryClient = useQueryClient();
   const [copied, setCopied] = useState(false);
+  const [showWithdrawalForm, setShowWithdrawalForm] = useState(false);
+
+  // Withdrawal form state
+  const [withdrawalAmount, setWithdrawalAmount] = useState('');
+  const [paymentDetails, setPaymentDetails] = useState('');
+  const [withdrawalLoading, setWithdrawalLoading] = useState(false);
+  const [withdrawalError, setWithdrawalError] = useState<string | null>(null);
+  const [withdrawalSuccess, setWithdrawalSuccess] = useState<string | null>(null);
+  const [showExplanation, setShowExplanation] = useState(false);
+  const [showQrModal, setShowQrModal] = useState(false);
+  const [qrDataUrl, setQrDataUrl] = useState<string | null>(null);
 
   const { data: info, isLoading } = useQuery({
     queryKey: ['referral-info'],
     queryFn: referralApi.getReferralInfo,
   });
 
-  // Build referral link for cabinet registration
-  const referralLink = info?.referral_code
-    ? `${window.location.origin}/login?ref=${info.referral_code}`
-    : '';
+  // Use the referral link from API (points to Telegram bot)
+  const referralLink = info?.referral_link || '';
 
   const { data: terms } = useQuery({
     queryKey: ['referral-terms'],
@@ -62,6 +106,18 @@ export default function Referral() {
     queryKey: ['branding'],
     queryFn: brandingApi.getBranding,
     staleTime: 60000,
+  });
+
+  const { data: withdrawalBalance } = useQuery({
+    queryKey: ['withdrawal-balance'],
+    queryFn: referralApi.getWithdrawalBalance,
+    retry: false,
+  });
+
+  const { data: withdrawalRequests } = useQuery({
+    queryKey: ['withdrawal-requests'],
+    queryFn: () => referralApi.getWithdrawalRequests({ per_page: 10 }),
+    retry: false,
   });
 
   const copyLink = () => {
@@ -96,6 +152,137 @@ export default function Referral() {
       referralLink,
     )}&text=${encodeURIComponent(shareText)}`;
     window.open(telegramUrl, '_blank', 'noopener,noreferrer');
+  };
+
+  // Generate QR when modal opens
+  useEffect(() => {
+    if (!showQrModal || !referralLink) {
+      setQrDataUrl(null);
+      return;
+    }
+    let cancelled = false;
+    QRCode.toDataURL(referralLink, {
+      width: 512,
+      margin: 2,
+      color: { dark: '#000000', light: '#ffffff' },
+      errorCorrectionLevel: 'M',
+    })
+      .then((dataUrl) => {
+        if (!cancelled) setQrDataUrl(dataUrl);
+      })
+      .catch((err) => {
+        console.error('QR generation failed:', err);
+        if (!cancelled) setShowQrModal(false);
+      });
+    return () => { cancelled = true; };
+  }, [showQrModal, referralLink]);
+
+  const downloadQrCode = useCallback(async () => {
+    if (!qrDataUrl) return;
+    const fileName = `referral-qr-${info?.referral_code || 'code'}.png`;
+    try {
+      const res = await fetch(qrDataUrl);
+      const blob = await res.blob();
+      const file = new File([blob], fileName, { type: 'image/png' });
+
+      // Mobile share (works in Telegram WebApp)
+      if (navigator.canShare?.({ files: [file] })) {
+        await navigator.share({ files: [file] });
+        return;
+      }
+    } catch {
+      // ignore share errors
+    }
+
+    // Fallback: blob download
+    try {
+      const res = await fetch(qrDataUrl);
+      const blob = await res.blob();
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = fileName;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      URL.revokeObjectURL(url);
+    } catch {
+      // Last resort: open in new tab
+      window.open(qrDataUrl, '_blank');
+    }
+  }, [qrDataUrl, info?.referral_code]);
+
+  const handleWithdrawalSubmit = async () => {
+    setWithdrawalError(null);
+    setWithdrawalSuccess(null);
+
+    const amountRubles = parseFloat(withdrawalAmount);
+    if (isNaN(amountRubles) || amountRubles <= 0) {
+      setWithdrawalError(t('referral.withdrawal.error'));
+      return;
+    }
+
+    const amountKopeks = Math.round(amountRubles * 100);
+
+    if (
+      withdrawalBalance?.min_amount_kopeks &&
+      amountKopeks < withdrawalBalance.min_amount_kopeks
+    ) {
+      setWithdrawalError(
+        t('referral.withdrawal.minAmount', {
+          amount: formatAmount(withdrawalBalance.min_amount_kopeks / 100) + ' ' + currencySymbol,
+        }),
+      );
+      return;
+    }
+
+    if (withdrawalBalance && amountKopeks > withdrawalBalance.available_kopeks) {
+      setWithdrawalError(t('referral.withdrawal.error'));
+      return;
+    }
+
+    if (!paymentDetails.trim() || paymentDetails.trim().length < 10) {
+      setWithdrawalError(t('referral.withdrawal.paymentDetailsHint'));
+      return;
+    }
+
+    setWithdrawalLoading(true);
+    try {
+      const result = await referralApi.createWithdrawalRequest({
+        amount_kopeks: amountKopeks,
+        payment_details: paymentDetails.trim(),
+      });
+
+      setWithdrawalSuccess(
+        t('referral.withdrawal.successMessage', { id: result.request_id }),
+      );
+      setWithdrawalAmount('');
+      setPaymentDetails('');
+
+      // Refresh data
+      queryClient.invalidateQueries({ queryKey: ['withdrawal-balance'] });
+      queryClient.invalidateQueries({ queryKey: ['withdrawal-requests'] });
+
+      setTimeout(() => setWithdrawalSuccess(null), 6000);
+    } catch (err: unknown) {
+      const error = err as { response?: { data?: { detail?: string } } };
+      setWithdrawalError(
+        error.response?.data?.detail || t('referral.withdrawal.error'),
+      );
+    } finally {
+      setWithdrawalLoading(false);
+    }
+  };
+
+  const getStatusBadge = (status: string) => {
+    const statusMap: Record<string, string> = {
+      pending: 'badge-warning',
+      approved: 'badge-success',
+      completed: 'badge-success',
+      rejected: 'badge-error',
+      cancelled: 'badge-neutral',
+    };
+    return statusMap[status] || 'badge-neutral';
   };
 
   if (isLoading) {
@@ -186,10 +373,71 @@ export default function Referral() {
             </button>
           </div>
         </div>
-        <p className="mt-3 text-sm text-dark-500">
-          {t('referral.shareHint', { percent: info?.commission_percent || 0 })}
-        </p>
+        <div className="mt-3 flex items-center justify-between">
+          <p className="text-sm text-dark-500">
+            {t('referral.shareHint', { percent: info?.commission_percent || 0 })}
+          </p>
+          <button
+            onClick={() => setShowQrModal(true)}
+            disabled={!referralLink}
+            className={`btn-secondary ml-3 flex shrink-0 items-center gap-2 px-4 py-2 ${
+              !referralLink ? 'cursor-not-allowed opacity-50' : ''
+            }`}
+          >
+            <QrCodeIcon />
+            <span className="text-sm">{t('referral.qrCode')}</span>
+          </button>
+        </div>
       </div>
+
+      {/* QR Code Modal */}
+      {showQrModal &&
+        createPortal(
+          <div className="fixed inset-0 z-[100] flex items-center justify-center">
+            <div
+              className="absolute inset-0 bg-black/70 backdrop-blur-sm"
+              onClick={() => setShowQrModal(false)}
+            />
+            <div
+              className="relative mx-4 w-full max-w-sm rounded-2xl border border-dark-700/50 bg-dark-900 p-6 shadow-2xl"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <button
+                onClick={() => setShowQrModal(false)}
+                className="absolute right-3 top-3 rounded-lg p-1.5 text-dark-400 transition-colors hover:bg-dark-800 hover:text-dark-200"
+              >
+                <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              </button>
+
+              <h3 className="mb-4 text-center text-lg font-semibold text-dark-100">
+                {t('referral.qrCode')}
+              </h3>
+
+              {qrDataUrl ? (
+                <>
+                  <div className="flex justify-center rounded-xl bg-white p-4">
+                    <img src={qrDataUrl} alt="QR Code" className="h-64 w-64" />
+                  </div>
+                  <p className="mt-3 break-all text-center text-xs text-dark-500">{referralLink}</p>
+                  <button
+                    onClick={downloadQrCode}
+                    className="btn-primary mt-4 flex w-full items-center justify-center"
+                  >
+                    <DownloadIcon />
+                    <span className="ml-2">{t('referral.downloadQr')}</span>
+                  </button>
+                </>
+              ) : (
+                <div className="flex justify-center py-8">
+                  <div className="h-8 w-8 animate-spin rounded-full border-2 border-dark-600 border-t-accent-400" />
+                </div>
+              )}
+            </div>
+          </div>,
+          document.body,
+        )}
 
       {/* Program Terms */}
       {terms && (
@@ -220,6 +468,425 @@ export default function Referral() {
                 {formatPositive(terms.inviter_bonus_rubles)}
               </div>
             </div>
+          </div>
+        </div>
+      )}
+
+      {/* Withdrawal CTA Button */}
+      {withdrawalBalance && (
+        <button
+          onClick={() => setShowWithdrawalForm(!showWithdrawalForm)}
+          className="group w-full rounded-2xl border border-accent-500/30 bg-gradient-to-r from-accent-500/15 to-accent-600/10 p-4 text-left transition-all hover:border-accent-500/50 hover:from-accent-500/20 hover:to-accent-600/15 active:scale-[0.99]"
+        >
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-accent-500/20">
+                <WalletIcon />
+              </div>
+              <div>
+                <div className="font-semibold text-dark-50">
+                  {t('referral.withdrawal.title')}
+                </div>
+                <div className="mt-0.5 text-sm text-dark-400">
+                  {withdrawalBalance.available_kopeks < withdrawalBalance.balance_kopeks ? (
+                    <>
+                      {t('referral.withdrawal.balance')}:{' '}
+                      <span className="text-dark-300">
+                        {formatAmount(withdrawalBalance.balance_kopeks / 100)} {currencySymbol}
+                      </span>
+                      {' · '}
+                      {t('referral.withdrawal.available')}:{' '}
+                      <span className="font-medium text-accent-400">
+                        {formatAmount(withdrawalBalance.available_kopeks / 100)} {currencySymbol}
+                      </span>
+                    </>
+                  ) : (
+                    <>
+                      {t('referral.withdrawal.available')}:{' '}
+                      <span className="font-medium text-accent-400">
+                        {formatAmount(withdrawalBalance.available_kopeks / 100)} {currencySymbol}
+                      </span>
+                    </>
+                  )}
+                </div>
+              </div>
+            </div>
+            <svg
+              className={`h-5 w-5 text-dark-400 transition-transform duration-200 ${showWithdrawalForm ? 'rotate-180' : ''}`}
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+              strokeWidth={2}
+            >
+              <path strokeLinecap="round" strokeLinejoin="round" d="M19.5 8.25l-7.5 7.5-7.5-7.5" />
+            </svg>
+          </div>
+        </button>
+      )}
+
+      {/* Withdrawal Form (collapsible) */}
+      <AnimatePresence>
+        {withdrawalBalance && showWithdrawalForm && (
+          <motion.div
+            initial={{ height: 0, opacity: 0 }}
+            animate={{ height: 'auto', opacity: 1 }}
+            exit={{ height: 0, opacity: 0 }}
+            transition={{ duration: 0.25, ease: 'easeInOut' }}
+            className="overflow-hidden"
+          >
+            <div className="bento-card">
+              {/* Balance Stats */}
+              <div className="mb-5 grid grid-cols-2 gap-3 md:grid-cols-4">
+                <div className="rounded-xl bg-dark-800/30 p-3">
+                  <div className="text-xs text-dark-500">{t('referral.withdrawal.balance')}</div>
+                  <div className="mt-1 font-semibold text-dark-100">
+                    {formatAmount(withdrawalBalance.balance_kopeks / 100)} {currencySymbol}
+                  </div>
+                </div>
+                <div className="rounded-xl bg-dark-800/30 p-3">
+                  <div className="text-xs text-dark-500">{t('referral.withdrawal.earned')}</div>
+                  <div className="mt-1 font-semibold text-dark-100">
+                    {formatAmount(withdrawalBalance.total_earned_kopeks / 100)} {currencySymbol}
+                  </div>
+                </div>
+                <div className="rounded-xl bg-dark-800/30 p-3">
+                  <div className="text-xs text-dark-500">{t('referral.withdrawal.spent')}</div>
+                  <div className="mt-1 font-semibold text-dark-100">
+                    {formatAmount(withdrawalBalance.referral_spent_kopeks / 100)} {currencySymbol}
+                  </div>
+                </div>
+                <div className="rounded-xl bg-accent-500/10 border border-accent-500/20 p-3">
+                  <div className="text-xs text-accent-400">{t('referral.withdrawal.available')}</div>
+                  <div className="mt-1 font-semibold text-accent-300">
+                    {formatAmount(withdrawalBalance.available_kopeks / 100)} {currencySymbol}
+                  </div>
+                </div>
+              </div>
+
+              {/* Explanation block — why available != balance */}
+              {withdrawalBalance.explanation && (
+                <div className="mb-4">
+                  <button
+                    type="button"
+                    onClick={() => setShowExplanation(!showExplanation)}
+                    className="flex items-center gap-1.5 text-sm text-accent-400 transition-colors hover:text-accent-300"
+                  >
+                    <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M9.879 7.519c1.171-1.025 3.071-1.025 4.242 0 1.172 1.025 1.172 2.687 0 3.712-.203.179-.43.326-.67.442-.745.361-1.45.999-1.45 1.827v.75M21 12a9 9 0 11-18 0 9 9 0 0118 0zm-9 5.25h.008v.008H12v-.008z" />
+                    </svg>
+                    {t('referral.withdrawal.whyNotAll')}
+                    <svg
+                      className={`h-3.5 w-3.5 transition-transform duration-200 ${showExplanation ? 'rotate-180' : ''}`}
+                      fill="none"
+                      viewBox="0 0 24 24"
+                      stroke="currentColor"
+                      strokeWidth={2}
+                    >
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M19.5 8.25l-7.5 7.5-7.5-7.5" />
+                    </svg>
+                  </button>
+                  <AnimatePresence>
+                    {showExplanation && (
+                      <motion.div
+                        initial={{ height: 0, opacity: 0 }}
+                        animate={{ height: 'auto', opacity: 1 }}
+                        exit={{ height: 0, opacity: 0 }}
+                        transition={{ duration: 0.2, ease: 'easeInOut' }}
+                        className="overflow-hidden"
+                      >
+                        <div className="mt-3 rounded-xl border border-dark-700/40 bg-dark-800/40 p-4">
+                          <p className="mb-3 text-sm text-dark-400">
+                            {t('referral.withdrawal.explanationHint')}
+                          </p>
+
+                          {/* Breakdown items */}
+                          <div className="space-y-2">
+                            {/* Earned */}
+                            <div className="flex items-center justify-between">
+                              <span className="text-sm text-dark-300">{t('referral.withdrawal.earned')}</span>
+                              <span className="text-sm font-medium text-success-400">
+                                +{formatAmount(withdrawalBalance.total_earned_kopeks / 100)} {currencySymbol}
+                              </span>
+                            </div>
+
+                            {/* Spent from referral */}
+                            {withdrawalBalance.referral_spent_kopeks > 0 && (
+                              <div className="flex items-center justify-between">
+                                <span className="text-sm text-dark-300">{t('referral.withdrawal.spent')}</span>
+                                <span className="text-sm font-medium text-error-400">
+                                  -{formatAmount(withdrawalBalance.referral_spent_kopeks / 100)} {currencySymbol}
+                                </span>
+                              </div>
+                            )}
+
+                            {/* Withdrawn */}
+                            {withdrawalBalance.withdrawn_kopeks > 0 && (
+                              <div className="flex items-center justify-between">
+                                <span className="text-sm text-dark-300">{t('referral.withdrawal.withdrawn')}</span>
+                                <span className="text-sm font-medium text-error-400">
+                                  -{formatAmount(withdrawalBalance.withdrawn_kopeks / 100)} {currencySymbol}
+                                </span>
+                              </div>
+                            )}
+
+                            {/* Approved */}
+                            {withdrawalBalance.approved_kopeks > 0 && (
+                              <div className="flex items-center justify-between">
+                                <span className="text-sm text-dark-300">{t('referral.withdrawal.approved')}</span>
+                                <span className="text-sm font-medium text-warning-400">
+                                  -{formatAmount(withdrawalBalance.approved_kopeks / 100)} {currencySymbol}
+                                </span>
+                              </div>
+                            )}
+
+                            {/* Pending */}
+                            {withdrawalBalance.pending_kopeks > 0 && (
+                              <div className="flex items-center justify-between">
+                                <span className="text-sm text-dark-300">{t('referral.withdrawal.pending')}</span>
+                                <span className="text-sm font-medium text-warning-400">
+                                  -{formatAmount(withdrawalBalance.pending_kopeks / 100)} {currencySymbol}
+                                </span>
+                              </div>
+                            )}
+
+                            {/* Divider */}
+                            <div className="border-t border-dark-700/50 pt-2">
+                              <div className="flex items-center justify-between">
+                                <span className="text-sm font-medium text-dark-200">{t('referral.withdrawal.available')}</span>
+                                <span className="text-sm font-bold text-accent-400">
+                                  {formatAmount(withdrawalBalance.available_kopeks / 100)} {currencySymbol}
+                                </span>
+                              </div>
+                            </div>
+
+                            {/* Own funds note */}
+                            {withdrawalBalance.balance_kopeks > withdrawalBalance.available_kopeks && withdrawalBalance.only_referral_mode && (
+                              <p className="mt-1 text-xs text-dark-500">
+                                {t('referral.withdrawal.ownFundsNote', {
+                                  amount: formatAmount((withdrawalBalance.balance_kopeks - withdrawalBalance.available_kopeks) / 100) + ' ' + currencySymbol,
+                                })}
+                              </p>
+                            )}
+                          </div>
+                        </div>
+                      </motion.div>
+                    )}
+                  </AnimatePresence>
+                </div>
+              )}
+
+              {/* Pending / Approved indicators */}
+              {(withdrawalBalance.pending_kopeks > 0 || withdrawalBalance.approved_kopeks > 0) && (
+                <div className="mb-4 space-y-2">
+                  {withdrawalBalance.approved_kopeks > 0 && (
+                    <div className="flex items-center gap-2 rounded-xl bg-success-500/10 border border-success-500/20 px-4 py-2.5">
+                      <svg className="h-4 w-4 shrink-0 text-success-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                      </svg>
+                      <span className="text-sm text-success-300">
+                        {t('referral.withdrawal.approved')}: {formatAmount(withdrawalBalance.approved_kopeks / 100)} {currencySymbol}
+                      </span>
+                    </div>
+                  )}
+                  {withdrawalBalance.pending_kopeks > 0 && (
+                    <div className="flex items-center gap-2 rounded-xl bg-warning-500/10 border border-warning-500/20 px-4 py-2.5">
+                      <svg className="h-4 w-4 shrink-0 text-warning-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M12 6v6h4.5m4.5 0a9 9 0 11-18 0 9 9 0 0118 0z" />
+                      </svg>
+                      <span className="text-sm text-warning-300">
+                        {t('referral.withdrawal.pending')}: {formatAmount(withdrawalBalance.pending_kopeks / 100)} {currencySymbol}
+                      </span>
+                    </div>
+                  )}
+                </div>
+              )}
+
+              {/* Withdrawal Form */}
+              {withdrawalBalance.can_withdraw ? (
+                <div className="space-y-4">
+                  {/* Amount Input */}
+                  <div>
+                    <label className="mb-1.5 block text-sm font-medium text-dark-300">
+                      {t('referral.withdrawal.amount')}
+                    </label>
+                    <div className="relative">
+                      <input
+                        type="number"
+                        inputMode="decimal"
+                        value={withdrawalAmount}
+                        onChange={(e) => setWithdrawalAmount(e.target.value)}
+                        placeholder={t('referral.withdrawal.amountPlaceholder')}
+                        className="input w-full pr-16"
+                        disabled={withdrawalLoading}
+                        min={0}
+                        step="0.01"
+                      />
+                      <span className="pointer-events-none absolute right-4 top-1/2 -translate-y-1/2 text-sm text-dark-500">
+                        {currencySymbol}
+                      </span>
+                    </div>
+                    <div className="mt-1.5 flex items-center justify-between">
+                      <p className="text-xs text-dark-500">
+                        {t('referral.withdrawal.minAmount', {
+                          amount: formatAmount(withdrawalBalance.min_amount_kopeks / 100) + ' ' + currencySymbol,
+                        })}
+                      </p>
+                      <button
+                        type="button"
+                        onClick={() =>
+                          setWithdrawalAmount(
+                            (withdrawalBalance.available_kopeks / 100).toFixed(2),
+                          )
+                        }
+                        className="text-xs font-medium text-accent-400 transition-colors hover:text-accent-300"
+                        disabled={withdrawalLoading}
+                      >
+                        MAX
+                      </button>
+                    </div>
+                  </div>
+
+                  {/* Payment Details Input */}
+                  <div>
+                    <label className="mb-1.5 block text-sm font-medium text-dark-300">
+                      {t('referral.withdrawal.paymentDetails')}
+                    </label>
+                    <textarea
+                      value={paymentDetails}
+                      onChange={(e) => setPaymentDetails(e.target.value)}
+                      placeholder={t('referral.withdrawal.paymentDetailsPlaceholder')}
+                      className="input w-full resize-none"
+                      rows={3}
+                      disabled={withdrawalLoading}
+                    />
+                    <p className="mt-1.5 text-xs text-dark-500">
+                      {t('referral.withdrawal.paymentDetailsHint')}
+                    </p>
+                  </div>
+
+                  {/* Error / Success Messages */}
+                  <AnimatePresence mode="wait">
+                    {withdrawalError && (
+                      <motion.div
+                        initial={{ opacity: 0, y: -8 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        exit={{ opacity: 0, y: -8 }}
+                        className="flex items-start gap-2 rounded-xl border border-error-500/30 bg-error-500/10 p-3"
+                      >
+                        <svg className="mt-0.5 h-4 w-4 shrink-0 text-error-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                          <path strokeLinecap="round" strokeLinejoin="round" d="M12 9v3.75m9-.75a9 9 0 11-18 0 9 9 0 0118 0zm-9 3.75h.008v.008H12v-.008z" />
+                        </svg>
+                        <span className="text-sm text-error-400">{withdrawalError}</span>
+                      </motion.div>
+                    )}
+                    {withdrawalSuccess && (
+                      <motion.div
+                        initial={{ opacity: 0, y: -8 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        exit={{ opacity: 0, y: -8 }}
+                        className="flex items-start gap-2 rounded-xl border border-success-500/30 bg-success-500/10 p-3"
+                      >
+                        <svg className="mt-0.5 h-4 w-4 shrink-0 text-success-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                          <path strokeLinecap="round" strokeLinejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
+                        <span className="text-sm text-success-400">{withdrawalSuccess}</span>
+                      </motion.div>
+                    )}
+                  </AnimatePresence>
+
+                  {/* Submit Button */}
+                  <button
+                    onClick={handleWithdrawalSubmit}
+                    disabled={withdrawalLoading || !withdrawalAmount || !paymentDetails.trim()}
+                    className={`btn-primary w-full ${
+                      withdrawalLoading || !withdrawalAmount || !paymentDetails.trim()
+                        ? 'cursor-not-allowed opacity-50'
+                        : ''
+                    }`}
+                  >
+                    {withdrawalLoading ? (
+                      <div className="flex items-center justify-center gap-2">
+                        <svg className="h-4 w-4 animate-spin" fill="none" viewBox="0 0 24 24">
+                          <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                          <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
+                        </svg>
+                        <span>{t('referral.withdrawal.submitting')}</span>
+                      </div>
+                    ) : (
+                      t('referral.withdrawal.submit')
+                    )}
+                  </button>
+
+                  {/* Cooldown info */}
+                  {withdrawalBalance.cooldown_days > 0 && (
+                    <p className="text-center text-xs text-dark-500">
+                      {t('referral.withdrawal.cooldown', { days: withdrawalBalance.cooldown_days })}
+                    </p>
+                  )}
+                </div>
+              ) : (
+                <div className="rounded-xl bg-dark-800/30 px-4 py-6 text-center">
+                  <svg
+                    className="mx-auto mb-3 h-10 w-10 text-dark-500"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                    strokeWidth={1.5}
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 5.636"
+                    />
+                  </svg>
+                  <p className="text-sm text-dark-400">
+                    {withdrawalBalance.cannot_withdraw_reason || t('referral.withdrawal.unavailable')}
+                  </p>
+                </div>
+              )}
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* Withdrawal History */}
+      {withdrawalRequests?.items && withdrawalRequests.items.length > 0 && (
+        <div className="bento-card">
+          <h2 className="mb-4 text-lg font-semibold text-dark-100">
+            {t('referral.withdrawal.history')}
+          </h2>
+          <div className="space-y-3">
+            {withdrawalRequests.items.map((req) => (
+              <div
+                key={req.id}
+                className="rounded-xl border border-dark-700/30 bg-dark-800/30 p-3"
+              >
+                <div className="flex items-center justify-between">
+                  <div>
+                    <div className="font-medium text-dark-100">
+                      {formatAmount(req.amount_kopeks / 100)} {currencySymbol}
+                    </div>
+                    <div className="mt-0.5 text-xs text-dark-500">
+                      #{req.id} • {new Date(req.created_at).toLocaleDateString()}
+                    </div>
+                  </div>
+                  <span className={getStatusBadge(req.status)}>
+                    {t(`referral.withdrawal.status.${req.status}`, req.status)}
+                  </span>
+                </div>
+                {req.payment_details && (
+                  <div className="mt-2 text-xs text-dark-500 break-all">
+                    {req.payment_details}
+                  </div>
+                )}
+                {req.admin_comment && (
+                  <div className="mt-2 rounded-lg bg-dark-700/30 px-3 py-2 text-xs text-dark-400">
+                    <span className="font-medium">{t('referral.withdrawal.adminComment')}:</span>{' '}
+                    {req.admin_comment}
+                  </div>
+                )}
+              </div>
+            ))}
           </div>
         </div>
       )}

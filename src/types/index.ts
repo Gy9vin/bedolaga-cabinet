@@ -423,6 +423,34 @@ export interface ReferralTerms {
   inviter_bonus_rubles: number;
 }
 
+// Withdrawal types
+export interface WithdrawalBalance {
+  balance_kopeks: number;
+  total_earned_kopeks: number;
+  referral_spent_kopeks: number;
+  withdrawn_kopeks: number;
+  approved_kopeks: number;
+  pending_kopeks: number;
+  available_kopeks: number;
+  can_withdraw: boolean;
+  cannot_withdraw_reason: string | null;
+  min_amount_kopeks: number;
+  cooldown_days: number;
+  only_referral_mode: boolean;
+  explanation: string | null;
+}
+
+export interface WithdrawalRequest {
+  id: number;
+  amount_kopeks: number;
+  status: string;
+  payment_details: string | null;
+  risk_score: number;
+  admin_comment: string | null;
+  created_at: string;
+  processed_at: string | null;
+}
+
 // Ticket types
 export interface TicketMessage {
   id: number;

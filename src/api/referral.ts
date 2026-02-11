@@ -1,5 +1,11 @@
 import apiClient from './client';
-import type { ReferralInfo, ReferralTerms, PaginatedResponse } from '../types';
+import type {
+  ReferralInfo,
+  ReferralTerms,
+  PaginatedResponse,
+  WithdrawalBalance,
+  WithdrawalRequest,
+} from '../types';
 
 interface ReferralItem {
   id: number;
@@ -60,6 +66,33 @@ export const referralApi = {
   // Get referral terms
   getReferralTerms: async (): Promise<ReferralTerms> => {
     const response = await apiClient.get<ReferralTerms>('/cabinet/referral/terms');
+    return response.data;
+  },
+
+  // Get withdrawal balance stats
+  getWithdrawalBalance: async (): Promise<WithdrawalBalance> => {
+    const response = await apiClient.get<WithdrawalBalance>('/cabinet/referral/withdrawal/balance');
+    return response.data;
+  },
+
+  // Create withdrawal request
+  createWithdrawalRequest: async (data: {
+    amount_kopeks: number;
+    payment_details: string;
+  }): Promise<{ success: boolean; message: string; request_id: number }> => {
+    const response = await apiClient.post('/cabinet/referral/withdrawal/request', data);
+    return response.data;
+  },
+
+  // Get withdrawal requests history
+  getWithdrawalRequests: async (params?: {
+    page?: number;
+    per_page?: number;
+  }): Promise<PaginatedResponse<WithdrawalRequest>> => {
+    const response = await apiClient.get<PaginatedResponse<WithdrawalRequest>>(
+      '/cabinet/referral/withdrawal/requests',
+      { params },
+    );
     return response.data;
   },
 };

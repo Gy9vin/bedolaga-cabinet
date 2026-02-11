@@ -612,6 +612,8 @@
     "copyLink": "Copy Link",
     "copied": "Copied!",
     "shareButton": "Share",
+    "qrCode": "QR Code",
+    "downloadQr": "Download QR Code",
     "shareMessage": "Join me on {{botName}} and earn up to {{percent}}% cashback!",
     "shareHint": "Share this link with friends. When they sign up and make a purchase, you'll earn {{percent}}% commission!",
     "stats": {
@@ -645,7 +647,45 @@
       "referral_subscription_renewal": "Referral Subscription Renewal",
       "referral_bonus": "Referral Bonus"
     },
-    "disabled": "Referral program is currently disabled"
+    "disabled": "Referral program is currently disabled",
+    "withdrawal": {
+      "title": "Withdraw Funds",
+      "available": "Available for withdrawal",
+      "earned": "Total earned",
+      "spent": "Spent (ref balance)",
+      "withdrawn": "Withdrawn",
+      "pending": "Pending review",
+      "amount": "Withdrawal amount",
+      "amountPlaceholder": "Enter amount",
+      "paymentDetails": "Payment details",
+      "paymentDetailsPlaceholder": "Card number, phone or bank details",
+      "paymentDetailsHint": "Enter your card number, phone (for fast transfer) or other bank details. Minimum 10 characters.",
+      "submit": "Submit request",
+      "submitting": "Submitting...",
+      "minAmount": "Minimum amount: {{amount}}",
+      "cooldown": "Next request in {{days}} days",
+      "success": "Withdrawal request created!",
+      "successMessage": "Your request #{{id}} has been submitted and is pending review",
+      "error": "Error",
+      "history": "Request history",
+      "noRequests": "No withdrawal requests yet",
+      "status": {
+        "pending": "Pending",
+        "approved": "Approved",
+        "rejected": "Rejected",
+        "completed": "Completed",
+        "cancelled": "Cancelled"
+      },
+      "adminComment": "Comment",
+      "unavailable": "Withdrawal unavailable",
+      "featureDisabled": "Referral balance withdrawal is disabled",
+      "balance": "Balance",
+      "approved": "Approved",
+      "whyNotAll": "Why not the full balance?",
+      "details": "Details",
+      "explanationHint": "Only referral earnings can be withdrawn. Your balance contains both personal and referral funds.",
+      "ownFundsNote": "The remaining {{amount}} are personal funds and cannot be withdrawn."
+    }
   },
   "support": {
     "title": "Support",
