@@ -181,10 +181,17 @@ export default function Profile() {
   // Email change mutations
   const requestEmailChangeMutation = useMutation({
     mutationFn: (emailAddr: string) => authApi.requestEmailChange(emailAddr),
-    onSuccess: () => {
+    onSuccess: async (data) => {
       setChangeError(null);
-      setChangeEmailStep('code');
-      setResendCooldown(UI.RESEND_COOLDOWN_SEC);
+      if (data.expires_in_minutes === 0) {
+        // Unverified email was replaced directly
+        setChangeEmailStep('success');
+        const updatedUser = await authApi.getMe();
+        setUser(updatedUser);
+      } else {
+        setChangeEmailStep('code');
+        setResendCooldown(UI.RESEND_COOLDOWN_SEC);
+      }
     },
     onError: (err: { response?: { data?: { detail?: string } } }) => {
       const detail = err.response?.data?.detail;
