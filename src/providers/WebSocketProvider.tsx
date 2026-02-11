@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState, useCallback } from 'react';
 import { useAuthStore } from '../store/auth';
 import { WebSocketContext, type MessageHandler, type WSMessage } from './WebSocketContext';
+import { WS } from '../config/constants';
 
 // Re-export for backward compatibility
 export type { WSMessage } from './WebSocketContext';
@@ -14,7 +15,7 @@ export function WebSocketProvider({ children }: { children: React.ReactNode }) {
   const pingIntervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const [isConnected, setIsConnected] = useState(false);
   const reconnectAttemptsRef = useRef(0);
-  const maxReconnectAttempts = 5;
+  const maxReconnectAttempts = WS.MAX_RECONNECT_ATTEMPTS;
 
   // Store message handlers
   const handlersRef = useRef<Set<MessageHandler>>(new Set());
@@ -76,12 +77,17 @@ export function WebSocketProvider({ children }: { children: React.ReactNode }) {
           if (ws.readyState === WebSocket.OPEN) {
             ws.send(JSON.stringify({ type: 'ping' }));
           }
-        }, 25000);
+        }, WS.PING_INTERVAL_MS);
       };
 
       ws.onmessage = (event) => {
         try {
-          const message = JSON.parse(event.data) as WSMessage;
+          const parsed = JSON.parse(event.data);
+          if (!parsed || typeof parsed !== 'object' || typeof parsed.type !== 'string') {
+            if (isDev) console.warn('[WS] Invalid message format:', parsed);
+            return;
+          }
+          const message = parsed as WSMessage;
 
           // Ignore pong messages
           if (message.type === 'pong' || message.type === 'connected') {
@@ -112,7 +118,10 @@ export function WebSocketProvider({ children }: { children: React.ReactNode }) {
 
         // Attempt to reconnect if not closed intentionally
         if (event.code !== 1000 && reconnectAttemptsRef.current < maxReconnectAttempts) {
-          const delay = Math.min(1000 * Math.pow(2, reconnectAttemptsRef.current), 30000);
+          const delay = Math.min(
+            1000 * Math.pow(2, reconnectAttemptsRef.current),
+            WS.MAX_RECONNECT_DELAY_MS,
+          );
           if (isDev)
             console.log(
               `[WS] Reconnecting in ${delay}ms (attempt ${reconnectAttemptsRef.current + 1})`,
@@ -131,7 +140,7 @@ export function WebSocketProvider({ children }: { children: React.ReactNode }) {
     } catch (e) {
       if (isDev) console.error('[WS] Failed to connect:', e);
     }
-  }, [accessToken, isAuthenticated, cleanup]);
+  }, [accessToken, isAuthenticated, cleanup, maxReconnectAttempts]);
 
   // Connect when authenticated
   useEffect(() => {

@@ -208,7 +208,9 @@ export const tariffsApi = {
   },
 
   // Delete tariff
-  deleteTariff: async (tariffId: number): Promise<{ message: string }> => {
+  deleteTariff: async (
+    tariffId: number,
+  ): Promise<{ message: string; affected_subscriptions: number }> => {
     const response = await apiClient.delete(`/cabinet/admin/tariffs/${tariffId}`);
     return response.data;
   },
@@ -229,6 +231,11 @@ export const tariffsApi = {
   getTariffStats: async (tariffId: number): Promise<TariffStats> => {
     const response = await apiClient.get(`/cabinet/admin/tariffs/${tariffId}/stats`);
     return response.data;
+  },
+
+  // Update tariff display order
+  updateOrder: async (tariffIds: number[]): Promise<void> => {
+    await apiClient.put('/cabinet/admin/tariffs/order', { tariff_ids: tariffIds });
   },
 
   // Get available servers for selection

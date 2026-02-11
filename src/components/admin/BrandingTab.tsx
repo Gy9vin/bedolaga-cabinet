@@ -3,7 +3,7 @@ import { useTranslation } from 'react-i18next';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { brandingApi, setCachedBranding } from '../../api/branding';
 import { setCachedAnimationEnabled } from '../AnimatedBackground';
-import { setCachedFullscreenEnabled } from '../../hooks/useTelegramWebApp';
+import { setCachedFullscreenEnabled } from '../../hooks/useTelegramSDK';
 import { UploadIcon, TrashIcon, PencilIcon, CheckIcon, CloseIcon } from './icons';
 import { Toggle } from './Toggle';
 

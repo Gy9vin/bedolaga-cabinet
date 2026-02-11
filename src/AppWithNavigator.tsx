@@ -1,12 +1,14 @@
 import { useEffect, useRef, useCallback } from 'react';
-import { BrowserRouter, useLocation, useNavigate } from 'react-router-dom';
+import { BrowserRouter, useLocation, useNavigate } from 'react-router';
 import {
   showBackButton,
   hideBackButton,
   onBackButtonClick,
   offBackButtonClick,
 } from '@telegram-apps/sdk-react';
+import Twemoji from 'react-twemoji';
 import App from './App';
+import { ErrorBoundary } from './components/ErrorBoundary';
 import { PlatformProvider } from './platform/PlatformProvider';
 import { ThemeColorsProvider } from './providers/ThemeColorsProvider';
 import { WebSocketProvider } from './providers/WebSocketProvider';
@@ -18,6 +20,9 @@ import { isInTelegramWebApp } from './hooks/useTelegramSDK';
  * Manages Telegram BackButton visibility based on navigation location.
  * Shows back button on non-root routes, hides on root.
  */
+/** Pages reachable from bottom nav — treat as top-level (no back button). */
+const BOTTOM_NAV_PATHS = ['/', '/subscription', '/balance', '/referral', '/support', '/wheel'];
+
 function TelegramBackButton() {
   const location = useLocation();
   const navigate = useNavigate();
@@ -25,9 +30,9 @@ function TelegramBackButton() {
   navigateRef.current = navigate;
 
   useEffect(() => {
-    const isRoot = location.pathname === '/' || location.pathname === '';
+    const isTopLevel = location.pathname === '' || BOTTOM_NAV_PATHS.includes(location.pathname);
     try {
-      if (isRoot) {
+      if (isTopLevel) {
         hideBackButton();
       } else {
         showBackButton();
@@ -66,17 +71,21 @@ export function AppWithNavigator() {
   return (
     <BrowserRouter>
       {isTelegram && <TelegramBackButton />}
-      <PlatformProvider>
-        <ThemeColorsProvider>
-          <TooltipProvider>
-            <ToastProvider>
-              <WebSocketProvider>
-                <App />
-              </WebSocketProvider>
-            </ToastProvider>
-          </TooltipProvider>
-        </ThemeColorsProvider>
-      </PlatformProvider>
+      <ErrorBoundary level="page">
+        <PlatformProvider>
+          <ThemeColorsProvider>
+            <TooltipProvider>
+              <ToastProvider>
+                <WebSocketProvider>
+                  <Twemoji options={{ className: 'twemoji', folder: 'svg', ext: '.svg' }}>
+                    <App />
+                  </Twemoji>
+                </WebSocketProvider>
+              </ToastProvider>
+            </TooltipProvider>
+          </ThemeColorsProvider>
+        </PlatformProvider>
+      </ErrorBoundary>
     </BrowserRouter>
   );
 }

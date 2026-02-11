@@ -276,7 +276,3 @@ export const COLOR_PRESETS: ColorPreset[] = [
     },
   },
 ];
-
-export function getPresetById(id: string): ColorPreset | undefined {
-  return COLOR_PRESETS.find((preset) => preset.id === id);
-}

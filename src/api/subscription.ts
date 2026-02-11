@@ -91,6 +91,11 @@ export const subscriptionApi = {
     can_add?: number;
     days_left?: number;
     base_device_price_kopeks?: number;
+    // Discount fields (from promo group)
+    original_price_per_device_kopeks?: number;
+    base_total_price_kopeks?: number;
+    discount_percent?: number;
+    discount_kopeks?: number;
   }> => {
     const response = await apiClient.get('/cabinet/subscription/devices/price', {
       params: { devices },
@@ -355,6 +360,10 @@ export const subscriptionApi = {
     missing_amount_kopeks: number;
     missing_amount_label: string;
     is_upgrade: boolean;
+    // Discount fields (from promo group)
+    base_upgrade_cost_kopeks?: number;
+    discount_percent?: number;
+    discount_kopeks?: number;
   }> => {
     const response = await apiClient.post('/cabinet/subscription/tariff/switch/preview', {
       tariff_id: tariffId,

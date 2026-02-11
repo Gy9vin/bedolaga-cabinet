@@ -7,6 +7,7 @@ import {
   safeRedirectToLogin,
 } from '../utils/token';
 import { useBlockingStore } from '../store/blocking';
+import { API } from '../config/constants';
 
 const API_BASE_URL = import.meta.env.VITE_API_URL || '/api';
 
@@ -57,31 +58,54 @@ const getTelegramInitData = (): string | null => {
 
 export const apiClient = axios.create({
   baseURL: API_BASE_URL,
+  timeout: API.TIMEOUT_MS,
   headers: {
     'Content-Type': 'application/json',
   },
 });
 
+// Auth endpoints that don't need Bearer token or token refresh
+const AUTH_ENDPOINTS = [
+  '/cabinet/auth/telegram',
+  '/cabinet/auth/telegram/widget',
+  '/cabinet/auth/email/login',
+  '/cabinet/auth/email/register',
+  '/cabinet/auth/email/verify',
+  '/cabinet/auth/refresh',
+  '/cabinet/auth/password/forgot',
+  '/cabinet/auth/password/reset',
+  '/cabinet/auth/oauth/',
+];
+
+function isAuthEndpoint(url: string | undefined): boolean {
+  if (!url) return false;
+  return AUTH_ENDPOINTS.some((endpoint) => url.includes(endpoint));
+}
+
 // Request interceptor - add auth token with expiration check
 apiClient.interceptors.request.use(async (config: InternalAxiosRequestConfig) => {
-  let token = tokenStorage.getAccessToken();
+  // Skip token refresh and Bearer header for auth endpoints
+  // These endpoints authenticate via init_data/credentials, not Bearer tokens
+  if (!isAuthEndpoint(config.url)) {
+    let token = tokenStorage.getAccessToken();
 
-  // Проверяем срок действия токена перед запросом
-  if (token && isTokenExpired(token)) {
-    // Используем централизованный менеджер для refresh
-    const newToken = await tokenRefreshManager.refreshAccessToken();
-    if (newToken) {
-      token = newToken;
-    } else {
-      // Refresh не удался - редирект на логин
-      tokenStorage.clearTokens();
-      safeRedirectToLogin();
-      return config;
+    // Проверяем срок действия токена перед запросом
+    if (token && isTokenExpired(token)) {
+      // Используем централизованный менеджер для refresh
+      const newToken = await tokenRefreshManager.refreshAccessToken();
+      if (newToken) {
+        token = newToken;
+      } else {
+        // Refresh не удался - редирект на логин
+        tokenStorage.clearTokens();
+        safeRedirectToLogin();
+        return config;
+      }
     }
-  }
 
-  if (token && config.headers) {
-    config.headers.Authorization = `Bearer ${token}`;
+    if (token && config.headers) {
+      config.headers.Authorization = `Bearer ${token}`;
+    }
   }
 
   const telegramInitData = getTelegramInitData();
@@ -111,6 +135,11 @@ export interface ChannelSubscriptionError {
   channel_link?: string;
 }
 
+export interface BlacklistedError {
+  code: 'blacklisted';
+  message: string;
+}
+
 export function isMaintenanceError(
   error: unknown,
 ): error is { response: { status: 503; data: { detail: MaintenanceError } } } {
@@ -128,6 +157,14 @@ export function isChannelSubscriptionError(
     err.response?.status === 403 &&
     err.response?.data?.detail?.code === 'channel_subscription_required'
   );
+}
+
+export function isBlacklistedError(
+  error: unknown,
+): error is { response: { status: 403; data: { detail: BlacklistedError } } } {
+  if (!error || typeof error !== 'object') return false;
+  const err = error as AxiosError<{ detail: BlacklistedError }>;
+  return err.response?.status === 403 && err.response?.data?.detail?.code === 'blacklisted';
 }
 
 // Response interceptor - handle 401, 503 (maintenance), 403 (channel subscription)
@@ -152,6 +189,15 @@ apiClient.interceptors.response.use(
       useBlockingStore.getState().setChannelSubscription({
         message: detail.message,
         channel_link: detail.channel_link,
+      });
+      return Promise.reject(error);
+    }
+
+    // Handle blacklisted user (403)
+    if (isBlacklistedError(error)) {
+      const detail = (error.response?.data as { detail: BlacklistedError }).detail;
+      useBlockingStore.getState().setBlacklisted({
+        message: detail.message,
       });
       return Promise.reject(error);
     }

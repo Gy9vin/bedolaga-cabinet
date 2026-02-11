@@ -1,4 +1,4 @@
-﻿{
+{
   "common": {
     "loading": "加载中...",
     "error": "错误",
@@ -153,6 +153,8 @@
     "or": "或",
     "registerHint": "要通过邮箱注册，请先通过Telegram登录，然后在设置中绑定邮箱。",
     "telegramRequired": "需要Telegram授权",
+    "telegramRetryFailed": "授权失败。请关闭应用后重新打开。",
+    "telegramReopenHint": "如果问题持续存在，请关闭并重新打开应用",
     "telegramNotConfigured": "Telegram机器人未配置",
     "authenticating": "正在验证...",
     "orOpenInApp": "或在应用中打开机器人",
@@ -179,7 +181,13 @@
     "passwordTooShort": "密码至少需要8个字符",
     "sendResetLink": "发送重置链接",
     "tooManyAttempts": "尝试次数过多，请稍后再试",
-    "verificationEmailNotice": "注册后，验证邮件将发送到您的邮箱"
+    "verificationEmailNotice": "注册后，验证邮件将发送到您的邮箱",
+    "continueWithGoogle": "通过 Google 继续",
+    "continueWithYandex": "通过 Yandex 继续",
+    "continueWithDiscord": "通过 Discord 继续",
+    "continueWithVk": "通过 VK 继续",
+    "oauthError": "授权被拒绝或失败",
+    "oauthExpired": "OAuth 会话已过期。请重试。"
   },
   "emailVerification": {
     "title": "邮箱验证",
@@ -298,7 +306,12 @@
       "changeApp": "更换应用",
       "selectPlatform": "选择平台",
       "app": "个应用",
-      "apps": "个应用"
+      "apps": "个应用",
+      "tutorial": "教程",
+      "notConfigured": "连接方式尚未配置",
+      "notConfiguredUser": "连接设置正在进行中，请稍后再来查看。",
+      "notConfiguredAdmin": "尚未配置连接应用。请在应用设置中进行配置。",
+      "goToApps": "前往应用设置"
     },
     "additionalOptions": {
       "title": "附加选项",
@@ -633,7 +646,9 @@
       "promocodes": "促销码",
       "promoGroups": "折扣组",
       "remnawave": "RemnaWave",
-      "users": "用户"
+      "users": "用户",
+      "trafficUsage": "流量使用",
+      "updates": "更新"
     },
     "panel": {
       "title": "管理面板",
@@ -655,7 +670,51 @@
       "promocodesDesc": "管理促销码",
       "promoGroupsDesc": "用户折扣组",
       "remnawaveDesc": "面板管理和统计",
-      "usersDesc": "管理机器人用户"
+      "usersDesc": "管理机器人用户",
+      "trafficUsageDesc": "按节点统计用户流量",
+      "updatesDesc": "机器人和面板版本"
+    },
+    "trafficUsage": {
+      "title": "流量使用",
+      "subtitle": "按节点的用户流量统计",
+      "period": "周期",
+      "days": "天",
+      "exportCsv": "导出CSV",
+      "exportSuccess": "CSV已发送到您的Telegram",
+      "exportError": "导出失败",
+      "user": "用户",
+      "tariff": "套餐",
+      "devices": "设备",
+      "trafficLimit": "限制",
+      "total": "总计",
+      "noData": "无流量数据",
+      "loading": "正在加载流量数据...",
+      "noTariff": "\u2014",
+      "search": "按名称或用户名搜索",
+      "allTariffs": "所有套餐",
+      "nodes": "节点",
+      "allNodes": "所有节点",
+      "status": "状态",
+      "allStatuses": "全部",
+      "statusActive": "活跃",
+      "statusTrial": "试用",
+      "statusExpired": "已过期",
+      "statusDisabled": "已禁用",
+      "customDates": "自定义日期",
+      "dateFrom": "从",
+      "dateTo": "到",
+      "totalThreshold": "总流量GB/天",
+      "nodeThreshold": "节点GB/天",
+      "risk": "风险",
+      "riskLow": "低",
+      "riskMedium": "中",
+      "riskHigh": "高",
+      "riskCritical": "严重",
+      "connected": "连接",
+      "totalSpent": "消费",
+      "subStart": "开始",
+      "subEnd": "结束",
+      "lastNode": "最近节点"
     },
     "paymentMethods": {
       "title": "支付方法",
@@ -846,7 +905,12 @@
         "activity": "按活动",
         "source": "按来源",
         "tariff": "按套餐"
-      }
+      },
+      "enableTelegram": "Telegram",
+      "enableEmail": "Email",
+      "sendingBoth": "将创建2个群发",
+      "bothCreated": "群发已创建",
+      "atLeastOneChannel": "请至少选择一个渠道"
     },
     "settings": {
       "title": "系统设置",
@@ -1014,6 +1078,7 @@
       "adminNotificationsEnabledDesc": "向管理员发送新工单和回复通知",
       "cabinetNotifications": "面板通知",
       "copyTelegramId": "点击复制Telegram ID",
+      "viewUser": "用户",
       "userNotificationsEnabled": "用户通知",
       "userNotificationsEnabledDesc": "向用户发送管理员回复通知"
     },
@@ -1049,6 +1114,10 @@
       "confirmDeleteText": "此操作不可撤销。套餐将被永久删除。",
       "confirmDeleteWithSubscriptions": "此套餐有 {{count}} 个活跃订阅。删除后，用户续订时需要选择新套餐。",
       "deleteSuccess": "套餐删除成功",
+      "deleteSuccessWithSubscriptions": "套餐已删除。{{count}} 个订阅已重置 — 用户续订时将选择新套餐。",
+      "saveOrder": "保存排序",
+      "orderSaved": "排序已保存",
+      "dragToReorder": "拖动以重新排序",
       "days": "天",
       "days_other": "{{count}} 天",
       "tabs": {
@@ -1524,19 +1593,50 @@
           "info": "信息",
           "subscription": "订阅",
           "balance": "余额",
-          "sync": "同步"
+          "sync": "同步",
+          "tickets": "工单"
         },
+        "noTickets": "该用户没有工单",
+        "ticketsCount": "个工单",
+        "messagesCount": "条消息",
         "status": "状态",
         "language": "语言",
         "registration": "注册时间",
         "lastActivity": "最后活跃",
         "totalSpent": "总消费",
         "purchases": "购买次数",
+        "campaign": "广告活动",
+        "referralsList": "推荐列表",
+        "referralEarnings": "推荐收入",
+        "noReferrals": "暂无推荐",
+        "panelConfig": "面板配置",
+        "trojanPassword": "Trojan 密码",
+        "vlessUuid": "VLESS UUID",
+        "ssPassword": "SS 密码",
+        "subscriptionUrl": "订阅链接",
+        "happLink": "HAPP 链接",
+        "firstConnected": "首次连接",
+        "lastOnline": "最后在线",
+        "lastNode": "最后节点",
+        "liveTraffic": "当前流量",
+        "lifetime": "累计",
+        "nodeUsage": "节点用量",
+        "copied": "已复制",
+        "panelNotFound": "面板中未找到用户",
+        "devices": {
+          "title": "设备",
+          "none": "没有已连接的设备",
+          "resetAll": "重置全部",
+          "deleted": "设备已删除",
+          "allDeleted": "所有设备已重置"
+        },
         "referral": {
           "title": "推荐计划",
           "referrals": "推荐人数",
           "earned": "已赚取",
-          "commission": "佣金"
+          "commission": "佣金",
+          "default": "默认",
+          "invalidPercent": "佣金必须在0到100之间"
         },
         "restrictions": {
           "title": "限制",
@@ -1544,6 +1644,22 @@
           "subscription": "• 禁止购买订阅",
           "reason": "原因"
         },
+        "promoGroup": "优惠组",
+        "noPromoGroup": "未设置",
+        "changePromoGroup": "更改",
+        "selectPromoGroup": "选择组",
+        "removePromoGroup": "移除",
+        "activePromoOffer": "活跃促销优惠",
+        "discount": "折扣",
+        "source": "来源",
+        "expiresAt": "到期时间",
+        "deactivateOffer": "停用",
+        "sendOffer": "发送优惠",
+        "discountPercent": "折扣 %",
+        "validHours": "有效期（小时）",
+        "offerSent": "优惠已发送",
+        "offerSendError": "发送优惠失败",
+        "offerDeactivated": "优惠已停用",
         "subscription": {
           "current": "当前订阅",
           "tariff": "套餐",
@@ -1561,7 +1677,17 @@
           "unavailable": "（不可用）",
           "noActive": "无活跃订阅",
           "create": "创建订阅",
-          "creating": "创建中..."
+          "creating": "创建中...",
+          "trafficPackages": "流量包",
+          "addTraffic": "添加流量",
+          "selectPackage": "选择套餐",
+          "addButton": "添加",
+          "addTrafficNote": "管理员：免费，有效期30天",
+          "trafficRemoved": "流量包已删除",
+          "trafficAdded": "流量包已添加",
+          "expired": "已过期",
+          "daysLeft": "天剩余",
+          "deviceLimitUpdated": "设备限制已更新"
         },
         "balance": {
           "current": "当前余额",
@@ -1808,6 +1934,19 @@
       }
     }
   },
+  "adminUpdates": {
+    "title": "更新",
+    "subtitle": "机器人和面板发布历史",
+    "bot": "机器人",
+    "cabinet": "面板",
+    "currentVersion": "当前版本",
+    "upToDate": "已是最新",
+    "updateAvailable": "有可用更新",
+    "published": "发布于",
+    "prerelease": "预发布",
+    "refresh": "检查更新",
+    "noReleases": "没有发布数据"
+  },
   "adminDashboard": {
     "title": "统计面板",
     "subtitle": "实时系统概览",
@@ -1888,6 +2027,15 @@
       "amount": "金额",
       "method": "方法",
       "date": "日期"
+    },
+    "systemInfo": {
+      "title": "系统",
+      "cabinet": "面板",
+      "bot": "机器人",
+      "python": "Python",
+      "uptime": "运行时间",
+      "users": "用户",
+      "activeSubs": "订阅"
     }
   },
   "profile": {
@@ -2151,6 +2299,12 @@
       "hint": "订阅后点击检查按钮",
       "notSubscribed": "您还没有订阅该频道",
       "checkError": "检查失败。请稍后重试。"
+    },
+    "blacklisted": {
+      "title": "访问被拒绝",
+      "defaultMessage": "您的帐户已被封锁。",
+      "reason": "原因",
+      "contactSupport": "如果您认为这是错误，请联系客服。"
     }
   },
   "banSystem": {

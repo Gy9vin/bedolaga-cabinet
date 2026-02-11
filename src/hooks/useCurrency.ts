@@ -1,3 +1,4 @@
+import { useCallback, useMemo } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { useTranslation } from 'react-i18next';
 import { currencyApi, type ExchangeRates } from '../api/currency';
@@ -40,65 +41,93 @@ export function useCurrency() {
   const currencySymbol = t('common.currency');
 
   // Format amount with currency conversion
-  const formatAmount = (rubAmount: number, decimals: number = 2): string => {
-    if (isRussian) {
-      return rubAmount.toFixed(decimals);
-    }
+  const formatAmount = useCallback(
+    (rubAmount: number, decimals: number = 2): string => {
+      if (isRussian) {
+        return rubAmount.toFixed(decimals);
+      }
 
-    // Convert to target currency
-    const convertedAmount = currencyApi.convertFromRub(
-      rubAmount,
-      targetCurrency as keyof ExchangeRates,
-      exchangeRates,
-    );
+      // Convert to target currency
+      const convertedAmount = currencyApi.convertFromRub(
+        rubAmount,
+        targetCurrency as keyof ExchangeRates,
+        exchangeRates,
+      );
 
-    // For IRR (Iranian Toman), use no decimals as amounts are large
-    if (targetCurrency === 'IRR') {
-      return Math.round(convertedAmount).toLocaleString('fa-IR');
-    }
+      // For IRR (Iranian Toman), use no decimals as amounts are large
+      if (targetCurrency === 'IRR') {
+        return Math.round(convertedAmount).toLocaleString('fa-IR');
+      }
 
-    return convertedAmount.toFixed(decimals);
-  };
+      return convertedAmount.toFixed(decimals);
+    },
+    [isRussian, targetCurrency, exchangeRates],
+  );
 
   // Format amount with currency symbol
-  const formatWithCurrency = (rubAmount: number, decimals: number = 2): string => {
-    return `${formatAmount(rubAmount, decimals)} ${currencySymbol}`;
-  };
+  const formatWithCurrency = useCallback(
+    (rubAmount: number, decimals: number = 2): string => {
+      return `${formatAmount(rubAmount, decimals)} ${currencySymbol}`;
+    },
+    [formatAmount, currencySymbol],
+  );
 
   // Format amount with + sign (for earnings/bonuses)
-  const formatPositive = (rubAmount: number, decimals: number = 2): string => {
-    return `+${formatAmount(rubAmount, decimals)} ${currencySymbol}`;
-  };
+  const formatPositive = useCallback(
+    (rubAmount: number, decimals: number = 2): string => {
+      return `+${formatAmount(rubAmount, decimals)} ${currencySymbol}`;
+    },
+    [formatAmount, currencySymbol],
+  );
 
   // Get raw converted amount (for calculations)
-  const convertAmount = (rubAmount: number): number => {
-    if (isRussian) {
-      return rubAmount;
-    }
-    return currencyApi.convertFromRub(
-      rubAmount,
-      targetCurrency as keyof ExchangeRates,
-      exchangeRates,
-    );
-  };
+  const convertAmount = useCallback(
+    (rubAmount: number): number => {
+      if (isRussian) {
+        return rubAmount;
+      }
+      return currencyApi.convertFromRub(
+        rubAmount,
+        targetCurrency as keyof ExchangeRates,
+        exchangeRates,
+      );
+    },
+    [isRussian, targetCurrency, exchangeRates],
+  );
 
   // Convert from user's currency back to rubles
-  const convertToRub = (amount: number): number => {
-    if (isRussian) {
-      return amount;
-    }
-    return currencyApi.convertToRub(amount, targetCurrency as keyof ExchangeRates, exchangeRates);
-  };
+  const convertToRub = useCallback(
+    (amount: number): number => {
+      if (isRussian) {
+        return amount;
+      }
+      return currencyApi.convertToRub(amount, targetCurrency as keyof ExchangeRates, exchangeRates);
+    },
+    [isRussian, targetCurrency, exchangeRates],
+  );
 
-  return {
-    exchangeRates,
-    targetCurrency,
-    isRussian,
-    currencySymbol,
-    formatAmount,
-    formatWithCurrency,
-    formatPositive,
-    convertAmount,
-    convertToRub,
-  };
+  return useMemo(
+    () => ({
+      exchangeRates,
+      targetCurrency,
+      isRussian,
+      currencySymbol,
+      formatAmount,
+      formatWithCurrency,
+      formatPositive,
+      convertAmount,
+      convertToRub,
+    }),
+    [
+      exchangeRates,
+      targetCurrency,
+      isRussian,
+      currencySymbol,
+      formatAmount,
+      formatWithCurrency,
+      formatPositive,
+      convertAmount,
+      convertToRub,
+    ],
+  );
 }

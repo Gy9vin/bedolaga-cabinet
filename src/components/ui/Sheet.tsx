@@ -1,6 +1,5 @@
 import { useEffect, useRef, useCallback, useState, type ReactNode } from 'react';
 import { createPortal } from 'react-dom';
-import { useBackButton } from '@/platform';
 import { useHaptic } from '@/platform';
 
 export interface SheetProps {
@@ -104,9 +103,6 @@ export function Sheet({
   const [isVisible, setIsVisible] = useState(false);
 
   const haptic = useHaptic();
-
-  // BackButton integration
-  useBackButton(isOpen ? onClose : null);
 
   // Calculate current height based on snap point
   const currentHeight = `${snapPoints[currentSnapIndex] * 100}vh`;

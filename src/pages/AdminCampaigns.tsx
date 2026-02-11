@@ -1,11 +1,10 @@
 import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useTranslation } from 'react-i18next';
 import i18n from '../i18n';
 import { campaignsApi, CampaignListItem, CampaignBonusType } from '../api/campaigns';
 import { PlusIcon, EditIcon, TrashIcon, CheckIcon, XIcon, ChartIcon } from '../components/icons';
-import { useBackButton } from '../platform/hooks/useBackButton';
 import { usePlatform } from '../platform/hooks/usePlatform';
 
 // Bonus type labels and colors
@@ -66,9 +65,6 @@ export default function AdminCampaigns() {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
   const { capabilities } = usePlatform();
-
-  // Use native Telegram back button in Mini App
-  useBackButton(() => navigate('/admin'));
 
   const [deleteConfirm, setDeleteConfirm] = useState<number | null>(null);
 

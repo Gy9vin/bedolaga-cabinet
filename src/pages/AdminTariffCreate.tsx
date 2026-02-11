@@ -1,5 +1,5 @@
 import { useState, useCallback } from 'react';
-import { useNavigate, useParams } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useTranslation } from 'react-i18next';
 import {
@@ -12,7 +12,6 @@ import {
 } from '../api/tariffs';
 import { AdminBackButton } from '../components/admin';
 import { createNumberInputHandler, toNumber } from '../utils/inputHelpers';
-import { useBackButton } from '../platform/hooks/useBackButton';
 
 // Icons
 const PlusIcon = () => (
@@ -91,8 +90,6 @@ export default function AdminTariffCreate() {
   const { id } = useParams<{ id: string }>();
   const queryClient = useQueryClient();
   const isEdit = !!id;
-
-  useBackButton(() => navigate('/admin/tariffs'));
 
   // Step: null = type selection, 'period' or 'daily' = form
   const [tariffType, setTariffType] = useState<TariffType>(null);
@@ -672,7 +669,7 @@ export default function AdminTariffCreate() {
                 {t('admin.tariffs.noServersAvailable')}
               </p>
             ) : (
-              <div className="max-h-48 space-y-2 overflow-y-auto">
+              <div className="space-y-2">
                 {servers.map((server: ServerInfo) => {
                   const isSelected = selectedSquads.includes(server.squad_uuid);
                   return (
@@ -975,7 +972,7 @@ export default function AdminTariffCreate() {
             {promoGroups.length === 0 ? (
               <p className="py-4 text-center text-dark-500">{t('admin.tariffs.noPromoGroups')}</p>
             ) : (
-              <div className="max-h-48 space-y-2 overflow-y-auto">
+              <div className="space-y-2">
                 {promoGroups.map((group) => {
                   const isSelected = selectedPromoGroups.includes(group.id);
                   return (

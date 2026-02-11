@@ -1,4 +1,4 @@
-﻿{
+{
   "common": {
     "loading": "در حال بارگذاری...",
     "all": "همه",
@@ -153,6 +153,8 @@
     "or": "یا",
     "registerHint": "برای ثبت نام با ایمیل، ابتدا با تلگرام وارد شوید، سپس ایمیل خود را در تنظیمات متصل کنید.",
     "telegramRequired": "نیاز به تایید تلگرام",
+    "telegramRetryFailed": "تایید هویت ناموفق بود. برنامه را ببندید و دوباره باز کنید.",
+    "telegramReopenHint": "اگر مشکل ادامه دارد، برنامه را ببندید و دوباره باز کنید",
     "telegramNotConfigured": "ربات تلگرام پیکربندی نشده",
     "authenticating": "در حال تایید هویت...",
     "orOpenInApp": "یا ربات را در برنامه باز کنید",
@@ -179,7 +181,13 @@
     "passwordTooShort": "رمز عبور باید حداقل ۸ کاراکتر باشد",
     "sendResetLink": "ارسال لینک بازنشانی",
     "tooManyAttempts": "تلاش‌های زیاد. لطفاً بعداً امتحان کنید",
-    "verificationEmailNotice": "پس از ثبت نام، ایمیل تأیید به آدرس شما ارسال خواهد شد"
+    "verificationEmailNotice": "پس از ثبت نام، ایمیل تأیید به آدرس شما ارسال خواهد شد",
+    "continueWithGoogle": "ادامه با Google",
+    "continueWithYandex": "ادامه با Yandex",
+    "continueWithDiscord": "ادامه با Discord",
+    "continueWithVk": "ادامه با VK",
+    "oauthError": "مجوز رد شد یا ناموفق بود",
+    "oauthExpired": "نشست OAuth منقضی شده است. لطفاً دوباره امتحان کنید."
   },
   "emailVerification": {
     "title": "تایید ایمیل",
@@ -298,7 +306,12 @@
       "changeApp": "تغییر برنامه",
       "selectPlatform": "انتخاب پلتفرم",
       "app": "برنامه",
-      "apps": "برنامه"
+      "apps": "برنامه",
+      "tutorial": "آموزش",
+      "notConfigured": "روش‌های اتصال هنوز پیکربندی نشده‌اند",
+      "notConfiguredUser": "تنظیمات اتصال در حال انجام است. لطفاً بعداً مراجعه کنید.",
+      "notConfiguredAdmin": "هیچ برنامه اتصالی پیکربندی نشده است. آن‌ها را در تنظیمات برنامه‌ها تنظیم کنید.",
+      "goToApps": "رفتن به تنظیمات برنامه‌ها"
     },
     "additionalOptions": {
       "title": "گزینه‌های اضافی",
@@ -633,7 +646,9 @@
       "promocodes": "کدهای تخفیف",
       "promoGroups": "گروه‌های تخفیف",
       "remnawave": "RemnaWave",
-      "users": "کاربران"
+      "users": "کاربران",
+      "trafficUsage": "مصرف ترافیک",
+      "updates": "به‌روزرسانی‌ها"
     },
     "panel": {
       "title": "پنل مدیریت",
@@ -655,7 +670,51 @@
       "promocodesDesc": "مدیریت کدهای تخفیف",
       "promoGroupsDesc": "گروه‌های تخفیف برای کاربران",
       "remnawaveDesc": "مدیریت پنل و آمار",
-      "usersDesc": "مدیریت کاربران ربات"
+      "usersDesc": "مدیریت کاربران ربات",
+      "trafficUsageDesc": "ترافیک هر کاربر بر اساس نود",
+      "updatesDesc": "نسخه‌های ربات و کابینت"
+    },
+    "trafficUsage": {
+      "title": "مصرف ترافیک",
+      "subtitle": "آمار ترافیک کاربران بر اساس نودها",
+      "period": "دوره",
+      "days": "روز",
+      "exportCsv": "خروجی CSV",
+      "exportSuccess": "CSV به تلگرام شما ارسال شد",
+      "exportError": "خطا در خروجی",
+      "user": "کاربر",
+      "tariff": "تعرفه",
+      "devices": "دستگاه‌ها",
+      "trafficLimit": "محدودیت",
+      "total": "کل",
+      "noData": "داده ترافیکی موجود نیست",
+      "loading": "در حال بارگذاری داده‌های ترافیک...",
+      "noTariff": "\u2014",
+      "search": "جستجو بر اساس نام یا نام کاربری",
+      "allTariffs": "همه تعرفه‌ها",
+      "nodes": "نودها",
+      "allNodes": "همه نودها",
+      "status": "وضعیت",
+      "allStatuses": "همه",
+      "statusActive": "فعال",
+      "statusTrial": "آزمایشی",
+      "statusExpired": "منقضی",
+      "statusDisabled": "غیرفعال",
+      "customDates": "تاریخ دلخواه",
+      "dateFrom": "از",
+      "dateTo": "تا",
+      "totalThreshold": "کل GB/روز",
+      "nodeThreshold": "نود GB/روز",
+      "risk": "ریسک",
+      "riskLow": "کم",
+      "riskMedium": "متوسط",
+      "riskHigh": "بالا",
+      "riskCritical": "بحرانی",
+      "connected": "متصل",
+      "totalSpent": "هزینه",
+      "subStart": "شروع",
+      "subEnd": "پایان",
+      "lastNode": "آخرین نود"
     },
     "emailTemplates": {
       "title": "قالب‌های ایمیل",
@@ -794,7 +853,12 @@
         "activity": "بر اساس فعالیت",
         "source": "بر اساس منبع",
         "tariff": "بر اساس تعرفه"
-      }
+      },
+      "enableTelegram": "Telegram",
+      "enableEmail": "Email",
+      "sendingBoth": "۲ پیام‌رسانی ایجاد خواهد شد",
+      "bothCreated": "پیام‌رسانی‌ها ایجاد شدند",
+      "atLeastOneChannel": "حداقل یک کانال را انتخاب کنید"
     },
     "payments": {
       "title": "تأیید پرداخت",
@@ -976,6 +1040,7 @@
       "adminNotificationsEnabledDesc": "ارسال اعلان به مدیران درباره تیکت‌ها و پاسخ‌های جدید",
       "cabinetNotifications": "اعلان‌های پنل",
       "copyTelegramId": "برای کپی شناسه تلگرام کلیک کنید",
+      "viewUser": "کاربر",
       "userNotificationsEnabled": "اعلان‌های کاربر",
       "userNotificationsEnabledDesc": "ارسال اعلان به کاربران درباره پاسخ‌های مدیر"
     },
@@ -1011,6 +1076,10 @@
       "confirmDeleteText": "این عمل قابل بازگشت نیست. تعرفه برای همیشه حذف می‌شود.",
       "confirmDeleteWithSubscriptions": "این تعرفه {{count}} اشتراک فعال دارد. پس از حذف، کاربران هنگام تمدید باید تعرفه جدید انتخاب کنند.",
       "deleteSuccess": "تعرفه با موفقیت حذف شد",
+      "deleteSuccessWithSubscriptions": "تعرفه حذف شد. تعرفه {{count}} اشتراک بازنشانی شد — کاربران هنگام تمدید تعرفه جدید انتخاب می‌کنند.",
+      "saveOrder": "ذخیره ترتیب",
+      "orderSaved": "ترتیب ذخیره شد",
+      "dragToReorder": "برای تغییر ترتیب بکشید",
       "days": "روز",
       "days_other": "{{count}} روز",
       "tabs": {
@@ -1525,19 +1594,50 @@
           "info": "اطلاعات",
           "subscription": "اشتراک",
           "balance": "موجودی",
-          "sync": "همگام‌سازی"
+          "sync": "همگام‌سازی",
+          "tickets": "تیکت‌ها"
         },
+        "noTickets": "این کاربر تیکتی ندارد",
+        "ticketsCount": "تیکت",
+        "messagesCount": "پیام",
         "status": "وضعیت",
         "language": "زبان",
         "registration": "ثبت‌نام",
         "lastActivity": "آخرین فعالیت",
         "totalSpent": "کل هزینه",
         "purchases": "خریدها",
+        "campaign": "کمپین تبلیغاتی",
+        "referralsList": "لیست ارجاعات",
+        "referralEarnings": "درآمد ارجاع",
+        "noReferrals": "بدون ارجاع",
+        "panelConfig": "پیکربندی پنل",
+        "trojanPassword": "رمز Trojan",
+        "vlessUuid": "VLESS UUID",
+        "ssPassword": "رمز SS",
+        "subscriptionUrl": "لینک اشتراک",
+        "happLink": "لینک HAPP",
+        "firstConnected": "اولین اتصال",
+        "lastOnline": "آخرین آنلاین",
+        "lastNode": "آخرین نود",
+        "liveTraffic": "ترافیک فعلی",
+        "lifetime": "کل",
+        "nodeUsage": "مصرف نودها",
+        "copied": "کپی شد",
+        "panelNotFound": "کاربر در پنل یافت نشد",
+        "devices": {
+          "title": "دستگاه‌ها",
+          "none": "دستگاه متصلی وجود ندارد",
+          "resetAll": "بازنشانی همه",
+          "deleted": "دستگاه حذف شد",
+          "allDeleted": "همه دستگاه‌ها بازنشانی شدند"
+        },
         "referral": {
           "title": "برنامه ارجاع",
           "referrals": "ارجاعات",
           "earned": "درآمد",
-          "commission": "کمیسیون"
+          "commission": "کمیسیون",
+          "default": "پیش‌فرض",
+          "invalidPercent": "کمیسیون باید بین ۰ تا ۱۰۰ باشد"
         },
         "restrictions": {
           "title": "محدودیت‌ها",
@@ -1545,6 +1645,22 @@
           "subscription": "• خرید اشتراک ممنوع",
           "reason": "دلیل"
         },
+        "promoGroup": "گروه تبلیغاتی",
+        "noPromoGroup": "تنظیم نشده",
+        "changePromoGroup": "تغییر",
+        "selectPromoGroup": "انتخاب گروه",
+        "removePromoGroup": "حذف",
+        "activePromoOffer": "پیشنهاد فعال",
+        "discount": "تخفیف",
+        "source": "منبع",
+        "expiresAt": "انقضا",
+        "deactivateOffer": "غیرفعال کردن",
+        "sendOffer": "ارسال پیشنهاد",
+        "discountPercent": "تخفیف %",
+        "validHours": "مدت اعتبار (ساعت)",
+        "offerSent": "پیشنهاد ارسال شد",
+        "offerSendError": "خطا در ارسال پیشنهاد",
+        "offerDeactivated": "پیشنهاد غیرفعال شد",
         "subscription": {
           "current": "اشتراک فعلی",
           "tariff": "تعرفه",
@@ -1562,7 +1678,17 @@
           "unavailable": "(غیرقابل دسترس)",
           "noActive": "اشتراک فعالی وجود ندارد",
           "create": "ایجاد اشتراک",
-          "creating": "در حال ایجاد..."
+          "creating": "در حال ایجاد...",
+          "trafficPackages": "بسته‌های ترافیک",
+          "addTraffic": "افزودن ترافیک",
+          "selectPackage": "انتخاب بسته",
+          "addButton": "افزودن",
+          "addTrafficNote": "مدیر: رایگان، ۳۰ روز اعتبار",
+          "trafficRemoved": "بسته ترافیک حذف شد",
+          "trafficAdded": "بسته ترافیک اضافه شد",
+          "expired": "منقضی شده",
+          "daysLeft": "روز باقیمانده",
+          "deviceLimitUpdated": "محدودیت دستگاه به‌روز شد"
         },
         "balance": {
           "current": "موجودی فعلی",
@@ -1809,6 +1935,19 @@
       "saturation": "اشباع"
     }
   },
+  "adminUpdates": {
+    "title": "به‌روزرسانی‌ها",
+    "subtitle": "تاریخچه انتشار ربات و کابینت",
+    "bot": "ربات",
+    "cabinet": "کابینت",
+    "currentVersion": "نسخه فعلی",
+    "upToDate": "به‌روز است",
+    "updateAvailable": "به‌روزرسانی موجود",
+    "published": "منتشر شده",
+    "prerelease": "پیش‌انتشار",
+    "refresh": "بررسی به‌روزرسانی",
+    "noReleases": "داده‌ای موجود نیست"
+  },
   "adminDashboard": {
     "title": "پنل آمار",
     "subtitle": "نمای کلی سیستم در لحظه",
@@ -1889,6 +2028,15 @@
       "amount": "مبلغ",
       "method": "روش",
       "date": "تاریخ"
+    },
+    "systemInfo": {
+      "title": "سیستم",
+      "cabinet": "کابینت",
+      "bot": "ربات",
+      "python": "Python",
+      "uptime": "آپتایم",
+      "users": "کاربران",
+      "activeSubs": "اشتراک‌ها"
     }
   },
   "profile": {
@@ -2270,6 +2418,12 @@
       "hint": "پس از عضویت دکمه بررسی را بزنید",
       "notSubscribed": "شما هنوز در کانال عضو نشده‌اید",
       "checkError": "بررسی ناموفق بود. لطفاً بعداً دوباره امتحان کنید."
+    },
+    "blacklisted": {
+      "title": "دسترسی ممنوع",
+      "defaultMessage": "حساب شما مسدود شده است.",
+      "reason": "دلیل",
+      "contactSupport": "اگر فکر می‌کنید این اشتباه است، با پشتیبانی تماس بگیرید."
     }
   }
 }

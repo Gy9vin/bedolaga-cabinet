@@ -1,10 +1,14 @@
 import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react';
 import path from 'path';
+import packageJson from './package.json';
 
 // https://vitejs.dev/config/
 export default defineConfig({
   plugins: [react()],
+  define: {
+    __APP_VERSION__: JSON.stringify(packageJson.version),
+  },
   resolve: {
     alias: {
       '@': path.resolve(__dirname, 'src'),
@@ -31,36 +35,36 @@ export default defineConfig({
     chunkSizeWarningLimit: 550,
     rollupOptions: {
       output: {
-        manualChunks: {
-          'vendor-react': ['react', 'react-dom', 'react-router-dom'],
-          'vendor-query': ['@tanstack/react-query'],
-          'vendor-i18n': ['i18next', 'react-i18next', 'i18next-browser-languagedetector'],
-          'vendor-motion': ['framer-motion'],
-          'vendor-radix': [
-            '@radix-ui/react-dialog',
-            '@radix-ui/react-tooltip',
-            '@radix-ui/react-select',
-            '@radix-ui/react-popover',
-            '@radix-ui/react-dropdown-menu',
-            '@radix-ui/react-tabs',
-            '@radix-ui/react-switch',
-            '@radix-ui/react-alert-dialog',
-            '@radix-ui/react-slot',
-            '@radix-ui/react-visually-hidden',
-          ],
-          'vendor-dnd': ['@dnd-kit/core', '@dnd-kit/sortable', '@dnd-kit/utilities'],
-          'vendor-telegram': ['@telegram-apps/sdk-react'],
-          'vendor-utils': [
-            'axios',
-            'zustand',
-            'clsx',
-            'tailwind-merge',
-            'class-variance-authority',
-            'dompurify',
-          ],
-          'vendor-lottie': ['@lottiefiles/dotlottie-react'],
-          'vendor-webgl': ['ogl'],
-          'vendor-cmdk': ['cmdk'],
+        manualChunks(id) {
+          if (id.includes('/src/locales/')) return 'locales';
+          if (!id.includes('node_modules')) return;
+          if (
+            id.includes('react-dom') ||
+            id.includes('react-router') ||
+            id.includes('node_modules/react/')
+          )
+            return 'vendor-react';
+          if (id.includes('@tanstack/react-query')) return 'vendor-query';
+          if (id.includes('@tanstack/react-table')) return 'vendor-table';
+          if (id.includes('i18next') || id.includes('react-i18next')) return 'vendor-i18n';
+          if (id.includes('framer-motion')) return 'vendor-motion';
+          if (id.includes('@radix-ui/')) return 'vendor-radix';
+          if (id.includes('@dnd-kit/')) return 'vendor-dnd';
+          if (id.includes('@telegram-apps/') || id.includes('/@tma.js/')) return 'vendor-telegram';
+          if (id.includes('/ogl/')) return 'vendor-webgl';
+          if (id.includes('/cmdk/')) return 'vendor-cmdk';
+          if (id.includes('twemoji') || id.includes('@twemoji/')) return 'vendor-twemoji';
+          if (id.includes('/jsencrypt/') || id.includes('@kastov/')) return 'vendor-crypto';
+          if (id.includes('@lottiefiles/')) return 'vendor-lottie';
+          if (
+            id.includes('/axios/') ||
+            id.includes('/zustand/') ||
+            id.includes('/clsx/') ||
+            id.includes('/tailwind-merge/') ||
+            id.includes('class-variance-authority') ||
+            id.includes('/dompurify/')
+          )
+            return 'vendor-utils';
         },
       },
     },

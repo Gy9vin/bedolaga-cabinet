@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import { useEffect, useRef } from 'react';
 import { create } from 'zustand';
 
 export type SuccessNotificationType =
@@ -64,12 +64,15 @@ export const useSuccessNotification = create<SuccessNotificationState>((set) => 
  */
 export function useCloseOnSuccessNotification(onClose: () => void) {
   const closeOthersSignal = useSuccessNotification((state) => state.closeOthersSignal);
+  const onCloseRef = useRef(onClose);
+  onCloseRef.current = onClose;
+
+  // Remember the signal value at mount time so we only react to NEW signals
+  const mountedSignalRef = useRef(closeOthersSignal);
 
   useEffect(() => {
-    // Skip the initial render (signal = 0)
-    if (closeOthersSignal > 0) {
-      onClose();
+    if (closeOthersSignal !== mountedSignalRef.current) {
+      onCloseRef.current();
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [closeOthersSignal]);
 }

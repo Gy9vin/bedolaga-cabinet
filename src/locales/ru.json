@@ -1,4 +1,4 @@
-﻿{
+{
   "common": {
     "all": "Все",
     "loading": "Загрузка...",
@@ -164,6 +164,8 @@
     "or": "или",
     "registerHint": "Для регистрации по email сначала авторизуйтесь через Telegram, затем привяжите email в настройках.",
     "telegramRequired": "Требуется авторизация через Telegram",
+    "telegramRetryFailed": "Авторизация не удалась. Закройте приложение и откройте заново.",
+    "telegramReopenHint": "Если проблема повторяется — закройте и откройте приложение заново",
     "telegramNotConfigured": "Telegram бот не настроен",
     "authenticating": "Авторизация...",
     "orOpenInApp": "Или откройте бота в приложении",
@@ -188,7 +190,13 @@
     "clickLinkToVerify": "Перейдите по ссылке в письме, чтобы подтвердить аккаунт и войти.",
     "backToLogin": "Вернуться ко входу",
     "emailNotVerified": "Сначала подтвердите email",
-    "loginSuccess": "Авторизация успешна"
+    "loginSuccess": "Авторизация успешна",
+    "continueWithGoogle": "Продолжить через Google",
+    "continueWithYandex": "Продолжить через Яндекс",
+    "continueWithDiscord": "Продолжить через Discord",
+    "continueWithVk": "Продолжить через VK",
+    "oauthError": "Авторизация отклонена или не удалась",
+    "oauthExpired": "Сессия OAuth истекла. Попробуйте снова."
   },
   "emailVerification": {
     "title": "Подтверждение email",
@@ -368,7 +376,12 @@
       "changeApp": "Сменить приложение",
       "selectPlatform": "Выберите платформу",
       "app": "приложение",
-      "apps": "приложений"
+      "apps": "приложений",
+      "tutorial": "Инструкция",
+      "notConfigured": "Способы подключения ещё не настроены",
+      "notConfiguredUser": "Настройка подключения в процессе. Пожалуйста, загляните позже.",
+      "notConfiguredAdmin": "Приложения для подключения не настроены. Настройте их в разделе Приложения.",
+      "goToApps": "Перейти к настройке приложений"
     },
     "myDevices": "Мои устройства",
     "noDevices": "Нет подключенных устройств",
@@ -773,7 +786,9 @@
       "campaigns": "Кампании",
       "promoOffers": "Промопредложения",
       "promocodes": "Промокоды",
-      "promoGroups": "Группы скидок"
+      "promoGroups": "Группы скидок",
+      "trafficUsage": "Расход трафика",
+      "updates": "Обновления"
     },
     "panel": {
       "title": "Панель администратора",
@@ -795,7 +810,51 @@
       "campaignsDesc": "Рекламные кампании",
       "promoOffersDesc": "Персональные скидки",
       "promocodesDesc": "Управление промокодами",
-      "promoGroupsDesc": "Группы скидок для пользователей"
+      "promoGroupsDesc": "Группы скидок для пользователей",
+      "trafficUsageDesc": "Трафик пользователей по нодам",
+      "updatesDesc": "Версии бота и кабинета"
+    },
+    "trafficUsage": {
+      "title": "Расход трафика",
+      "subtitle": "Статистика трафика по пользователям и нодам",
+      "period": "Период",
+      "days": "д",
+      "exportCsv": "Экспорт CSV",
+      "exportSuccess": "CSV отправлен в ваш Telegram",
+      "exportError": "Ошибка экспорта",
+      "user": "Пользователь",
+      "tariff": "Тариф",
+      "devices": "Устройства",
+      "trafficLimit": "Лимит",
+      "total": "Всего",
+      "noData": "Нет данных о трафике",
+      "loading": "Загрузка данных о трафике...",
+      "noTariff": "\u2014",
+      "search": "Поиск по имени или юзернейму",
+      "allTariffs": "Все тарифы",
+      "nodes": "Ноды",
+      "allNodes": "Все ноды",
+      "status": "Статус",
+      "allStatuses": "Все",
+      "statusActive": "Активная",
+      "statusTrial": "Пробная",
+      "statusExpired": "Истекла",
+      "statusDisabled": "Отключена",
+      "customDates": "Выбрать даты",
+      "dateFrom": "От",
+      "dateTo": "До",
+      "totalThreshold": "Всего ГБ/д",
+      "nodeThreshold": "Нода ГБ/д",
+      "risk": "Риск",
+      "riskLow": "Низкий",
+      "riskMedium": "Средний",
+      "riskHigh": "Высокий",
+      "riskCritical": "Критический",
+      "connected": "Подкл.",
+      "totalSpent": "Траты",
+      "subStart": "Начало",
+      "subEnd": "Конец",
+      "lastNode": "Посл. нода"
     },
     "emailTemplates": {
       "title": "Email-шаблоны",
@@ -1115,7 +1174,12 @@
       "emailContent": "Содержимое письма",
       "emailContentHint": "Поддерживается HTML",
       "emailContentPlaceholder": "<p>Здравствуйте, {{user_name}}!</p>\n<p>Текст вашего письма...</p>",
-      "emailVariables": "Доступные переменные"
+      "emailVariables": "Доступные переменные",
+      "enableTelegram": "Telegram",
+      "enableEmail": "Email",
+      "sendingBoth": "Будет создано 2 рассылки",
+      "bothCreated": "Рассылки созданы",
+      "atLeastOneChannel": "Выберите хотя бы один канал"
     },
     "settings": {
       "title": "Настройки системы",
@@ -1779,6 +1843,7 @@
       "reminderCooldownDesc": "Минимальное время между напоминаниями (1-120 минут)",
       "settingsUpdateError": "Ошибка сохранения настроек",
       "copyTelegramId": "Нажмите чтобы скопировать Telegram ID",
+      "viewUser": "Карточка",
       "cabinetNotifications": "Уведомления в кабинете",
       "userNotificationsEnabled": "Уведомления для пользователей",
       "userNotificationsEnabledDesc": "Отправлять уведомления пользователям об ответах админа",
@@ -1823,6 +1888,10 @@
       "confirmDeleteText": "Это действие нельзя отменить. Тариф будет удалён навсегда.",
       "confirmDeleteWithSubscriptions": "У этого тарифа {{count}} активных подписок. При удалении пользователям потребуется выбрать новый тариф при продлении.",
       "deleteSuccess": "Тариф успешно удален",
+      "deleteSuccessWithSubscriptions": "Тариф удален. У {{count}} подписок сброшен тариф — при продлении пользователи выберут новый.",
+      "saveOrder": "Сохранить порядок",
+      "orderSaved": "Порядок сохранён",
+      "dragToReorder": "Перетащите для изменения порядка",
       "days": "дней",
       "days_one": "{{count}} день",
       "days_few": "{{count}} дня",
@@ -2329,7 +2398,7 @@
         },
         "confirmDelete": {
           "title": "Удалить пользователя?",
-          "message": "Вы уверены? Это действие необратимо. Все данные пользователя будут удалены."
+          "message": "Вы уверены? Это действие необратимо. Пользователь будет полностью удалён из бота и из панели Remnawave."
         },
         "confirmResetTrial": {
           "title": "Сбросить триал?",
@@ -2349,25 +2418,75 @@
           "info": "Информация",
           "subscription": "Подписка",
           "balance": "Баланс",
-          "sync": "Синхронизация"
+          "sync": "Синхронизация",
+          "tickets": "Тикеты"
         },
+        "noTickets": "У пользователя нет тикетов",
+        "ticketsCount": "тикетов",
+        "messagesCount": "сообщений",
         "status": "Статус",
         "language": "Язык",
         "registration": "Регистрация",
         "lastActivity": "Последняя активность",
         "totalSpent": "Всего потрачено",
         "purchases": "Покупок",
+        "campaign": "Рекламная кампания",
+        "referralsList": "Список рефералов",
+        "noReferrals": "Нет рефералов",
+        "panelConfig": "Конфигурация панели",
+        "trojanPassword": "Trojan пароль",
+        "vlessUuid": "VLESS UUID",
+        "ssPassword": "SS пароль",
+        "subscriptionUrl": "Ссылка подписки",
+        "happLink": "HAPP ссылка",
+        "firstConnected": "Первое подключение",
+        "lastOnline": "Последний онлайн",
+        "lastNode": "Последняя нода",
+        "liveTraffic": "Текущий трафик",
+        "lifetime": "За всё время",
+        "nodeUsage": "Расход по нодам",
+        "copied": "Скопировано",
+        "panelNotFound": "Пользователь не найден в панели",
+        "devices": {
+          "title": "Устройства",
+          "none": "Нет подключённых устройств",
+          "resetAll": "Сбросить все",
+          "deleted": "Устройство удалено",
+          "allDeleted": "Все устройства сброшены"
+        },
         "referral": {
           "title": "Реферальная программа",
           "referrals": "Рефералов",
           "earned": "Заработано",
-          "commission": "Комиссия"
+          "commission": "Комиссия",
+          "default": "По умолч.",
+          "invalidPercent": "Процент должен быть от 0 до 100"
         },
         "restrictions": {
           "title": "Ограничения",
           "topup": "• Запрет пополнения",
           "subscription": "• Запрет покупки подписки",
           "reason": "Причина"
+        },
+        "promoGroup": "Промо-группа",
+        "noPromoGroup": "Не задана",
+        "changePromoGroup": "Изменить",
+        "selectPromoGroup": "Выберите группу",
+        "removePromoGroup": "Убрать",
+        "activePromoOffer": "Активное промо-предложение",
+        "discount": "Скидка",
+        "source": "Источник",
+        "expiresAt": "Истекает",
+        "deactivateOffer": "Отключить",
+        "sendOffer": "Отправить предложение",
+        "discountPercent": "Скидка %",
+        "validHours": "Срок действия (часы)",
+        "offerSent": "Предложение отправлено",
+        "offerSendError": "Ошибка отправки предложения",
+        "offerDeactivated": "Предложение отключено",
+        "actions": {
+          "title": "Действия",
+          "areYouSure": "Уверены?"
         },
         "subscription": {
           "current": "Текущая подписка",
@@ -2386,7 +2505,17 @@
           "unavailable": "(недоступен)",
           "noActive": "Нет активной подписки",
           "create": "Создать подписку",
-          "creating": "Создание..."
+          "creating": "Создание...",
+          "trafficPackages": "Пакеты трафика",
+          "addTraffic": "Добавить трафик",
+          "selectPackage": "Выберите пакет",
+          "addButton": "Добавить",
+          "addTrafficNote": "Админ: бесплатно, действует 30 дней",
+          "trafficRemoved": "Пакет трафика удалён",
+          "trafficAdded": "Пакет трафика добавлен",
+          "expired": "истёк",
+          "daysLeft": "дн. осталось",
+          "deviceLimitUpdated": "Лимит устройств обновлён"
         },
         "balance": {
           "current": "Текущий баланс",
@@ -2537,6 +2666,19 @@
       "saturation": "Насыщенность"
     }
   },
+  "adminUpdates": {
+    "title": "Обновления",
+    "subtitle": "История релизов бота и кабинета",
+    "bot": "Бот",
+    "cabinet": "Кабинет",
+    "currentVersion": "Текущая версия",
+    "upToDate": "Актуальная версия",
+    "updateAvailable": "Доступно обновление",
+    "published": "Опубликовано",
+    "prerelease": "Предрелиз",
+    "refresh": "Проверить обновления",
+    "noReleases": "Нет данных о релизах"
+  },
   "adminDashboard": {
     "title": "Панель статистики",
     "subtitle": "Обзор системы в реальном времени",
@@ -2634,6 +2776,15 @@
       "amount": "Сумма",
       "method": "Метод",
       "date": "Дата"
+    },
+    "systemInfo": {
+      "title": "Система",
+      "cabinet": "Кабинет",
+      "bot": "Бот",
+      "python": "Python",
+      "uptime": "Аптайм",
+      "users": "Юзеров",
+      "activeSubs": "Подписок"
     }
   },
   "banSystem": {
@@ -2914,164 +3065,6 @@
       "uptime": "Аптайм"
     }
   },
-  "adminUsers": {
-    "title": "Пользователи",
-    "subtitle": "Управление пользователями",
-    "searchPlaceholder": "Поиск по ID, username, имени...",
-    "filters": {
-      "all": "Все",
-      "active": "Активные",
-      "blocked": "Заблокированные",
-      "deleted": "Удалённые"
-    },
-    "sort": {
-      "created_at": "Дата регистрации",
-      "balance": "Баланс",
-      "traffic": "Трафик",
-      "last_activity": "Активность",
-      "total_spent": "Потрачено",
-      "purchase_count": "Покупки"
-    },
-    "stats": {
-      "totalUsers": "Всего пользователей",
-      "activeUsers": "Активных",
-      "blockedUsers": "Заблокировано",
-      "withSubscription": "С подпиской",
-      "newToday": "Новых сегодня",
-      "newWeek": "За неделю",
-      "newMonth": "За месяц",
-      "totalBalance": "Общий баланс",
-      "activeToday": "Активны сегодня",
-      "activeWeek": "За неделю",
-      "activeMonth": "За месяц"
-    },
-    "table": {
-      "user": "Пользователь",
-      "status": "Статус",
-      "balance": "Баланс",
-      "subscription": "Подписка",
-      "spent": "Потрачено",
-      "registered": "Регистрация",
-      "activity": "Активность",
-      "noUsers": "Пользователи не найдены"
-    },
-    "userStatus": {
-      "active": "Активен",
-      "blocked": "Заблокирован",
-      "deleted": "Удалён"
-    },
-    "subscriptionStatus": {
-      "active": "Активна",
-      "trial": "Триал",
-      "expired": "Истекла",
-      "none": "Нет подписки"
-    },
-    "detail": {
-      "title": "Информация о пользователе",
-      "tabs": {
-        "info": "Инфо",
-        "subscription": "Подписка",
-        "balance": "Баланс",
-        "sync": "Синхронизация"
-      },
-      "telegramId": "Telegram ID",
-      "username": "Username",
-      "fullName": "Имя",
-      "email": "Email",
-      "emailVerified": "Подтверждён",
-      "emailNotVerified": "Не подтверждён",
-      "language": "Язык",
-      "registeredAt": "Регистрация",
-      "lastActivity": "Последняя активность",
-      "cabinetLogin": "Вход в кабинет",
-      "referralCode": "Реферальный код",
-      "referralsCount": "Рефералов",
-      "referralEarnings": "Заработано",
-      "referredBy": "Приглашён",
-      "promoGroup": "Промо-группа",
-      "noPromoGroup": "Не задана",
-      "restrictions": "Ограничения",
-      "restrictionTopup": "Пополнение баланса",
-      "restrictionSubscription": "Покупка подписки",
-      "restrictionReason": "Причина",
-      "noRestrictions": "Нет ограничений",
-      "totalSpent": "Всего потрачено",
-      "purchaseCount": "Покупок",
-      "usedPromocodes": "Использовано промокодов",
-      "lifetimeTraffic": "Трафик за всё время",
-      "recentTransactions": "Последние транзакции",
-      "noTransactions": "Нет транзакций"
-    },
-    "subscription": {
-      "noSubscription": "Подписка отсутствует",
-      "currentTariff": "Текущий тариф",
-      "status": "Статус",
-      "endDate": "Окончание",
-      "daysRemaining": "Осталось дней",
-      "trafficUsed": "Использовано трафика",
-      "deviceLimit": "Лимит устройств",
-      "autopay": "Автоплатёж",
-      "enabled": "Включён",
-      "disabled": "Отключён",
-      "actions": {
-        "extend": "Продлить",
-        "changeTariff": "Сменить тариф",
-        "setTraffic": "Установить трафик",
-        "toggleAutopay": "Вкл/выкл автоплатёж",
-        "cancel": "Отменить подписку",
-        "create": "Создать подписку"
-      },
-      "extendDays": "Дней",
-      "selectTariff": "Выберите тариф",
-      "trafficLimitGb": "Лимит ГБ",
-      "trafficUsedGb": "Использовано ГБ",
-      "isTrial": "Пробный период"
-    },
-    "balance": {
-      "currentBalance": "Текущий баланс",
-      "addFunds": "Пополнить",
-      "deductFunds": "Списать",
-      "amount": "Сумма",
-      "description": "Описание",
-      "createTransaction": "Создать транзакцию",
-      "transactionHistory": "История транзакций"
-    },
-    "sync": {
-      "title": "Синхронизация с панелью",
-      "status": "Статус синхронизации",
-      "lastSync": "Последняя синхронизация",
-      "neverSynced": "Никогда",
-      "botData": "Данные бота",
-      "panelData": "Данные панели",
-      "notFound": "Не найден в панели",
-      "differences": "Различия",
-      "noDifferences": "Различий нет",
-      "syncFromPanel": "Синхронизировать из панели",
-      "syncToPanel": "Синхронизировать в панель",
-      "remawave_uuid": "Remnawave UUID",
-      "notLinked": "Не привязан"
-    },
-    "actions": {
-      "block": "Заблокировать",
-      "unblock": "Разблокировать",
-      "delete": "Удалить",
-      "blockReason": "Причина блокировки",
-      "confirmBlock": "Подтвердить блокировку",
-      "confirmDelete": "Подтвердить удаление"
-    },
-    "messages": {
-      "loadError": "Не удалось загрузить пользователей",
-      "userLoadError": "Не удалось загрузить пользователя",
-      "balanceUpdated": "Баланс обновлён",
-      "balanceError": "Ошибка обновления баланса",
-      "subscriptionUpdated": "Подписка обновлена",
-      "subscriptionError": "Ошибка обновления подписки",
-      "statusUpdated": "Статус обновлён",
-      "statusError": "Ошибка обновления статуса",
-      "syncSuccess": "Синхронизация выполнена",
-      "syncError": "Ошибка синхронизации"
-    }
-  },
   "profile": {
     "title": "Профиль",
     "accountInfo": "Информация об аккаунте",
@@ -3339,6 +3332,12 @@
       "hint": "После подписки нажмите кнопку проверки",
       "notSubscribed": "Вы ещё не подписались на канал",
       "checkError": "Ошибка проверки. Попробуйте позже."
+    },
+    "blacklisted": {
+      "title": "Доступ запрещён",
+      "defaultMessage": "Ваш аккаунт заблокирован.",
+      "reason": "Причина",
+      "contactSupport": "Если вы считаете, что это ошибка, обратитесь в поддержку."
     }
   }
 }

@@ -1,4 +1,4 @@
-import { Link } from 'react-router-dom';
+import { Link } from 'react-router';
 import { forwardRef, useCallback } from 'react';
 import { useHaptic } from '@/platform';
 

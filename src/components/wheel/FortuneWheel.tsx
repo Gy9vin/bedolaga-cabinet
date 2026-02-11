@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState, useMemo, memo } from 'react';
+import { useEffect, useRef, useState, memo } from 'react';
 import type { WheelPrize } from '../../api/wheel';
 
 interface FortuneWheelProps {
@@ -24,20 +24,6 @@ const FortuneWheel = memo(function FortuneWheel({
   const wheelRef = useRef<SVGGElement>(null);
   const accumulatedRotation = useRef(0);
   const [displayRotation, setDisplayRotation] = useState(0);
-  const [lightPhase, setLightPhase] = useState(0);
-
-  // Animated lights effect - always running, speed depends on spinning state
-  useEffect(() => {
-    // Faster animation when spinning, slower when idle
-    const interval = setInterval(
-      () => {
-        setLightPhase((p) => (p + 1) % 20);
-      },
-      isSpinning ? 100 : 300,
-    ); // 100ms when spinning, 300ms when idle
-
-    return () => clearInterval(interval);
-  }, [isSpinning]);
 
   useEffect(() => {
     if (isSpinning && targetRotation !== null && wheelRef.current) {
@@ -56,18 +42,6 @@ const FortuneWheel = memo(function FortuneWheel({
       return () => clearTimeout(timeout);
     }
   }, [isSpinning, targetRotation, onSpinComplete]);
-
-  // Memoize light pattern calculation
-  const lightPattern = useMemo(() => {
-    const numLights = isSpinning ? 3 : 4; // 3 lights when spinning, 4 when idle
-
-    return Array.from({ length: 20 }, (_, i) => {
-      // Calculate distance from current lightPhase
-      const distance = (i - lightPhase + 20) % 20;
-      // Light is on if within range [0, numLights)
-      return distance < numLights;
-    });
-  }, [isSpinning, lightPhase]);
 
   if (prizes.length === 0) {
     return (
@@ -257,36 +231,53 @@ const FortuneWheel = memo(function FortuneWheel({
             strokeWidth="2"
           />
 
-          {/* LED lights on outer ring - positioned toward outer edge to avoid bleeding into sectors */}
-          {Array.from({ length: 20 }).map((_, i) => {
-            const angle = (i * 18 - 90) * (Math.PI / 180);
-            const ledRadius = outerRadius + 3;
-            const dotX = center + ledRadius * Math.cos(angle);
-            const dotY = center + ledRadius * Math.sin(angle);
-            const isLit = lightPattern[i] ?? i % 2 === 0;
-            return (
-              <g key={`led-${i}`}>
-                {isLit && (
+          {/* LED chase animation — pure CSS, no React re-renders */}
+          <style>
+            {`
+              @keyframes ledChase {
+                0%, 100% { fill: #374151; stroke: #1F2937; }
+                10%, 30% { fill: #FEF08A; stroke: #FDE047; }
+              }
+              @keyframes ledGlow {
+                0%, 100% { opacity: 0; }
+                10%, 30% { opacity: 0.4; }
+              }
+              .led-dot { animation: ledChase 6s linear infinite; }
+              .led-glow { opacity: 0; animation: ledGlow 6s linear infinite; }
+              .led-spinning .led-dot { animation-duration: 2s; }
+              .led-spinning .led-glow { animation-duration: 2s; }
+            `}
+          </style>
+          <g className={isSpinning ? 'led-spinning' : undefined}>
+            {Array.from({ length: 20 }).map((_, i) => {
+              const angle = (i * 18 - 90) * (Math.PI / 180);
+              const ledRadius = outerRadius + 3;
+              const dotX = center + ledRadius * Math.cos(angle);
+              const dotY = center + ledRadius * Math.sin(angle);
+              // Delay as fraction of full cycle — CSS handles speed via animation-duration
+              const delay = `${(i / 20) * 6}s`;
+              return (
+                <g key={`led-${i}`}>
                   <circle
+                    className="led-glow"
                     cx={dotX}
                     cy={dotY}
                     r={5}
                     fill="#FEF08A"
-                    opacity={0.4}
-                    style={{ filter: 'blur(2px)' }}
+                    style={{ filter: 'blur(2px)', animationDelay: delay }}
                   />
-                )}
-                <circle
-                  cx={dotX}
-                  cy={dotY}
-                  r={3.5}
-                  fill={isLit ? '#FEF08A' : '#374151'}
-                  stroke={isLit ? '#FDE047' : '#1F2937'}
-                  strokeWidth="1"
-                />
-              </g>
-            );
-          })}
+                  <circle
+                    className="led-dot"
+                    cx={dotX}
+                    cy={dotY}
+                    r={3.5}
+                    strokeWidth="1"
+                    style={{ animationDelay: delay }}
+                  />
+                </g>
+              );
+            })}
+          </g>
 
           {/* Rotating wheel group */}
           <g

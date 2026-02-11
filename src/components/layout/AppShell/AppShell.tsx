@@ -1,26 +1,19 @@
-import { useEffect, useState, useCallback, useRef } from 'react';
-import { useLocation, useNavigate, Link } from 'react-router-dom';
+import { useEffect, useState } from 'react';
+import { useLocation, Link } from 'react-router';
 import { useQuery } from '@tanstack/react-query';
 import { useTranslation } from 'react-i18next';
 
 import { useAuthStore } from '@/store/auth';
-import { useBackButton, useHaptic } from '@/platform';
+import { useHaptic } from '@/platform';
 import { useTelegramSDK } from '@/hooks/useTelegramSDK';
 import { useTheme } from '@/hooks/useTheme';
+import { useBranding } from '@/hooks/useBranding';
+import { useFeatureFlags } from '@/hooks/useFeatureFlags';
+import { useScrollRestoration } from '@/hooks/useScrollRestoration';
 import { themeColorsApi } from '@/api/themeColors';
-import { referralApi } from '@/api/referral';
-import { wheelApi } from '@/api/wheel';
-import { contestsApi } from '@/api/contests';
-import { pollsApi } from '@/api/polls';
-import {
-  brandingApi,
-  getCachedBranding,
-  setCachedBranding,
-  preloadLogo,
-  isLogoPreloaded,
-} from '@/api/branding';
-import { setCachedFullscreenEnabled } from '@/hooks/useTelegramSDK';
+import { isLogoPreloaded } from '@/api/branding';
 import { cn } from '@/lib/utils';
+import { UI } from '@/config/constants';
 
 import WebSocketNotifications from '@/components/WebSocketNotifications';
 import SuccessNotificationModal from '@/components/SuccessNotificationModal';
@@ -128,6 +121,22 @@ const ShieldIcon = ({ className }: { className?: string }) => (
   </svg>
 );
 
+const InfoIcon = ({ className }: { className?: string }) => (
+  <svg
+    className={className}
+    fill="none"
+    viewBox="0 0 24 24"
+    stroke="currentColor"
+    strokeWidth={1.5}
+  >
+    <path
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      d="M11.25 11.25l.041-.02a.75.75 0 011.063.852l-.708 2.836a.75.75 0 001.063.853l.041-.021M21 12a9 9 0 11-18 0 9 9 0 0118 0zm-9-3.75h.008v.008H12V8.25z"
+    />
+  </svg>
+);
+
 const LogoutIcon = ({ className }: { className?: string }) => (
   <svg
     className={className}
@@ -176,9 +185,6 @@ const MoonIcon = ({ className }: { className?: string }) => (
   </svg>
 );
 
-const FALLBACK_NAME = import.meta.env.VITE_APP_NAME || 'Cabinet';
-const FALLBACK_LOGO = import.meta.env.VITE_APP_LOGO || 'V';
-
 interface AppShellProps {
   children: React.ReactNode;
 }
@@ -186,19 +192,16 @@ interface AppShellProps {
 export function AppShell({ children }: AppShellProps) {
   const { t } = useTranslation();
   const location = useLocation();
-  const navigate = useNavigate();
-  const { isAdmin, isAuthenticated, logout } = useAuthStore();
-  const {
-    isFullscreen,
-    safeAreaInset,
-    contentSafeAreaInset,
-    requestFullscreen,
-    isTelegramWebApp,
-    platform,
-    isMobile,
-  } = useTelegramSDK();
+  const { isAdmin, logout } = useAuthStore();
+  const { isFullscreen, safeAreaInset, contentSafeAreaInset, platform, isMobile } =
+    useTelegramSDK();
   const haptic = useHaptic();
   const { toggleTheme, isDark } = useTheme();
+
+  // Extracted hooks
+  const { appName, logoLetter, hasCustomLogo, logoUrl } = useBranding();
+  const { referralEnabled, wheelEnabled, hasContests, hasPolls } = useFeatureFlags();
+  useScrollRestoration();
 
   // Theme toggle visibility
   const { data: enabledThemes } = useQuery({
@@ -213,147 +216,6 @@ export function AppShell({ children }: AppShellProps) {
 
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [isKeyboardOpen, setIsKeyboardOpen] = useState(false);
-
-  // Scroll position restoration for admin pages
-  const scrollPositions = useRef<Record<string, number>>({});
-
-  // Disable browser's automatic scroll restoration
-  useEffect(() => {
-    if ('scrollRestoration' in history) {
-      history.scrollRestoration = 'manual';
-    }
-  }, []);
-
-  // Continuously save scroll position for current path
-  useEffect(() => {
-    const currentPath = location.pathname;
-
-    // Only track scroll for admin pages
-    if (!currentPath.startsWith('/admin')) return;
-
-    const handleScroll = () => {
-      scrollPositions.current[currentPath] = window.scrollY;
-    };
-
-    // Save on scroll
-    window.addEventListener('scroll', handleScroll, { passive: true });
-
-    // Restore scroll position immediately (synchronous)
-    const savedPosition = scrollPositions.current[currentPath];
-    if (savedPosition !== undefined && savedPosition > 0) {
-      // Immediate restore
-      window.scrollTo({ top: savedPosition, behavior: 'instant' });
-    }
-
-    return () => {
-      window.removeEventListener('scroll', handleScroll);
-    };
-  }, [location.pathname]);
-
-  // Branding
-  const { data: branding } = useQuery({
-    queryKey: ['branding'],
-    queryFn: async () => {
-      const data = await brandingApi.getBranding();
-      setCachedBranding(data);
-      preloadLogo(data);
-      return data;
-    },
-    initialData: getCachedBranding() ?? undefined,
-    staleTime: 60000,
-    enabled: isAuthenticated,
-  });
-
-  const appName = branding ? branding.name : FALLBACK_NAME;
-  const logoLetter = branding?.logo_letter || FALLBACK_LOGO;
-  const hasCustomLogo = branding?.has_custom_logo || false;
-  const logoUrl = branding ? brandingApi.getLogoUrl(branding) : null;
-
-  // Set document title
-  useEffect(() => {
-    document.title = appName || 'VPN';
-  }, [appName]);
-
-  // Update favicon
-  useEffect(() => {
-    if (!logoUrl) return;
-
-    const link =
-      document.querySelector<HTMLLinkElement>("link[rel*='icon']") ||
-      document.createElement('link');
-    link.type = 'image/x-icon';
-    link.rel = 'shortcut icon';
-    link.href = logoUrl;
-    document.head.appendChild(link);
-  }, [logoUrl]);
-
-  // Fullscreen setting from server
-  const { data: fullscreenSetting } = useQuery({
-    queryKey: ['fullscreen-enabled'],
-    queryFn: brandingApi.getFullscreenEnabled,
-    staleTime: 60000,
-  });
-
-  // Apply fullscreen setting when loaded from server
-  // Only apply on mobile Telegram (iOS/Android) - desktop doesn't need fullscreen
-  useEffect(() => {
-    if (!fullscreenSetting || !isTelegramWebApp) return;
-
-    // Update cache for future app starts
-    setCachedFullscreenEnabled(fullscreenSetting.enabled);
-
-    // Request fullscreen if enabled, not already fullscreen, and on mobile Telegram
-    if (fullscreenSetting.enabled && !isFullscreen && isMobile) {
-      requestFullscreen();
-    }
-  }, [fullscreenSetting, isTelegramWebApp, isFullscreen, requestFullscreen, isMobile]);
-
-  // Feature flags
-  const { data: referralTerms } = useQuery({
-    queryKey: ['referral-terms'],
-    queryFn: referralApi.getReferralTerms,
-    enabled: isAuthenticated,
-    staleTime: 60000,
-    retry: false,
-  });
-
-  const { data: wheelConfig } = useQuery({
-    queryKey: ['wheel-config'],
-    queryFn: wheelApi.getConfig,
-    enabled: isAuthenticated,
-    staleTime: 60000,
-    retry: false,
-  });
-
-  const { data: contestsCount } = useQuery({
-    queryKey: ['contests-count'],
-    queryFn: contestsApi.getCount,
-    enabled: isAuthenticated,
-    staleTime: 60000,
-    retry: false,
-  });
-
-  const { data: pollsCount } = useQuery({
-    queryKey: ['polls-count'],
-    queryFn: pollsApi.getCount,
-    enabled: isAuthenticated,
-    staleTime: 60000,
-    retry: false,
-  });
-
-  // BackButton for Telegram Mini App
-  // Don't show back button on main tab pages (bottom nav) - users navigate via tabs
-  const mainTabPaths = ['/', '/subscription', '/balance', '/referral', '/support', '/wheel'];
-  const isMainTabPage = mainTabPaths.includes(location.pathname);
-  const handleBack = useCallback(() => {
-    if (mobileMenuOpen) {
-      setMobileMenuOpen(false);
-      return;
-    }
-    navigate(-1);
-  }, [mobileMenuOpen, navigate]);
-
-  useBackButton(isMainTabPage ? null : handleBack);
 
   // Keyboard detection for hiding bottom nav
   useEffect(() => {
@@ -390,6 +252,7 @@ export function AppShell({ children }: AppShellProps) {
     { path: '/', label: t('nav.dashboard'), icon: HomeIcon },
     { path: '/balance', label: t('nav.balance'), icon: CreditCardIcon },
     { path: '/support', label: t('nav.support'), icon: ChatIcon },
+    { path: '/info', label: t('nav.info'), icon: InfoIcon },
     { path: '/profile', label: t('nav.profile'), icon: UserIcon },
   ];
 
@@ -405,7 +268,8 @@ export function AppShell({ children }: AppShellProps) {
   // Calculate header height based on fullscreen mode (only on mobile Telegram)
   // On iOS: contentSafeAreaInset.top includes status bar + dynamic island + Telegram header
   // On Android: safeAreaInset.top only includes status bar, need to add Telegram header height (~48px)
-  const telegramHeaderHeight = platform === 'android' ? 48 : 45;
+  const telegramHeaderHeight =
+    platform === 'android' ? UI.TELEGRAM_HEADER_ANDROID_PX : UI.TELEGRAM_HEADER_IOS_PX;
   const headerHeight = isMobileFullscreen
     ? 64 + Math.max(safeAreaInset.top, contentSafeAreaInset.top) + telegramHeaderHeight
     : 64;
@@ -421,7 +285,7 @@ export function AppShell({ children }: AppShellProps) {
 
       {/* Desktop Header */}
       <header className="fixed left-0 right-0 top-0 z-50 hidden border-b border-dark-800/50 bg-dark-950/80 backdrop-blur-xl lg:block">
-        <div className="mx-auto flex h-14 max-w-6xl items-center justify-between px-6">
+        <div className="mx-auto grid h-14 max-w-6xl grid-cols-[auto_1fr_auto] items-center gap-4 px-6">
           {/* Logo */}
           <Link to="/" className="flex items-center gap-2.5" onClick={handleNavClick}>
             <div className="relative flex h-8 w-8 flex-shrink-0 items-center justify-center overflow-hidden rounded-lg bg-dark-800">
@@ -448,7 +312,7 @@ export function AppShell({ children }: AppShellProps) {
           </Link>
 
           {/* Center Navigation */}
-          <nav className="flex items-center gap-1">
+          <nav className="flex items-center justify-center gap-1">
             {desktopNavItems.map((item) => (
               <Link
                 key={item.path}
@@ -465,7 +329,7 @@ export function AppShell({ children }: AppShellProps) {
                 <span>{item.label}</span>
               </Link>
             ))}
-            {referralTerms?.is_enabled && (
+            {referralEnabled && (
               <Link
                 to="/referral"
                 onClick={handleNavClick}
@@ -502,19 +366,20 @@ export function AppShell({ children }: AppShellProps) {
           </nav>
 
           {/* Right side actions */}
-          <div className="flex items-center gap-2">
-            {canToggleTheme && (
-              <button
-                onClick={() => {
-                  haptic.impact('light');
-                  toggleTheme();
-                }}
-                className="flex h-8 w-8 items-center justify-center rounded-lg text-dark-400 transition-colors hover:bg-dark-800/50 hover:text-dark-200"
-                title={isDark ? t('theme.light') || 'Light mode' : t('theme.dark') || 'Dark mode'}
-              >
-                {isDark ? <MoonIcon className="h-4 w-4" /> : <SunIcon className="h-4 w-4" />}
-              </button>
-            )}
+          <div className="flex items-center justify-end gap-2">
+            <button
+              onClick={() => {
+                haptic.impact('light');
+                toggleTheme();
+              }}
+              className={cn(
+                'rounded-xl border border-dark-700/50 bg-dark-800/50 p-2 text-dark-400 transition-all duration-200 hover:bg-dark-700 hover:text-accent-400',
+                !canToggleTheme && 'pointer-events-none invisible',
+              )}
+              title={isDark ? t('theme.light') || 'Light mode' : t('theme.dark') || 'Dark mode'}
+            >
+              {isDark ? <MoonIcon className="h-5 w-5" /> : <SunIcon className="h-5 w-5" />}
+            </button>
             <TicketNotificationBell isAdmin={location.pathname.startsWith('/admin')} />
             <LanguageSwitcher />
             <button
@@ -522,10 +387,10 @@ export function AppShell({ children }: AppShellProps) {
                 haptic.impact('light');
                 logout();
               }}
-              className="flex h-8 w-8 items-center justify-center rounded-lg text-dark-400 transition-colors hover:bg-dark-800/50 hover:text-dark-200"
+              className="rounded-xl border border-dark-700/50 bg-dark-800/50 p-2 text-dark-400 transition-all duration-200 hover:bg-dark-700 hover:text-accent-400"
               title={t('nav.logout')}
             >
-              <LogoutIcon className="h-4 w-4" />
+              <LogoutIcon className="h-5 w-5" />
             </button>
           </div>
         </div>
@@ -541,10 +406,10 @@ export function AppShell({ children }: AppShellProps) {
         safeAreaInset={safeAreaInset}
         contentSafeAreaInset={contentSafeAreaInset}
         telegramPlatform={platform}
-        wheelEnabled={wheelConfig?.is_enabled}
-        referralEnabled={referralTerms?.is_enabled}
-        hasContests={(contestsCount?.count ?? 0) > 0}
-        hasPolls={(pollsCount?.count ?? 0) > 0}
+        wheelEnabled={wheelEnabled}
+        referralEnabled={referralEnabled}
+        hasContests={hasContests}
+        hasPolls={hasPolls}
       />
 
       {/* Desktop spacer */}
@@ -559,8 +424,8 @@ export function AppShell({ children }: AppShellProps) {
       {/* Mobile Bottom Navigation */}
       <MobileBottomNav
         isKeyboardOpen={isKeyboardOpen}
-        referralEnabled={referralTerms?.is_enabled}
-        wheelEnabled={wheelConfig?.is_enabled}
+        referralEnabled={referralEnabled}
+        wheelEnabled={wheelEnabled}
       />
     </div>
   );

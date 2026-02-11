@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
 import {
   banSystemApi,
@@ -206,6 +206,8 @@ export default function AdminBanSystem() {
   const [report, setReport] = useState<BanReportResponse | null>(null);
   const [health, setHealth] = useState<BanHealthResponse | null>(null);
   const [reportHours, setReportHours] = useState(24);
+  const reportHoursRef = useRef(reportHours);
+  reportHoursRef.current = reportHours;
   const [settingLoading, setSettingLoading] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
 
@@ -240,19 +242,7 @@ export default function AdminBanSystem() {
   const [searchQuery, setSearchQuery] = useState('');
   const [actionLoading, setActionLoading] = useState<string | null>(null);
 
-  useEffect(() => {
-    loadStatus();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
-
-  useEffect(() => {
-    if (status?.enabled && status?.configured) {
-      loadTabData(activeTab);
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [activeTab, status]);
-
-  const loadStatus = async () => {
+  const loadStatus = useCallback(async () => {
     try {
       setLoading(true);
       const data = await banSystemApi.getStatus();
@@ -265,71 +255,84 @@ export default function AdminBanSystem() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [t]);
 
-  const loadTabData = async (tab: TabType) => {
-    try {
-      setLoading(true);
-      setError(null);
+  const loadTabData = useCallback(
+    async (tab: TabType) => {
+      try {
+        setLoading(true);
+        setError(null);
 
-      switch (tab) {
-        case 'dashboard': {
-          const statsData = await banSystemApi.getStats();
-          setStats(statsData);
-          break;
+        switch (tab) {
+          case 'dashboard': {
+            const statsData = await banSystemApi.getStats();
+            setStats(statsData);
+            break;
+          }
+          case 'users': {
+            const usersData = await banSystemApi.getUsers({ limit: 50 });
+            setUsers(usersData);
+            break;
+          }
+          case 'punishments': {
+            const punishmentsData = await banSystemApi.getPunishments();
+            setPunishments(punishmentsData);
+            break;
+          }
+          case 'nodes': {
+            const nodesData = await banSystemApi.getNodes();
+            setNodes(nodesData);
+            break;
+          }
+          case 'agents': {
+            const agentsData = await banSystemApi.getAgents();
+            setAgents(agentsData);
+            break;
+          }
+          case 'violations': {
+            const violationsData = await banSystemApi.getTrafficViolations();
+            setViolations(violationsData);
+            break;
+          }
+          case 'settings': {
+            const settingsData = await banSystemApi.getSettings();
+            setSettings(settingsData);
+            break;
+          }
+          case 'traffic': {
+            const trafficData = await banSystemApi.getTraffic();
+            setTraffic(trafficData);
+            break;
+          }
+          case 'reports': {
+            const reportData = await banSystemApi.getReport(reportHoursRef.current);
+            setReport(reportData);
+            break;
+          }
+          case 'health': {
+            const healthData = await banSystemApi.getHealth();
+            setHealth(healthData);
+            break;
+          }
         }
-        case 'users': {
-          const usersData = await banSystemApi.getUsers({ limit: 50 });
-          setUsers(usersData);
-          break;
-        }
-        case 'punishments': {
-          const punishmentsData = await banSystemApi.getPunishments();
-          setPunishments(punishmentsData);
-          break;
-        }
-        case 'nodes': {
-          const nodesData = await banSystemApi.getNodes();
-          setNodes(nodesData);
-          break;
-        }
-        case 'agents': {
-          const agentsData = await banSystemApi.getAgents();
-          setAgents(agentsData);
-          break;
-        }
-        case 'violations': {
-          const violationsData = await banSystemApi.getTrafficViolations();
-          setViolations(violationsData);
-          break;
-        }
-        case 'settings': {
-          const settingsData = await banSystemApi.getSettings();
-          setSettings(settingsData);
-          break;
-        }
-        case 'traffic': {
-          const trafficData = await banSystemApi.getTraffic();
-          setTraffic(trafficData);
-          break;
-        }
-        case 'reports': {
-          const reportData = await banSystemApi.getReport(reportHours);
-          setReport(reportData);
-          break;
-        }
-        case 'health': {
-          const healthData = await banSystemApi.getHealth();
-          setHealth(healthData);
-          break;
-        }
+      } catch {
+        setError(t('banSystem.loadError'));
+      } finally {
+        setLoading(false);
       }
-    } catch {
-      setError(t('banSystem.loadError'));
-    } finally {
-      setLoading(false);
+    },
+    [t],
+  );
+
+  useEffect(() => {
+    loadStatus();
+  }, [loadStatus]);
+
+  useEffect(() => {
+    if (status?.enabled && status?.configured) {
+      loadTabData(activeTab);
     }
-  };
+  }, [activeTab, status, loadTabData]);
 
   const handleSearch = async () => {
     if (!searchQuery.trim()) {
@@ -403,8 +406,7 @@ export default function AdminBanSystem() {
     if (activeTab === 'reports' && status?.enabled) {
       loadTabData('reports');
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [reportHours]);
+  }, [reportHours, activeTab, status, loadTabData]);
 
   const formatBytes = (bytes: number) => {
     if (bytes === 0) return '0 B';
@@ -673,7 +675,7 @@ export default function AdminBanSystem() {
                     onChange={(e) => setSearchQuery(e.target.value)}
                     onKeyDown={(e) => e.key === 'Enter' && handleSearch()}
                     placeholder={t('banSystem.users.searchPlaceholder')}
-                    className="w-full rounded-lg border border-dark-700 bg-dark-800 py-2 pl-10 pr-4 text-dark-100 placeholder-dark-500 focus:border-accent-500 focus:outline-none"
+                    className="input pl-10"
                   />
                 </div>
                 <button
@@ -1331,7 +1333,7 @@ export default function AdminBanSystem() {
                                 min={setting.min_value ?? undefined}
                                 max={setting.max_value ?? undefined}
                                 disabled={!setting.editable || settingLoading === setting.key}
-                                className="w-24 rounded-lg border border-dark-700 bg-dark-900 px-3 py-1.5 text-sm text-dark-100 focus:border-accent-500 focus:outline-none disabled:opacity-50"
+                                className="input w-24"
                               />
                             ) : setting.type === 'list' ? (
                               <div className="flex max-w-xs flex-wrap justify-end gap-1.5">
@@ -1351,7 +1353,7 @@ export default function AdminBanSystem() {
                                 )}
                                 {setting.editable && nodes && setting.key.includes('nodes') && (
                                   <select
-                                    className="rounded border border-dark-700 bg-dark-900 px-2 py-1 text-xs text-dark-300 focus:border-accent-500 focus:outline-none"
+                                    className="input py-1 text-xs"
                                     onChange={(e) => {
                                       if (e.target.value) {
                                         const currentList = Array.isArray(setting.value)

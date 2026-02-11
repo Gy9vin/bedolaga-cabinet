@@ -1,21 +1,19 @@
 import { useQuery } from '@tanstack/react-query';
-import { useNavigate, useSearchParams } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router';
 import { useTranslation } from 'react-i18next';
 import { motion } from 'framer-motion';
 
 import { balanceApi } from '../api/balance';
 import { useCurrency } from '../hooks/useCurrency';
-import { useBackButton } from '@/platform';
 import { Card } from '@/components/data-display/Card';
 import { staggerContainer, staggerItem } from '@/components/motion/transitions';
+import PaymentMethodIcon from '@/components/PaymentMethodIcon';
 
 export default function TopUpMethodSelect() {
   const { t } = useTranslation();
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const { formatAmount, currencySymbol } = useCurrency();
-
-  useBackButton(() => navigate('/balance'));
 
   const { data: paymentMethods, isLoading } = useQuery({
     queryKey: ['payment-methods'],
@@ -73,8 +71,11 @@ export default function TopUpMethodSelect() {
                     className={!method.is_available ? 'cursor-not-allowed opacity-50' : ''}
                     onClick={() => method.is_available && handleMethodClick(method.id)}
                   >
-                    <div className="font-semibold text-dark-100">
-                      {translatedName || method.name}
+                    <div className="flex items-center gap-3">
+                      <PaymentMethodIcon method={methodKey} className="h-8 w-8 flex-shrink-0" />
+                      <div className="font-semibold text-dark-100">
+                        {translatedName || method.name}
+                      </div>
                     </div>
                     {(translatedDesc || method.description) && (
                       <div className="mt-1 text-sm text-dark-500">

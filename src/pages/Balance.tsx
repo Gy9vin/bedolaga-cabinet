@@ -1,12 +1,13 @@
 import { useState, useEffect, useRef } from 'react';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { useTranslation } from 'react-i18next';
-import { useSearchParams, useNavigate } from 'react-router-dom';
+import { useSearchParams, useNavigate } from 'react-router';
 import { motion, AnimatePresence } from 'framer-motion';
 
 import { useAuthStore } from '../store/auth';
 import { balanceApi } from '../api/balance';
 import { useCurrency } from '../hooks/useCurrency';
+import { API } from '../config/constants';
 import { useToast } from '../components/Toast';
 import type { PaginatedResponse, Transaction } from '../types';
 
@@ -47,19 +48,18 @@ export default function Balance() {
   const { showToast } = useToast();
   const paymentHandledRef = useRef(false);
 
-  // Fetch balance directly from API with no caching
+  // Fetch balance from API
   const { data: balanceData, refetch: refetchBalance } = useQuery({
     queryKey: ['balance'],
     queryFn: balanceApi.getBalance,
-    staleTime: 0,
+    staleTime: API.BALANCE_STALE_TIME_MS,
     refetchOnMount: 'always',
   });
 
   // Refresh user data on mount to sync balance in store
   useEffect(() => {
     refreshUser();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [refreshUser]);
 
   // Handle payment return from payment gateway
   useEffect(() => {

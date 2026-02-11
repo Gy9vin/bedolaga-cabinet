@@ -1,6 +1,6 @@
-import { Link } from 'react-router-dom';
+import { Link } from 'react-router';
 import { useTranslation } from 'react-i18next';
-import { RemnawaveIcon } from '../components/icons';
+import { RemnawaveIcon, ArrowPathIcon } from '../components/icons';
 
 // Group header icons
 const AnalyticsGroupIcon = () => (
@@ -216,6 +216,16 @@ const EnvelopeIcon = () => (
   </svg>
 );
 
+const ArrowsUpDownIcon = () => (
+  <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+    <path
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      d="M3 7.5L7.5 3m0 0L12 7.5M7.5 3v13.5m13.5 0L16.5 21m0 0L12 16.5m4.5 4.5V7.5"
+    />
+  </svg>
+);
+
 const ChevronRightIcon = () => (
   <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
     <path strokeLinecap="round" strokeLinejoin="round" d="M8.25 4.5l7.5 7.5-7.5 7.5" />
@@ -316,6 +326,12 @@ export default function AdminPanel() {
           icon: <BanknotesIcon />,
           title: t('admin.nav.payments'),
           description: t('admin.panel.paymentsDesc'),
+        },
+        {
+          to: '/admin/traffic-usage',
+          icon: <ArrowsUpDownIcon />,
+          title: t('admin.nav.trafficUsage'),
+          description: t('admin.panel.trafficUsageDesc'),
         },
       ],
     },
@@ -456,6 +472,12 @@ export default function AdminPanel() {
           icon: <EnvelopeIcon />,
           title: t('admin.nav.emailTemplates'),
           description: t('admin.panel.emailTemplatesDesc'),
+        },
+        {
+          to: '/admin/updates',
+          icon: <ArrowPathIcon className="h-5 w-5" />,
+          title: t('admin.nav.updates'),
+          description: t('admin.panel.updatesDesc'),
         },
       ],
     },

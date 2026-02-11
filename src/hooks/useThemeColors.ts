@@ -2,66 +2,7 @@ import { useEffect } from 'react';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { themeColorsApi } from '../api/themeColors';
 import { ThemeColors, DEFAULT_THEME_COLORS, SHADE_LEVELS, ColorPalette } from '../types/theme';
-
-// Convert hex to RGB values
-function hexToRgb(hex: string): { r: number; g: number; b: number } {
-  // Handle shorthand hex
-  if (hex.length === 4) {
-    hex = '#' + hex[1] + hex[1] + hex[2] + hex[2] + hex[3] + hex[3];
-  }
-  const r = parseInt(hex.slice(1, 3), 16);
-  const g = parseInt(hex.slice(3, 5), 16);
-  const b = parseInt(hex.slice(5, 7), 16);
-  return { r, g, b };
-}
-
-// Convert hex to HSL
-function hexToHsl(hex: string): { h: number; s: number; l: number } {
-  const { r, g, b } = hexToRgb(hex);
-  const rNorm = r / 255;
-  const gNorm = g / 255;
-  const bNorm = b / 255;
-
-  const max = Math.max(rNorm, gNorm, bNorm);
-  const min = Math.min(rNorm, gNorm, bNorm);
-  let h = 0;
-  let s = 0;
-  const l = (max + min) / 2;
-
-  if (max !== min) {
-    const d = max - min;
-    s = l > 0.5 ? d / (2 - max - min) : d / (max + min);
-
-    switch (max) {
-      case rNorm:
-        h = ((gNorm - bNorm) / d + (gNorm < bNorm ? 6 : 0)) / 6;
-        break;
-      case gNorm:
-        h = ((bNorm - rNorm) / d + 2) / 6;
-        break;
-      case bNorm:
-        h = ((rNorm - gNorm) / d + 4) / 6;
-        break;
-    }
-  }
-
-  return { h: h * 360, s: s * 100, l: l * 100 };
-}
-
-// Convert HSL to RGB values
-function hslToRgb(h: number, s: number, l: number): { r: number; g: number; b: number } {
-  s /= 100;
-  l /= 100;
-
-  const a = s * Math.min(l, 1 - l);
-  const f = (n: number) => {
-    const k = (n + h / 30) % 12;
-    const color = l - a * Math.max(Math.min(k - 3, 9 - k, 1), -1);
-    return Math.round(255 * color);
-  };
-
-  return { r: f(0), g: f(8), b: f(4) };
-}
+import { hexToRgb, hexToHsl, hslToRgb } from '../utils/colorConversion';
 
 // Convert RGB to string format for CSS variable
 function rgbToString(r: number, g: number, b: number): string {

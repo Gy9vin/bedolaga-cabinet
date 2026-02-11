@@ -5,6 +5,8 @@ import { cn } from '@/lib/utils';
 import { usePlatform } from '@/platform';
 import { dropdown, dropdownTransition } from '../../motion/transitions';
 
+export { Root as Select, Group as SelectGroup } from '@radix-ui/react-select';
+
 // Icons
 const ChevronDownIcon = () => (
   <svg width="16" height="16" viewBox="0 0 16 16" fill="none" className="text-dark-400">
@@ -29,9 +31,6 @@ const CheckIcon = () => (
     />
   </svg>
 );
-
-// Root
-export const Select = SelectPrimitive.Root;
 
 // Trigger
 export interface SelectTriggerProps extends ComponentPropsWithoutRef<
@@ -148,9 +147,6 @@ export const SelectItem = forwardRef<HTMLDivElement, SelectItemProps>(
 );
 
 SelectItem.displayName = 'SelectItem';
-
-// Group
-export const SelectGroup = SelectPrimitive.Group;
 
 // Label
 export type SelectLabelProps = ComponentPropsWithoutRef<typeof SelectPrimitive.Label>;

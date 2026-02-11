@@ -4,6 +4,13 @@ import { forwardRef, type ComponentPropsWithoutRef } from 'react';
 import { cn } from '@/lib/utils';
 import { dropdown, dropdownTransition } from '../../motion/transitions';
 
+export {
+  Root as Popover,
+  Trigger as PopoverTrigger,
+  Anchor as PopoverAnchor,
+  Close as PopoverClose,
+} from '@radix-ui/react-popover';
+
 // Close icon
 const CloseIcon = () => (
   <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
@@ -16,18 +23,6 @@ const CloseIcon = () => (
     />
   </svg>
 );
-
-// Root
-export const Popover = PopoverPrimitive.Root;
-
-// Trigger
-export const PopoverTrigger = PopoverPrimitive.Trigger;
-
-// Anchor
-export const PopoverAnchor = PopoverPrimitive.Anchor;
-
-// Close
-export const PopoverClose = PopoverPrimitive.Close;
 
 // Content
 export interface PopoverContentProps extends ComponentPropsWithoutRef<

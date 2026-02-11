@@ -33,6 +33,7 @@ interface AuthState {
   loginWithTelegram: (initData: string) => Promise<void>;
   loginWithTelegramWidget: (data: TelegramWidgetData) => Promise<void>;
   loginWithEmail: (email: string, password: string) => Promise<void>;
+  loginWithOAuth: (provider: string, code: string, state: string) => Promise<void>;
   registerWithEmail: (
     email: string,
     password: string,
@@ -140,12 +141,14 @@ export const useAuthStore = create<AuthState>()(
             const accessToken = tokenStorage.getAccessToken();
             const refreshToken = tokenStorage.getRefreshToken();
 
-            if (!accessToken || !refreshToken) {
+            if (!refreshToken) {
               set({ isLoading: false, isAuthenticated: false });
               return;
             }
 
-            // Проверяем валидность токена перед использованием
+            // No access token or it's expired — try refresh
+            // This handles Mini App reopens where sessionStorage was cleared
+            // but refresh token persists in localStorage
             if (!isTokenValid(accessToken)) {
               // Используем централизованный менеджер для refresh
               const newToken = await tokenRefreshManager.refreshAccessToken();
@@ -240,7 +243,7 @@ export const useAuthStore = create<AuthState>()(
           user: response.user,
           isAuthenticated: true,
         });
-        get().checkAdminStatus();
+        await get().checkAdminStatus();
       },
 
       loginWithTelegramWidget: async (data) => {
@@ -252,7 +255,7 @@ export const useAuthStore = create<AuthState>()(
           user: response.user,
           isAuthenticated: true,
         });
-        get().checkAdminStatus();
+        await get().checkAdminStatus();
       },
 
       loginWithEmail: async (email, password) => {
@@ -264,7 +267,19 @@ export const useAuthStore = create<AuthState>()(
           user: response.user,
           isAuthenticated: true,
         });
-        get().checkAdminStatus();
+        await get().checkAdminStatus();
+      },
+
+      loginWithOAuth: async (provider, code, state) => {
+        const response = await authApi.oauthCallback(provider, code, state);
+        tokenStorage.setTokens(response.access_token, response.refresh_token);
+        set({
+          accessToken: response.access_token,
+          refreshToken: response.refresh_token,
+          user: response.user,
+          isAuthenticated: true,
+        });
+        await get().checkAdminStatus();
       },
 
       registerWithEmail: async (email, password, firstName, referralCode) => {

@@ -1,9 +1,8 @@
 import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router';
 import { useQuery } from '@tanstack/react-query';
 import { useTranslation } from 'react-i18next';
 import { adminBroadcastsApi } from '../api/adminBroadcasts';
-import { useBackButton } from '../platform/hooks/useBackButton';
 import { usePlatform } from '../platform/hooks/usePlatform';
 
 // Icons
@@ -130,9 +129,6 @@ export default function AdminBroadcasts() {
   const { t } = useTranslation();
   const navigate = useNavigate();
   const { capabilities } = usePlatform();
-
-  // Use native Telegram back button in Mini App
-  useBackButton(() => navigate('/admin'));
 
   const [page, setPage] = useState(0);
   const limit = 20;

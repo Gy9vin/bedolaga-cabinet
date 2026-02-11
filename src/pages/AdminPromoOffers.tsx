@@ -1,10 +1,9 @@
 import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router';
 import { useTranslation } from 'react-i18next';
 import { useQuery } from '@tanstack/react-query';
 import i18n from '../i18n';
 import { promoOffersApi, PromoOfferLog, OFFER_TYPE_CONFIG, OfferType } from '../api/promoOffers';
-import { useBackButton } from '../platform/hooks/useBackButton';
 import { usePlatform } from '../platform/hooks/usePlatform';
 
 // Icons
@@ -107,9 +106,6 @@ export default function AdminPromoOffers() {
   const { t } = useTranslation();
   const navigate = useNavigate();
   const { capabilities } = usePlatform();
-
-  // Use native Telegram back button in Mini App
-  useBackButton(() => navigate('/admin'));
 
   const [activeTab, setActiveTab] = useState<'templates' | 'logs'>('templates');
 

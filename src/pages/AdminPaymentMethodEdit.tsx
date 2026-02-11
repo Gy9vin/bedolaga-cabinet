@@ -1,12 +1,11 @@
 import { useState, useEffect } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
+import { useParams, useNavigate } from 'react-router';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useTranslation } from 'react-i18next';
 import { adminPaymentMethodsApi } from '../api/adminPaymentMethods';
 import type { PromoGroupSimple } from '../types';
-import { useBackButton } from '../platform/hooks/useBackButton';
 import { usePlatform } from '../platform/hooks/usePlatform';
-
+import { createNumberInputHandler, toNumber } from '../utils/inputHelpers';
 const BackIcon = () => (
   <svg
     className="h-5 w-5 text-dark-400"
@@ -18,21 +17,6 @@ const BackIcon = () => (
     <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 19.5L8.25 12l7.5-7.5" />
   </svg>
 );
-
-const METHOD_ICONS: Record<string, string> = {
-  telegram_stars: '⭐',
-  tribute: '🎁',
-  cryptobot: '🪙',
-  heleket: '⚡',
-  yookassa: '🏦',
-  mulenpay: '💳',
-  pal24: '💸',
-  platega: '💰',
-  wata: '💧',
-  freekassa: '💵',
-  cloudpayments: '☁️',
-  kassa_ai: '🏦',
-};
 
 const METHOD_LABELS: Record<string, string> = {
   telegram_stars: 'Telegram Stars',
@@ -72,9 +56,6 @@ export default function AdminPaymentMethodEdit() {
   const queryClient = useQueryClient();
   const { capabilities } = usePlatform();
 
-  // Use native Telegram back button in Mini App
-  useBackButton(() => navigate('/admin/payment-methods'));
-
   // Fetch payment methods
   const { data: methods, isLoading } = useQuery({
     queryKey: ['admin-payment-methods'],
@@ -93,8 +74,8 @@ export default function AdminPaymentMethodEdit() {
   const [isEnabled, setIsEnabled] = useState(false);
   const [customName, setCustomName] = useState('');
   const [subOptions, setSubOptions] = useState<Record<string, boolean>>({});
-  const [minAmount, setMinAmount] = useState('');
-  const [maxAmount, setMaxAmount] = useState('');
+  const [minAmount, setMinAmount] = useState<number | ''>('');
+  const [maxAmount, setMaxAmount] = useState<number | ''>('');
   const [userTypeFilter, setUserTypeFilter] = useState<'all' | 'telegram' | 'email'>('all');
   const [firstTopupFilter, setFirstTopupFilter] = useState<'any' | 'yes' | 'no'>('any');
   const [promoGroupFilterMode, setPromoGroupFilterMode] = useState<'all' | 'selected'>('all');
@@ -106,8 +87,8 @@ export default function AdminPaymentMethodEdit() {
       setIsEnabled(config.is_enabled);
       setCustomName(config.display_name || '');
       setSubOptions(config.sub_options || {});
-      setMinAmount(config.min_amount_kopeks?.toString() || '');
-      setMaxAmount(config.max_amount_kopeks?.toString() || '');
+      setMinAmount(config.min_amount_kopeks ?? '');
+      setMaxAmount(config.max_amount_kopeks ?? '');
       setUserTypeFilter(config.user_type_filter);
       setFirstTopupFilter(config.first_topup_filter);
       setPromoGroupFilterMode(config.promo_group_filter_mode);
@@ -148,13 +129,13 @@ export default function AdminPaymentMethodEdit() {
     }
 
     // Amounts
-    if (minAmount.trim()) {
-      data.min_amount_kopeks = parseInt(minAmount, 10) || null;
+    if (minAmount !== '') {
+      data.min_amount_kopeks = toNumber(minAmount) || null;
     } else {
       data.reset_min_amount = true;
     }
-    if (maxAmount.trim()) {
-      data.max_amount_kopeks = parseInt(maxAmount, 10) || null;
+    if (maxAmount !== '') {
+      data.max_amount_kopeks = toNumber(maxAmount) || null;
     } else {
       data.reset_max_amount = true;
     }
@@ -198,7 +179,6 @@ export default function AdminPaymentMethodEdit() {
   }
 
   const displayName = config.display_name || config.default_display_name;
-  const icon = METHOD_ICONS[config.method_id] || '💳';
 
   return (
     <div className="space-y-6">
@@ -213,9 +193,6 @@ export default function AdminPaymentMethodEdit() {
             <BackIcon />
           </button>
         )}
-        <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-dark-700/50 text-xl">
-          {icon}
-        </div>
         <div>
           <h1 className="text-2xl font-bold text-dark-50">{displayName}</h1>
           <p className="text-sm text-dark-500">
@@ -240,13 +217,13 @@ export default function AdminPaymentMethodEdit() {
           </div>
           <button
             onClick={() => setIsEnabled(!isEnabled)}
-            className={`relative h-7 w-12 rounded-full transition-colors ${
+            className={`relative h-6 w-11 rounded-full transition-colors ${
               isEnabled ? 'bg-accent-500' : 'bg-dark-600'
             }`}
           >
             <span
-              className={`absolute top-0.5 h-6 w-6 rounded-full bg-white shadow transition-transform ${
-                isEnabled ? 'left-[calc(100%-1.625rem)]' : 'left-0.5'
+              className={`absolute top-1 h-4 w-4 rounded-full bg-white transition-transform ${
+                isEnabled ? 'left-6' : 'left-1'
               }`}
             />
           </button>
@@ -254,7 +231,7 @@ export default function AdminPaymentMethodEdit() {
 
         {/* Display name */}
         <div>
-          <label className="mb-2 block text-sm font-medium text-dark-200">
+          <label className="mb-2 block text-sm font-medium text-dark-300">
             {t('admin.paymentMethods.displayName')}
           </label>
           <input
@@ -272,7 +249,7 @@ export default function AdminPaymentMethodEdit() {
         {/* Sub-options */}
         {config.available_sub_options && config.available_sub_options.length > 0 && (
           <div>
-            <label className="mb-2 block text-sm font-medium text-dark-200">
+            <label className="mb-2 block text-sm font-medium text-dark-300">
               {t('admin.paymentMethods.subOptions')}
             </label>
             <div className="space-y-2">
@@ -306,25 +283,25 @@ export default function AdminPaymentMethodEdit() {
         {/* Min/Max amounts */}
         <div className="grid grid-cols-2 gap-3">
           <div>
-            <label className="mb-2 block text-sm font-medium text-dark-200">
+            <label className="mb-2 block text-sm font-medium text-dark-300">
               {t('admin.paymentMethods.minAmount')}
             </label>
             <input
               type="number"
               value={minAmount}
-              onChange={(e) => setMinAmount(e.target.value)}
+              onChange={createNumberInputHandler(setMinAmount, 0)}
               placeholder={config.default_min_amount_kopeks.toString()}
               className="input"
             />
           </div>
           <div>
-            <label className="mb-2 block text-sm font-medium text-dark-200">
+            <label className="mb-2 block text-sm font-medium text-dark-300">
               {t('admin.paymentMethods.maxAmount')}
             </label>
             <input
               type="number"
               value={maxAmount}
-              onChange={(e) => setMaxAmount(e.target.value)}
+              onChange={createNumberInputHandler(setMaxAmount, 0)}
               placeholder={config.default_max_amount_kopeks.toString()}
               className="input"
             />

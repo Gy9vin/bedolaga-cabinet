@@ -7,8 +7,9 @@ import {
   DEFAULT_USER_PREFERENCES,
   BORDER_RADIUS_VALUES,
 } from '../types/theme';
+import { STORAGE_KEYS } from '../config/constants';
 
-const STORAGE_KEY = 'user_theme_preferences';
+const STORAGE_KEY = STORAGE_KEYS.USER_THEME_PREFS;
 
 /**
  * Parse preferences from storage string

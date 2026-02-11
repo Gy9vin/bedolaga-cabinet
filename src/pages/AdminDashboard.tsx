@@ -1,16 +1,18 @@
-import { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useState, useEffect, useCallback } from 'react';
+import { useNavigate } from 'react-router';
 import { useTranslation } from 'react-i18next';
 import {
   statsApi,
   type DashboardStats,
   type NodeStatus,
+  type SystemInfo,
   type TopReferrersResponse,
   type TopCampaignsResponse,
   type RecentPaymentsResponse,
 } from '../api/admin';
+
+const CABINET_VERSION = __APP_VERSION__;
 import { useCurrency } from '../hooks/useCurrency';
-import { useBackButton } from '../platform/hooks/useBackButton';
 import { usePlatform } from '../platform/hooks/usePlatform';
 
 // Icons - styled like main navigation
@@ -365,9 +367,6 @@ export default function AdminDashboard() {
   const { formatAmount, currencySymbol } = useCurrency();
   const { capabilities } = usePlatform();
 
-  // Use native Telegram back button in Mini App
-  useBackButton(() => navigate('/admin'));
-
   const [stats, setStats] = useState<DashboardStats | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -379,8 +378,9 @@ export default function AdminDashboard() {
   const [campaigns, setCampaigns] = useState<TopCampaignsResponse | null>(null);
   const [payments, setPayments] = useState<RecentPaymentsResponse | null>(null);
   const [referrersTab, setReferrersTab] = useState<'earnings' | 'invited'>('earnings');
+  const [systemInfo, setSystemInfo] = useState<SystemInfo | null>(null);
 
-  const fetchStats = async () => {
+  const fetchStats = useCallback(async () => {
     try {
       setLoading(true);
       setError(null);
@@ -392,22 +392,24 @@ export default function AdminDashboard() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [t]);
 
-  const fetchExtendedStats = async () => {
+  const fetchExtendedStats = useCallback(async () => {
     try {
-      const [referrersData, campaignsData, paymentsData] = await Promise.all([
+      const [referrersData, campaignsData, paymentsData, sysInfoData] = await Promise.all([
         statsApi.getTopReferrers(10),
         statsApi.getTopCampaigns(10),
         statsApi.getRecentPayments(20),
+        statsApi.getSystemInfo(),
       ]);
       setReferrers(referrersData);
       setCampaigns(campaignsData);
       setPayments(paymentsData);
+      setSystemInfo(sysInfoData);
     } catch (err) {
       console.error('Failed to load extended stats:', err);
     }
-  };
+  }, []);
 
   useEffect(() => {
     fetchStats();
@@ -418,8 +420,7 @@ export default function AdminDashboard() {
       fetchExtendedStats();
     }, 30000);
     return () => clearInterval(interval);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [fetchStats, fetchExtendedStats]);
 
   const handleRestartNode = async (uuid: string) => {
     try {
@@ -1139,6 +1140,49 @@ export default function AdminDashboard() {
                 </div>
               </div>
             ))}
+          </div>
+        </div>
+      )}
+
+      {/* System Info */}
+      {systemInfo && (
+        <div className="rounded-xl border border-dark-700 bg-dark-800 p-4">
+          <h3 className="mb-3 text-sm font-semibold text-dark-300">
+            {t('adminDashboard.systemInfo.title')}
+          </h3>
+          <div className="flex flex-wrap gap-x-6 gap-y-2 text-sm">
+            <div>
+              <span className="text-dark-500">{t('adminDashboard.systemInfo.cabinet')}: </span>
+              <span className="font-medium text-dark-200">v{CABINET_VERSION}</span>
+            </div>
+            <div>
+              <span className="text-dark-500">{t('adminDashboard.systemInfo.bot')}: </span>
+              <span className="font-medium text-dark-200">v{systemInfo.bot_version}</span>
+            </div>
+            <div>
+              <span className="text-dark-500">{t('adminDashboard.systemInfo.python')}: </span>
+              <span className="font-medium text-dark-200">{systemInfo.python_version}</span>
+            </div>
+            <div>
+              <span className="text-dark-500">{t('adminDashboard.systemInfo.uptime')}: </span>
+              <span className="font-medium text-dark-200">
+                {(() => {
+                  const s = systemInfo.uptime_seconds;
+                  const d = Math.floor(s / 86400);
+                  const h = Math.floor((s % 86400) / 3600);
+                  const m = Math.floor((s % 3600) / 60);
+                  return [d > 0 && `${d}d`, h > 0 && `${h}h`, `${m}m`].filter(Boolean).join(' ');
+                })()}
+              </span>
+            </div>
+            <div>
+              <span className="text-dark-500">{t('adminDashboard.systemInfo.users')}: </span>
+              <span className="font-medium text-dark-200">{systemInfo.users_total}</span>
+            </div>
+            <div>
+              <span className="text-dark-500">{t('adminDashboard.systemInfo.activeSubs')}: </span>
+              <span className="font-medium text-dark-200">{systemInfo.subscriptions_active}</span>
+            </div>
           </div>
         </div>
       )}

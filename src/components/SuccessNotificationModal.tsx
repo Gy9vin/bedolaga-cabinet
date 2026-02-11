@@ -6,11 +6,11 @@
 import { useEffect, useCallback } from 'react';
 import { createPortal } from 'react-dom';
 import { useTranslation } from 'react-i18next';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router';
 import { useSuccessNotification } from '../store/successNotification';
 import { useCurrency } from '../hooks/useCurrency';
-import { useTelegramWebApp } from '../hooks/useTelegramWebApp';
-import { useBackButton, useHaptic } from '@/platform';
+import { useTelegramSDK } from '../hooks/useTelegramSDK';
+import { useHaptic } from '@/platform';
 
 // Icons
 const CheckCircleIcon = () => (
@@ -80,7 +80,7 @@ export default function SuccessNotificationModal() {
   const navigate = useNavigate();
   const { isOpen, data, hide } = useSuccessNotification();
   const { formatAmount, currencySymbol } = useCurrency();
-  const { safeAreaInset, contentSafeAreaInset, isTelegramWebApp } = useTelegramWebApp();
+  const { safeAreaInset, contentSafeAreaInset, isTelegramWebApp } = useTelegramSDK();
   const haptic = useHaptic();
 
   const safeBottom = isTelegramWebApp
@@ -105,9 +105,6 @@ export default function SuccessNotificationModal() {
     document.addEventListener('keydown', handleKeyDown);
     return () => document.removeEventListener('keydown', handleKeyDown);
   }, [isOpen, handleClose]);
-
-  // Telegram back button - using platform hook
-  useBackButton(isOpen ? handleClose : null);
 
   // Haptic feedback on open
   useEffect(() => {

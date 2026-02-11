@@ -1,5 +1,5 @@
 import { useState, useCallback, useRef, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useTranslation } from 'react-i18next';
 import {
@@ -169,10 +169,6 @@ function TemplateEditor({
   const [editSubject, setEditSubject] = useState('');
   const [editBody, setEditBody] = useState('');
   const [isDirty, setIsDirty] = useState(false);
-  const [toast, setToast] = useState<{
-    type: 'success' | 'error' | 'info';
-    message: string;
-  } | null>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
 
   const langData: EmailTemplateLanguageData | undefined = detail.languages[activeLang];
@@ -185,11 +181,6 @@ function TemplateEditor({
       setIsDirty(false);
     }
   }, [activeLang, langData]);
-
-  const showToast = useCallback((type: 'success' | 'error' | 'info', message: string) => {
-    setToast({ type, message });
-    setTimeout(() => setToast(null), 3000);
-  }, []);
 
   // Extract body content from full HTML (strip base template wrapper)
   const extractBodyContent = useCallback((html: string): string => {
@@ -230,10 +221,10 @@ function TemplateEditor({
         queryKey: ['admin', 'email-template', detail.notification_type],
       });
       setIsDirty(false);
-      showToast('success', t('admin.emailTemplates.saved'));
+      notify.success(t('admin.emailTemplates.saved'));
     },
     onError: () => {
-      showToast('error', t('common.error'));
+      notify.error(t('common.error'));
     },
   });
 
@@ -246,10 +237,10 @@ function TemplateEditor({
         queryKey: ['admin', 'email-template', detail.notification_type],
       });
       setIsDirty(false);
-      showToast('success', t('admin.emailTemplates.resetted'));
+      notify.success(t('admin.emailTemplates.resetted'));
     },
     onError: () => {
-      showToast('error', t('common.error'));
+      notify.error(t('common.error'));
     },
   });
 
@@ -260,10 +251,10 @@ function TemplateEditor({
         language: activeLang,
       }),
     onSuccess: (data) => {
-      showToast('success', `${t('admin.emailTemplates.testSent')} → ${data.sent_to}`);
+      notify.success(`${t('admin.emailTemplates.testSent')} → ${data.sent_to}`);
     },
     onError: () => {
-      showToast('error', t('common.error'));
+      notify.error(t('common.error'));
     },
   });
 
@@ -334,14 +325,14 @@ function TemplateEditor({
 
       {/* Subject */}
       <div>
-        <label className="mb-1.5 block text-xs font-medium text-dark-300">
+        <label className="mb-2 block text-sm font-medium text-dark-300">
           {t('admin.emailTemplates.subject')}
         </label>
         <input
           type="text"
           value={editSubject}
           onChange={(e) => handleSubjectChange(e.target.value)}
-          className="w-full rounded-lg border border-dark-600 bg-dark-900 px-3 py-2.5 text-sm text-dark-100 placeholder-dark-500 transition-colors focus:border-accent-500 focus:outline-none focus:ring-1 focus:ring-accent-500"
+          className="input"
           placeholder={t('admin.emailTemplates.subjectPlaceholder')}
         />
       </div>
@@ -360,7 +351,7 @@ function TemplateEditor({
                 title={t('admin.emailTemplates.clickToCopy')}
                 onClick={() => {
                   navigator.clipboard.writeText(`{${v}}`);
-                  showToast('success', `Copied {${v}}`);
+                  notify.success(`Copied {${v}}`);
                 }}
               >
                 {`{${v}}`}
@@ -372,7 +363,7 @@ function TemplateEditor({
 
       {/* Body HTML editor */}
       <div>
-        <label className="mb-1.5 block text-xs font-medium text-dark-300">
+        <label className="mb-2 block text-sm font-medium text-dark-300">
           {t('admin.emailTemplates.body')}
         </label>
         <textarea
@@ -380,7 +371,7 @@ function TemplateEditor({
           value={editBody}
           onChange={(e) => handleBodyChange(e.target.value)}
           rows={12}
-          className="min-h-[200px] w-full resize-y rounded-lg border border-dark-600 bg-dark-900 px-3 py-2.5 font-mono text-xs leading-relaxed text-dark-100 placeholder-dark-500 transition-colors focus:border-accent-500 focus:outline-none focus:ring-1 focus:ring-accent-500 sm:min-h-[300px] sm:text-sm"
+          className="input min-h-[200px] resize-y font-mono text-xs leading-relaxed sm:min-h-[300px] sm:text-sm"
           placeholder="<h2>Title</h2><p>Content...</p>"
           spellCheck={false}
         />
@@ -448,21 +439,6 @@ function TemplateEditor({
           )}
         </div>
       </div>
-
-      {/* Toast */}
-      {toast && (
-        <div
-          className={`fixed left-4 right-4 top-32 z-[100] mx-auto max-w-sm animate-fade-in rounded-xl px-4 py-3 text-center text-sm font-medium shadow-lg sm:left-1/2 sm:right-auto sm:-translate-x-1/2 ${
-            toast.type === 'success'
-              ? 'bg-success-500 text-white'
-              : toast.type === 'info'
-                ? 'bg-dark-700 text-dark-100 ring-1 ring-dark-600'
-                : 'bg-error-500 text-white'
-          }`}
-        >
-          {toast.message}
-        </div>
-      )}
     </div>
   );
 }

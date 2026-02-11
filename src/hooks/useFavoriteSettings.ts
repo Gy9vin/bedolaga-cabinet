@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback } from 'react';
+import { STORAGE_KEYS } from '../config/constants';
 
-const STORAGE_KEY = 'admin_favorite_settings';
+const STORAGE_KEY = STORAGE_KEYS.FAVORITE_SETTINGS;
 
 export function useFavoriteSettings() {
   const [favorites, setFavorites] = useState<string[]>(() => {

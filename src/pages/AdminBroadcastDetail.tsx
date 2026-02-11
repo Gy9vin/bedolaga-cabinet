@@ -1,9 +1,8 @@
-import { useParams, useNavigate } from 'react-router-dom';
+import { useParams, useNavigate } from 'react-router';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useTranslation } from 'react-i18next';
 import { adminBroadcastsApi, type BroadcastChannel } from '../api/adminBroadcasts';
 import { AdminBackButton } from '../components/admin';
-import { useBackButton } from '../platform/hooks/useBackButton';
 
 // Icons
 
@@ -158,8 +157,6 @@ export default function AdminBroadcastDetail() {
   const { id } = useParams<{ id: string }>();
 
   const broadcastId = id ? parseInt(id, 10) : null;
-
-  useBackButton(() => navigate('/admin/broadcasts'));
 
   // Fetch broadcast details
   const {

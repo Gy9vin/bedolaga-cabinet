@@ -1,11 +1,9 @@
-import { useParams, useNavigate } from 'react-router-dom';
+import { useParams, useNavigate } from 'react-router';
 import { useQuery } from '@tanstack/react-query';
 import { useTranslation } from 'react-i18next';
 import { adminRemnawaveApi, SquadWithLocalInfo } from '../api/adminRemnawave';
 import { AdminBackButton } from '../components/admin';
 import { ServerIcon, UsersIcon, CheckIcon, XIcon } from '../components/icons';
-import { useBackButton } from '../platform/hooks/useBackButton';
-
 // Country flags helper
 const getCountryFlag = (code: string | null | undefined): string => {
   if (!code) return '🌍';
@@ -54,8 +52,6 @@ export default function AdminRemnawaveSquadDetail() {
   const { t } = useTranslation();
   const { uuid } = useParams<{ uuid: string }>();
   const navigate = useNavigate();
-
-  useBackButton(() => navigate('/admin/remnawave'));
 
   // Fetch all squads and find the one we need
   const {

@@ -7,13 +7,6 @@ export const springTransition: Transition = {
   damping: 30,
 };
 
-// Smooth spring for larger movements
-export const smoothSpring: Transition = {
-  type: 'spring',
-  stiffness: 300,
-  damping: 25,
-};
-
 // Expo easing curve (Linear-style)
 export const easeOutExpo = [0.16, 1, 0.3, 1] as const;
 
@@ -42,27 +35,6 @@ export const slideUpTransition: Transition = {
   ease: easeOutExpo,
 };
 
-// Slide down animation (for dropdowns, popovers)
-export const slideDown: Variants = {
-  initial: { opacity: 0, y: -8 },
-  animate: { opacity: 1, y: 0 },
-  exit: { opacity: 0 },
-};
-
-// Slide from right (for sheets, sidebars)
-export const slideRight: Variants = {
-  initial: { opacity: 0, x: 20 },
-  animate: { opacity: 1, x: 0 },
-  exit: { opacity: 0, x: 20 },
-};
-
-// Slide from left
-export const slideLeft: Variants = {
-  initial: { opacity: 0, x: -20 },
-  animate: { opacity: 1, x: 0 },
-  exit: { opacity: 0, x: -20 },
-};
-
 // Scale animation (for modals, dialogs)
 export const scale: Variants = {
   initial: { opacity: 0, scale: 0.95 },
@@ -88,16 +60,6 @@ export const staggerContainer: Variants = {
     transition: {
       staggerChildren: 0.02,
       staggerDirection: -1,
-    },
-  },
-};
-
-// Fast stagger for dense lists
-export const fastStaggerContainer: Variants = {
-  initial: {},
-  animate: {
-    transition: {
-      staggerChildren: 0.03,
     },
   },
 };

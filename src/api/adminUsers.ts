@@ -2,6 +2,15 @@ import apiClient from './client';
 
 // ============ Types ============
 
+export interface TrafficPurchaseInfo {
+  id: number;
+  traffic_gb: number;
+  expires_at: string;
+  created_at: string;
+  days_remaining: number;
+  is_expired: boolean;
+}
+
 export interface UserSubscriptionInfo {
   id: number;
   status: string;
@@ -16,6 +25,8 @@ export interface UserSubscriptionInfo {
   autopay_enabled: boolean;
   is_active: boolean;
   days_remaining: number;
+  purchased_traffic_gb: number;
+  traffic_purchases: TrafficPurchaseInfo[];
 }
 
 export interface UserPromoGroupInfo {
@@ -101,6 +112,8 @@ export interface UserDetailResponse {
   used_promocodes: number;
   has_had_paid_subscription: boolean;
   lifetime_used_traffic_bytes: number;
+  campaign_name: string | null;
+  campaign_id: number | null;
   restriction_topup: boolean;
   restriction_subscription: boolean;
   restriction_reason: string | null;
@@ -109,6 +122,36 @@ export interface UserDetailResponse {
   promo_offer_discount_expires_at: string | null;
   recent_transactions: UserTransactionItem[];
   remnawave_uuid: string | null;
+}
+
+export interface UserPanelInfo {
+  found: boolean;
+  trojan_password: string | null;
+  vless_uuid: string | null;
+  ss_password: string | null;
+  subscription_url: string | null;
+  happ_link: string | null;
+  used_traffic_bytes: number;
+  lifetime_used_traffic_bytes: number;
+  traffic_limit_bytes: number;
+  first_connected_at: string | null;
+  online_at: string | null;
+  last_connected_node_uuid: string | null;
+  last_connected_node_name: string | null;
+}
+
+export interface UserNodeUsageItem {
+  node_uuid: string;
+  node_name: string;
+  country_code: string;
+  total_bytes: number;
+  daily_bytes: number[];
+}
+
+export interface UserNodeUsageResponse {
+  items: UserNodeUsageItem[];
+  categories: string[];
+  period_days: number;
 }
 
 export interface UsersStatsResponse {
@@ -155,6 +198,11 @@ export interface UserAvailableTariff {
   price_per_day_kopeks: number;
   min_days: number;
   max_days: number;
+  device_price_kopeks: number | null;
+  max_device_limit: number | null;
+  traffic_topup_enabled: boolean;
+  traffic_topup_packages: Record<string, number>;
+  max_topup_traffic_gb: number;
   is_available: boolean;
   requires_promo_group: boolean;
 }
@@ -245,7 +293,10 @@ export interface UpdateSubscriptionRequest {
     | 'toggle_autopay'
     | 'cancel'
     | 'activate'
-    | 'create';
+    | 'create'
+    | 'add_traffic'
+    | 'remove_traffic'
+    | 'set_device_limit';
   days?: number;
   end_date?: string;
   tariff_id?: number;
@@ -254,6 +305,8 @@ export interface UpdateSubscriptionRequest {
   autopay_enabled?: boolean;
   is_trial?: boolean;
   device_limit?: number;
+  traffic_gb?: number;
+  traffic_purchase_id?: number;
 }
 
 export interface UpdateSubscriptionResponse {
@@ -415,7 +468,18 @@ export const adminUsersApi = {
     return response.data;
   },
 
-  // Delete user
+  // Update referral commission
+  updateReferralCommission: async (
+    userId: number,
+    commissionPercent: number | null,
+  ): Promise<{ success: boolean; message: string }> => {
+    const response = await apiClient.post(`/cabinet/admin/users/${userId}/referral-commission`, {
+      commission_percent: commissionPercent,
+    });
+    return response.data;
+  },
+
+  // Delete user (soft delete, does NOT remove from Remnawave)
   deleteUser: async (
     userId: number,
     softDelete = true,
@@ -424,6 +488,20 @@ export const adminUsersApi = {
     const response = await apiClient.delete(`/cabinet/admin/users/${userId}`, {
       data: { soft_delete: softDelete, reason },
     });
+    return response.data;
+  },
+
+  // Full delete user (removes from bot DB + Remnawave panel)
+  fullDeleteUser: async (
+    userId: number,
+  ): Promise<{
+    success: boolean;
+    message: string;
+    deleted_from_bot: boolean;
+    deleted_from_panel: boolean;
+    panel_error: string | null;
+  }> => {
+    const response = await apiClient.delete(`/cabinet/admin/users/${userId}/full`);
     return response.data;
   },
 
@@ -492,6 +570,47 @@ export const adminUsersApi = {
   // Disable user
   disableUser: async (userId: number): Promise<{ success: boolean; message: string }> => {
     const response = await apiClient.post(`/cabinet/admin/users/${userId}/disable`);
+    return response.data;
+  },
+
+  // Get panel info
+  getPanelInfo: async (userId: number): Promise<UserPanelInfo> => {
+    const response = await apiClient.get(`/cabinet/admin/users/${userId}/panel-info`);
+    return response.data;
+  },
+
+  // Get node usage (always 30 days with daily breakdown)
+  getNodeUsage: async (userId: number): Promise<UserNodeUsageResponse> => {
+    const response = await apiClient.get(`/cabinet/admin/users/${userId}/node-usage`);
+    return response.data;
+  },
+
+  // Get user devices
+  getUserDevices: async (
+    userId: number,
+  ): Promise<{
+    devices: { hwid: string; platform: string; device_model: string; created_at: string | null }[];
+    total: number;
+    device_limit: number;
+  }> => {
+    const response = await apiClient.get(`/cabinet/admin/users/${userId}/devices`);
+    return response.data;
+  },
+
+  // Delete single device
+  deleteUserDevice: async (
+    userId: number,
+    hwid: string,
+  ): Promise<{ success: boolean; message: string; deleted_hwid: string | null }> => {
+    const response = await apiClient.delete(`/cabinet/admin/users/${userId}/devices/${hwid}`);
+    return response.data;
+  },
+
+  // Reset all devices
+  resetUserDevices: async (
+    userId: number,
+  ): Promise<{ success: boolean; message: string; deleted_count: number }> => {
+    const response = await apiClient.delete(`/cabinet/admin/users/${userId}/devices`);
     return response.data;
   },
 };

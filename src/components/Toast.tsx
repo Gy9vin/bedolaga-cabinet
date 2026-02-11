@@ -27,6 +27,8 @@ interface ToastContextType {
 
 const ToastContext = createContext<ToastContextType | null>(null);
 
+const MAX_VISIBLE = 3;
+
 // eslint-disable-next-line react-refresh/only-export-components
 export function useToast() {
   const context = useContext(ToastContext);
@@ -40,22 +42,7 @@ export function ToastProvider({ children }: { children: ReactNode }) {
   const [toasts, setToasts] = useState<Toast[]>([]);
   const timersRef = useRef<Map<number, ReturnType<typeof setTimeout>>>(new Map());
 
-  const showToast = useCallback((options: ToastOptions) => {
-    const id = Date.now() + Math.random(); // Avoid ID collision
-    const toast: Toast = { id, duration: 5000, type: 'info', ...options };
-
-    setToasts((prev) => [...prev, toast]);
-
-    const timer = setTimeout(() => {
-      setToasts((prev) => prev.filter((t) => t.id !== id));
-      timersRef.current.delete(id);
-    }, toast.duration);
-
-    timersRef.current.set(id, timer);
-  }, []);
-
   const removeToast = useCallback((id: number) => {
-    // Clear timer when manually removing
     const timer = timersRef.current.get(id);
     if (timer) {
       clearTimeout(timer);
@@ -63,6 +50,37 @@ export function ToastProvider({ children }: { children: ReactNode }) {
     }
     setToasts((prev) => prev.filter((t) => t.id !== id));
   }, []);
+
+  const showToast = useCallback(
+    (options: ToastOptions) => {
+      const id = Date.now() + Math.random();
+      const toast: Toast = { id, duration: 5000, type: 'info', ...options };
+
+      setToasts((prev) => {
+        const next = [...prev, toast];
+        // Evict oldest toasts beyond the limit
+        if (next.length > MAX_VISIBLE) {
+          const evicted = next.slice(0, next.length - MAX_VISIBLE);
+          for (const old of evicted) {
+            const timer = timersRef.current.get(old.id);
+            if (timer) {
+              clearTimeout(timer);
+              timersRef.current.delete(old.id);
+            }
+          }
+          return next.slice(-MAX_VISIBLE);
+        }
+        return next;
+      });
+
+      const timer = setTimeout(() => {
+        removeToast(id);
+      }, toast.duration);
+
+      timersRef.current.set(id, timer);
+    },
+    [removeToast],
+  );
 
   // Cleanup all timers on unmount
   useEffect(() => {
@@ -77,8 +95,8 @@ export function ToastProvider({ children }: { children: ReactNode }) {
     <ToastContext.Provider value={{ showToast }}>
       {children}
 
-      {/* Toast Container */}
-      <div className="pointer-events-none fixed right-4 top-4 z-[100] flex flex-col gap-3">
+      {/* Toast Container — safe area aware, adaptive width */}
+      <div className="pointer-events-none fixed left-4 right-4 top-[calc(1rem+env(safe-area-inset-top,0px))] z-[100] flex flex-col gap-3 sm:left-auto sm:right-[calc(1rem+env(safe-area-inset-right,0px))]">
         {toasts.map((toast) => (
           <ToastItem key={toast.id} toast={toast} onClose={() => removeToast(toast.id)} />
         ))}
@@ -89,40 +107,34 @@ export function ToastProvider({ children }: { children: ReactNode }) {
 
 function ToastItem({ toast, onClose }: { toast: Toast; onClose: () => void }) {
   const handleClick = () => {
-    if (toast.onClick) {
-      toast.onClick();
-      onClose();
-    }
+    toast.onClick?.();
+    onClose();
   };
 
   const typeStyles = {
     success: {
-      bg: 'bg-dark-800',
-      accent: 'bg-gradient-to-r from-success-500/50 to-transparent',
-      border: 'border-success-500/70',
+      border: 'border-l-success-500',
       icon: 'text-success-400',
-      iconBg: 'bg-success-500/30',
+      iconBg: 'bg-success-500/20',
+      progress: 'bg-success-400',
     },
     error: {
-      bg: 'bg-dark-800',
-      accent: 'bg-gradient-to-r from-error-500/50 to-transparent',
-      border: 'border-error-500/70',
+      border: 'border-l-error-500',
       icon: 'text-error-400',
-      iconBg: 'bg-error-500/30',
+      iconBg: 'bg-error-500/20',
+      progress: 'bg-error-400',
     },
     warning: {
-      bg: 'bg-dark-800',
-      accent: 'bg-gradient-to-r from-warning-500/50 to-transparent',
-      border: 'border-warning-500/70',
+      border: 'border-l-warning-500',
       icon: 'text-warning-400',
-      iconBg: 'bg-warning-500/30',
+      iconBg: 'bg-warning-500/20',
+      progress: 'bg-warning-400',
     },
     info: {
-      bg: 'bg-dark-800',
-      accent: 'bg-gradient-to-r from-accent-500/50 to-transparent',
-      border: 'border-accent-500/70',
+      border: 'border-l-accent-500',
       icon: 'text-accent-400',
-      iconBg: 'bg-accent-500/30',
+      iconBg: 'bg-accent-500/20',
+      progress: 'bg-accent-400',
     },
   };
 
@@ -185,17 +197,14 @@ function ToastItem({ toast, onClose }: { toast: Toast; onClose: () => void }) {
 
   return (
     <div
-      className={`pointer-events-auto w-80 sm:w-96 ${style.bg} border ${style.border} animate-slide-in-right overflow-hidden rounded-2xl shadow-2xl shadow-black/40 ${toast.onClick ? 'cursor-pointer hover:scale-[1.02] active:scale-[0.98]' : ''} transition-transform duration-200`}
+      className={`pointer-events-auto w-full cursor-pointer border border-l-4 border-dark-700 ${style.border} animate-slide-in-right overflow-hidden rounded-2xl bg-dark-900 shadow-2xl shadow-black/50 backdrop-blur-xl transition-transform duration-200 hover:scale-[1.02] active:scale-[0.98] sm:max-w-sm`}
       onClick={handleClick}
     >
-      {/* Color accent */}
-      <div className={`absolute inset-0 ${style.accent}`} />
-
       <div className="relative p-4">
         <div className="flex gap-3">
           {/* Icon */}
           <div
-            className={`h-10 w-10 flex-shrink-0 rounded-xl ${style.iconBg} flex items-center justify-center ${style.icon}`}
+            className={`flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-xl ${style.iconBg} ${style.icon}`}
           >
             {toast.icon || defaultIcons[toast.type || 'info']}
           </div>
@@ -207,31 +216,12 @@ function ToastItem({ toast, onClose }: { toast: Toast; onClose: () => void }) {
             )}
             <p className="text-sm leading-relaxed text-dark-300">{toast.message}</p>
           </div>
-
-          {/* Close button */}
-          <button
-            onClick={(e) => {
-              e.stopPropagation();
-              onClose();
-            }}
-            className="flex h-6 w-6 flex-shrink-0 items-center justify-center rounded-lg text-dark-500 transition-colors hover:bg-dark-700/50 hover:text-dark-300"
-          >
-            <svg
-              className="h-4 w-4"
-              fill="none"
-              viewBox="0 0 24 24"
-              stroke="currentColor"
-              strokeWidth={2}
-            >
-              <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
-            </svg>
-          </button>
         </div>
 
         {/* Progress bar */}
         <div className="absolute bottom-0 left-0 right-0 h-1 bg-dark-800/50">
           <div
-            className={`h-full ${style.icon.replace('text-', 'bg-')} opacity-60`}
+            className={`h-full ${style.progress} opacity-60`}
             style={{
               animation: `shrink ${toast.duration}ms linear forwards`,
             }}

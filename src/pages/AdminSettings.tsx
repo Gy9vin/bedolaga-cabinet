@@ -1,12 +1,11 @@
 import { useState, useMemo, useEffect, useCallback } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router';
 import { useQuery } from '@tanstack/react-query';
 import { useTranslation } from 'react-i18next';
 import { adminSettingsApi, SettingDefinition } from '../api/adminSettings';
 import { themeColorsApi } from '../api/themeColors';
 import { useFavoriteSettings } from '../hooks/useFavoriteSettings';
 import { MENU_SECTIONS, MenuItem, formatSettingKey } from '../components/admin';
-import { useBackButton } from '../platform/hooks/useBackButton';
 import { usePlatform } from '../platform/hooks/usePlatform';
 import { AnalyticsTab } from '../components/admin/AnalyticsTab';
 import { BrandingTab } from '../components/admin/BrandingTab';
@@ -49,9 +48,6 @@ export default function AdminSettings() {
   const { t } = useTranslation();
   const navigate = useNavigate();
   const { capabilities } = usePlatform();
-
-  // Use native Telegram back button in Mini App
-  useBackButton(() => navigate('/admin'));
 
   // State
   const [activeSection, setActiveSection] = useState('branding');

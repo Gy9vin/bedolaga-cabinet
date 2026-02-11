@@ -13,6 +13,7 @@ export interface ContestInfo {
 export interface ContestGameData {
   round_id: number;
   game_type: string;
+  // Dynamic game data from backend - shape depends on game_type
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   game_data: Record<string, any>;
   instructions: string;

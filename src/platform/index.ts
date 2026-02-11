@@ -25,7 +25,6 @@ export type {
 
 // Hooks
 export { usePlatform, useIsTelegram, useCapability } from './hooks/usePlatform';
-export { useBackButton, useConditionalBackButton } from './hooks/useBackButton';
 export { useHaptic, useHapticClick, useHapticFeedback } from './hooks/useHaptic';
 export { useNativeDialog, useDestructiveConfirm, PopupButtons } from './hooks/useNativeDialog';
 export { useNotify } from './hooks/useNotify';

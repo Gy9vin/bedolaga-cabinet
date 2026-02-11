@@ -154,6 +154,14 @@ export function Aurora() {
   const background = isDark ? themeColors.darkBackground : themeColors.lightBackground;
   const surface = isDark ? themeColors.darkSurface : themeColors.lightSurface;
 
+  // Refs for initial color values (WebGL context shouldn't recreate on color change)
+  const backgroundRef = useRef(background);
+  backgroundRef.current = background;
+  const surfaceRef = useRef(surface);
+  surfaceRef.current = surface;
+  const accentRef = useRef(themeColors.accent);
+  accentRef.current = themeColors.accent;
+
   // Initialize WebGL context once (only depends on isEnabled)
   useEffect(() => {
     if (!isEnabled || !containerRef.current) return;
@@ -165,7 +173,7 @@ export function Aurora() {
     const container = containerRef.current;
     const renderer = new Renderer({
       alpha: true,
-      antialias: true,
+      antialias: false,
       powerPreference: 'low-power',
     });
     rendererRef.current = renderer;
@@ -175,7 +183,11 @@ export function Aurora() {
 
     const geometry = new Triangle(gl);
 
-    const colorStops = generateColorStops(background, surface, themeColors.accent);
+    const colorStops = generateColorStops(
+      backgroundRef.current,
+      surfaceRef.current,
+      accentRef.current,
+    );
     const colorStopsArray = colorStops
       .map((hex) => {
         const c = new Color(hex);
@@ -198,21 +210,34 @@ export function Aurora() {
 
     const mesh = new Mesh(gl, { geometry, program });
 
+    // Рендерим на 10% разрешения — шейдер обрабатывает в ~100 раз меньше пикселей.
+    // renderer.setSize задаёт и буфер, и CSS-размер канваса, поэтому после него
+    // принудительно возвращаем CSS на 100% — канвас растягивается браузером,
+    // а filter: blur() сглаживает артефакты масштабирования.
+    const RESOLUTION_SCALE = 0.1;
+
     function resize() {
       if (!containerRef.current || !rendererRef.current || !programRef.current) return;
-      const w = containerRef.current.offsetWidth;
-      const h = containerRef.current.offsetHeight;
-      rendererRef.current.setSize(w, h);
-      programRef.current.uniforms.uResolution.value = [w, h];
+      const fullW = containerRef.current.offsetWidth;
+      const fullH = containerRef.current.offsetHeight;
+      const bufW = Math.max(Math.ceil(fullW * RESOLUTION_SCALE), 1);
+      const bufH = Math.max(Math.ceil(fullH * RESOLUTION_SCALE), 1);
+      rendererRef.current.setSize(bufW, bufH);
+      // OGL setSize ставит canvas.style.width/height = bufW/bufH px,
+      // перезаписываем на 100% чтобы CSS растянул маленький буфер на весь экран
+      const canvas = rendererRef.current.gl.canvas as HTMLCanvasElement;
+      canvas.style.width = '100%';
+      canvas.style.height = '100%';
+      programRef.current.uniforms.uResolution.value = [bufW, bufH];
     }
 
     window.addEventListener('resize', resize);
     resize();
 
     let lastTime = 0;
-    const targetFPS = 30;
+    const targetFPS = 20;
     const frameInterval = 1000 / targetFPS;
-    const speed = 0.3; // Slow and smooth
+    const speed = 0.3;
 
     function animate(currentTime: number) {
       animationFrameRef.current = requestAnimationFrame(animate);
@@ -238,7 +263,7 @@ export function Aurora() {
       rendererRef.current = null;
       programRef.current = null;
     };
-  }, [isEnabled]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [isEnabled]);
 
   // Update color uniforms reactively without recreating WebGL context
   useEffect(() => {
@@ -263,19 +288,19 @@ export function Aurora() {
 
   return (
     <>
-      {/* WebGL Aurora canvas */}
+      {/* WebGL Aurora canvas — рендерится на ~10% разрешения, CSS растягивает обратно.
+          filter: blur() сглаживает артефакты масштабирования (дешевле backdrop-filter в ~10-20 раз,
+          т.к. блюрит только один элемент, а не все слои под ним). */}
       <div
         ref={containerRef}
         className="pointer-events-none fixed inset-0 z-0"
-        style={{ width: '100%', height: '100%' }}
-      />
-      {/* Blur overlay */}
-      <div
-        className="pointer-events-none fixed inset-0 z-0"
         style={{
-          backdropFilter: 'blur(80px)',
-          WebkitBackdropFilter: 'blur(80px)',
+          width: '100%',
+          height: '100%',
+          filter: 'blur(20px)',
+          WebkitFilter: 'blur(20px)',
           backgroundColor: blurColor,
+          contain: 'strict',
         }}
       />
     </>

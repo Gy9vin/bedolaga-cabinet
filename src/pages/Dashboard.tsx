@@ -1,16 +1,17 @@
 import { useState, useEffect, useMemo, useRef } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router';
 import { useTranslation } from 'react-i18next';
 import { useAuthStore } from '../store/auth';
+import { useBlockingStore } from '../store/blocking';
 import { subscriptionApi } from '../api/subscription';
 import { referralApi } from '../api/referral';
 import { balanceApi } from '../api/balance';
 import { wheelApi } from '../api/wheel';
-import ConnectionModal from '../components/ConnectionModal';
 import Onboarding, { useOnboarding } from '../components/Onboarding';
 import PromoOffersSection from '../components/PromoOffersSection';
 import { useCurrency } from '../hooks/useCurrency';
+import { API } from '../config/constants';
 
 // Icons
 const ArrowRightIcon = () => (
@@ -49,23 +50,23 @@ export default function Dashboard() {
   const { t } = useTranslation();
   const { user, refreshUser } = useAuthStore();
   const queryClient = useQueryClient();
+  const navigate = useNavigate();
   const { formatAmount, currencySymbol, formatPositive } = useCurrency();
   const [trialError, setTrialError] = useState<string | null>(null);
-  const [showConnectionModal, setShowConnectionModal] = useState(false);
   const { isCompleted: isOnboardingCompleted, complete: completeOnboarding } = useOnboarding();
   const [showOnboarding, setShowOnboarding] = useState(false);
+  const { blockingType } = useBlockingStore();
 
   // Refresh user data on mount
   useEffect(() => {
     refreshUser();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [refreshUser]);
 
-  // Fetch balance from API with no caching
+  // Fetch balance from API
   const { data: balanceData } = useQuery({
     queryKey: ['balance'],
     queryFn: balanceApi.getBalance,
-    staleTime: 0,
+    staleTime: API.BALANCE_STALE_TIME_MS,
     refetchOnMount: 'always',
   });
 
@@ -73,7 +74,7 @@ export default function Dashboard() {
     queryKey: ['subscription'],
     queryFn: subscriptionApi.getSubscription,
     retry: false,
-    staleTime: 0,
+    staleTime: API.BALANCE_STALE_TIME_MS,
     refetchOnMount: 'always',
   });
 
@@ -168,7 +169,7 @@ export default function Dashboard() {
 
     const lastRefresh = localStorage.getItem('traffic_refresh_ts');
     const now = Date.now();
-    const cacheMs = 30 * 1000;
+    const cacheMs = API.TRAFFIC_CACHE_MS;
 
     if (lastRefresh && now - parseInt(lastRefresh, 10) < cacheMs) {
       const elapsed = now - parseInt(lastRefresh, 10);
@@ -180,20 +181,20 @@ export default function Dashboard() {
     }
 
     refreshTrafficMutation.mutate();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [subscription]);
+  }, [subscription, refreshTrafficMutation]);
 
   // User has no subscription if API returns has_subscription: false
   const hasNoSubscription = subscriptionResponse?.has_subscription === false && !subLoading;
 
   // Show onboarding for new users after data loads
+  // Skip if a blocking screen is active (channel subscription, maintenance, etc.)
   useEffect(() => {
-    if (!isOnboardingCompleted && !subLoading && !refLoading) {
+    if (!isOnboardingCompleted && !subLoading && !refLoading && !blockingType) {
       // Small delay to ensure DOM is ready
       const timer = setTimeout(() => setShowOnboarding(true), 500);
       return () => clearTimeout(timer);
     }
-  }, [isOnboardingCompleted, subLoading, refLoading]);
+  }, [isOnboardingCompleted, subLoading, refLoading, blockingType]);
 
   // Define onboarding steps based on available data
   const onboardingSteps = useMemo(() => {
@@ -244,8 +245,8 @@ export default function Dashboard() {
 
   // Calculate traffic percentage color
   const getTrafficColor = (percent: number) => {
-    if (percent > 90) return 'bg-error-500';
-    if (percent > 70) return 'bg-warning-500';
+    if (percent > API.TRAFFIC_CRITICAL_PERCENT) return 'bg-error-500';
+    if (percent > API.TRAFFIC_WARN_PERCENT) return 'bg-warning-500';
     return 'bg-success-500';
   };
 
@@ -410,7 +411,7 @@ export default function Dashboard() {
             </Link>
             {subscription.subscription_url && (
               <button
-                onClick={() => setShowConnectionModal(true)}
+                onClick={() => navigate('/connection')}
                 className="btn-secondary py-2.5 text-sm"
                 data-onboarding="connect-devices"
               >
@@ -634,9 +635,6 @@ export default function Dashboard() {
           </div>
         </Link>
       )}
-
-      {/* Connection Modal */}
-      {showConnectionModal && <ConnectionModal onClose={() => setShowConnectionModal(false)} />}
 
       {/* Onboarding Tutorial */}
       {showOnboarding && (

@@ -4,14 +4,11 @@ import { forwardRef, type ComponentPropsWithoutRef, type ReactNode } from 'react
 import { cn } from '@/lib/utils';
 import { tooltip, tooltipTransition } from '../../motion/transitions';
 
-// Provider - wrap your app with this
-export const TooltipProvider = TooltipPrimitive.Provider;
-
-// Root
-export const Tooltip = TooltipPrimitive.Root;
-
-// Trigger
-export const TooltipTrigger = TooltipPrimitive.Trigger;
+export {
+  Provider as TooltipProvider,
+  Root as Tooltip,
+  Trigger as TooltipTrigger,
+} from '@radix-ui/react-tooltip';
 
 // Content
 export type TooltipContentProps = ComponentPropsWithoutRef<typeof TooltipPrimitive.Content>;
@@ -66,10 +63,10 @@ export const SimpleTooltip = ({
   delayDuration = 200,
   className,
 }: SimpleTooltipProps) => (
-  <Tooltip delayDuration={delayDuration}>
-    <TooltipTrigger asChild>{children}</TooltipTrigger>
+  <TooltipPrimitive.Root delayDuration={delayDuration}>
+    <TooltipPrimitive.Trigger asChild>{children}</TooltipPrimitive.Trigger>
     <TooltipContent side={side} align={align} className={className}>
       {content}
     </TooltipContent>
-  </Tooltip>
+  </TooltipPrimitive.Root>
 );

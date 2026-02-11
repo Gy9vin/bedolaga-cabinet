@@ -1,11 +1,10 @@
 import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useTranslation } from 'react-i18next';
 import { adminPaymentsApi } from '../api/adminPayments';
 import { useCurrency } from '../hooks/useCurrency';
 import type { PendingPayment, PaginatedResponse } from '../types';
-import { useBackButton } from '../platform/hooks/useBackButton';
 import { usePlatform } from '../platform/hooks/usePlatform';
 
 // BackIcon
@@ -27,9 +26,6 @@ export default function AdminPayments() {
   const queryClient = useQueryClient();
   const { formatAmount, currencySymbol } = useCurrency();
   const { capabilities } = usePlatform();
-
-  // Use native Telegram back button in Mini App
-  useBackButton(() => navigate('/admin'));
 
   const [page, setPage] = useState(1);
   const [methodFilter, setMethodFilter] = useState<string>('');

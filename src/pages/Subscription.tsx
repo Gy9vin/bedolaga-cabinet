@@ -1,7 +1,7 @@
 import { useState, useEffect, useMemo, useRef, useCallback } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useTranslation } from 'react-i18next';
-import { useLocation } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router';
 import { AxiosError } from 'axios';
 import { subscriptionApi } from '../api/subscription';
 import { promoApi } from '../api/promo';
@@ -12,7 +12,6 @@ import type {
   TariffPeriod,
   ClassicPurchaseOptions,
 } from '../types';
-import ConnectionModal from '../components/ConnectionModal';
 import InsufficientBalancePrompt from '../components/InsufficientBalancePrompt';
 import { useCurrency } from '../hooks/useCurrency';
 import { useCloseOnSuccessNotification } from '../store/successNotification';
@@ -83,9 +82,9 @@ export default function Subscription() {
   const { t } = useTranslation();
   const queryClient = useQueryClient();
   const location = useLocation();
+  const navigate = useNavigate();
   const { formatAmount, currencySymbol } = useCurrency();
   const [copied, setCopied] = useState(false);
-  const [showConnectionModal, setShowConnectionModal] = useState(false);
 
   // Helper to format price from kopeks
   const formatPrice = (kopeks: number) => `${formatAmount(kopeks / 100)} ${currencySymbol}`;
@@ -175,16 +174,28 @@ export default function Subscription() {
   const tariffs =
     isTariffsMode && purchaseOptions && 'tariffs' in purchaseOptions ? purchaseOptions.tariffs : [];
 
+  // Get truly available servers for a given period (same filter as rendering)
+  const getAvailableServers = useCallback(
+    (period: PeriodOption | null) => {
+      if (!period?.servers.options) return [];
+      return period.servers.options.filter((server) => {
+        if (!server.is_available) return false;
+        if (subscription?.is_trial && server.name.toLowerCase().includes('trial')) return false;
+        return true;
+      });
+    },
+    [subscription?.is_trial],
+  );
+
   // Determine which steps are needed
   const steps = useMemo<PurchaseStep[]>(() => {
     const result: PurchaseStep[] = ['period'];
     if (selectedPeriod?.traffic.selectable && (selectedPeriod.traffic.options?.length ?? 0) > 0) {
       result.push('traffic');
     }
-    if (
-      selectedPeriod &&
-      (selectedPeriod.servers.options?.filter((s) => s.is_available).length ?? 0) > 0
-    ) {
+    const availableServers = getAvailableServers(selectedPeriod);
+    // Skip server selection step if only 1 server available (auto-select it)
+    if (availableServers.length > 1) {
       result.push('servers');
     }
     if (selectedPeriod && selectedPeriod.devices.max > selectedPeriod.devices.min) {
@@ -192,7 +203,7 @@ export default function Subscription() {
     }
     result.push('confirm');
     return result;
-  }, [selectedPeriod]);
+  }, [selectedPeriod, getAvailableServers]);
 
   const currentStepIndex = steps.indexOf(currentStep);
   const isFirstStep = currentStepIndex === 0;
@@ -206,15 +217,19 @@ export default function Subscription() {
         classicOptions.periods[0];
       setSelectedPeriod(defaultPeriod);
       setSelectedTraffic(classicOptions.selection.traffic_value);
-      const availableServerUuids = new Set(
-        defaultPeriod.servers.options?.filter((s) => s.is_available).map((s) => s.uuid) ?? [],
-      );
-      setSelectedServers(
-        classicOptions.selection.servers.filter((uuid) => availableServerUuids.has(uuid)),
-      );
+      const availableServers = getAvailableServers(defaultPeriod);
+      const availableServerUuids = new Set(availableServers.map((s) => s.uuid));
+      // If only 1 server available, auto-select it (step will be skipped)
+      if (availableServers.length === 1) {
+        setSelectedServers([availableServers[0].uuid]);
+      } else {
+        setSelectedServers(
+          classicOptions.selection.servers.filter((uuid) => availableServerUuids.has(uuid)),
+        );
+      }
       setSelectedDevices(classicOptions.selection.devices);
     }
-  }, [classicOptions, selectedPeriod]);
+  }, [classicOptions, selectedPeriod, getAvailableServers]);
 
   // Build selection object
   const currentSelection: PurchaseSelection = useMemo(
@@ -293,7 +308,6 @@ export default function Subscription() {
 
   // Auto-close all modals/forms when success notification appears (e.g., subscription purchased via WebSocket)
   const handleCloseAllModals = useCallback(() => {
-    setShowConnectionModal(false);
     setShowPurchaseForm(false);
     setShowTariffPurchase(false);
     setShowDeviceTopup(false);
@@ -523,8 +537,7 @@ export default function Subscription() {
     }
 
     refreshTrafficMutation.mutate();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [subscription]);
+  }, [subscription, refreshTrafficMutation]);
 
   // Auto-scroll to switch tariff modal when it appears
   useEffect(() => {
@@ -721,7 +734,7 @@ export default function Subscription() {
 
               {/* Get Config Button */}
               <button
-                onClick={() => setShowConnectionModal(true)}
+                onClick={() => navigate('/connection')}
                 className="btn-primary mb-3 flex w-full items-center justify-center gap-2 py-3"
               >
                 <svg
@@ -1119,7 +1132,7 @@ export default function Subscription() {
           {!showDeviceTopup ? (
             <button
               onClick={() => setShowDeviceTopup(true)}
-              className="w-full rounded-xl border border-dark-700/50 bg-dark-800/30 p-4 text-left transition-colors hover:border-dark-600"
+              className="w-full rounded-xl border border-dark-700/50 bg-dark-800/50 p-4 text-left transition-colors hover:border-dark-600"
             >
               <div className="flex items-center justify-between">
                 <div>
@@ -1144,7 +1157,7 @@ export default function Subscription() {
               </div>
             </button>
           ) : (
-            <div className="rounded-xl border border-dark-700/50 bg-dark-800/30 p-5">
+            <div className="rounded-xl border border-dark-700/50 bg-dark-800/50 p-5">
               <div className="mb-4 flex items-center justify-between">
                 <h3 className="font-medium text-dark-100">{t('subscription.buyDevices')}</h3>
                 <button
@@ -1215,13 +1228,47 @@ export default function Subscription() {
                   {devicePriceData?.available && devicePriceData.price_per_device_label && (
                     <div className="text-center">
                       <div className="mb-2 text-sm text-dark-400">
-                        {devicePriceData.price_per_device_label}/
-                        {t('subscription.perDevice').replace('/ ', '')} (
+                        {/* Show original price with strikethrough if discount */}
+                        {devicePriceData.discount_percent &&
+                        devicePriceData.discount_percent > 0 ? (
+                          <span>
+                            <span className="text-dark-500 line-through">
+                              {formatPrice(devicePriceData.original_price_per_device_kopeks || 0)}
+                            </span>
+                            <span className="mx-1">{devicePriceData.price_per_device_label}</span>
+                          </span>
+                        ) : (
+                          devicePriceData.price_per_device_label
+                        )}
+                        /{t('subscription.perDevice').replace('/ ', '')} (
                         {t('subscription.days', { count: devicePriceData.days_left })})
                       </div>
-                      <div className="text-2xl font-bold text-accent-400">
-                        {devicePriceData.total_price_label}
-                      </div>
+                      {/* Discount badge */}
+                      {devicePriceData.discount_percent && devicePriceData.discount_percent > 0 && (
+                        <div className="mb-2">
+                          <span className="inline-block rounded-full bg-green-500/20 px-2.5 py-0.5 text-sm font-medium text-green-400">
+                            -{devicePriceData.discount_percent}%
+                          </span>
+                        </div>
+                      )}
+                      {/* Total price - show as free if 100% discount or 0 */}
+                      {devicePriceData.total_price_kopeks === 0 ? (
+                        <div className="text-2xl font-bold text-green-400">
+                          {t('subscription.switchTariff.free')}
+                        </div>
+                      ) : (
+                        <div className="text-2xl font-bold text-accent-400">
+                          {/* Show original total with strikethrough if discount */}
+                          {devicePriceData.discount_percent &&
+                            devicePriceData.discount_percent > 0 &&
+                            devicePriceData.base_total_price_kopeks && (
+                              <span className="mr-2 text-lg text-dark-500 line-through">
+                                {formatPrice(devicePriceData.base_total_price_kopeks)}
+                              </span>
+                            )}
+                          {devicePriceData.total_price_label}
+                        </div>
+                      )}
                     </div>
                   )}
 
@@ -1277,7 +1324,7 @@ export default function Subscription() {
             {!showDeviceReduction ? (
               <button
                 onClick={() => setShowDeviceReduction(true)}
-                className="w-full rounded-xl border border-dark-700/50 bg-dark-800/30 p-4 text-left transition-colors hover:border-dark-600"
+                className="w-full rounded-xl border border-dark-700/50 bg-dark-800/50 p-4 text-left transition-colors hover:border-dark-600"
               >
                 <div className="flex items-center justify-between">
                   <div>
@@ -1300,7 +1347,7 @@ export default function Subscription() {
                 </div>
               </button>
             ) : (
-              <div className="rounded-xl border border-dark-700/50 bg-dark-800/30 p-5">
+              <div className="rounded-xl border border-dark-700/50 bg-dark-800/50 p-5">
                 <div className="mb-4 flex items-center justify-between">
                   <h3 className="font-medium text-dark-100">
                     {t('subscription.additionalOptions.reduceDevicesTitle')}
@@ -1446,7 +1493,7 @@ export default function Subscription() {
               {!showTrafficTopup ? (
                 <button
                   onClick={() => setShowTrafficTopup(true)}
-                  className="w-full rounded-xl border border-dark-700/50 bg-dark-800/30 p-4 text-left transition-colors hover:border-dark-600"
+                  className="w-full rounded-xl border border-dark-700/50 bg-dark-800/50 p-4 text-left transition-colors hover:border-dark-600"
                 >
                   <div className="flex items-center justify-between">
                     <div>
@@ -1472,7 +1519,7 @@ export default function Subscription() {
                   </div>
                 </button>
               ) : (
-                <div className="rounded-xl border border-dark-700/50 bg-dark-800/30 p-5">
+                <div className="rounded-xl border border-dark-700/50 bg-dark-800/50 p-5">
                   <div className="mb-4 flex items-center justify-between">
                     <h3 className="font-medium text-dark-100">
                       {t('subscription.additionalOptions.buyTrafficTitle')}
@@ -1506,7 +1553,7 @@ export default function Subscription() {
                             className={`rounded-xl border p-4 text-center transition-all ${
                               selectedTrafficPackage === pkg.gb
                                 ? 'border-accent-500 bg-accent-500/10'
-                                : 'border-dark-700/50 bg-dark-800/30 hover:border-dark-600'
+                                : 'border-dark-700/50 bg-dark-800/50 hover:border-dark-600'
                             }`}
                           >
                             <div className="text-lg font-semibold text-dark-100">
@@ -1514,8 +1561,28 @@ export default function Subscription() {
                                 ? '♾️ ' + t('subscription.additionalOptions.unlimited')
                                 : `${pkg.gb} ${t('common.units.gb')}`}
                             </div>
+                            {/* Discount badge */}
+                            {pkg.discount_percent && pkg.discount_percent > 0 && (
+                              <div className="mb-1">
+                                <span className="inline-block rounded-full bg-green-500/20 px-2 py-0.5 text-xs font-medium text-green-400">
+                                  -{pkg.discount_percent}%
+                                </span>
+                              </div>
+                            )}
+                            {/* Price with original strikethrough if discount */}
                             <div className="font-medium text-accent-400">
-                              {formatPrice(pkg.price_kopeks)}
+                              {pkg.discount_percent &&
+                              pkg.discount_percent > 0 &&
+                              pkg.base_price_kopeks ? (
+                                <>
+                                  <span className="mr-1 text-sm text-dark-500 line-through">
+                                    {formatPrice(pkg.base_price_kopeks)}
+                                  </span>
+                                  {formatPrice(pkg.price_kopeks)}
+                                </>
+                              ) : (
+                                formatPrice(pkg.price_kopeks)
+                              )}
                             </div>
                           </button>
                         ))}
@@ -1586,7 +1653,7 @@ export default function Subscription() {
               {!showServerManagement ? (
                 <button
                   onClick={() => setShowServerManagement(true)}
-                  className="w-full rounded-xl border border-dark-700/50 bg-dark-800/30 p-4 text-left transition-colors hover:border-dark-600"
+                  className="w-full rounded-xl border border-dark-700/50 bg-dark-800/50 p-4 text-left transition-colors hover:border-dark-600"
                 >
                   <div className="flex items-center justify-between">
                     <div>
@@ -1609,7 +1676,7 @@ export default function Subscription() {
                   </div>
                 </button>
               ) : (
-                <div className="rounded-xl border border-dark-700/50 bg-dark-800/30 p-5">
+                <div className="rounded-xl border border-dark-700/50 bg-dark-800/50 p-5">
                   <div className="mb-4 flex items-center justify-between">
                     <h3 className="font-medium text-dark-100">
                       {t('subscription.additionalOptions.manageServersTitle')}
@@ -1673,7 +1740,7 @@ export default function Subscription() {
                                       : 'border-accent-500 bg-accent-500/10'
                                     : willBeRemoved
                                       ? 'border-error-500/50 bg-error-500/5'
-                                      : 'border-dark-700/50 bg-dark-800/30 hover:border-dark-600'
+                                      : 'border-dark-700/50 bg-dark-800/50 hover:border-dark-600'
                                 } ${!country.is_available && !isCurrentlyConnected ? 'cursor-not-allowed opacity-50' : ''}`}
                               >
                                 <div className="flex items-center gap-3">
@@ -1886,7 +1953,7 @@ export default function Subscription() {
               {devicesData.devices.map((device) => (
                 <div
                   key={device.hwid}
-                  className="flex items-center justify-between rounded-xl border border-dark-700/50 bg-dark-800/30 p-4"
+                  className="flex items-center justify-between rounded-xl border border-dark-700/50 bg-dark-800/50 p-4"
                 >
                   <div className="flex items-center gap-3">
                     <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-dark-700">
@@ -2102,14 +2169,35 @@ export default function Subscription() {
                       )}
 
                       <div className="flex items-center justify-between border-t border-dark-700/50 pt-3">
-                        <span className="font-medium text-dark-100">
-                          {t('subscription.switchTariff.upgradeCost')}
-                        </span>
-                        <span className="text-lg font-bold text-accent-400">
-                          {switchPreview.upgrade_cost_kopeks > 0
-                            ? switchPreview.upgrade_cost_label
-                            : t('subscription.switchTariff.free')}
-                        </span>
+                        <div>
+                          <span className="font-medium text-dark-100">
+                            {t('subscription.switchTariff.upgradeCost')}
+                          </span>
+                          {/* Discount badge */}
+                          {switchPreview.discount_percent && switchPreview.discount_percent > 0 && (
+                            <span className="ml-2 inline-block rounded-full bg-green-500/20 px-2 py-0.5 text-xs font-medium text-green-400">
+                              -{switchPreview.discount_percent}%
+                            </span>
+                          )}
+                        </div>
+                        <div className="text-right">
+                          {/* Show original price with strikethrough if discount */}
+                          {switchPreview.discount_percent &&
+                            switchPreview.discount_percent > 0 &&
+                            switchPreview.base_upgrade_cost_kopeks &&
+                            switchPreview.base_upgrade_cost_kopeks > 0 && (
+                              <span className="mr-2 text-sm text-dark-500 line-through">
+                                {formatPrice(switchPreview.base_upgrade_cost_kopeks)}
+                              </span>
+                            )}
+                          <span
+                            className={`text-lg font-bold ${switchPreview.upgrade_cost_kopeks === 0 ? 'text-green-400' : 'text-accent-400'}`}
+                          >
+                            {switchPreview.upgrade_cost_kopeks > 0
+                              ? switchPreview.upgrade_cost_label
+                              : t('subscription.switchTariff.free')}
+                          </span>
+                        </div>
                       </div>
 
                       {!switchPreview.has_enough_balance &&
@@ -2486,7 +2574,7 @@ export default function Subscription() {
                 </div>
 
                 {/* Tariff Info */}
-                <div className="rounded-xl bg-dark-800/30 p-4">
+                <div className="rounded-xl bg-dark-800/50 p-4">
                   <div className="flex flex-wrap gap-4 text-sm">
                     <div>
                       <span className="text-dark-500">{t('subscription.traffic')}:</span>
@@ -2650,7 +2738,7 @@ export default function Subscription() {
                                 className={`relative rounded-xl border p-4 text-left transition-all ${
                                   selectedTariffPeriod?.days === period.days && !useCustomDays
                                     ? 'border-accent-500 bg-accent-500/10'
-                                    : 'border-dark-700/50 bg-dark-800/30 hover:border-dark-600'
+                                    : 'border-dark-700/50 bg-dark-800/50 hover:border-dark-600'
                                 }`}
                               >
                                 {displayDiscount && displayDiscount > 0 && (
@@ -2687,7 +2775,7 @@ export default function Subscription() {
                       {/* Custom days option */}
                       {selectedTariff.custom_days_enabled &&
                         (selectedTariff.price_per_day_kopeks ?? 0) > 0 && (
-                          <div className="rounded-xl border border-dark-700/50 bg-dark-800/30 p-4">
+                          <div className="rounded-xl border border-dark-700/50 bg-dark-800/50 p-4">
                             <div className="mb-3 flex items-center justify-between">
                               <span className="font-medium text-dark-200">
                                 {t('subscription.customDays.title')}
@@ -2787,7 +2875,7 @@ export default function Subscription() {
                           <div className="mb-3 text-sm text-dark-400">
                             {t('subscription.customTraffic.label')}
                           </div>
-                          <div className="rounded-xl border border-dark-700/50 bg-dark-800/30 p-4">
+                          <div className="rounded-xl border border-dark-700/50 bg-dark-800/50 p-4">
                             <div className="mb-3 flex items-center justify-between">
                               <span className="font-medium text-dark-200">
                                 {t('subscription.customTraffic.selectVolume')}
@@ -3118,12 +3206,12 @@ export default function Subscription() {
                           if (period.traffic.current !== undefined) {
                             setSelectedTraffic(period.traffic.current);
                           }
-                          if (period.servers.selected) {
-                            const availUuids = new Set(
-                              period.servers.options
-                                ?.filter((s) => s.is_available)
-                                .map((s) => s.uuid) ?? [],
-                            );
+                          const availableServers = getAvailableServers(period);
+                          // If only 1 server available, auto-select it (step will be skipped)
+                          if (availableServers.length === 1) {
+                            setSelectedServers([availableServers[0].uuid]);
+                          } else if (period.servers.selected) {
+                            const availUuids = new Set(availableServers.map((s) => s.uuid));
                             setSelectedServers(
                               period.servers.selected.filter((uuid) => availUuids.has(uuid)),
                             );
@@ -3258,7 +3346,7 @@ export default function Subscription() {
                             selectedServers.includes(server.uuid)
                               ? 'border-accent-500 bg-accent-500/10'
                               : server.is_available
-                                ? 'border-dark-700/50 bg-dark-800/30 hover:border-dark-600'
+                                ? 'border-dark-700/50 bg-dark-800/50 hover:border-dark-600'
                                 : 'cursor-not-allowed border-dark-800/30 bg-dark-900/30 opacity-50'
                           }`}
                         >
@@ -3501,9 +3589,6 @@ export default function Subscription() {
           )}
         </div>
       )}
-
-      {/* Connection Modal */}
-      {showConnectionModal && <ConnectionModal onClose={() => setShowConnectionModal(false)} />}
     </div>
   );
 }

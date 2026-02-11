@@ -1,12 +1,12 @@
 import { useState, useRef, useEffect, useCallback } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router';
 import { useTranslation } from 'react-i18next';
 import { ticketNotificationsApi } from '../api/ticketNotifications';
 import { useAuthStore } from '../store/auth';
 import { useToast } from './Toast';
 import { useWebSocket, WSMessage } from '../hooks/useWebSocket';
-import { useTelegramWebApp } from '../hooks/useTelegramWebApp';
+import { useTelegramSDK } from '../hooks/useTelegramSDK';
 import type { TicketNotification } from '../types';
 
 const BellIcon = () => (
@@ -37,7 +37,7 @@ export default function TicketNotificationBell({ isAdmin = false }: TicketNotifi
   const { showToast } = useToast();
   const [isOpen, setIsOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
-  const { isFullscreen, safeAreaInset, contentSafeAreaInset } = useTelegramWebApp();
+  const { isFullscreen, safeAreaInset, contentSafeAreaInset } = useTelegramSDK();
 
   // Calculate dropdown top position (account for fullscreen safe area + TG buttons)
   const dropdownTop = isFullscreen

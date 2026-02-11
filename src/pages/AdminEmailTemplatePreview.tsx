@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
-import { useLocation, useNavigate, useParams } from 'react-router-dom';
+import { useLocation, useNavigate, useParams } from 'react-router';
 import { useMutation } from '@tanstack/react-query';
 import { useTranslation } from 'react-i18next';
 import { adminEmailTemplatesApi } from '../api/adminEmailTemplates';
@@ -23,7 +23,11 @@ export default function AdminEmailTemplatePreview() {
   const state = location.state as PreviewState | null;
 
   // Preview mutation
-  const previewMutation = useMutation({
+  const {
+    mutate: loadPreview,
+    isPending: previewPending,
+    isError: previewError,
+  } = useMutation({
     mutationFn: () => {
       if (!type || !lang || !state) {
         throw new Error('Missing required data');
@@ -45,9 +49,8 @@ export default function AdminEmailTemplatePreview() {
       navigate('/admin/email-templates');
       return;
     }
-    previewMutation.mutate();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [type, lang]);
+    loadPreview();
+  }, [type, lang, state, navigate, loadPreview]);
 
   // Write preview HTML into iframe
   useEffect(() => {
@@ -85,11 +88,11 @@ export default function AdminEmailTemplatePreview() {
 
       {/* Preview content */}
       <div className="flex-1 overflow-hidden rounded-xl border border-dark-700 bg-white">
-        {previewMutation.isPending ? (
+        {previewPending ? (
           <div className="flex h-full items-center justify-center bg-dark-800">
             <div className="h-8 w-8 animate-spin rounded-full border-2 border-accent-500 border-t-transparent" />
           </div>
-        ) : previewMutation.isError ? (
+        ) : previewError ? (
           <div className="flex h-full flex-col items-center justify-center gap-4 bg-dark-800">
             <p className="text-dark-400">{t('common.error')}</p>
             <button

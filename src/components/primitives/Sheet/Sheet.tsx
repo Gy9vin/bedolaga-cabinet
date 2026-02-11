@@ -10,13 +10,18 @@ import {
 } from 'react';
 import { cn } from '@/lib/utils';
 import { usePlatform } from '@/platform';
-import { useBackButton } from '@/platform';
 import {
   backdrop,
   backdropTransition,
   sheetSlideUp,
   sheetTransition,
 } from '../../motion/transitions';
+
+export {
+  Trigger as SheetTrigger,
+  Portal as SheetPortal,
+  Close as SheetClose,
+} from '@radix-ui/react-dialog';
 
 // Close icon
 const CloseIcon = () => (
@@ -79,15 +84,6 @@ export const Sheet = ({ children, open, onOpenChange, onClose, ...props }: Sheet
   );
 };
 
-// Trigger
-export const SheetTrigger = DialogPrimitive.Trigger;
-
-// Portal
-export const SheetPortal = DialogPrimitive.Portal;
-
-// Close
-export const SheetClose = DialogPrimitive.Close;
-
 // Overlay
 export type SheetOverlayProps = ComponentPropsWithoutRef<typeof DialogPrimitive.Overlay>;
 
@@ -138,9 +134,6 @@ export const SheetContent = forwardRef<HTMLDivElement, SheetContentProps>(
     const { open, onClose } = useContext(SheetContext);
     const { haptic } = usePlatform();
     const dragControls = useDragControls();
-    // Back button integration
-    useBackButton(open ? onClose : null);
-
     const handleDragEnd = useCallback(
       (_: MouseEvent | TouchEvent | PointerEvent, info: PanInfo) => {
         const velocity = info.velocity.y;
@@ -157,7 +150,7 @@ export const SheetContent = forwardRef<HTMLDivElement, SheetContentProps>(
     );
 
     return (
-      <SheetPortal forceMount>
+      <DialogPrimitive.Portal forceMount>
         <AnimatePresence mode="wait">
           {open && (
             <>
@@ -221,7 +214,7 @@ export const SheetContent = forwardRef<HTMLDivElement, SheetContentProps>(
             </>
           )}
         </AnimatePresence>
-      </SheetPortal>
+      </DialogPrimitive.Portal>
     );
   },
 );

@@ -5,6 +5,15 @@ import { cn } from '@/lib/utils';
 import { usePlatform } from '@/platform';
 import { dropdown, dropdownTransition } from '../../motion/transitions';
 
+export {
+  Root as DropdownMenu,
+  Trigger as DropdownMenuTrigger,
+  Group as DropdownMenuGroup,
+  Portal as DropdownMenuPortal,
+  Sub as DropdownMenuSub,
+  RadioGroup as DropdownMenuRadioGroup,
+} from '@radix-ui/react-dropdown-menu';
+
 // Icons
 const CheckIcon = () => (
   <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
@@ -35,24 +44,6 @@ const DotIcon = () => (
     <circle cx="8" cy="8" r="3" fill="currentColor" />
   </svg>
 );
-
-// Root
-export const DropdownMenu = DropdownMenuPrimitive.Root;
-
-// Trigger
-export const DropdownMenuTrigger = DropdownMenuPrimitive.Trigger;
-
-// Group
-export const DropdownMenuGroup = DropdownMenuPrimitive.Group;
-
-// Portal
-export const DropdownMenuPortal = DropdownMenuPrimitive.Portal;
-
-// Sub
-export const DropdownMenuSub = DropdownMenuPrimitive.Sub;
-
-// RadioGroup
-export const DropdownMenuRadioGroup = DropdownMenuPrimitive.RadioGroup;
 
 // SubTrigger
 export interface DropdownMenuSubTriggerProps extends ComponentPropsWithoutRef<

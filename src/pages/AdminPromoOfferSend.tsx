@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useTranslation } from 'react-i18next';
 import {
@@ -12,7 +12,6 @@ import {
 } from '../api/promoOffers';
 import { adminUsersApi, UserListItem } from '../api/adminUsers';
 import { AdminBackButton } from '../components/admin';
-import { useBackButton } from '../platform/hooks/useBackButton';
 
 // Icons
 const SendIcon = () => (
@@ -75,8 +74,6 @@ export default function AdminPromoOfferSend() {
   const { t } = useTranslation();
   const navigate = useNavigate();
   const queryClient = useQueryClient();
-
-  useBackButton(() => navigate('/admin/promo-offers'));
 
   const [selectedTemplateId, setSelectedTemplateId] = useState<number | null>(null);
   const [sendMode, setSendMode] = useState<'segment' | 'user'>('segment');
@@ -303,8 +300,9 @@ export default function AdminPromoOfferSend() {
         <div className="mx-auto max-w-2xl space-y-6">
           {/* Template Selection */}
           <div className="rounded-xl border border-dark-700 bg-dark-800 p-6">
-            <label className="mb-3 block text-sm font-medium text-dark-200">
+            <label className="mb-2 block text-sm font-medium text-dark-300">
               {t('admin.promoOffers.send.offerTemplate')}
+              <span className="text-error-400">*</span>
             </label>
             <div className="space-y-2">
               {activeTemplates.map((template) => (
@@ -347,8 +345,9 @@ export default function AdminPromoOfferSend() {
 
           {/* Send Mode */}
           <div className="rounded-xl border border-dark-700 bg-dark-800 p-6">
-            <label className="mb-3 block text-sm font-medium text-dark-200">
+            <label className="mb-2 block text-sm font-medium text-dark-300">
               {t('admin.promoOffers.send.sendTo')}
+              <span className="text-error-400">*</span>
             </label>
             <div className="mb-4 flex gap-2">
               <button
@@ -379,7 +378,7 @@ export default function AdminPromoOfferSend() {
               <select
                 value={selectedTarget}
                 onChange={(e) => setSelectedTarget(e.target.value as TargetSegment)}
-                className="w-full rounded-lg border border-dark-600 bg-dark-700 px-3 py-2.5 text-dark-100 focus:border-accent-500 focus:outline-none"
+                className="input"
               >
                 {Object.entries(TARGET_SEGMENTS).map(([key, labelKey]) => (
                   <option key={key} value={key}>
@@ -431,7 +430,7 @@ export default function AdminPromoOfferSend() {
                         }}
                         onFocus={() => setShowDropdown(true)}
                         placeholder={t('admin.promoOffers.send.searchUserPlaceholder')}
-                        className="w-full rounded-lg border border-dark-600 bg-dark-700 py-2.5 pl-10 pr-3 text-dark-100 focus:border-accent-500 focus:outline-none"
+                        className="input pl-10"
                       />
                       {isSearching && (
                         <div className="absolute right-3 top-1/2 -translate-y-1/2">
@@ -485,7 +484,7 @@ export default function AdminPromoOfferSend() {
           {/* Preview */}
           {selectedTemplate && (
             <div className="rounded-xl border border-dark-700 bg-dark-800 p-6">
-              <h4 className="mb-3 text-sm font-medium text-dark-200">
+              <h4 className="mb-2 text-sm font-medium text-dark-300">
                 {t('admin.promoOffers.send.preview')}
               </h4>
               <div className="rounded-lg bg-dark-700/50 p-4">
@@ -503,16 +502,13 @@ export default function AdminPromoOfferSend() {
 
           {/* Actions */}
           <div className="flex justify-end gap-3">
-            <button
-              onClick={() => navigate('/admin/promo-offers')}
-              className="px-4 py-2 text-dark-300 transition-colors hover:text-dark-100"
-            >
+            <button onClick={() => navigate('/admin/promo-offers')} className="btn-secondary">
               {t('common.cancel')}
             </button>
             <button
               onClick={handleSubmit}
               disabled={!isValid() || broadcastMutation.isPending}
-              className="flex items-center gap-2 rounded-lg bg-accent-500 px-6 py-2 text-white transition-colors hover:bg-accent-600 disabled:cursor-not-allowed disabled:opacity-50"
+              className="btn-primary flex items-center gap-2"
             >
               <SendIcon />
               {broadcastMutation.isPending

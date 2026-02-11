@@ -1,11 +1,12 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { EnabledThemes, DEFAULT_ENABLED_THEMES } from '../types/theme';
 import { themeColorsApi } from '../api/themeColors';
+import { STORAGE_KEYS } from '../config/constants';
 
 type Theme = 'dark' | 'light';
 
-const THEME_KEY = 'cabinet-theme';
-const ENABLED_THEMES_KEY = 'cabinet-enabled-themes';
+const THEME_KEY = STORAGE_KEYS.THEME;
+const ENABLED_THEMES_KEY = STORAGE_KEYS.ENABLED_THEMES;
 
 // Fetch enabled themes from API
 async function fetchEnabledThemes(): Promise<EnabledThemes> {
@@ -82,18 +83,21 @@ export function useTheme() {
     return enabled.dark ? 'dark' : 'light';
   });
 
+  const themeRef = useRef(theme);
+  themeRef.current = theme;
+
   // Fetch enabled themes on mount
   useEffect(() => {
     fetchEnabledThemes().then((data) => {
       setEnabledThemes(data);
       setIsLoading(false);
       // If current theme is disabled, switch to enabled one
-      if (!data[theme]) {
+      if (!data[themeRef.current]) {
         const newTheme = data.dark ? 'dark' : 'light';
         setThemeState(newTheme);
       }
     });
-  }, []); // eslint-disable-line react-hooks/exhaustive-deps
+  }, []);
 
   // Listen for localStorage changes (when admin updates enabled themes from other tabs)
   useEffect(() => {

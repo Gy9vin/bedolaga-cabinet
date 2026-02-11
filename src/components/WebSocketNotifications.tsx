@@ -4,7 +4,7 @@
  */
 
 import { useCallback } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router';
 import { useTranslation } from 'react-i18next';
 import { useQueryClient } from '@tanstack/react-query';
 import { useWebSocket, WSMessage } from '../hooks/useWebSocket';

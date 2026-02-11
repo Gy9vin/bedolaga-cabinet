@@ -1,10 +1,12 @@
 import { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useTranslation } from 'react-i18next';
 import { adminApi } from '../api/admin';
 import { AdminBackButton } from '../components/admin';
-import { useBackButton } from '../platform/hooks/useBackButton';
+import { toNumber } from '../utils/inputHelpers';
+
+type NumberOrEmpty = number | '';
 
 const SettingsIcon = () => (
   <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
@@ -22,8 +24,6 @@ export default function AdminTicketSettings() {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
 
-  useBackButton(() => navigate('/admin/tickets'));
-
   const {
     data: settings,
     isLoading,
@@ -33,7 +33,15 @@ export default function AdminTicketSettings() {
     queryFn: adminApi.getTicketSettings,
   });
 
-  const [formData, setFormData] = useState({
+  const [formData, setFormData] = useState<{
+    sla_enabled: boolean;
+    sla_minutes: NumberOrEmpty;
+    sla_check_interval_seconds: NumberOrEmpty;
+    sla_reminder_cooldown_minutes: NumberOrEmpty;
+    support_system_mode: string;
+    cabinet_user_notifications_enabled: boolean;
+    cabinet_admin_notifications_enabled: boolean;
+  }>({
     sla_enabled: true,
     sla_minutes: 5,
     sla_check_interval_seconds: 60,
@@ -65,9 +73,29 @@ export default function AdminTicketSettings() {
     },
   });
 
+  // Validation
+  const isSlaMinutesValid =
+    formData.sla_minutes !== '' && formData.sla_minutes >= 1 && formData.sla_minutes <= 1440;
+  const isCheckIntervalValid =
+    formData.sla_check_interval_seconds !== '' &&
+    formData.sla_check_interval_seconds >= 30 &&
+    formData.sla_check_interval_seconds <= 600;
+  const isReminderCooldownValid =
+    formData.sla_reminder_cooldown_minutes !== '' &&
+    formData.sla_reminder_cooldown_minutes >= 1 &&
+    formData.sla_reminder_cooldown_minutes <= 120;
+  const isValid =
+    !formData.sla_enabled || (isSlaMinutesValid && isCheckIntervalValid && isReminderCooldownValid);
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    updateMutation.mutate(formData);
+    if (!isValid) return;
+    updateMutation.mutate({
+      ...formData,
+      sla_minutes: toNumber(formData.sla_minutes, 5),
+      sla_check_interval_seconds: toNumber(formData.sla_check_interval_seconds, 60),
+      sla_reminder_cooldown_minutes: toNumber(formData.sla_reminder_cooldown_minutes, 15),
+    });
   };
 
   if (isLoading) {
@@ -211,59 +239,87 @@ export default function AdminTicketSettings() {
 
           {/* SLA Minutes */}
           <div className="mb-4">
-            <label className="mb-2 block text-sm font-medium text-dark-100">
+            <label className="mb-2 block text-sm font-medium text-dark-300">
               {t('admin.tickets.slaMinutes')}
             </label>
             <input
               type="number"
-              min="1"
-              max="1440"
+              min={1}
+              max={1440}
               value={formData.sla_minutes}
-              onChange={(e) => setFormData({ ...formData, sla_minutes: parseInt(e.target.value) })}
-              className="input"
+              onChange={(e) => {
+                const val = e.target.value;
+                if (val === '') return setFormData({ ...formData, sla_minutes: '' });
+                const num = parseInt(val);
+                if (!isNaN(num)) setFormData({ ...formData, sla_minutes: num });
+              }}
+              className={`input ${formData.sla_enabled && !isSlaMinutesValid && formData.sla_minutes !== '' ? 'border-error-500/50' : ''}`}
               disabled={!formData.sla_enabled}
             />
+            {formData.sla_enabled && formData.sla_minutes !== '' && !isSlaMinutesValid && (
+              <p className="mt-1 text-xs text-error-400">
+                {t('admin.tickets.validation.slaMinutesRange')}
+              </p>
+            )}
             <p className="mt-1 text-xs text-dark-500">{t('admin.tickets.slaMinutesDesc')}</p>
           </div>
 
           {/* Check Interval */}
           <div className="mb-4">
-            <label className="mb-2 block text-sm font-medium text-dark-100">
+            <label className="mb-2 block text-sm font-medium text-dark-300">
               {t('admin.tickets.checkInterval')}
             </label>
             <input
               type="number"
-              min="30"
-              max="600"
+              min={30}
+              max={600}
               value={formData.sla_check_interval_seconds}
-              onChange={(e) =>
-                setFormData({ ...formData, sla_check_interval_seconds: parseInt(e.target.value) })
-              }
-              className="input"
+              onChange={(e) => {
+                const val = e.target.value;
+                if (val === '') return setFormData({ ...formData, sla_check_interval_seconds: '' });
+                const num = parseInt(val);
+                if (!isNaN(num)) setFormData({ ...formData, sla_check_interval_seconds: num });
+              }}
+              className={`input ${formData.sla_enabled && !isCheckIntervalValid && formData.sla_check_interval_seconds !== '' ? 'border-error-500/50' : ''}`}
               disabled={!formData.sla_enabled}
             />
+            {formData.sla_enabled &&
+              formData.sla_check_interval_seconds !== '' &&
+              !isCheckIntervalValid && (
+                <p className="mt-1 text-xs text-error-400">
+                  {t('admin.tickets.validation.checkIntervalRange')}
+                </p>
+              )}
             <p className="mt-1 text-xs text-dark-500">{t('admin.tickets.checkIntervalDesc')}</p>
           </div>
 
           {/* Reminder Cooldown */}
           <div>
-            <label className="mb-2 block text-sm font-medium text-dark-100">
+            <label className="mb-2 block text-sm font-medium text-dark-300">
               {t('admin.tickets.reminderCooldown')}
             </label>
             <input
               type="number"
-              min="1"
-              max="120"
+              min={1}
+              max={120}
               value={formData.sla_reminder_cooldown_minutes}
-              onChange={(e) =>
-                setFormData({
-                  ...formData,
-                  sla_reminder_cooldown_minutes: parseInt(e.target.value),
-                })
-              }
-              className="input"
+              onChange={(e) => {
+                const val = e.target.value;
+                if (val === '')
+                  return setFormData({ ...formData, sla_reminder_cooldown_minutes: '' });
+                const num = parseInt(val);
+                if (!isNaN(num)) setFormData({ ...formData, sla_reminder_cooldown_minutes: num });
+              }}
+              className={`input ${formData.sla_enabled && !isReminderCooldownValid && formData.sla_reminder_cooldown_minutes !== '' ? 'border-error-500/50' : ''}`}
               disabled={!formData.sla_enabled}
             />
+            {formData.sla_enabled &&
+              formData.sla_reminder_cooldown_minutes !== '' &&
+              !isReminderCooldownValid && (
+                <p className="mt-1 text-xs text-error-400">
+                  {t('admin.tickets.validation.reminderCooldownRange')}
+                </p>
+              )}
             <p className="mt-1 text-xs text-dark-500">{t('admin.tickets.reminderCooldownDesc')}</p>
           </div>
         </div>
@@ -277,7 +333,11 @@ export default function AdminTicketSettings() {
           >
             {t('common.cancel')}
           </button>
-          <button type="submit" disabled={updateMutation.isPending} className="btn-primary">
+          <button
+            type="submit"
+            disabled={!isValid || updateMutation.isPending}
+            className="btn-primary"
+          >
             {updateMutation.isPending ? (
               <span className="flex items-center gap-2">
                 <span className="h-4 w-4 animate-spin rounded-full border-2 border-white/30 border-t-white" />

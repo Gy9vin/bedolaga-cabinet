@@ -9,6 +9,7 @@ export interface PromoOffer {
   is_active: boolean;
   is_claimed: boolean;
   claimed_at: string | null;
+  // Dynamic extra data from backend
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   extra_data: Record<string, any> | null;
 }

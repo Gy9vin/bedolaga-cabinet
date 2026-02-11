@@ -1,5 +1,5 @@
 import { useState, useCallback } from 'react';
-import { useNavigate, useParams } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useTranslation } from 'react-i18next';
 import {
@@ -9,7 +9,6 @@ import {
   PromoGroupUpdateRequest,
 } from '../api/promocodes';
 import { AdminBackButton } from '../components/admin';
-import { useBackButton } from '../platform/hooks/useBackButton';
 
 // Icons
 const PlusIcon = () => (
@@ -45,8 +44,8 @@ const RefreshIcon = () => (
 );
 
 interface PeriodDiscount {
-  days: number;
-  percent: number;
+  days: number | '';
+  percent: number | '';
 }
 
 export default function AdminPromoGroupCreate() {
@@ -55,8 +54,6 @@ export default function AdminPromoGroupCreate() {
   const { id } = useParams<{ id: string }>();
   const queryClient = useQueryClient();
   const isEdit = !!id;
-
-  useBackButton(() => navigate('/admin/promo-groups'));
 
   // Form state
   const [name, setName] = useState('');
@@ -124,18 +121,20 @@ export default function AdminPromoGroupCreate() {
     setPeriodDiscounts(periodDiscounts.filter((_, i) => i !== index));
   };
 
-  const updatePeriodDiscount = (index: number, field: 'days' | 'percent', value: number) => {
-    const updated = [...periodDiscounts];
-    updated[index][field] = value;
-    setPeriodDiscounts(updated);
+  const updatePeriodDiscount = (index: number, field: 'days' | 'percent', value: number | '') => {
+    setPeriodDiscounts(
+      periodDiscounts.map((item, i) => (i === index ? { ...item, [field]: value } : item)),
+    );
   };
 
   const handleSubmit = () => {
     // Convert periodDiscounts array to Record<number, number>
     const periodDiscountsRecord: Record<number, number> = {};
     periodDiscounts.forEach((pd) => {
-      if (pd.days > 0 && pd.percent > 0) {
-        periodDiscountsRecord[pd.days] = pd.percent;
+      const days = pd.days === '' ? 0 : pd.days;
+      const percent = pd.percent === '' ? 0 : pd.percent;
+      if (days > 0 && percent > 0) {
+        periodDiscountsRecord[days] = percent;
       }
     });
 
@@ -199,9 +198,14 @@ export default function AdminPromoGroupCreate() {
             type="text"
             value={name}
             onChange={(e) => setName(e.target.value)}
-            className="input"
+            className={`input ${name.length > 0 && name.trim().length === 0 ? 'border-error-500/50' : ''}`}
             placeholder={t('admin.promoGroups.form.namePlaceholder')}
           />
+          {name.length > 0 && name.trim().length === 0 && (
+            <p className="mt-1 text-xs text-error-400">
+              {t('admin.promoGroups.form.nameRequired')}
+            </p>
+          )}
         </div>
 
         {/* Category Discounts */}
@@ -302,13 +306,12 @@ export default function AdminPromoGroupCreate() {
                   <input
                     type="number"
                     value={pd.days}
-                    onChange={(e) =>
-                      updatePeriodDiscount(
-                        index,
-                        'days',
-                        Math.max(1, parseInt(e.target.value) || 1),
-                      )
-                    }
+                    onChange={(e) => {
+                      const val = e.target.value;
+                      if (val === '') return updatePeriodDiscount(index, 'days', '');
+                      const num = parseInt(val);
+                      if (!isNaN(num)) updatePeriodDiscount(index, 'days', num);
+                    }}
                     className="input w-20"
                     min={1}
                     placeholder={t('admin.promoGroups.form.daysPlaceholder')}
@@ -317,13 +320,12 @@ export default function AdminPromoGroupCreate() {
                   <input
                     type="number"
                     value={pd.percent}
-                    onChange={(e) =>
-                      updatePeriodDiscount(
-                        index,
-                        'percent',
-                        Math.min(100, Math.max(0, parseInt(e.target.value) || 0)),
-                      )
-                    }
+                    onChange={(e) => {
+                      const val = e.target.value;
+                      if (val === '') return updatePeriodDiscount(index, 'percent', '');
+                      const num = parseInt(val);
+                      if (!isNaN(num)) updatePeriodDiscount(index, 'percent', num);
+                    }}
                     className="input w-20"
                     min={0}
                     max={100}
@@ -374,13 +376,13 @@ export default function AdminPromoGroupCreate() {
           <button
             type="button"
             onClick={() => setApplyToAddons(!applyToAddons)}
-            className={`relative h-6 w-10 rounded-full transition-colors ${
+            className={`relative h-6 w-11 rounded-full transition-colors ${
               applyToAddons ? 'bg-accent-500' : 'bg-dark-600'
             }`}
           >
             <span
               className={`absolute top-1 h-4 w-4 rounded-full bg-white transition-transform ${
-                applyToAddons ? 'left-5' : 'left-1'
+                applyToAddons ? 'left-6' : 'left-1'
               }`}
             />
           </button>
@@ -391,10 +393,7 @@ export default function AdminPromoGroupCreate() {
       {/* Footer */}
       <div className="card">
         <div className="flex justify-end gap-3">
-          <button
-            onClick={() => navigate('/admin/promo-groups')}
-            className="px-4 py-2 text-dark-300 transition-colors hover:text-dark-100"
-          >
+          <button onClick={() => navigate('/admin/promo-groups')} className="btn-secondary">
             {t('admin.promoGroups.form.cancel')}
           </button>
           <button

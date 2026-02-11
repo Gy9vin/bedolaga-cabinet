@@ -10,6 +10,12 @@ import {
 import { cn } from '@/lib/utils';
 import { backdrop, backdropTransition, scale, scaleTransition } from '../../motion/transitions';
 
+export {
+  Trigger as DialogTrigger,
+  Portal as DialogPortal,
+  Close as DialogClose,
+} from '@radix-ui/react-dialog';
+
 // Close icon
 const CloseIcon = () => (
   <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
@@ -40,15 +46,6 @@ export const Dialog = ({ children, open, onOpenChange, ...props }: DialogProps) 
     </DialogPrimitive.Root>
   );
 };
-
-// Trigger
-export const DialogTrigger = DialogPrimitive.Trigger;
-
-// Portal
-export const DialogPortal = DialogPrimitive.Portal;
-
-// Close
-export const DialogClose = DialogPrimitive.Close;
 
 // Overlay
 export type DialogOverlayProps = ComponentPropsWithoutRef<typeof DialogPrimitive.Overlay>;
@@ -86,7 +83,7 @@ export const DialogContent = forwardRef<HTMLDivElement, DialogContentProps>(
     const { open } = useContext(DialogContext);
 
     return (
-      <DialogPortal forceMount>
+      <DialogPrimitive.Portal forceMount>
         <AnimatePresence mode="wait">
           {open && (
             <>
@@ -131,7 +128,7 @@ export const DialogContent = forwardRef<HTMLDivElement, DialogContentProps>(
             </>
           )}
         </AnimatePresence>
-      </DialogPortal>
+      </DialogPrimitive.Portal>
     );
   },
 );
