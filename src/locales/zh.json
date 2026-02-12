@@ -1058,6 +1058,7 @@
         "admin": "网页管理面板"
       },
       "styles": {
+        "default": "无颜色",
         "primary": "蓝色",
         "success": "绿色",
         "danger": "红色"

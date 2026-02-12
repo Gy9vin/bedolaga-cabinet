@@ -1020,6 +1020,7 @@
         "admin": "پنل مدیریت وب"
       },
       "styles": {
+        "default": "بدون رنگ",
         "primary": "آبی",
         "success": "سبز",
         "danger": "قرمز"

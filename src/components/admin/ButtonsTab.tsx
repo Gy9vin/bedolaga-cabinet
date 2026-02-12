@@ -9,9 +9,10 @@ import {
   ButtonSection,
 } from '../../api/buttonStyles';
 
-type StyleValue = 'primary' | 'success' | 'danger';
+type StyleValue = 'primary' | 'success' | 'danger' | 'default';
 
 const STYLE_OPTIONS: { value: StyleValue; colorClass: string }[] = [
+  { value: 'default', colorClass: 'bg-dark-500' },
   { value: 'primary', colorClass: 'bg-blue-500' },
   { value: 'success', colorClass: 'bg-green-500' },
   { value: 'danger', colorClass: 'bg-red-500' },
@@ -134,12 +135,14 @@ export function ButtonsTab() {
                 </div>
                 {/* Live preview chip */}
                 <div
-                  className={`rounded-lg px-3 py-1.5 text-xs font-medium text-white ${
-                    cfg.style === 'success'
-                      ? 'bg-green-500'
-                      : cfg.style === 'danger'
-                        ? 'bg-red-500'
-                        : 'bg-blue-500'
+                  className={`rounded-lg px-3 py-1.5 text-xs font-medium ${
+                    cfg.style === 'default'
+                      ? 'bg-dark-600 text-dark-300'
+                      : cfg.style === 'success'
+                        ? 'bg-green-500 text-white'
+                        : cfg.style === 'danger'
+                          ? 'bg-red-500 text-white'
+                          : 'bg-blue-500 text-white'
                   }`}
                 >
                   {t(`admin.buttons.styles.${cfg.style}`)}

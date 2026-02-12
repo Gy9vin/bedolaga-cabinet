@@ -1311,6 +1311,7 @@
         "admin": "Web admin panel"
       },
       "styles": {
+        "default": "No color",
         "primary": "Blue",
         "success": "Green",
         "danger": "Red"

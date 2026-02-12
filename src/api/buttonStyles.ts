@@ -1,7 +1,7 @@
 import apiClient from './client';
 
 export interface ButtonSectionConfig {
-  style: 'primary' | 'success' | 'danger';
+  style: 'primary' | 'success' | 'danger' | 'default';
   icon_custom_emoji_id: string;
 }
 
