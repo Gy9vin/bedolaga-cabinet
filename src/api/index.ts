@@ -29,3 +29,4 @@ export { tariffsApi } from './tariffs';
 export { themeColorsApi } from './themeColors';
 export { ticketNotificationsApi } from './ticketNotifications';
 export { wheelApi, adminWheelApi } from './wheel';
+export { modemApi } from './modem';

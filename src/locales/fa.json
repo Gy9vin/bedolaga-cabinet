@@ -2425,5 +2425,23 @@
       "reason": "دلیل",
       "contactSupport": "اگر فکر می‌کنید این اشتباه است، با پشتیبانی تماس بگیرید."
     }
+  },
+  "modem": {
+    "title": "مودم",
+    "enabled": "متصل",
+    "disabled": "متصل نیست",
+    "enable": "اتصال مودم",
+    "disable": "قطع مودم",
+    "enableConfirm": "اتصال مودم به قیمت {{price}}؟",
+    "disableConfirm": "قطع مودم؟",
+    "disableWarning": "هزینه مودم بازپرداخت نمی‌شود",
+    "price": "هزینه: {{price}}",
+    "discount": "تخفیف {{percent}}%",
+    "insufficientFunds": "موجودی کافی نیست. کمبود {{amount}}",
+    "enableSuccess": "مودم با موفقیت متصل شد",
+    "disableSuccess": "مودم قطع شد",
+    "error": "خطا در عملیات مودم",
+    "renewalIncluded": "شامل مودم: {{price}}",
+    "description": "دستگاه اضافی برای اشتراک شما"
   }
 }

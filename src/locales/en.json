@@ -2825,5 +2825,23 @@
       "reason": "Reason",
       "contactSupport": "If you believe this is an error, please contact support."
     }
+  },
+  "modem": {
+    "title": "Modem",
+    "enabled": "Connected",
+    "disabled": "Not connected",
+    "enable": "Connect modem",
+    "disable": "Disconnect modem",
+    "enableConfirm": "Connect modem for {{price}}?",
+    "disableConfirm": "Disconnect modem?",
+    "disableWarning": "Modem charges will not be refunded",
+    "price": "Cost: {{price}}",
+    "discount": "Discount {{percent}}%",
+    "insufficientFunds": "Insufficient funds. Missing {{amount}}",
+    "enableSuccess": "Modem connected successfully",
+    "disableSuccess": "Modem disconnected",
+    "error": "Modem operation error",
+    "renewalIncluded": "incl. modem: {{price}}",
+    "description": "Additional device for your subscription"
   }
 }

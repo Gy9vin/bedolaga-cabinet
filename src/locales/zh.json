@@ -2424,5 +2424,23 @@
       "requests": "请求数",
       "ipHistory": "IP历史"
     }
+  },
+  "modem": {
+    "title": "调制解调器",
+    "enabled": "已连接",
+    "disabled": "未连接",
+    "enable": "连接调制解调器",
+    "disable": "断开调制解调器",
+    "enableConfirm": "以 {{price}} 连接调制解调器？",
+    "disableConfirm": "断开调制解调器？",
+    "disableWarning": "调制解调器费用不予退还",
+    "price": "费用：{{price}}",
+    "discount": "折扣 {{percent}}%",
+    "insufficientFunds": "余额不足，缺少 {{amount}}",
+    "enableSuccess": "调制解调器连接成功",
+    "disableSuccess": "调制解调器已断开",
+    "error": "调制解调器操作错误",
+    "renewalIncluded": "含调制解调器：{{price}}",
+    "description": "订阅的额外设备"
   }
 }

@@ -90,6 +90,7 @@ export interface Subscription {
   // Tariff info
   tariff_id?: number;
   tariff_name?: string;
+  modem_enabled?: boolean;
 }
 
 // Response wrapper for subscription status endpoint
@@ -140,6 +141,7 @@ export interface RenewalOption {
   price_rubles: number;
   discount_percent: number;
   original_price_kopeks: number | null;
+  modem_price_kopeks?: number;
 }
 
 export interface TrafficPackage {
@@ -646,4 +648,48 @@ export interface PaymentMethodConfig {
 export interface PromoGroupSimple {
   id: number;
   name: string;
+}
+
+// Modem types
+export interface ModemStatus {
+  available: boolean;
+  modem_enabled: boolean;
+  error_code: string | null;
+  error_message: string | null;
+  remaining_days: number;
+  warning_level: string | null;
+}
+
+export interface ModemPrice {
+  base_price_kopeks: number;
+  final_price_kopeks: number;
+  discount_percent: number;
+  discount_kopeks: number;
+  has_discount: boolean;
+  charged_months: number;
+  remaining_days: number;
+  end_date: string;
+  balance_kopeks: number;
+  balance_sufficient: boolean;
+  price_label: string;
+  base_price_label: string;
+  discount_label: string;
+  balance_label: string;
+  missing_amount_kopeks: number;
+  missing_amount_label: string;
+}
+
+export interface ModemEnableResult {
+  success: boolean;
+  message: string;
+  charged_kopeks: number;
+  new_device_limit: number;
+  balance_kopeks: number;
+}
+
+export interface ModemDisableResult {
+  success: boolean;
+  message: string;
+  new_device_limit: number;
+  old_device_limit: number;
 }

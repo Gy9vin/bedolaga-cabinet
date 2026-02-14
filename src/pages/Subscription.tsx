@@ -5,6 +5,7 @@ import { useLocation, useNavigate } from 'react-router';
 import { AxiosError } from 'axios';
 import { subscriptionApi } from '../api/subscription';
 import { promoApi } from '../api/promo';
+import { modemApi } from '../api/modem';
 import type {
   PurchaseSelection,
   PeriodOption,
@@ -314,6 +315,8 @@ export default function Subscription() {
     setShowDeviceReduction(false);
     setShowTrafficTopup(false);
     setShowServerManagement(false);
+    setShowModemConfirm(false);
+    setShowModemDisableConfirm(false);
     setSwitchTariffId(null);
     setSelectedTariff(null);
     setSelectedTariffPeriod(null);
@@ -502,6 +505,44 @@ export default function Subscription() {
         const retryAfter = error.response.headers?.get?.('Retry-After');
         setTrafficRefreshCooldown(retryAfter ? parseInt(retryAfter, 10) : 30);
       }
+    },
+  });
+
+  // Modem state
+  const [showModemConfirm, setShowModemConfirm] = useState(false);
+  const [showModemDisableConfirm, setShowModemDisableConfirm] = useState(false);
+
+  // Modem status query
+  const { data: modemStatus } = useQuery({
+    queryKey: ['modem-status'],
+    queryFn: modemApi.getStatus,
+    enabled: !!subscription && !subscription.is_trial,
+  });
+
+  // Modem price query (only when confirm dialog is shown)
+  const { data: modemPrice, isLoading: modemPriceLoading } = useQuery({
+    queryKey: ['modem-price'],
+    queryFn: modemApi.getPrice,
+    enabled: showModemConfirm,
+  });
+
+  // Modem enable mutation
+  const modemEnableMutation = useMutation({
+    mutationFn: modemApi.enable,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['subscription'] });
+      queryClient.invalidateQueries({ queryKey: ['modem-status'] });
+      setShowModemConfirm(false);
+    },
+  });
+
+  // Modem disable mutation
+  const modemDisableMutation = useMutation({
+    mutationFn: modemApi.disable,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['subscription'] });
+      queryClient.invalidateQueries({ queryKey: ['modem-status'] });
+      setShowModemDisableConfirm(false);
     },
   });
 
@@ -1917,6 +1958,190 @@ export default function Subscription() {
               )}
             </div>
           )}
+
+          {/* Modem Section */}
+          {modemStatus &&
+            !(modemStatus.available === false && modemStatus.error_code === 'modem_disabled') && (
+              <div className="mt-4">
+                <div className="rounded-xl border border-dark-700/50 bg-dark-800/50 p-4">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-3">
+                      <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-dark-700">
+                        <svg
+                          className="h-5 w-5 text-dark-400"
+                          fill="none"
+                          viewBox="0 0 24 24"
+                          stroke="currentColor"
+                          strokeWidth={1.5}
+                        >
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            d="M8.288 15.038a5.25 5.25 0 017.424 0M5.106 11.856c3.807-3.808 9.98-3.808 13.788 0M1.924 8.674c5.565-5.565 14.587-5.565 20.152 0M12.53 18.22l-.53.53-.53-.53a.75.75 0 011.06 0z"
+                          />
+                        </svg>
+                      </div>
+                      <div>
+                        <div className="font-medium text-dark-100">{t('modem.title')}</div>
+                        <div className="text-sm text-dark-400">{t('modem.description')}</div>
+                      </div>
+                    </div>
+                    <div>
+                      {subscription.modem_enabled ? (
+                        <span className="inline-flex items-center gap-1.5 rounded-full bg-success-500/20 px-3 py-1 text-sm font-medium text-success-400">
+                          <span className="h-1.5 w-1.5 rounded-full bg-success-400" />
+                          {t('modem.enabled')}
+                        </span>
+                      ) : (
+                        <span className="inline-flex items-center gap-1.5 rounded-full bg-dark-700 px-3 py-1 text-sm font-medium text-dark-400">
+                          <span className="h-1.5 w-1.5 rounded-full bg-dark-500" />
+                          {t('modem.disabled')}
+                        </span>
+                      )}
+                    </div>
+                  </div>
+
+                  {/* Error message from backend */}
+                  {modemStatus.error_message && modemStatus.error_code !== 'modem_disabled' && (
+                    <div className="mt-3 rounded-lg bg-warning-500/10 p-3 text-sm text-warning-400">
+                      {modemStatus.error_message}
+                    </div>
+                  )}
+
+                  {/* Enable/Disable buttons */}
+                  {modemStatus.available && (
+                    <div className="mt-4">
+                      {!subscription.modem_enabled && !showModemConfirm && (
+                        <button
+                          onClick={() => setShowModemConfirm(true)}
+                          className="btn-primary w-full py-3"
+                        >
+                          {t('modem.enable')}
+                        </button>
+                      )}
+
+                      {subscription.modem_enabled && !showModemDisableConfirm && (
+                        <button
+                          onClick={() => setShowModemDisableConfirm(true)}
+                          className="w-full rounded-lg border border-dark-600 bg-dark-800 py-3 text-sm font-medium text-dark-300 transition-colors hover:border-dark-500 hover:text-dark-200"
+                        >
+                          {t('modem.disable')}
+                        </button>
+                      )}
+
+                      {/* Enable confirmation */}
+                      {showModemConfirm && (
+                        <div className="space-y-3 rounded-xl border border-accent-500/30 bg-accent-500/5 p-4">
+                          {modemPriceLoading ? (
+                            <div className="flex items-center justify-center py-4">
+                              <span className="h-5 w-5 animate-spin rounded-full border-2 border-accent-400/30 border-t-accent-400" />
+                            </div>
+                          ) : modemPrice ? (
+                            <>
+                              <div className="text-center">
+                                {modemPrice.has_discount && (
+                                  <div className="mb-2">
+                                    <span className="inline-block rounded-full bg-green-500/20 px-2.5 py-0.5 text-sm font-medium text-green-400">
+                                      {t('modem.discount', {
+                                        percent: modemPrice.discount_percent,
+                                      })}
+                                    </span>
+                                  </div>
+                                )}
+                                <div className="text-2xl font-bold text-accent-400">
+                                  {modemPrice.has_discount && (
+                                    <span className="mr-2 text-lg text-dark-500 line-through">
+                                      {modemPrice.base_price_label}
+                                    </span>
+                                  )}
+                                  {modemPrice.price_label}
+                                </div>
+                              </div>
+
+                              {!modemPrice.balance_sufficient && (
+                                <InsufficientBalancePrompt
+                                  missingAmountKopeks={modemPrice.missing_amount_kopeks}
+                                  message={t('modem.insufficientFunds', {
+                                    amount: modemPrice.missing_amount_label,
+                                  })}
+                                  compact
+                                />
+                              )}
+
+                              <div className="flex gap-3">
+                                <button
+                                  onClick={() => setShowModemConfirm(false)}
+                                  className="btn-secondary flex-1 py-3"
+                                >
+                                  {t('common.cancel')}
+                                </button>
+                                <button
+                                  onClick={() => modemEnableMutation.mutate()}
+                                  disabled={
+                                    modemEnableMutation.isPending || !modemPrice.balance_sufficient
+                                  }
+                                  className="btn-primary flex-1 py-3"
+                                >
+                                  {modemEnableMutation.isPending ? (
+                                    <span className="flex items-center justify-center gap-2">
+                                      <span className="h-4 w-4 animate-spin rounded-full border-2 border-white/30 border-t-white" />
+                                    </span>
+                                  ) : (
+                                    t('common.confirm')
+                                  )}
+                                </button>
+                              </div>
+
+                              {modemEnableMutation.isError && (
+                                <div className="text-center text-sm text-error-400">
+                                  {getErrorMessage(modemEnableMutation.error)}
+                                </div>
+                              )}
+                            </>
+                          ) : null}
+                        </div>
+                      )}
+
+                      {/* Disable confirmation */}
+                      {showModemDisableConfirm && (
+                        <div className="space-y-3 rounded-xl border border-warning-500/30 bg-warning-500/5 p-4">
+                          <div className="text-center text-sm text-warning-400">
+                            {t('modem.disableWarning')}
+                          </div>
+                          <div className="flex gap-3">
+                            <button
+                              onClick={() => setShowModemDisableConfirm(false)}
+                              className="btn-secondary flex-1 py-3"
+                            >
+                              {t('common.cancel')}
+                            </button>
+                            <button
+                              onClick={() => modemDisableMutation.mutate()}
+                              disabled={modemDisableMutation.isPending}
+                              className="flex-1 rounded-lg bg-warning-500/20 py-3 text-sm font-medium text-warning-400 transition-colors hover:bg-warning-500/30"
+                            >
+                              {modemDisableMutation.isPending ? (
+                                <span className="flex items-center justify-center gap-2">
+                                  <span className="h-4 w-4 animate-spin rounded-full border-2 border-warning-400/30 border-t-warning-400" />
+                                </span>
+                              ) : (
+                                t('modem.disable')
+                              )}
+                            </button>
+                          </div>
+
+                          {modemDisableMutation.isError && (
+                            <div className="text-center text-sm text-error-400">
+                              {getErrorMessage(modemDisableMutation.error)}
+                            </div>
+                          )}
+                        </div>
+                      )}
+                    </div>
+                  )}
+                </div>
+              </div>
+            )}
         </div>
       )}
 
