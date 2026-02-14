@@ -258,6 +258,7 @@ export interface TariffPeriod {
   extra_devices_cost_label?: string;
   base_tariff_price_kopeks?: number;
   base_tariff_price_label?: string;
+  modem_price_kopeks?: number;
 }
 
 export interface TariffServer {

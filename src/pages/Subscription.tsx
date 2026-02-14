@@ -3,6 +3,7 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useTranslation } from 'react-i18next';
 import { useLocation, useNavigate } from 'react-router';
 import { AxiosError } from 'axios';
+import QRCode from 'qrcode';
 import { subscriptionApi } from '../api/subscription';
 import { promoApi } from '../api/promo';
 import { modemApi } from '../api/modem';
@@ -67,6 +68,21 @@ const CheckIcon = () => (
   </svg>
 );
 
+const QrIcon = () => (
+  <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+    <path
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      d="M3.75 4.875c0-.621.504-1.125 1.125-1.125h4.5c.621 0 1.125.504 1.125 1.125v4.5c0 .621-.504 1.125-1.125 1.125h-4.5A1.125 1.125 0 013.75 9.375v-4.5zM3.75 14.625c0-.621.504-1.125 1.125-1.125h4.5c.621 0 1.125.504 1.125 1.125v4.5c0 .621-.504 1.125-1.125 1.125h-4.5a1.125 1.125 0 01-1.125-1.125v-4.5zM13.5 4.875c0-.621.504-1.125 1.125-1.125h4.5c.621 0 1.125.504 1.125 1.125v4.5c0 .621-.504 1.125-1.125 1.125h-4.5A1.125 1.125 0 0113.5 9.375v-4.5z"
+    />
+    <path
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      d="M6.75 6.75h.75v.75h-.75v-.75zM6.75 16.5h.75v.75h-.75v-.75zM16.5 6.75h.75v.75H16.5v-.75zM13.5 13.5h.75v.75h-.75v-.75zM13.5 19.5h.75v.75h-.75v-.75zM19.5 13.5h.75v.75h-.75v-.75zM19.5 19.5h.75v.75h-.75v-.75zM16.5 16.5h.75v.75H16.5v-.75z"
+    />
+  </svg>
+);
+
 // Convert country code to flag emoji
 const getFlagEmoji = (countryCode: string): string => {
   if (!countryCode || countryCode.length !== 2) return '';
@@ -86,6 +102,8 @@ export default function Subscription() {
   const navigate = useNavigate();
   const { formatAmount, currencySymbol } = useCurrency();
   const [copied, setCopied] = useState(false);
+  const [showQr, setShowQr] = useState(false);
+  const [qrDataUrl, setQrDataUrl] = useState<string | null>(null);
 
   // Helper to format price from kopeks
   const formatPrice = (kopeks: number) => `${formatAmount(kopeks / 100)} ${currencySymbol}`;
@@ -527,12 +545,15 @@ export default function Subscription() {
   });
 
   // Modem enable mutation
+  const [showModemSuccess, setShowModemSuccess] = useState(false);
+
   const modemEnableMutation = useMutation({
     mutationFn: modemApi.enable,
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['subscription'] });
       queryClient.invalidateQueries({ queryKey: ['modem-status'] });
       setShowModemConfirm(false);
+      setShowModemSuccess(true);
     },
   });
 
@@ -619,6 +640,22 @@ export default function Subscription() {
       navigator.clipboard.writeText(subscription.subscription_url);
       setCopied(true);
       setTimeout(() => setCopied(false), 2000);
+    }
+  };
+
+  const openQr = async () => {
+    if (subscription?.subscription_url) {
+      try {
+        const dataUrl = await QRCode.toDataURL(subscription.subscription_url, {
+          width: 280,
+          margin: 2,
+          color: { dark: '#000000', light: '#ffffff' },
+        });
+        setQrDataUrl(dataUrl);
+        setShowQr(true);
+      } catch {
+        /* ignore */
+      }
     }
   };
 
@@ -806,6 +843,13 @@ export default function Subscription() {
                     title={t('subscription.copyLink')}
                   >
                     {copied ? <CheckIcon /> : <CopyIcon />}
+                  </button>
+                  <button
+                    onClick={openQr}
+                    className="btn-secondary px-3"
+                    title={t('subscription.qrCode')}
+                  >
+                    <QrIcon />
                   </button>
                 </div>
               )}
@@ -1959,9 +2003,12 @@ export default function Subscription() {
             </div>
           )}
 
-          {/* Modem Section */}
+          {/* Modem Section - show if feature enabled OR user already has modem */}
           {modemStatus &&
-            !(modemStatus.available === false && modemStatus.error_code === 'modem_disabled') && (
+            (subscription.modem_enabled ||
+              !(
+                modemStatus.available === false && modemStatus.error_code === 'modem_disabled'
+              )) && (
               <div className="mt-4">
                 <div className="rounded-xl border border-dark-700/50 bg-dark-800/50 p-4">
                   <div className="flex items-center justify-between">
@@ -2137,6 +2184,24 @@ export default function Subscription() {
                           )}
                         </div>
                       )}
+                    </div>
+                  )}
+
+                  {/* Success message after modem purchase */}
+                  {showModemSuccess && (
+                    <div className="mt-4 rounded-xl border border-success-500/30 bg-success-500/10 p-4">
+                      <div className="mb-2 text-center text-sm font-medium text-success-400">
+                        {t('modem.enableSuccess')}
+                      </div>
+                      <div className="text-center text-sm text-dark-300">
+                        {t('modem.contactAdmin')}
+                      </div>
+                      <button
+                        onClick={() => setShowModemSuccess(false)}
+                        className="btn-secondary mt-3 w-full"
+                      >
+                        {t('common.ok', 'OK')}
+                      </button>
                     </div>
                   )}
                 </div>
@@ -3203,9 +3268,10 @@ export default function Subscription() {
                               ? customTrafficGb * (selectedTariff.traffic_price_per_gb_kopeks ?? 0)
                               : 0;
 
-                          const totalPrice = promoPeriod.price + trafficPrice;
+                          const modemPrice = selectedTariffPeriod?.modem_price_kopeks ?? 0;
+                          const totalPrice = promoPeriod.price + trafficPrice + modemPrice;
                           const originalTotal = promoPeriod.original
-                            ? promoPeriod.original + trafficPrice
+                            ? promoPeriod.original + trafficPrice + modemPrice
                             : null;
 
                           return (
@@ -3257,6 +3323,12 @@ export default function Subscription() {
                                               )}
                                             </span>
                                           </div>
+                                          {modemPrice > 0 && (
+                                            <div className="flex justify-between text-sm text-dark-300">
+                                              <span>{t('modem.title')}</span>
+                                              <span>+{formatPrice(modemPrice)}</span>
+                                            </div>
+                                          )}
                                         </>
                                       ) : (
                                         <div className="flex justify-between text-sm text-dark-300">
@@ -3282,6 +3354,12 @@ export default function Subscription() {
                                       )}
                                     </>
                                   )
+                                )}
+                                {!selectedTariffPeriod?.extra_devices_count && modemPrice > 0 && (
+                                  <div className="flex justify-between text-sm text-dark-300">
+                                    <span>{t('modem.title')}</span>
+                                    <span>+{formatPrice(modemPrice)}</span>
+                                  </div>
                                 )}
                                 {useCustomTraffic && selectedTariff.custom_traffic_enabled && (
                                   <div className="flex justify-between text-sm text-dark-300">
@@ -3812,6 +3890,29 @@ export default function Subscription() {
               )}
             </div>
           )}
+        </div>
+      )}
+      {/* QR Code Modal */}
+      {showQr && qrDataUrl && (
+        <div
+          className="fixed inset-0 z-50 flex items-start justify-center overflow-y-auto bg-black/60 pt-20 backdrop-blur-sm"
+          style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0 }}
+          onClick={() => setShowQr(false)}
+        >
+          <div
+            className="mx-4 mb-10 w-full max-w-xs rounded-2xl border border-dark-700/50 bg-dark-800 p-6"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="mb-4 text-center text-lg font-medium text-dark-100">
+              {t('subscription.qrCode')}
+            </div>
+            <div className="flex justify-center rounded-xl bg-white p-4">
+              <img src={qrDataUrl} alt="QR Code" className="h-auto w-full max-w-[248px]" />
+            </div>
+            <button onClick={() => setShowQr(false)} className="btn-secondary mt-4 w-full">
+              {t('common.close')}
+            </button>
+          </div>
         </div>
       )}
     </div>
