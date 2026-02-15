@@ -55,6 +55,7 @@ export const MENU_SECTIONS: MenuSection[] = [
           'TRAFFIC_PACKAGES',
           'TRIAL',
           'AUTOPAY',
+          'MODEM',
         ],
       },
       {
