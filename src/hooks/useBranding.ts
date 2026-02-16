@@ -27,6 +27,7 @@ export function useBranding() {
       return data;
     },
     initialData: getCachedBranding() ?? undefined,
+    initialDataUpdatedAt: 0,
     staleTime: 60000,
     enabled: isAuthenticated,
   });

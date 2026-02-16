@@ -110,7 +110,9 @@ export const authApi = {
   },
 
   // Request email change - sends verification code to new email
-  requestEmailChange: async (newEmail: string): Promise<{ message: string }> => {
+  requestEmailChange: async (
+    newEmail: string,
+  ): Promise<{ message: string; new_email: string; expires_in_minutes: number }> => {
     const response = await apiClient.post('/cabinet/auth/email/change', {
       new_email: newEmail,
     });
