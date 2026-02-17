@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.17.0](https://github.com/BEDOLAGA-DEV/bedolaga-cabinet/compare/v1.16.1...v1.17.0) (2026-02-17)
+
+
+### Features
+
+* add web campaign links — capture, auth integration, bonus UI ([e0dd21f](https://github.com/BEDOLAGA-DEV/bedolaga-cabinet/commit/e0dd21fd0bde52c4b10175635e605151eb8faf9d))
+
 ## [1.16.1](https://github.com/BEDOLAGA-DEV/bedolaga-cabinet/compare/v1.16.0...v1.16.1) (2026-02-16)
 
 
