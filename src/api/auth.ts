@@ -3,10 +3,15 @@ import type { AuthResponse, OAuthProvider, RegisterResponse, TokenResponse, User
 
 export const authApi = {
   // Telegram WebApp authentication
-  loginTelegram: async (initData: string, campaignSlug?: string | null): Promise<AuthResponse> => {
+  loginTelegram: async (
+    initData: string,
+    campaignSlug?: string | null,
+    referralCode?: string | null,
+  ): Promise<AuthResponse> => {
     const response = await apiClient.post<AuthResponse>('/cabinet/auth/telegram', {
       init_data: initData,
       campaign_slug: campaignSlug || undefined,
+      referral_code: referralCode || undefined,
     });
     return response.data;
   },
@@ -23,10 +28,12 @@ export const authApi = {
       hash: string;
     },
     campaignSlug?: string | null,
+    referralCode?: string | null,
   ): Promise<AuthResponse> => {
     const response = await apiClient.post<AuthResponse>('/cabinet/auth/telegram/widget', {
       ...data,
       campaign_slug: campaignSlug || undefined,
+      referral_code: referralCode || undefined,
     });
     return response.data;
   },
@@ -36,11 +43,13 @@ export const authApi = {
     email: string,
     password: string,
     campaignSlug?: string | null,
+    referralCode?: string | null,
   ): Promise<AuthResponse> => {
     const response = await apiClient.post<AuthResponse>('/cabinet/auth/email/login', {
       email,
       password,
       campaign_slug: campaignSlug || undefined,
+      referral_code: referralCode || undefined,
     });
     return response.data;
   },
@@ -166,10 +175,16 @@ export const authApi = {
     code: string,
     state: string,
     campaignSlug?: string | null,
+    referralCode?: string | null,
   ): Promise<AuthResponse> => {
     const response = await apiClient.post<AuthResponse>(
       `/cabinet/auth/oauth/${encodeURIComponent(provider)}/callback`,
-      { code, state, campaign_slug: campaignSlug || undefined },
+      {
+        code,
+        state,
+        campaign_slug: campaignSlug || undefined,
+        referral_code: referralCode || undefined,
+      },
     );
     return response.data;
   },
