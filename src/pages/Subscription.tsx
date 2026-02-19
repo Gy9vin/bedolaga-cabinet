@@ -907,6 +907,12 @@ export default function Subscription() {
                 {(trafficData?.traffic_used_gb ?? subscription.traffic_used_gb).toFixed(1)} /{' '}
                 {subscription.traffic_limit_gb || '∞'} GB
               </div>
+              {subscription.traffic_reset_mode &&
+                subscription.traffic_reset_mode !== 'NO_RESET' && (
+                  <div className="mt-0.5 text-xs text-dark-500">
+                    {t(`subscription.trafficReset.${subscription.traffic_reset_mode}`)}
+                  </div>
+                )}
             </div>
             <div>
               <div className="mb-1 text-sm text-dark-500">{t('subscription.devices')}</div>
@@ -914,10 +920,10 @@ export default function Subscription() {
             </div>
           </div>
 
-          {/* Servers */}
+          {/* Locations */}
           {subscription.servers && subscription.servers.length > 0 && (
             <div className="mb-6">
-              <div className="mb-2 text-sm text-dark-500">{t('subscription.serversLabel')}</div>
+              <div className="mb-2 text-sm text-dark-500">{t('subscription.locationsLabel')}</div>
               <div className="flex flex-wrap gap-2">
                 {subscription.servers.map((server) => (
                   <span
@@ -2670,25 +2676,28 @@ export default function Subscription() {
                               {t('subscription.devices', { count: tariff.device_limit })}
                             </span>
                           </div>
-                          {/* Servers */}
-                          <div className="flex items-center gap-1.5">
-                            <svg
-                              className="h-4 w-4 text-dark-400"
-                              fill="none"
-                              viewBox="0 0 24 24"
-                              stroke="currentColor"
-                              strokeWidth={1.5}
-                            >
-                              <path
-                                strokeLinecap="round"
-                                strokeLinejoin="round"
-                                d="M12 21a9.004 9.004 0 008.716-6.747M12 21a9.004 9.004 0 01-8.716-6.747M12 21c2.485 0 4.5-4.03 4.5-9S14.485 3 12 3m0 18c-2.485 0-4.5-4.03-4.5-9S9.515 3 12 3m0 0a8.997 8.997 0 017.843 4.582M12 3a8.997 8.997 0 00-7.843 4.582m15.686 0A11.953 11.953 0 0112 10.5c-2.998 0-5.74-1.1-7.843-2.918m15.686 0A8.959 8.959 0 0121 12c0 .778-.099 1.533-.284 2.253m0 0A17.919 17.919 0 0112 16.5c-3.162 0-6.133-.815-8.716-2.247m0 0A9.015 9.015 0 013 12c0-1.605.42-3.113 1.157-4.418"
-                              />
-                            </svg>
-                            <span className="text-dark-300">
-                              {t('subscription.servers', { count: tariff.servers_count })}
-                            </span>
-                          </div>
+                          {/* Traffic Reset */}
+                          {tariff.traffic_reset_mode &&
+                            tariff.traffic_reset_mode !== 'NO_RESET' && (
+                              <div className="flex items-center gap-1.5">
+                                <svg
+                                  className="h-4 w-4 text-dark-400"
+                                  fill="none"
+                                  viewBox="0 0 24 24"
+                                  stroke="currentColor"
+                                  strokeWidth={1.5}
+                                >
+                                  <path
+                                    strokeLinecap="round"
+                                    strokeLinejoin="round"
+                                    d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0l3.181 3.183a8.25 8.25 0 0013.803-3.7M4.031 9.865a8.25 8.25 0 0113.803-3.7l3.181 3.182M2.985 19.644l3.181-3.182"
+                                  />
+                                </svg>
+                                <span className="text-dark-300">
+                                  {t(`subscription.trafficReset.${tariff.traffic_reset_mode}`)}
+                                </span>
+                              </div>
+                            )}
                         </div>
                         {/* Price info - daily or period-based */}
                         <div className="mt-3 border-t border-dark-700/50 pt-3 text-sm text-dark-400">
@@ -2885,25 +2894,7 @@ export default function Subscription() {
                         )}
                       </span>
                     </div>
-                    <div>
-                      <span className="text-dark-500">{t('subscription.serversLabel')}:</span>
-                      <span className="ml-2 text-dark-200">{selectedTariff.servers_count}</span>
-                    </div>
                   </div>
-                  {selectedTariff.servers.length > 0 && (
-                    <div className="mt-3 flex flex-wrap gap-2">
-                      {selectedTariff.servers.map((server) => (
-                        <span key={server.uuid} className="badge-secondary">
-                          {server.name}
-                        </span>
-                      ))}
-                      {selectedTariff.servers_count > selectedTariff.servers.length && (
-                        <span className="text-sm text-dark-500">
-                          +{selectedTariff.servers_count - selectedTariff.servers.length}
-                        </span>
-                      )}
-                    </div>
-                  )}
                 </div>
 
                 {/* Daily Tariff Purchase */}

@@ -1,5 +1,5 @@
 import { useState, useEffect, useMemo, useCallback } from 'react';
-import { useNavigate, useLocation, useSearchParams } from 'react-router';
+import { useNavigate, useLocation } from 'react-router';
 import { useTranslation } from 'react-i18next';
 import { useQuery } from '@tanstack/react-query';
 import { useAuthStore } from '../store/auth';
@@ -20,12 +20,12 @@ import LanguageSwitcher from '../components/LanguageSwitcher';
 import TelegramLoginButton from '../components/TelegramLoginButton';
 import OAuthProviderIcon from '../components/OAuthProviderIcon';
 import { saveOAuthState } from './OAuthCallback';
+import { consumeReferralCode, getPendingReferralCode } from '../utils/referral';
 
 export default function Login() {
   const { t } = useTranslation();
   const navigate = useNavigate();
   const location = useLocation();
-  const [searchParams] = useSearchParams();
   const {
     isAuthenticated,
     isLoading: isAuthInitializing,
@@ -34,8 +34,8 @@ export default function Login() {
     registerWithEmail,
   } = useAuthStore();
 
-  // Extract referral code from URL
-  const referralCode = searchParams.get('ref') || '';
+  // Get referral code from localStorage (captured from ?ref= param at module level in auth store)
+  const referralCode = getPendingReferralCode() || '';
 
   const [authMode, setAuthMode] = useState<'login' | 'register'>(() =>
     referralCode ? 'register' : 'login',
@@ -140,6 +140,7 @@ export default function Login() {
   // If email auth is disabled but user came with ref param, redirect to bot
   useEffect(() => {
     if (referralCode && emailAuthConfig?.enabled === false && botUsername) {
+      consumeReferralCode();
       window.location.href = `https://t.me/${botUsername}?start=${encodeURIComponent(referralCode)}`;
     }
   }, [referralCode, emailAuthConfig, botUsername]);
@@ -474,7 +475,10 @@ export default function Login() {
                   </p>
                 </div>
               ) : (
-                <TelegramLoginButton botUsername={botUsername} />
+                <TelegramLoginButton
+                  botUsername={botUsername}
+                  referralCode={referralCode || undefined}
+                />
               )}
             </div>
 

@@ -21,6 +21,15 @@ export interface OAuthProvider {
   display_name: string;
 }
 
+// Campaign bonus info (returned during auth)
+export interface CampaignBonusInfo {
+  campaign_name: string;
+  bonus_type: 'balance' | 'subscription' | 'tariff' | 'none';
+  balance_kopeks: number;
+  subscription_days: number | null;
+  tariff_name: string | null;
+}
+
 // Auth types
 export interface AuthResponse {
   access_token: string;
@@ -28,6 +37,7 @@ export interface AuthResponse {
   token_type: string;
   expires_in: number;
   user: User;
+  campaign_bonus?: CampaignBonusInfo | null;
 }
 
 export interface TokenResponse {
@@ -91,6 +101,7 @@ export interface Subscription {
   tariff_id?: number;
   tariff_name?: string;
   modem_enabled?: boolean;
+  traffic_reset_mode?: string;
 }
 
 // Response wrapper for subscription status endpoint
@@ -309,6 +320,8 @@ export interface Tariff {
   daily_discount_percent?: number;
   original_price_per_day_kopeks?: number;
   custom_days_discount_percent?: number;
+  // Traffic reset
+  traffic_reset_mode?: string;
 }
 
 export interface TariffsPurchaseOptions {
@@ -424,6 +437,7 @@ export interface ReferralTerms {
   first_topup_bonus_rubles: number;
   inviter_bonus_kopeks: number;
   inviter_bonus_rubles: number;
+  partner_section_visible?: boolean;
 }
 
 // Withdrawal types
