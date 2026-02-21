@@ -274,6 +274,7 @@
     "getSubscription": "Get Subscription",
     "connectionInfo": "Connection Info",
     "copyLink": "Copy Link",
+    "qrCode": "QR Code",
     "copied": "Copied!",
     "showQR": "Show QR Code",
     "downloadConfig": "Download Config",
@@ -3151,5 +3152,24 @@
       "reason": "Reason",
       "contactSupport": "If you believe this is an error, please contact support."
     }
+  },
+  "modem": {
+    "title": "Modem",
+    "enabled": "Connected",
+    "disabled": "Not connected",
+    "enable": "Connect modem",
+    "disable": "Disconnect modem",
+    "enableConfirm": "Connect modem for {{price}}?",
+    "disableConfirm": "Disconnect modem?",
+    "disableWarning": "Modem fee is non-refundable",
+    "price": "Cost: {{price}}",
+    "discount": "Discount {{percent}}%",
+    "insufficientFunds": "Insufficient funds, missing {{amount}}",
+    "enableSuccess": "Modem connected successfully!",
+    "contactAdmin": "Contact admin for modem setup instructions",
+    "disableSuccess": "Modem disconnected",
+    "error": "Modem operation error",
+    "renewalIncluded": "With modem: {{price}}",
+    "description": "Additional device for subscription"
   }
 }
