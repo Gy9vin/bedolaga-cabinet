@@ -3481,6 +3481,25 @@
       "codeExpired": "Срок действия кода истёк. Запросите новый.",
       "tooManyRequests": "Слишком много запросов. Попробуйте позже."
     },
+    "connections": {
+      "title": "Связанные аккаунты",
+      "telegram": "Telegram",
+      "email": "Email",
+      "google": "Google",
+      "yandex": "Яндекс",
+      "discord": "Discord",
+      "vk": "VK",
+      "linked": "Привязан",
+      "notLinked": "Не привязан",
+      "link": "Привязать",
+      "unlink": "Отвязать",
+      "linkSuccess": "{{provider}} успешно привязан!",
+      "unlinkSuccess": "{{provider}} успешно отвязан!",
+      "cannotUnlinkLast": "Невозможно отвязать последний способ входа",
+      "alreadyLinked": "Этот аккаунт уже привязан к другому пользователю",
+      "unlinkConfirm": "Отвязать {{provider}}?",
+      "error": "Ошибка при операции с аккаунтом"
+    },
     "notifications": {
       "title": "Настройки уведомлений",
       "subscriptionExpiry": "Окончание подписки",

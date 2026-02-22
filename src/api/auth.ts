@@ -188,4 +188,64 @@ export const authApi = {
     );
     return response.data;
   },
+
+  // Get connected accounts (OAuth, Telegram, Email)
+  getConnections: async (): Promise<{
+    connections: { provider: string; connected: boolean; identifier: string | null }[];
+    total_connected: number;
+  }> => {
+    const response = await apiClient.get('/cabinet/auth/oauth/connections');
+    return response.data;
+  },
+
+  // Link OAuth provider to current account
+  linkOAuthProvider: async (
+    provider: string,
+    code: string,
+    state: string,
+  ): Promise<{ success: boolean; message: string; provider: string }> => {
+    const response = await apiClient.post(
+      `/cabinet/auth/oauth/${encodeURIComponent(provider)}/link`,
+      { code, state },
+    );
+    return response.data;
+  },
+
+  // Get OAuth authorize URL for linking
+  getLinkAuthorizeUrl: async (
+    provider: string,
+  ): Promise<{ authorize_url: string; state: string }> => {
+    const response = await apiClient.get<{ authorize_url: string; state: string }>(
+      `/cabinet/auth/oauth/${encodeURIComponent(provider)}/link`,
+    );
+    return response.data;
+  },
+
+  // Unlink OAuth provider from current account
+  unlinkOAuthProvider: async (
+    provider: string,
+  ): Promise<{ success: boolean; message: string; provider: string }> => {
+    const response = await apiClient.delete(
+      `/cabinet/auth/oauth/${encodeURIComponent(provider)}/link`,
+    );
+    return response.data;
+  },
+
+  // Link Telegram to current account (via WebApp initData)
+  linkTelegram: async (
+    initData: string,
+  ): Promise<{ success: boolean; message: string; provider: string }> => {
+    const response = await apiClient.post('/cabinet/auth/telegram/link', {
+      init_data: initData,
+    });
+    return response.data;
+  },
+
+  // Link Telegram to current account (via Login Widget)
+  linkTelegramWidget: async (
+    data: Record<string, string>,
+  ): Promise<{ success: boolean; message: string; provider: string }> => {
+    const response = await apiClient.post('/cabinet/auth/telegram/link/widget', data);
+    return response.data;
+  },
 };

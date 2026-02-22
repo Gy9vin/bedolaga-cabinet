@@ -2929,6 +2929,25 @@
       "codeExpired": "Code has expired. Please request a new one.",
       "tooManyRequests": "Too many requests. Please try again later."
     },
+    "connections": {
+      "title": "Connected Accounts",
+      "telegram": "Telegram",
+      "email": "Email",
+      "google": "Google",
+      "yandex": "Yandex",
+      "discord": "Discord",
+      "vk": "VK",
+      "linked": "Linked",
+      "notLinked": "Not linked",
+      "link": "Link",
+      "unlink": "Unlink",
+      "linkSuccess": "{{provider}} linked successfully!",
+      "unlinkSuccess": "{{provider}} unlinked successfully!",
+      "cannotUnlinkLast": "Cannot unlink the last authentication method",
+      "alreadyLinked": "This account is already linked to another user",
+      "unlinkConfirm": "Unlink {{provider}}?",
+      "error": "Account operation error"
+    },
     "notifications": {
       "title": "Notification Settings",
       "subscriptionExpiry": "Subscription Expiry",

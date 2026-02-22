@@ -2,23 +2,36 @@ import { useEffect, useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router';
 import { useTranslation } from 'react-i18next';
 import { useAuthStore } from '../store/auth';
+import { authApi } from '../api/auth';
 
 // SessionStorage helpers for OAuth state
 const OAUTH_STATE_KEY = 'oauth_state';
 const OAUTH_PROVIDER_KEY = 'oauth_provider';
+const OAUTH_FLOW_KEY = 'oauth_flow'; // 'login' | 'link'
 
-export function saveOAuthState(state: string, provider: string): void {
+export function saveOAuthState(
+  state: string,
+  provider: string,
+  flow: 'login' | 'link' = 'login',
+): void {
   sessionStorage.setItem(OAUTH_STATE_KEY, state);
   sessionStorage.setItem(OAUTH_PROVIDER_KEY, provider);
+  sessionStorage.setItem(OAUTH_FLOW_KEY, flow);
 }
 
-export function getAndClearOAuthState(): { state: string; provider: string } | null {
+export function getAndClearOAuthState(): {
+  state: string;
+  provider: string;
+  flow: 'login' | 'link';
+} | null {
   const state = sessionStorage.getItem(OAUTH_STATE_KEY);
   const provider = sessionStorage.getItem(OAUTH_PROVIDER_KEY);
+  const flow = (sessionStorage.getItem(OAUTH_FLOW_KEY) || 'login') as 'login' | 'link';
   sessionStorage.removeItem(OAUTH_STATE_KEY);
   sessionStorage.removeItem(OAUTH_PROVIDER_KEY);
+  sessionStorage.removeItem(OAUTH_FLOW_KEY);
   if (!state || !provider) return null;
-  return { state, provider };
+  return { state, provider, flow };
 }
 
 export default function OAuthCallback() {
@@ -29,11 +42,6 @@ export default function OAuthCallback() {
   const { loginWithOAuth, isAuthenticated } = useAuthStore();
 
   useEffect(() => {
-    if (isAuthenticated) {
-      navigate('/', { replace: true });
-      return;
-    }
-
     const authenticate = async () => {
       const code = searchParams.get('code');
       const urlState = searchParams.get('state');
@@ -53,6 +61,27 @@ export default function OAuthCallback() {
       // Validate state match
       if (saved.state !== urlState) {
         setError(t('auth.oauthError', 'Authorization was denied or failed'));
+        return;
+      }
+
+      if (saved.flow === 'link') {
+        // Account linking flow — user is already authenticated
+        try {
+          await authApi.linkOAuthProvider(saved.provider, code, urlState);
+          navigate('/profile', { replace: true, state: { linkSuccess: saved.provider } });
+        } catch (err: unknown) {
+          const error = err as { response?: { data?: { detail?: string } } };
+          setError(
+            error.response?.data?.detail ||
+              t('profile.connections.error', 'Account linking failed'),
+          );
+        }
+        return;
+      }
+
+      // Login flow
+      if (isAuthenticated) {
+        navigate('/', { replace: true });
         return;
       }
 

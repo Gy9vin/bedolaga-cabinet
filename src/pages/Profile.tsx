@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect } from 'react';
-import { Link } from 'react-router';
+import { Link, useLocation } from 'react-router';
 import { useTranslation } from 'react-i18next';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -18,6 +18,9 @@ import { Card } from '@/components/data-display/Card';
 import { Button } from '@/components/primitives/Button';
 import { Switch } from '@/components/primitives/Switch';
 import { staggerContainer, staggerItem } from '@/components/motion/transitions';
+import { saveOAuthState } from './OAuthCallback';
+import { setTelegramLinkFlow } from './TelegramCallback';
+import TelegramLoginButton from '../components/TelegramLoginButton';
 
 // Icons
 const CopyIcon = () => (
@@ -59,10 +62,20 @@ const PencilIcon = () => (
   </svg>
 );
 
+const PROVIDER_DISPLAY_NAMES: Record<string, string> = {
+  telegram: 'Telegram',
+  email: 'Email',
+  google: 'Google',
+  yandex: 'Yandex',
+  discord: 'Discord',
+  vk: 'VK',
+};
+
 export default function Profile() {
   const { t } = useTranslation();
   const { user, setUser } = useAuthStore();
   const queryClient = useQueryClient();
+  const location = useLocation();
 
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -79,6 +92,73 @@ export default function Profile() {
   const [resendCooldown, setResendCooldown] = useState(0);
   const newEmailInputRef = useRef<HTMLInputElement>(null);
   const codeInputRef = useRef<HTMLInputElement>(null);
+
+  // Connection link success from OAuth callback redirect
+  const [connectionSuccess, setConnectionSuccess] = useState<string | null>(null);
+  const [connectionError, setConnectionError] = useState<string | null>(null);
+
+  // Check for link success from OAuth callback
+  useEffect(() => {
+    const state = location.state as { linkSuccess?: string } | null;
+    if (state?.linkSuccess) {
+      setConnectionSuccess(
+        t('profile.connections.linkSuccess', {
+          provider: PROVIDER_DISPLAY_NAMES[state.linkSuccess] || state.linkSuccess,
+        }),
+      );
+      queryClient.invalidateQueries({ queryKey: ['connections'] });
+      // Clear state to prevent showing on refresh
+      window.history.replaceState({}, document.title);
+      setTimeout(() => setConnectionSuccess(null), 5000);
+    }
+  }, [location.state, t, queryClient]);
+
+  // Connected accounts data
+  const { data: connections, isLoading: connectionsLoading } = useQuery({
+    queryKey: ['connections'],
+    queryFn: authApi.getConnections,
+  });
+
+  // OAuth providers list (to know which are enabled)
+  const { data: oauthProviders } = useQuery({
+    queryKey: ['oauth-providers'],
+    queryFn: authApi.getOAuthProviders,
+    staleTime: 60000,
+  });
+
+  const unlinkMutation = useMutation({
+    mutationFn: (provider: string) => authApi.unlinkOAuthProvider(provider),
+    onSuccess: (_data, provider) => {
+      setConnectionSuccess(
+        t('profile.connections.unlinkSuccess', {
+          provider: PROVIDER_DISPLAY_NAMES[provider] || provider,
+        }),
+      );
+      setConnectionError(null);
+      queryClient.invalidateQueries({ queryKey: ['connections'] });
+      setTimeout(() => setConnectionSuccess(null), 5000);
+    },
+    onError: (err: { response?: { data?: { detail?: string } } }) => {
+      const detail = err.response?.data?.detail;
+      if (detail?.includes('last authentication')) {
+        setConnectionError(t('profile.connections.cannotUnlinkLast'));
+      } else {
+        setConnectionError(detail || t('profile.connections.error'));
+      }
+      setTimeout(() => setConnectionError(null), 5000);
+    },
+  });
+
+  const handleLinkOAuth = async (provider: string) => {
+    try {
+      const { authorize_url, state } = await authApi.getLinkAuthorizeUrl(provider);
+      saveOAuthState(state, provider, 'link');
+      window.location.href = authorize_url;
+    } catch {
+      setConnectionError(t('profile.connections.error'));
+      setTimeout(() => setConnectionError(null), 5000);
+    }
+  };
 
   // Referral data
   const { data: referralInfo } = useQuery({
@@ -699,6 +779,109 @@ export default function Profile() {
           </Card>
         </motion.div>
       )}
+
+      {/* Connected Accounts */}
+      <motion.div variants={staggerItem}>
+        <Card>
+          <h2 className="mb-6 text-lg font-semibold text-dark-100">
+            {t('profile.connections.title')}
+          </h2>
+
+          {connectionSuccess && (
+            <div className="mb-4 rounded-linear border border-success-500/30 bg-success-500/10 p-3 text-sm text-success-400">
+              {connectionSuccess}
+            </div>
+          )}
+
+          {connectionError && (
+            <div className="mb-4 rounded-linear border border-error-500/30 bg-error-500/10 p-3 text-sm text-error-400">
+              {connectionError}
+            </div>
+          )}
+
+          {connectionsLoading ? (
+            <div className="flex justify-center py-4">
+              <div className="h-6 w-6 animate-spin rounded-full border-2 border-accent-500 border-t-transparent" />
+            </div>
+          ) : connections ? (
+            <div className="space-y-1">
+              {connections.connections.map((conn) => {
+                const displayName = t(
+                  `profile.connections.${conn.provider}`,
+                  PROVIDER_DISPLAY_NAMES[conn.provider] || conn.provider,
+                );
+                const isOAuthProvider = !['telegram', 'email'].includes(conn.provider);
+                const isTelegram = conn.provider === 'telegram';
+                const canLinkOAuth =
+                  isOAuthProvider &&
+                  !conn.connected &&
+                  oauthProviders?.providers.some((p) => p.name === conn.provider);
+                const canLinkTelegram = isTelegram && !conn.connected;
+                const canUnlink =
+                  conn.connected &&
+                  (isOAuthProvider || isTelegram) &&
+                  connections.total_connected > 1;
+
+                return (
+                  <div key={conn.provider}>
+                    <div className="flex items-center justify-between border-b border-dark-800/50 py-3 last:border-0">
+                      <div className="flex items-center gap-3">
+                        <span className="font-medium text-dark-100">{displayName}</span>
+                        {conn.identifier && (
+                          <span className="text-sm text-dark-400">{conn.identifier}</span>
+                        )}
+                      </div>
+                      <div className="flex items-center gap-2">
+                        {conn.connected ? (
+                          <>
+                            <span className="badge-success text-xs">
+                              {t('profile.connections.linked')}
+                            </span>
+                            {canUnlink && !isTelegram && (
+                              <button
+                                onClick={() => unlinkMutation.mutate(conn.provider)}
+                                disabled={unlinkMutation.isPending}
+                                className="text-xs text-dark-400 transition-colors hover:text-error-400"
+                              >
+                                {t('profile.connections.unlink')}
+                              </button>
+                            )}
+                          </>
+                        ) : (
+                          <>
+                            <span className="text-xs text-dark-500">
+                              {t('profile.connections.notLinked')}
+                            </span>
+                            {canLinkOAuth && (
+                              <button
+                                onClick={() => handleLinkOAuth(conn.provider)}
+                                className="text-xs text-accent-400 transition-colors hover:text-accent-300"
+                              >
+                                {t('profile.connections.link')}
+                              </button>
+                            )}
+                          </>
+                        )}
+                      </div>
+                    </div>
+                    {/* Telegram Login Widget for linking */}
+                    {canLinkTelegram && import.meta.env.VITE_TELEGRAM_BOT_USERNAME && (
+                      <div
+                        className="border-b border-dark-800/50 py-3"
+                        onClick={() => setTelegramLinkFlow()}
+                      >
+                        <TelegramLoginButton
+                          botUsername={import.meta.env.VITE_TELEGRAM_BOT_USERNAME}
+                        />
+                      </div>
+                    )}
+                  </div>
+                );
+              })}
+            </div>
+          ) : null}
+        </Card>
+      </motion.div>
 
       {/* Notification Settings */}
       <motion.div variants={staggerItem}>
