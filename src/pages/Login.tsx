@@ -137,13 +137,19 @@ export default function Login() {
 
   const botUsername = import.meta.env.VITE_TELEGRAM_BOT_USERNAME || '';
 
-  // If email auth is disabled but user came with ref param, redirect to bot
+  // If email auth is disabled AND no OAuth providers, redirect to bot with ref code
+  // Otherwise let user choose their auth method (Telegram, Yandex, etc.)
   useEffect(() => {
-    if (referralCode && emailAuthConfig?.enabled === false && botUsername) {
+    if (
+      referralCode &&
+      emailAuthConfig?.enabled === false &&
+      oauthProviders.length === 0 &&
+      botUsername
+    ) {
       consumeReferralCode();
       window.location.href = `https://t.me/${botUsername}?start=${encodeURIComponent(referralCode)}`;
     }
-  }, [referralCode, emailAuthConfig, botUsername]);
+  }, [referralCode, emailAuthConfig, oauthProviders, botUsername]);
 
   const appName = branding ? branding.name : import.meta.env.VITE_APP_NAME || 'VPN';
   const appLogo = branding?.logo_letter || import.meta.env.VITE_APP_LOGO || 'V';
@@ -367,7 +373,7 @@ export default function Login() {
           {appName && <h1 className="text-2xl font-bold text-dark-50">{appName}</h1>}
 
           {/* Referral Banner */}
-          {referralCode && isEmailAuthEnabled && (
+          {referralCode && (
             <div className="mt-3 rounded-xl border border-accent-500/30 bg-accent-500/10 p-2.5">
               <div className="flex items-center justify-center gap-2 text-accent-400">
                 <svg
