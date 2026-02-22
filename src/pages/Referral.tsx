@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useTranslation } from 'react-i18next';
+import QRCode from 'qrcode';
 import { referralApi } from '../api/referral';
 import { brandingApi } from '../api/branding';
 import { partnerApi } from '../api/partners';
@@ -38,6 +39,21 @@ const ShareIcon = () => (
   <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
     <path strokeLinecap="round" strokeLinejoin="round" d="M7 8l5-5m0 0l5 5m-5-5v12" />
     <path strokeLinecap="round" strokeLinejoin="round" d="M4 15v3a2 2 0 002 2h12a2 2 0 002-2v-3" />
+  </svg>
+);
+
+const QrIcon = () => (
+  <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+    <path
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      d="M3.75 4.875c0-.621.504-1.125 1.125-1.125h4.5c.621 0 1.125.504 1.125 1.125v4.5c0 .621-.504 1.125-1.125 1.125h-4.5A1.125 1.125 0 013.75 9.375v-4.5zM3.75 14.625c0-.621.504-1.125 1.125-1.125h4.5c.621 0 1.125.504 1.125 1.125v4.5c0 .621-.504 1.125-1.125 1.125h-4.5a1.125 1.125 0 01-1.125-1.125v-4.5zM13.5 4.875c0-.621.504-1.125 1.125-1.125h4.5c.621 0 1.125.504 1.125 1.125v4.5c0 .621-.504 1.125-1.125 1.125h-4.5A1.125 1.125 0 0113.5 9.375v-4.5z"
+    />
+    <path
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      d="M6.75 6.75h.75v.75h-.75v-.75zM6.75 16.5h.75v.75h-.75v-.75zM16.5 6.75h.75v.75h-.75v-.75zM13.5 13.5h.75v.75h-.75v-.75zM13.5 19.5h.75v.75h-.75v-.75zM19.5 13.5h.75v.75h-.75v-.75zM19.5 19.5h.75v.75h-.75v-.75zM16.5 16.5h.75v.75h-.75v-.75z"
+    />
   </svg>
 );
 
@@ -94,6 +110,8 @@ export default function Referral() {
   const queryClient = useQueryClient();
   const [copied, setCopied] = useState(false);
   const [copiedLink, setCopiedLink] = useState<string | null>(null);
+  const [showQr, setShowQr] = useState(false);
+  const [qrDataUrl, setQrDataUrl] = useState<string | null>(null);
 
   const { data: info, isLoading } = useQuery({
     queryKey: ['referral-info'],
@@ -188,6 +206,22 @@ export default function Referral() {
     window.open(telegramUrl, '_blank', 'noopener,noreferrer');
   };
 
+  const openQr = async () => {
+    if (referralLink) {
+      try {
+        const dataUrl = await QRCode.toDataURL(referralLink, {
+          width: 280,
+          margin: 2,
+          color: { dark: '#000000', light: '#ffffff' },
+        });
+        setQrDataUrl(dataUrl);
+        setShowQr(true);
+      } catch {
+        /* ignore */
+      }
+    }
+  };
+
   if (isLoading) {
     return (
       <div className="flex min-h-64 items-center justify-center">
@@ -279,6 +313,16 @@ export default function Referral() {
             >
               <ShareIcon />
               <span className="ml-2">{t('referral.shareButton')}</span>
+            </button>
+            <button
+              onClick={openQr}
+              disabled={!referralLink}
+              className={`btn-secondary px-3 ${
+                !referralLink ? 'cursor-not-allowed opacity-50' : ''
+              }`}
+              title={t('referral.qrCode', 'QR Code')}
+            >
+              <QrIcon />
             </button>
           </div>
         </div>
@@ -759,6 +803,30 @@ export default function Referral() {
           )}
         </div>
       </div>
+
+      {/* QR Code Modal */}
+      {showQr && qrDataUrl && (
+        <div
+          className="fixed inset-0 z-50 flex items-start justify-center overflow-y-auto bg-black/60 pt-20 backdrop-blur-sm"
+          style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0 }}
+          onClick={() => setShowQr(false)}
+        >
+          <div
+            className="mx-4 mb-10 w-full max-w-xs rounded-2xl border border-dark-700/50 bg-dark-800 p-6"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="mb-4 text-center text-lg font-medium text-dark-100">
+              {t('referral.qrCode', 'QR Code')}
+            </div>
+            <div className="flex justify-center rounded-xl bg-white p-4">
+              <img src={qrDataUrl} alt="QR Code" className="h-auto w-full max-w-[248px]" />
+            </div>
+            <button onClick={() => setShowQr(false)} className="btn-secondary mt-4 w-full">
+              {t('common.close')}
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

@@ -628,6 +628,7 @@
     "copyLink": "Copy Link",
     "copied": "Copied!",
     "shareButton": "Share",
+    "qrCode": "QR Code",
     "shareMessage": "Join me on {{botName}} and earn up to {{percent}}% cashback!",
     "shareHint": "Share this link with friends. When they sign up and make a purchase, you'll earn {{percent}}% commission!",
     "stats": {
