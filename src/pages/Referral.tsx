@@ -134,17 +134,15 @@ export default function Referral() {
 
   const isPartner = partnerStatus?.partner_status === 'approved';
 
-  // Withdrawal queries (only when partner is approved)
+  // Withdrawal queries (available for all users with referral earnings)
   const { data: withdrawalBalance } = useQuery({
     queryKey: ['withdrawal-balance'],
     queryFn: withdrawalApi.getBalance,
-    enabled: isPartner,
   });
 
   const { data: withdrawalHistory } = useQuery({
     queryKey: ['withdrawal-history'],
     queryFn: withdrawalApi.getHistory,
-    enabled: isPartner,
   });
 
   // Withdrawal cancel mutation
@@ -631,140 +629,136 @@ export default function Referral() {
           </div>
         )}
 
-      {/* ==================== Withdrawal Section (approved partners only) ==================== */}
+      {/* ==================== Withdrawal Section ==================== */}
 
-      {terms?.partner_section_visible !== false && isPartner && (
-        <div id="withdrawal-section" className="space-y-6">
-          {/* Withdrawal Balance Card */}
-          {withdrawalBalance && (
-            <div className="bento-card">
-              <div className="mb-4 flex items-center gap-3">
-                <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-accent-500/10 text-accent-400">
-                  <WalletIcon />
-                </div>
-                <h2 className="text-lg font-semibold text-dark-100">
-                  {t('referral.withdrawal.title')}
-                </h2>
+      <div id="withdrawal-section" className="space-y-6">
+        {/* Withdrawal Balance Card */}
+        {withdrawalBalance && (
+          <div className="bento-card">
+            <div className="mb-4 flex items-center gap-3">
+              <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-accent-500/10 text-accent-400">
+                <WalletIcon />
               </div>
+              <h2 className="text-lg font-semibold text-dark-100">
+                {t('referral.withdrawal.title')}
+              </h2>
+            </div>
 
-              <div className="grid grid-cols-2 gap-3 md:grid-cols-3">
-                <div className="col-span-2 rounded-xl bg-dark-800/30 p-4 md:col-span-1">
-                  <div className="text-sm text-dark-500">{t('referral.withdrawal.available')}</div>
-                  <div className="mt-1 text-2xl font-bold text-success-400">
-                    {formatWithCurrency(withdrawalBalance.available_total / 100)}
-                  </div>
-                </div>
-                <div className="rounded-xl bg-dark-800/30 p-3">
-                  <div className="text-sm text-dark-500">
-                    {t('referral.withdrawal.totalEarned')}
-                  </div>
-                  <div className="mt-1 text-lg font-semibold text-dark-100">
-                    {formatWithCurrency(withdrawalBalance.total_earned / 100)}
-                  </div>
-                </div>
-                <div className="rounded-xl bg-dark-800/30 p-3">
-                  <div className="text-sm text-dark-500">{t('referral.withdrawal.withdrawn')}</div>
-                  <div className="mt-1 text-lg font-semibold text-dark-100">
-                    {formatWithCurrency(withdrawalBalance.withdrawn / 100)}
-                  </div>
-                </div>
-                <div className="rounded-xl bg-dark-800/30 p-3">
-                  <div className="text-sm text-dark-500">{t('referral.withdrawal.spent')}</div>
-                  <div className="mt-1 text-lg font-semibold text-dark-100">
-                    {formatWithCurrency(withdrawalBalance.referral_spent / 100)}
-                  </div>
-                </div>
-                <div className="rounded-xl bg-dark-800/30 p-3">
-                  <div className="text-sm text-dark-500">{t('referral.withdrawal.pending')}</div>
-                  <div className="mt-1 text-lg font-semibold text-warning-400">
-                    {formatWithCurrency(withdrawalBalance.pending / 100)}
-                  </div>
+            <div className="grid grid-cols-2 gap-3 md:grid-cols-3">
+              <div className="col-span-2 rounded-xl bg-dark-800/30 p-4 md:col-span-1">
+                <div className="text-sm text-dark-500">{t('referral.withdrawal.available')}</div>
+                <div className="mt-1 text-2xl font-bold text-success-400">
+                  {formatWithCurrency(withdrawalBalance.available_total / 100)}
                 </div>
               </div>
-
-              <div className="mt-4">
-                <button
-                  onClick={() => navigate('/referral/withdrawal/request')}
-                  disabled={!withdrawalBalance.can_request}
-                  className={`btn-primary w-full px-6 sm:w-auto ${
-                    !withdrawalBalance.can_request ? 'cursor-not-allowed opacity-50' : ''
-                  }`}
-                >
-                  {t('referral.withdrawal.requestButton')}
-                </button>
-                {!withdrawalBalance.can_request && withdrawalBalance.cannot_request_reason ? (
-                  <p className="mt-2 text-xs text-dark-500">
-                    {withdrawalBalance.cannot_request_reason}
-                  </p>
-                ) : (
-                  withdrawalBalance.min_amount_kopeks > 0 && (
-                    <p className="mt-2 text-xs text-dark-500">
-                      {t('referral.withdrawal.minAmount', {
-                        amount: formatWithCurrency(withdrawalBalance.min_amount_kopeks / 100),
-                      })}
-                    </p>
-                  )
-                )}
+              <div className="rounded-xl bg-dark-800/30 p-3">
+                <div className="text-sm text-dark-500">{t('referral.withdrawal.totalEarned')}</div>
+                <div className="mt-1 text-lg font-semibold text-dark-100">
+                  {formatWithCurrency(withdrawalBalance.total_earned / 100)}
+                </div>
+              </div>
+              <div className="rounded-xl bg-dark-800/30 p-3">
+                <div className="text-sm text-dark-500">{t('referral.withdrawal.withdrawn')}</div>
+                <div className="mt-1 text-lg font-semibold text-dark-100">
+                  {formatWithCurrency(withdrawalBalance.withdrawn / 100)}
+                </div>
+              </div>
+              <div className="rounded-xl bg-dark-800/30 p-3">
+                <div className="text-sm text-dark-500">{t('referral.withdrawal.spent')}</div>
+                <div className="mt-1 text-lg font-semibold text-dark-100">
+                  {formatWithCurrency(withdrawalBalance.referral_spent / 100)}
+                </div>
+              </div>
+              <div className="rounded-xl bg-dark-800/30 p-3">
+                <div className="text-sm text-dark-500">{t('referral.withdrawal.pending')}</div>
+                <div className="mt-1 text-lg font-semibold text-warning-400">
+                  {formatWithCurrency(withdrawalBalance.pending / 100)}
+                </div>
               </div>
             </div>
-          )}
 
-          {/* Withdrawal History */}
-          <div className="bento-card">
-            <h2 className="mb-4 text-lg font-semibold text-dark-100">
-              {t('referral.withdrawal.history')}
-            </h2>
-            {withdrawalHistory?.items && withdrawalHistory.items.length > 0 ? (
-              <div className="space-y-3">
-                {withdrawalHistory.items.map((item) => (
-                  <div
-                    key={item.id}
-                    className="flex items-center justify-between rounded-xl border border-dark-700/30 bg-dark-800/30 p-3"
-                  >
-                    <div className="min-w-0 flex-1">
-                      <div className="flex items-center gap-2">
-                        <span className="font-medium text-dark-100">
-                          {formatWithCurrency(item.amount_rubles)}
+            <div className="mt-4">
+              <button
+                onClick={() => navigate('/referral/withdrawal/request')}
+                disabled={!withdrawalBalance.can_request}
+                className={`btn-primary w-full px-6 sm:w-auto ${
+                  !withdrawalBalance.can_request ? 'cursor-not-allowed opacity-50' : ''
+                }`}
+              >
+                {t('referral.withdrawal.requestButton')}
+              </button>
+              {!withdrawalBalance.can_request && withdrawalBalance.cannot_request_reason ? (
+                <p className="mt-2 text-xs text-dark-500">
+                  {withdrawalBalance.cannot_request_reason}
+                </p>
+              ) : (
+                withdrawalBalance.min_amount_kopeks > 0 && (
+                  <p className="mt-2 text-xs text-dark-500">
+                    {t('referral.withdrawal.minAmount', {
+                      amount: formatWithCurrency(withdrawalBalance.min_amount_kopeks / 100),
+                    })}
+                  </p>
+                )
+              )}
+            </div>
+          </div>
+        )}
+
+        {/* Withdrawal History */}
+        <div className="bento-card">
+          <h2 className="mb-4 text-lg font-semibold text-dark-100">
+            {t('referral.withdrawal.history')}
+          </h2>
+          {withdrawalHistory?.items && withdrawalHistory.items.length > 0 ? (
+            <div className="space-y-3">
+              {withdrawalHistory.items.map((item) => (
+                <div
+                  key={item.id}
+                  className="flex items-center justify-between rounded-xl border border-dark-700/30 bg-dark-800/30 p-3"
+                >
+                  <div className="min-w-0 flex-1">
+                    <div className="flex items-center gap-2">
+                      <span className="font-medium text-dark-100">
+                        {formatWithCurrency(item.amount_rubles)}
+                      </span>
+                      <span className={getWithdrawalStatusBadge(item.status)}>
+                        {t(`referral.withdrawal.status.${item.status}`, item.status)}
+                      </span>
+                    </div>
+                    <div className="mt-0.5 text-xs text-dark-500">
+                      {new Date(item.created_at).toLocaleDateString()}
+                      {item.payment_details && (
+                        <span className="ml-1">
+                          &bull;{' '}
+                          {item.payment_details.length > 40
+                            ? `${item.payment_details.slice(0, 40)}...`
+                            : item.payment_details}
                         </span>
-                        <span className={getWithdrawalStatusBadge(item.status)}>
-                          {t(`referral.withdrawal.status.${item.status}`, item.status)}
-                        </span>
-                      </div>
-                      <div className="mt-0.5 text-xs text-dark-500">
-                        {new Date(item.created_at).toLocaleDateString()}
-                        {item.payment_details && (
-                          <span className="ml-1">
-                            &bull;{' '}
-                            {item.payment_details.length > 40
-                              ? `${item.payment_details.slice(0, 40)}...`
-                              : item.payment_details}
-                          </span>
-                        )}
-                      </div>
-                      {item.admin_comment && (
-                        <div className="mt-1 text-xs text-dark-400">{item.admin_comment}</div>
                       )}
                     </div>
-                    {item.status === 'pending' && (
-                      <button
-                        onClick={() => cancelWithdrawalMutation.mutate(item.id)}
-                        disabled={cancelWithdrawalMutation.isPending}
-                        className="ml-3 shrink-0 text-sm text-error-400 transition-colors hover:text-error-300"
-                      >
-                        {t('common.cancel')}
-                      </button>
+                    {item.admin_comment && (
+                      <div className="mt-1 text-xs text-dark-400">{item.admin_comment}</div>
                     )}
                   </div>
-                ))}
-              </div>
-            ) : (
-              <div className="py-8 text-center">
-                <div className="text-dark-400">{t('referral.withdrawal.noHistory')}</div>
-              </div>
-            )}
-          </div>
+                  {item.status === 'pending' && (
+                    <button
+                      onClick={() => cancelWithdrawalMutation.mutate(item.id)}
+                      disabled={cancelWithdrawalMutation.isPending}
+                      className="ml-3 shrink-0 text-sm text-error-400 transition-colors hover:text-error-300"
+                    >
+                      {t('common.cancel')}
+                    </button>
+                  )}
+                </div>
+              ))}
+            </div>
+          ) : (
+            <div className="py-8 text-center">
+              <div className="text-dark-400">{t('referral.withdrawal.noHistory')}</div>
+            </div>
+          )}
         </div>
-      )}
+      </div>
     </div>
   );
 }
