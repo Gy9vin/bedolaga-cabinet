@@ -316,19 +316,19 @@ export default function Referral() {
             </button>
           </div>
         </div>
-        <div className="mt-3 flex items-center gap-3">
+        <div className="mt-3 flex items-start gap-3">
           <p className="flex-1 text-sm text-dark-500">
             {t('referral.shareHint', { percent: info?.commission_percent || 0 })}
           </p>
           <button
             onClick={openQr}
             disabled={!referralLink}
-            className={`btn-secondary shrink-0 px-3 py-2 ${
+            className={`btn-secondary flex shrink-0 items-center gap-1.5 px-3 py-2 text-xs ${
               !referralLink ? 'cursor-not-allowed opacity-50' : ''
             }`}
-            title={t('referral.qrCode', 'QR Code')}
           >
             <QrIcon />
+            <span>{t('referral.qrCode', 'QR Code')}</span>
           </button>
         </div>
       </div>
