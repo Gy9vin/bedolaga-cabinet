@@ -2116,9 +2116,6 @@ export default function Subscription() {
                               {!modemPrice.balance_sufficient && (
                                 <InsufficientBalancePrompt
                                   missingAmountKopeks={modemPrice.missing_amount_kopeks}
-                                  message={t('modem.insufficientFunds', {
-                                    amount: modemPrice.missing_amount_label,
-                                  })}
                                   compact
                                 />
                               )}
