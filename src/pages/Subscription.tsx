@@ -2361,7 +2361,9 @@ export default function Subscription() {
                           <div>
                             <div className="text-lg font-semibold text-dark-100">{tariff.name}</div>
                             {tariff.description && (
-                              <div className="mt-1 text-sm text-dark-400">{tariff.description}</div>
+                              <div className="mt-1 whitespace-pre-line text-sm text-dark-400">
+                                {tariff.description}
+                              </div>
                             )}
                           </div>
                           {isCurrentTariff && (
