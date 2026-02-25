@@ -23,7 +23,7 @@ import TicketNotificationBell from '@/components/TicketNotificationBell';
 
 import { MobileBottomNav } from './MobileBottomNav';
 import { AppHeader } from './AppHeader';
-import { Aurora } from './Aurora';
+import { BackgroundRenderer } from '@/components/backgrounds/BackgroundRenderer';
 
 // Desktop nav icons
 const HomeIcon = ({ className }: { className?: string }) => (
@@ -279,7 +279,7 @@ export function AppShell({ children }: AppShellProps) {
   return (
     <div className="min-h-screen">
       {/* Animated background */}
-      <Aurora />
+      <BackgroundRenderer />
 
       {/* Global components */}
       <WebSocketNotifications />

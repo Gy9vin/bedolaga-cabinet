@@ -2,10 +2,10 @@ import { useState, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { brandingApi, setCachedBranding } from '../../api/branding';
-import { setCachedAnimationEnabled } from '../AnimatedBackground';
 import { setCachedFullscreenEnabled } from '../../hooks/useTelegramSDK';
 import { UploadIcon, TrashIcon, PencilIcon, CheckIcon, CloseIcon } from './icons';
 import { Toggle } from './Toggle';
+import { BackgroundEditor } from './BackgroundEditor';
 
 interface BrandingTabProps {
   accentColor?: string;
@@ -23,11 +23,6 @@ export function BrandingTab({ accentColor = '#3b82f6' }: BrandingTabProps) {
   const { data: branding } = useQuery({
     queryKey: ['branding'],
     queryFn: brandingApi.getBranding,
-  });
-
-  const { data: animationSettings } = useQuery({
-    queryKey: ['animation-enabled'],
-    queryFn: brandingApi.getAnimationEnabled,
   });
 
   const { data: fullscreenSettings } = useQuery({
@@ -63,14 +58,6 @@ export function BrandingTab({ accentColor = '#3b82f6' }: BrandingTabProps) {
     onSuccess: (data) => {
       setCachedBranding(data);
       queryClient.invalidateQueries({ queryKey: ['branding'] });
-    },
-  });
-
-  const updateAnimationMutation = useMutation({
-    mutationFn: (enabled: boolean) => brandingApi.updateAnimationEnabled(enabled),
-    onSuccess: (data) => {
-      setCachedAnimationEnabled(data.enabled);
-      queryClient.invalidateQueries({ queryKey: ['animation-enabled'] });
     },
   });
 
@@ -199,27 +186,18 @@ export function BrandingTab({ accentColor = '#3b82f6' }: BrandingTabProps) {
         </div>
       </div>
 
-      {/* Animation & Fullscreen toggles */}
+      {/* Animated Background Editor */}
+      <div className="rounded-2xl border border-dark-700/50 bg-dark-800/50 p-6">
+        <BackgroundEditor />
+      </div>
+
+      {/* Fullscreen & Email toggles */}
       <div className="rounded-2xl border border-dark-700/50 bg-dark-800/50 p-6">
         <h3 className="mb-4 text-lg font-semibold text-dark-100">
           {t('admin.settings.interfaceOptions')}
         </h3>
 
         <div className="space-y-4">
-          <div className="flex items-center justify-between rounded-xl bg-dark-700/30 p-4">
-            <div>
-              <span className="font-medium text-dark-100">
-                {t('admin.settings.animatedBackground')}
-              </span>
-              <p className="text-sm text-dark-400">{t('admin.settings.animatedBackgroundDesc')}</p>
-            </div>
-            <Toggle
-              checked={animationSettings?.enabled ?? true}
-              onChange={() => updateAnimationMutation.mutate(!(animationSettings?.enabled ?? true))}
-              disabled={updateAnimationMutation.isPending}
-            />
-          </div>
-
           <div className="flex items-center justify-between rounded-xl bg-dark-700/30 p-4">
             <div>
               <span className="font-medium text-dark-100">
