@@ -9,6 +9,7 @@ import {
   ChannelSubscriptionScreen,
   BlacklistedScreen,
 } from './components/blocking';
+import { PermissionRoute } from '@/components/auth/PermissionRoute';
 import { saveReturnUrl } from './utils/token';
 import { useAnalyticsCounters } from './hooks/useAnalyticsCounters';
 // Auth pages - load immediately (small)
@@ -20,8 +21,10 @@ import VerifyEmail from './pages/VerifyEmail';
 import ResetPassword from './pages/ResetPassword';
 import OAuthCallback from './pages/OAuthCallback';
 
+// Dashboard - load eagerly (default route, LCP-critical)
+import Dashboard from './pages/Dashboard';
+
 // User pages - lazy load
-const Dashboard = lazy(() => import('./pages/Dashboard'));
 const Subscription = lazy(() => import('./pages/Subscription'));
 const Balance = lazy(() => import('./pages/Balance'));
 const Referral = lazy(() => import('./pages/Referral'));
@@ -87,10 +90,18 @@ const AdminUserDetail = lazy(() => import('./pages/AdminUserDetail'));
 const AdminBroadcastDetail = lazy(() => import('./pages/AdminBroadcastDetail'));
 const AdminPinnedMessages = lazy(() => import('./pages/AdminPinnedMessages'));
 const AdminPinnedMessageCreate = lazy(() => import('./pages/AdminPinnedMessageCreate'));
+const AdminChannelSubscriptions = lazy(() => import('./pages/AdminChannelSubscriptions'));
 const AdminEmailTemplatePreview = lazy(() => import('./pages/AdminEmailTemplatePreview'));
+const AdminRoles = lazy(() => import('./pages/AdminRoles'));
+const AdminRoleEdit = lazy(() => import('./pages/AdminRoleEdit'));
+const AdminRoleAssign = lazy(() => import('./pages/AdminRoleAssign'));
+const AdminPolicies = lazy(() => import('./pages/AdminPolicies'));
+const AdminPolicyEdit = lazy(() => import('./pages/AdminPolicyEdit'));
+const AdminAuditLog = lazy(() => import('./pages/AdminAuditLog'));
 
 function ProtectedRoute({ children }: { children: React.ReactNode }) {
-  const { isAuthenticated, isLoading } = useAuthStore();
+  const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
+  const isLoading = useAuthStore((state) => state.isLoading);
   const location = useLocation();
 
   if (isLoading) {
@@ -107,7 +118,9 @@ function ProtectedRoute({ children }: { children: React.ReactNode }) {
 }
 
 function AdminRoute({ children }: { children: React.ReactNode }) {
-  const { isAuthenticated, isLoading, isAdmin } = useAuthStore();
+  const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
+  const isLoading = useAuthStore((state) => state.isLoading);
+  const isAdmin = useAuthStore((state) => state.isAdmin);
   const location = useLocation();
 
   if (isLoading) {
@@ -133,7 +146,7 @@ function LazyPage({ children }: { children: React.ReactNode }) {
 }
 
 function BlockingOverlay() {
-  const { blockingType } = useBlockingStore();
+  const blockingType = useBlockingStore((state) => state.blockingType);
 
   if (blockingType === 'maintenance') {
     return <MaintenanceScreen />;
@@ -334,531 +347,623 @@ function App() {
         <Route
           path="/admin/tickets"
           element={
-            <AdminRoute>
+            <PermissionRoute permission="tickets:read">
               <LazyPage>
                 <AdminTickets />
               </LazyPage>
-            </AdminRoute>
+            </PermissionRoute>
           }
         />
         <Route
           path="/admin/tickets/settings"
           element={
-            <AdminRoute>
+            <PermissionRoute permission="tickets:settings">
               <LazyPage>
                 <AdminTicketSettings />
               </LazyPage>
-            </AdminRoute>
+            </PermissionRoute>
           }
         />
         <Route
           path="/admin/settings"
           element={
-            <AdminRoute>
+            <PermissionRoute permission="settings:read">
               <LazyPage>
                 <AdminSettings />
               </LazyPage>
-            </AdminRoute>
+            </PermissionRoute>
           }
         />
         <Route
           path="/admin/apps"
           element={
-            <AdminRoute>
+            <PermissionRoute permission="apps:read">
               <LazyPage>
                 <AdminApps />
               </LazyPage>
-            </AdminRoute>
+            </PermissionRoute>
           }
         />
         <Route
           path="/admin/wheel"
           element={
-            <AdminRoute>
+            <PermissionRoute permission="wheel:read">
               <LazyPage>
                 <AdminWheel />
               </LazyPage>
-            </AdminRoute>
+            </PermissionRoute>
           }
         />
         <Route
           path="/admin/tariffs"
           element={
-            <AdminRoute>
+            <PermissionRoute permission="tariffs:read">
               <LazyPage>
                 <AdminTariffs />
               </LazyPage>
-            </AdminRoute>
+            </PermissionRoute>
           }
         />
         <Route
           path="/admin/tariffs/create"
           element={
-            <AdminRoute>
+            <PermissionRoute permission="tariffs:read">
               <LazyPage>
                 <AdminTariffCreate />
               </LazyPage>
-            </AdminRoute>
+            </PermissionRoute>
           }
         />
         <Route
           path="/admin/tariffs/:id/edit"
           element={
-            <AdminRoute>
+            <PermissionRoute permission="tariffs:read">
               <LazyPage>
                 <AdminTariffCreate />
               </LazyPage>
-            </AdminRoute>
+            </PermissionRoute>
           }
         />
         <Route
           path="/admin/servers"
           element={
-            <AdminRoute>
+            <PermissionRoute permission="servers:read">
               <LazyPage>
                 <AdminServers />
               </LazyPage>
-            </AdminRoute>
+            </PermissionRoute>
           }
         />
         <Route
           path="/admin/servers/:id/edit"
           element={
-            <AdminRoute>
+            <PermissionRoute permission="servers:read">
               <LazyPage>
                 <AdminServerEdit />
               </LazyPage>
-            </AdminRoute>
+            </PermissionRoute>
           }
         />
         <Route
           path="/admin/dashboard"
           element={
-            <AdminRoute>
+            <PermissionRoute permission="stats:read">
               <LazyPage>
                 <AdminDashboard />
               </LazyPage>
-            </AdminRoute>
+            </PermissionRoute>
           }
         />
         <Route
           path="/admin/ban-system"
           element={
-            <AdminRoute>
+            <PermissionRoute permission="ban_system:read">
               <LazyPage>
                 <AdminBanSystem />
               </LazyPage>
-            </AdminRoute>
+            </PermissionRoute>
           }
         />
         <Route
           path="/admin/broadcasts"
           element={
-            <AdminRoute>
+            <PermissionRoute permission="broadcasts:read">
               <LazyPage>
                 <AdminBroadcasts />
               </LazyPage>
-            </AdminRoute>
+            </PermissionRoute>
           }
         />
         <Route
           path="/admin/broadcasts/create"
           element={
-            <AdminRoute>
+            <PermissionRoute permission="broadcasts:read">
               <LazyPage>
                 <AdminBroadcastCreate />
               </LazyPage>
-            </AdminRoute>
+            </PermissionRoute>
           }
         />
         <Route
           path="/admin/promocodes"
           element={
-            <AdminRoute>
+            <PermissionRoute permission="promocodes:read">
               <LazyPage>
                 <AdminPromocodes />
               </LazyPage>
-            </AdminRoute>
+            </PermissionRoute>
           }
         />
         <Route
           path="/admin/promocodes/create"
           element={
-            <AdminRoute>
+            <PermissionRoute permission="promocodes:read">
               <LazyPage>
                 <AdminPromocodeCreate />
               </LazyPage>
-            </AdminRoute>
+            </PermissionRoute>
           }
         />
         <Route
           path="/admin/promocodes/:id/edit"
           element={
-            <AdminRoute>
+            <PermissionRoute permission="promocodes:read">
               <LazyPage>
                 <AdminPromocodeCreate />
               </LazyPage>
-            </AdminRoute>
+            </PermissionRoute>
           }
         />
         <Route
           path="/admin/promocodes/:id/stats"
           element={
-            <AdminRoute>
+            <PermissionRoute permission="promocodes:read">
               <LazyPage>
                 <AdminPromocodeStats />
               </LazyPage>
-            </AdminRoute>
+            </PermissionRoute>
           }
         />
         <Route
           path="/admin/promo-groups"
           element={
-            <AdminRoute>
+            <PermissionRoute permission="promo_groups:read">
               <LazyPage>
                 <AdminPromoGroups />
               </LazyPage>
-            </AdminRoute>
+            </PermissionRoute>
           }
         />
         <Route
           path="/admin/promo-groups/create"
           element={
-            <AdminRoute>
+            <PermissionRoute permission="promo_groups:read">
               <LazyPage>
                 <AdminPromoGroupCreate />
               </LazyPage>
-            </AdminRoute>
+            </PermissionRoute>
           }
         />
         <Route
           path="/admin/promo-groups/:id/edit"
           element={
-            <AdminRoute>
+            <PermissionRoute permission="promo_groups:read">
               <LazyPage>
                 <AdminPromoGroupCreate />
               </LazyPage>
-            </AdminRoute>
+            </PermissionRoute>
           }
         />
         <Route
           path="/admin/campaigns"
           element={
-            <AdminRoute>
+            <PermissionRoute permission="campaigns:read">
               <LazyPage>
                 <AdminCampaigns />
               </LazyPage>
-            </AdminRoute>
+            </PermissionRoute>
           }
         />
         <Route
           path="/admin/campaigns/create"
           element={
-            <AdminRoute>
+            <PermissionRoute permission="campaigns:read">
               <LazyPage>
                 <AdminCampaignCreate />
               </LazyPage>
-            </AdminRoute>
+            </PermissionRoute>
           }
         />
         <Route
           path="/admin/campaigns/:id/stats"
           element={
-            <AdminRoute>
+            <PermissionRoute permission="campaigns:read">
               <LazyPage>
                 <AdminCampaignStats />
               </LazyPage>
-            </AdminRoute>
+            </PermissionRoute>
           }
         />
         <Route
           path="/admin/campaigns/:id/edit"
           element={
-            <AdminRoute>
+            <PermissionRoute permission="campaigns:read">
               <LazyPage>
                 <AdminCampaignEdit />
               </LazyPage>
-            </AdminRoute>
+            </PermissionRoute>
           }
         />
         <Route
           path="/admin/partners"
           element={
-            <AdminRoute>
+            <PermissionRoute permission="partners:read">
               <LazyPage>
                 <AdminPartners />
               </LazyPage>
-            </AdminRoute>
+            </PermissionRoute>
           }
         />
         <Route
           path="/admin/partners/settings"
           element={
-            <AdminRoute>
+            <PermissionRoute permission="partners:read">
               <LazyPage>
                 <AdminPartnerSettings />
               </LazyPage>
-            </AdminRoute>
+            </PermissionRoute>
           }
         />
         <Route
           path="/admin/partners/applications/:id/review"
           element={
-            <AdminRoute>
+            <PermissionRoute permission="partners:read">
               <LazyPage>
                 <AdminApplicationReview />
               </LazyPage>
-            </AdminRoute>
+            </PermissionRoute>
           }
         />
         <Route
           path="/admin/partners/:userId/commission"
           element={
-            <AdminRoute>
+            <PermissionRoute permission="partners:read">
               <LazyPage>
                 <AdminPartnerCommission />
               </LazyPage>
-            </AdminRoute>
+            </PermissionRoute>
           }
         />
         <Route
           path="/admin/partners/:userId/revoke"
           element={
-            <AdminRoute>
+            <PermissionRoute permission="partners:read">
               <LazyPage>
                 <AdminPartnerRevoke />
               </LazyPage>
-            </AdminRoute>
+            </PermissionRoute>
           }
         />
         <Route
           path="/admin/partners/:userId/campaigns/assign"
           element={
-            <AdminRoute>
+            <PermissionRoute permission="partners:read">
               <LazyPage>
                 <AdminPartnerCampaignAssign />
               </LazyPage>
-            </AdminRoute>
+            </PermissionRoute>
           }
         />
         <Route
           path="/admin/partners/:userId"
           element={
-            <AdminRoute>
+            <PermissionRoute permission="partners:read">
               <LazyPage>
                 <AdminPartnerDetail />
               </LazyPage>
-            </AdminRoute>
+            </PermissionRoute>
           }
         />
         <Route
           path="/admin/withdrawals"
           element={
-            <AdminRoute>
+            <PermissionRoute permission="withdrawals:read">
               <LazyPage>
                 <AdminWithdrawals />
               </LazyPage>
-            </AdminRoute>
+            </PermissionRoute>
           }
         />
         <Route
           path="/admin/withdrawals/:id/reject"
           element={
-            <AdminRoute>
+            <PermissionRoute permission="withdrawals:read">
               <LazyPage>
                 <AdminWithdrawalReject />
               </LazyPage>
-            </AdminRoute>
+            </PermissionRoute>
           }
         />
         <Route
           path="/admin/withdrawals/:id"
           element={
-            <AdminRoute>
+            <PermissionRoute permission="withdrawals:read">
               <LazyPage>
                 <AdminWithdrawalDetail />
               </LazyPage>
-            </AdminRoute>
+            </PermissionRoute>
           }
         />
         <Route
           path="/admin/users"
           element={
-            <AdminRoute>
+            <PermissionRoute permission="users:read">
               <LazyPage>
                 <AdminUsers />
               </LazyPage>
-            </AdminRoute>
+            </PermissionRoute>
           }
         />
         <Route
           path="/admin/payments"
           element={
-            <AdminRoute>
+            <PermissionRoute permission="payments:read">
               <LazyPage>
                 <AdminPayments />
               </LazyPage>
-            </AdminRoute>
+            </PermissionRoute>
           }
         />
         <Route
           path="/admin/traffic-usage"
           element={
-            <AdminRoute>
+            <PermissionRoute permission="traffic:read">
               <LazyPage>
                 <AdminTrafficUsage />
               </LazyPage>
-            </AdminRoute>
+            </PermissionRoute>
           }
         />
         <Route
           path="/admin/payment-methods"
           element={
-            <AdminRoute>
+            <PermissionRoute permission="payment_methods:read">
               <LazyPage>
                 <AdminPaymentMethods />
               </LazyPage>
-            </AdminRoute>
+            </PermissionRoute>
           }
         />
         <Route
           path="/admin/payment-methods/:methodId/edit"
           element={
-            <AdminRoute>
+            <PermissionRoute permission="payment_methods:read">
               <LazyPage>
                 <AdminPaymentMethodEdit />
               </LazyPage>
-            </AdminRoute>
+            </PermissionRoute>
           }
         />
         <Route
           path="/admin/promo-offers"
           element={
-            <AdminRoute>
+            <PermissionRoute permission="promo_offers:read">
               <LazyPage>
                 <AdminPromoOffers />
               </LazyPage>
-            </AdminRoute>
+            </PermissionRoute>
           }
         />
         <Route
           path="/admin/promo-offers/templates/:id/edit"
           element={
-            <AdminRoute>
+            <PermissionRoute permission="promo_offers:read">
               <LazyPage>
                 <AdminPromoOfferTemplateEdit />
               </LazyPage>
-            </AdminRoute>
+            </PermissionRoute>
           }
         />
         <Route
           path="/admin/promo-offers/send"
           element={
-            <AdminRoute>
+            <PermissionRoute permission="promo_offers:read">
               <LazyPage>
                 <AdminPromoOfferSend />
               </LazyPage>
-            </AdminRoute>
+            </PermissionRoute>
           }
         />
         <Route
           path="/admin/remnawave"
           element={
-            <AdminRoute>
+            <PermissionRoute permission="remnawave:read">
               <LazyPage>
                 <AdminRemnawave />
               </LazyPage>
-            </AdminRoute>
+            </PermissionRoute>
           }
         />
         <Route
           path="/admin/remnawave/squads/:uuid"
           element={
-            <AdminRoute>
+            <PermissionRoute permission="remnawave:read">
               <LazyPage>
                 <AdminRemnawaveSquadDetail />
               </LazyPage>
-            </AdminRoute>
+            </PermissionRoute>
           }
         />
         <Route
           path="/admin/email-templates"
           element={
-            <AdminRoute>
+            <PermissionRoute permission="email_templates:read">
               <LazyPage>
                 <AdminEmailTemplates />
               </LazyPage>
-            </AdminRoute>
+            </PermissionRoute>
           }
         />
         <Route
           path="/admin/updates"
           element={
-            <AdminRoute>
+            <PermissionRoute permission="updates:read">
               <LazyPage>
                 <AdminUpdates />
               </LazyPage>
-            </AdminRoute>
+            </PermissionRoute>
           }
         />
         <Route
           path="/admin/users/:id"
           element={
-            <AdminRoute>
+            <PermissionRoute permission="users:read">
               <LazyPage>
                 <AdminUserDetail />
               </LazyPage>
-            </AdminRoute>
+            </PermissionRoute>
           }
         />
         <Route
           path="/admin/broadcasts/:id"
           element={
-            <AdminRoute>
+            <PermissionRoute permission="broadcasts:read">
               <LazyPage>
                 <AdminBroadcastDetail />
               </LazyPage>
-            </AdminRoute>
+            </PermissionRoute>
           }
         />
         <Route
           path="/admin/pinned-messages"
           element={
-            <AdminRoute>
+            <PermissionRoute permission="pinned_messages:read">
               <LazyPage>
                 <AdminPinnedMessages />
               </LazyPage>
-            </AdminRoute>
+            </PermissionRoute>
           }
         />
         <Route
           path="/admin/pinned-messages/create"
           element={
-            <AdminRoute>
+            <PermissionRoute permission="pinned_messages:read">
               <LazyPage>
                 <AdminPinnedMessageCreate />
               </LazyPage>
-            </AdminRoute>
+            </PermissionRoute>
           }
         />
         <Route
           path="/admin/pinned-messages/:id/edit"
           element={
-            <AdminRoute>
+            <PermissionRoute permission="pinned_messages:read">
               <LazyPage>
                 <AdminPinnedMessageCreate />
               </LazyPage>
-            </AdminRoute>
+            </PermissionRoute>
+          }
+        />
+        <Route
+          path="/admin/channel-subscriptions"
+          element={
+            <PermissionRoute permission="channels:read">
+              <LazyPage>
+                <AdminChannelSubscriptions />
+              </LazyPage>
+            </PermissionRoute>
           }
         />
         <Route
           path="/admin/email-templates/preview/:type/:lang"
           element={
-            <AdminRoute>
+            <PermissionRoute permission="email_templates:read">
               <LazyPage>
                 <AdminEmailTemplatePreview />
               </LazyPage>
-            </AdminRoute>
+            </PermissionRoute>
+          }
+        />
+
+        {/* RBAC routes */}
+        <Route
+          path="/admin/roles"
+          element={
+            <PermissionRoute permission="roles:read">
+              <LazyPage>
+                <AdminRoles />
+              </LazyPage>
+            </PermissionRoute>
+          }
+        />
+        <Route
+          path="/admin/roles/create"
+          element={
+            <PermissionRoute permission="roles:create">
+              <LazyPage>
+                <AdminRoleEdit />
+              </LazyPage>
+            </PermissionRoute>
+          }
+        />
+        <Route
+          path="/admin/roles/:id/edit"
+          element={
+            <PermissionRoute permission="roles:edit">
+              <LazyPage>
+                <AdminRoleEdit />
+              </LazyPage>
+            </PermissionRoute>
+          }
+        />
+        <Route
+          path="/admin/roles/assign"
+          element={
+            <PermissionRoute permission="roles:assign">
+              <LazyPage>
+                <AdminRoleAssign />
+              </LazyPage>
+            </PermissionRoute>
+          }
+        />
+        <Route
+          path="/admin/policies"
+          element={
+            <PermissionRoute permission="roles:read">
+              <LazyPage>
+                <AdminPolicies />
+              </LazyPage>
+            </PermissionRoute>
+          }
+        />
+        <Route
+          path="/admin/policies/create"
+          element={
+            <PermissionRoute permission="roles:create">
+              <LazyPage>
+                <AdminPolicyEdit />
+              </LazyPage>
+            </PermissionRoute>
+          }
+        />
+        <Route
+          path="/admin/policies/:id/edit"
+          element={
+            <PermissionRoute permission="roles:edit">
+              <LazyPage>
+                <AdminPolicyEdit />
+              </LazyPage>
+            </PermissionRoute>
+          }
+        />
+        <Route
+          path="/admin/audit-log"
+          element={
+            <PermissionRoute permission="audit_log:read">
+              <LazyPage>
+                <AdminAuditLog />
+              </LazyPage>
+            </PermissionRoute>
           }
         />
 

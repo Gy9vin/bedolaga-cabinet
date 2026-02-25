@@ -23,7 +23,7 @@ import TicketNotificationBell from '@/components/TicketNotificationBell';
 
 import { MobileBottomNav } from './MobileBottomNav';
 import { AppHeader } from './AppHeader';
-import { Aurora } from './Aurora';
+import { BackgroundRenderer } from '@/components/backgrounds/BackgroundRenderer';
 
 // Desktop nav icons
 const HomeIcon = ({ className }: { className?: string }) => (
@@ -193,7 +193,8 @@ interface AppShellProps {
 export function AppShell({ children }: AppShellProps) {
   const { t } = useTranslation();
   const location = useLocation();
-  const { isAdmin, logout } = useAuthStore();
+  const isAdmin = useAuthStore((state) => state.isAdmin);
+  const logout = useAuthStore((state) => state.logout);
   const { isFullscreen, safeAreaInset, contentSafeAreaInset, platform, isMobile } =
     useTelegramSDK();
   const haptic = useHaptic();
@@ -278,7 +279,7 @@ export function AppShell({ children }: AppShellProps) {
   return (
     <div className="min-h-screen">
       {/* Animated background */}
-      <Aurora />
+      <BackgroundRenderer />
 
       {/* Global components */}
       <WebSocketNotifications />
