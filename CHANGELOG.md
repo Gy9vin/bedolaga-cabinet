@@ -1,5 +1,40 @@
 # Changelog
 
+## [1.22.0](https://github.com/BEDOLAGA-DEV/bedolaga-cabinet/compare/v1.21.0...v1.22.0) (2026-02-25)
+
+
+### Features
+
+* adapt dashboard and subscription page for light theme ([f474067](https://github.com/BEDOLAGA-DEV/bedolaga-cabinet/commit/f474067efbb36974b47b51ba568304b6cd6b3805))
+* add animated gradient border to Connect Device buttons ([70e1ed6](https://github.com/BEDOLAGA-DEV/bedolaga-cabinet/commit/70e1ed60bd545535b3148aae2b6546f7c17f9552))
+* add dashboard sub-components for subscription cards and stats grid ([909374d](https://github.com/BEDOLAGA-DEV/bedolaga-cabinet/commit/909374d369589474623ee006779586fadddd485b))
+* add fonts, animations, and shared utilities for dashboard redesign ([7e345fc](https://github.com/BEDOLAGA-DEV/bedolaga-cabinet/commit/7e345fc7d0431415496f8363959773e99a853b6e))
+* add Freekassa SBP and card payment method icons and labels ([a725265](https://github.com/BEDOLAGA-DEV/bedolaga-cabinet/commit/a72526502605ab415c16d3506c6fd4aa0bee5c95))
+* add HoverBorderGradient effect to key action buttons ([3fb9606](https://github.com/BEDOLAGA-DEV/bedolaga-cabinet/commit/3fb9606fd0f5bf765e117436e7507b4c7c226e89))
+* add TrafficProgressBar and Sparkline components ([eb1f788](https://github.com/BEDOLAGA-DEV/bedolaga-cabinet/commit/eb1f788033c696c1077002048f144b0bfd59592b))
+* replace animated backgrounds with Aceternity UI system ([1a702a6](https://github.com/BEDOLAGA-DEV/bedolaga-cabinet/commit/1a702a68b9cad0f112a65494250c11758388a91f))
+
+
+### Bug Fixes
+
+* animation config not updating for users after admin change ([94ddf31](https://github.com/BEDOLAGA-DEV/bedolaga-cabinet/commit/94ddf319bd242211cbebf74e89a6052856f84f60))
+* boxes background not covering full screen ([f16f96e](https://github.com/BEDOLAGA-DEV/bedolaga-cabinet/commit/f16f96e442506484eae9434ae51c5f0f2fc45729))
+* boxes background not covering viewport ([65afb29](https://github.com/BEDOLAGA-DEV/bedolaga-cabinet/commit/65afb292747b0e57865bc4c0d5df320fbc58b261))
+* improve HoverBorderGradient visibility with accent colors and darker bg ([4332c2b](https://github.com/BEDOLAGA-DEV/bedolaga-cabinet/commit/4332c2bd253774ddaef87f5735eec15f2b9645ee))
+* remove duplicate tariff info line, make tariff card clickable ([bef5102](https://github.com/BEDOLAGA-DEV/bedolaga-cabinet/commit/bef5102a7182ce4eb33a8fd366e6247b3cba9905))
+* remove gemini-effect and noise backgrounds, fix aurora animation ([79ff741](https://github.com/BEDOLAGA-DEV/bedolaga-cabinet/commit/79ff7412cbc374b7ac085b6c8d3fd5f34de8ce37))
+* rewrite 5 broken background components from Aceternity sources ([de97a03](https://github.com/BEDOLAGA-DEV/bedolaga-cabinet/commit/de97a030d2ebffcfe957e179f32b2857d13465dc))
+* rewrite gradient border with [@property](https://github.com/property) CSS angle animation ([d8b83cc](https://github.com/BEDOLAGA-DEV/bedolaga-cabinet/commit/d8b83ccdb8d64e73e9f73785e4d81c5931aa28ec))
+* rewrite HoverBorderGradient with CSS rotate instead of framer-motion ([e95db23](https://github.com/BEDOLAGA-DEV/bedolaga-cabinet/commit/e95db23573987dcf1abff63a9fae0b3db3686764))
+* show actual connected devices count instead of device limit ([a819f30](https://github.com/BEDOLAGA-DEV/bedolaga-cabinet/commit/a819f309c8105561618690e1408a826b3bce294a))
+
+
+### Performance Improvements
+
+* eagerly load Dashboard to improve LCP on main route ([5c1be14](https://github.com/BEDOLAGA-DEV/bedolaga-cabinet/commit/5c1be1471e8b372bd6aec5470b0fdadf037cffbb))
+* improve LCP — move font loading to HTML, defer logo preload ([962dd43](https://github.com/BEDOLAGA-DEV/bedolaga-cabinet/commit/962dd43756438779b6cc1821f3ee6b8147113646))
+* prefetch background chunk on page load from localStorage cache ([44d88f7](https://github.com/BEDOLAGA-DEV/bedolaga-cabinet/commit/44d88f76532e5b9f7364210fafd3fc6c376c03cc))
+
 ## [1.21.0](https://github.com/BEDOLAGA-DEV/bedolaga-cabinet/compare/v1.20.0...v1.21.0) (2026-02-25)
 
 
