@@ -1067,7 +1067,12 @@ export default function Subscription() {
                   </button>
                   <button
                     onClick={openQr}
-                    className="btn-secondary px-3"
+                    className="rounded-[10px] px-3 py-2 transition-all"
+                    style={{
+                      background: g.innerBg,
+                      border: `1px solid ${g.innerBorder}`,
+                      color: g.textMuted,
+                    }}
                     title={t('subscription.qrCode')}
                   >
                     <QrIcon />
@@ -2357,12 +2362,24 @@ export default function Subscription() {
                 modemStatus.available === false && modemStatus.error_code === 'modem_disabled'
               )) && (
               <div className="mt-4">
-                <div className="rounded-xl border border-dark-700/50 bg-dark-800/50 p-4">
+                <div
+                  className="relative overflow-hidden rounded-3xl"
+                  style={{
+                    background: g.cardBg,
+                    border: `1px solid ${g.cardBorder}`,
+                    boxShadow: g.shadow,
+                    padding: '24px 28px',
+                  }}
+                >
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-3">
-                      <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-dark-700">
+                      <div
+                        className="flex h-10 w-10 items-center justify-center rounded-lg"
+                        style={{ background: g.innerBg }}
+                      >
                         <svg
-                          className="h-5 w-5 text-dark-400"
+                          className="h-5 w-5"
+                          style={{ color: g.textMuted }}
                           fill="none"
                           viewBox="0 0 24 24"
                           stroke="currentColor"
@@ -2376,8 +2393,12 @@ export default function Subscription() {
                         </svg>
                       </div>
                       <div>
-                        <div className="font-medium text-dark-100">{t('modem.title')}</div>
-                        <div className="text-sm text-dark-400">{t('modem.description')}</div>
+                        <div className="font-medium" style={{ color: g.text }}>
+                          {t('modem.title')}
+                        </div>
+                        <div className="text-sm" style={{ color: g.textSecondary }}>
+                          {t('modem.description')}
+                        </div>
                       </div>
                     </div>
                     <div>
@@ -2387,8 +2408,14 @@ export default function Subscription() {
                           {t('modem.enabled')}
                         </span>
                       ) : (
-                        <span className="inline-flex items-center gap-1.5 rounded-full bg-dark-700 px-3 py-1 text-sm font-medium text-dark-400">
-                          <span className="h-1.5 w-1.5 rounded-full bg-dark-500" />
+                        <span
+                          className="inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-sm font-medium"
+                          style={{ background: g.innerBg, color: g.textMuted }}
+                        >
+                          <span
+                            className="h-1.5 w-1.5 rounded-full"
+                            style={{ background: g.textMuted }}
+                          />
                           {t('modem.disabled')}
                         </span>
                       )}
@@ -2417,7 +2444,12 @@ export default function Subscription() {
                       {subscription.modem_enabled && !showModemDisableConfirm && (
                         <button
                           onClick={() => setShowModemDisableConfirm(true)}
-                          className="w-full rounded-lg border border-dark-600 bg-dark-800 py-3 text-sm font-medium text-dark-300 transition-colors hover:border-dark-500 hover:text-dark-200"
+                          className="w-full rounded-lg py-3 text-sm font-medium transition-colors"
+                          style={{
+                            background: g.innerBg,
+                            border: `1px solid ${g.innerBorder}`,
+                            color: g.textSecondary,
+                          }}
                         >
                           {t('modem.disable')}
                         </button>
@@ -2444,7 +2476,10 @@ export default function Subscription() {
                                 )}
                                 <div className="text-2xl font-bold text-accent-400">
                                   {modemPrice.has_discount && (
-                                    <span className="mr-2 text-lg text-dark-500 line-through">
+                                    <span
+                                      className="mr-2 text-lg line-through"
+                                      style={{ color: g.textMuted }}
+                                    >
                                       {modemPrice.base_price_label}
                                     </span>
                                   )}
@@ -2537,7 +2572,7 @@ export default function Subscription() {
                       <div className="mb-2 text-center text-sm font-medium text-success-400">
                         {t('modem.enableSuccess')}
                       </div>
-                      <div className="text-center text-sm text-dark-300">
+                      <div className="text-center text-sm" style={{ color: g.textSecondary }}>
                         {t('modem.contactAdmin')}
                       </div>
                       <button
@@ -4233,10 +4268,15 @@ export default function Subscription() {
           onClick={() => setShowQr(false)}
         >
           <div
-            className="mx-4 mb-10 w-full max-w-xs rounded-2xl border border-dark-700/50 bg-dark-800 p-6"
+            className="mx-4 mb-10 w-full max-w-xs overflow-hidden rounded-3xl p-6 backdrop-blur-xl"
+            style={{
+              background: g.cardBg,
+              border: `1px solid ${g.cardBorder}`,
+              boxShadow: g.shadow,
+            }}
             onClick={(e) => e.stopPropagation()}
           >
-            <div className="mb-4 text-center text-lg font-medium text-dark-100">
+            <div className="mb-4 text-center text-lg font-medium" style={{ color: g.text }}>
               {t('subscription.qrCode')}
             </div>
             <div className="flex justify-center rounded-xl bg-white p-4">
