@@ -3875,13 +3875,6 @@ export default function Subscription() {
                 ? t('subscription.extend')
                 : t('subscription.getSubscription')}
             </h2>
-            {!showPurchaseForm && (
-              <button onClick={() => setShowPurchaseForm(true)} className="btn-primary">
-                {subscription && !subscription.is_trial
-                  ? t('subscription.extend')
-                  : t('subscription.getSubscription')}
-              </button>
-            )}
           </div>
 
           {showPurchaseForm && (
