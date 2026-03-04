@@ -3616,6 +3616,8 @@
       "goToAccounts": "Connected Accounts",
       "linking": "Linking account...",
       "linkingTelegram": "Connecting Telegram...",
+      "returnToTelegram": "Return to Telegram to continue",
+      "openTelegram": "Open Telegram",
       "providers": {
         "telegram": "Telegram",
         "email": "Email",

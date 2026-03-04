@@ -254,6 +254,24 @@ export const authApi = {
     return response.data;
   },
 
+  // Server-side OAuth linking completion (no JWT needed — auth via state token)
+  // Used when OAuth opens in external browser from Telegram Mini App
+  linkServerComplete: async (
+    code: string,
+    state: string,
+    deviceId?: string,
+  ): Promise<LinkCallbackResponse & { provider?: string }> => {
+    const response = await apiClient.post<LinkCallbackResponse & { provider?: string }>(
+      '/cabinet/auth/account/link/server-complete',
+      {
+        code,
+        state,
+        device_id: deviceId,
+      },
+    );
+    return response.data;
+  },
+
   unlinkProvider: async (provider: string): Promise<{ success: boolean }> => {
     const response = await apiClient.post<{ success: boolean }>(
       `/cabinet/auth/account/unlink/${encodeURIComponent(provider)}`,

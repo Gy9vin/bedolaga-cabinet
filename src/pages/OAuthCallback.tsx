@@ -2,8 +2,10 @@ import { useEffect, useRef, useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router';
 import { useTranslation } from 'react-i18next';
 import { useAuthStore } from '../store/auth';
+import { authApi } from '../api/auth';
+import { LINK_OAUTH_STATE_KEY, LINK_OAUTH_PROVIDER_KEY } from './LinkOAuthCallback';
 
-// SessionStorage helpers for OAuth state
+// SessionStorage helpers for OAuth LOGIN state
 const OAUTH_STATE_KEY = 'oauth_state';
 const OAUTH_PROVIDER_KEY = 'oauth_provider';
 
@@ -21,62 +23,177 @@ export function getAndClearOAuthState(): { state: string; provider: string } | n
   return { state, provider };
 }
 
+/**
+ * Check if this is an account LINKING callback (user was already authenticated).
+ * Returns the saved link state or null.
+ */
+function getAndClearLinkOAuthState(): { state: string; provider: string } | null {
+  const state = sessionStorage.getItem(LINK_OAUTH_STATE_KEY);
+  const provider = sessionStorage.getItem(LINK_OAUTH_PROVIDER_KEY);
+  sessionStorage.removeItem(LINK_OAUTH_STATE_KEY);
+  sessionStorage.removeItem(LINK_OAUTH_PROVIDER_KEY);
+  if (!state || !provider) return null;
+  return { state, provider };
+}
+
+type CallbackMode = 'login' | 'link-browser' | 'link-server';
+
+/** Result after successful server-complete linking from external browser. */
+interface ServerLinkResult {
+  success: boolean;
+  merge_required: boolean;
+  merge_token: string | null;
+  provider?: string;
+}
+
 export default function OAuthCallback() {
   const { t } = useTranslation();
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const [error, setError] = useState('');
+  const [serverLinkResult, setServerLinkResult] = useState<ServerLinkResult | null>(null);
   const loginWithOAuth = useAuthStore((state) => state.loginWithOAuth);
   const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
   const hasRun = useRef(false);
 
   useEffect(() => {
-    if (isAuthenticated) {
-      navigate('/', { replace: true });
-      return;
-    }
-
-    // Prevent double-fire from React StrictMode or dependency changes
+    // Prevent double-fire from React StrictMode
     if (hasRun.current) return;
     hasRun.current = true;
 
-    const authenticate = async () => {
-      const code = searchParams.get('code');
-      const urlState = searchParams.get('state');
-      // VK ID returns device_id in callback URL (required for token exchange)
-      const deviceId = searchParams.get('device_id');
+    const code = searchParams.get('code');
+    const urlState = searchParams.get('state');
+    const deviceId = searchParams.get('device_id');
 
-      if (!code || !urlState) {
-        setError(t('auth.oauthError', 'Authorization was denied or failed'));
+    if (!code || !urlState) {
+      setError(t('auth.oauthError', 'Authorization was denied or failed'));
+      return;
+    }
+
+    // Determine callback mode:
+    // 1. Link state in sessionStorage → browser linking flow
+    // 2. Login state in sessionStorage → login flow
+    // 3. Neither → opened from external browser (Mini App flow) → server-complete
+    let mode: CallbackMode = 'link-server';
+    let savedProvider: string | null = null;
+    let savedState: string | null = null;
+
+    const linkSaved = getAndClearLinkOAuthState();
+    if (linkSaved && linkSaved.state === urlState) {
+      mode = 'link-browser';
+      savedProvider = linkSaved.provider;
+      savedState = linkSaved.state;
+    } else {
+      const loginSaved = getAndClearOAuthState();
+      if (loginSaved && loginSaved.state === urlState) {
+        mode = 'login';
+        savedProvider = loginSaved.provider;
+        savedState = loginSaved.state;
+      }
+    }
+
+    const handle = async () => {
+      if (mode === 'link-browser') {
+        // Browser linking: user is authenticated, complete via JWT-protected endpoint
+        try {
+          const response = await authApi.linkProviderCallback(
+            savedProvider!,
+            code,
+            savedState!,
+            deviceId ?? undefined,
+          );
+          if (response.merge_required && response.merge_token) {
+            navigate(`/merge/${response.merge_token}`, { replace: true });
+          } else {
+            navigate('/profile/accounts', { replace: true });
+          }
+        } catch {
+          setError(t('profile.accounts.linkError'));
+        }
         return;
       }
 
-      // Get saved state from sessionStorage
-      const saved = getAndClearOAuthState();
-      if (!saved) {
-        setError(t('auth.oauthExpired', 'OAuth session expired. Please try again.'));
+      if (mode === 'login') {
+        // Login flow
+        if (isAuthenticated) {
+          navigate('/', { replace: true });
+          return;
+        }
+        try {
+          await loginWithOAuth(savedProvider!, code, savedState!, deviceId);
+          navigate('/', { replace: true });
+        } catch (err: unknown) {
+          const detail =
+            (err as { response?: { data?: { detail?: string } } })?.response?.data?.detail ??
+            (err instanceof Error ? err.message : null);
+          setError(detail || t('auth.oauthError', 'Authorization was denied or failed'));
+        }
         return;
       }
 
-      // Validate state match
-      if (saved.state !== urlState) {
-        setError(t('auth.oauthError', 'Authorization was denied or failed'));
-        return;
-      }
+      // mode === 'link-server': No sessionStorage state found.
+      // This happens when OAuth was opened in external browser from Mini App.
+      // Complete linking via state-token-authenticated server endpoint.
+      // Clear sensitive data from URL immediately.
+      window.history.replaceState({}, '', '/auth/oauth/callback');
 
       try {
-        await loginWithOAuth(saved.provider, code, urlState, deviceId);
-        navigate('/', { replace: true });
-      } catch (err: unknown) {
-        const detail =
-          (err as { response?: { data?: { detail?: string } } })?.response?.data?.detail ??
-          (err instanceof Error ? err.message : null);
-        setError(detail || t('auth.oauthError', 'Authorization was denied or failed'));
+        // Provider is resolved server-side from the state token in Redis.
+        const response = await authApi.linkServerComplete(code, urlState, deviceId ?? undefined);
+
+        setServerLinkResult(response);
+      } catch {
+        setError(t('profile.accounts.linkError'));
       }
     };
 
-    authenticate();
+    handle();
   }, [searchParams, loginWithOAuth, navigate, isAuthenticated, t]);
+
+  // Server-complete result: show success/error with "Return to Telegram" link
+  if (serverLinkResult) {
+    if (serverLinkResult.merge_required && serverLinkResult.merge_token) {
+      // Redirect to merge page (public, works without JWT)
+      navigate(`/merge/${serverLinkResult.merge_token}`, { replace: true });
+      return null;
+    }
+
+    const botUsername = import.meta.env.VITE_TELEGRAM_BOT_USERNAME || '';
+    const telegramLink = botUsername ? `https://t.me/${botUsername}` : '';
+
+    return (
+      <div className="flex min-h-screen items-center justify-center px-4 py-8">
+        <div className="fixed inset-0 bg-gradient-to-br from-dark-950 via-dark-900 to-dark-950" />
+        <div className="relative w-full max-w-md text-center">
+          <div className="card">
+            <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-2xl bg-success-500/20">
+              <svg
+                className="h-8 w-8 text-success-400"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+                strokeWidth={1.5}
+              >
+                <path strokeLinecap="round" strokeLinejoin="round" d="M4.5 12.75l6 6 9-13.5" />
+              </svg>
+            </div>
+            <h2 className="mb-2 text-lg font-semibold text-dark-50">
+              {t('profile.accounts.linkSuccess')}
+            </h2>
+            <p className="mb-6 text-sm text-dark-400">{t('profile.accounts.returnToTelegram')}</p>
+            {telegramLink && (
+              <a
+                href={telegramLink}
+                className="btn-primary inline-block w-full rounded-lg bg-accent-500 px-6 py-3 text-center font-medium text-dark-950 no-underline transition-colors hover:bg-accent-400"
+              >
+                {t('profile.accounts.openTelegram')}
+              </a>
+            )}
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   if (error) {
     return (

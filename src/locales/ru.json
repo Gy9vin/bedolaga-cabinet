@@ -4176,6 +4176,8 @@
       "goToAccounts": "Привязанные аккаунты",
       "linking": "Привязка аккаунта...",
       "linkingTelegram": "Привязка Telegram...",
+      "returnToTelegram": "Вернитесь в Telegram, чтобы продолжить",
+      "openTelegram": "Открыть Telegram",
       "providers": {
         "telegram": "Telegram",
         "email": "Email",

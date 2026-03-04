@@ -3051,6 +3051,8 @@
       "goToAccounts": "关联账户",
       "linking": "正在关联账户...",
       "linkingTelegram": "正在关联 Telegram...",
+      "returnToTelegram": "返回 Telegram 继续操作",
+      "openTelegram": "打开 Telegram",
       "providers": {
         "telegram": "Telegram",
         "email": "邮箱",

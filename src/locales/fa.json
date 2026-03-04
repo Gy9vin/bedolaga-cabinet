@@ -3052,6 +3052,8 @@
       "goToAccounts": "حساب‌های متصل",
       "linking": "در حال اتصال حساب...",
       "linkingTelegram": "در حال اتصال تلگرام...",
+      "returnToTelegram": "برای ادامه به تلگرام بازگردید",
+      "openTelegram": "باز کردن تلگرام",
       "providers": {
         "telegram": "تلگرام",
         "email": "ایمیل",

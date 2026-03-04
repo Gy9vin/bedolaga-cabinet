@@ -11,6 +11,7 @@ import { staggerContainer, staggerItem } from '@/components/motion/transitions';
 import ProviderIcon from '../components/ProviderIcon';
 import { LINK_OAUTH_STATE_KEY, LINK_OAUTH_PROVIDER_KEY } from './LinkOAuthCallback';
 import { isInTelegramWebApp, getTelegramInitData } from '../hooks/useTelegramSDK';
+import { usePlatform } from '@/platform/hooks/usePlatform';
 import type { LinkedProvider } from '../types';
 
 const OAUTH_PROVIDERS = ['google', 'yandex', 'discord', 'vk'];
@@ -99,6 +100,7 @@ export default function ConnectedAccounts() {
   const blurTimeoutRef = useRef<ReturnType<typeof setTimeout>>(undefined);
 
   const inTelegram = isInTelegramWebApp();
+  const platform = usePlatform();
 
   useEffect(() => {
     return () => {
@@ -109,6 +111,7 @@ export default function ConnectedAccounts() {
   const { data, isLoading, isError } = useQuery({
     queryKey: ['linked-providers'],
     queryFn: () => authApi.getLinkedProviders(),
+    refetchOnWindowFocus: true,
   });
 
   const unlinkMutation = useMutation({
@@ -143,9 +146,20 @@ export default function ConnectedAccounts() {
     setLinkingProvider(provider);
     try {
       const { authorize_url, state } = await authApi.linkProviderInit(provider);
-      sessionStorage.setItem(LINK_OAUTH_STATE_KEY, state);
-      sessionStorage.setItem(LINK_OAUTH_PROVIDER_KEY, provider);
-      window.location.href = authorize_url;
+
+      if (inTelegram) {
+        // Mini App: open in external browser to avoid WebView OAuth restrictions.
+        // The callback will use server-complete flow (auth via state token, no JWT).
+        platform.openLink(authorize_url);
+        // Reset loading state — user stays in Mini App
+        setLinkingProvider(null);
+      } else {
+        // Regular browser: navigate within the same tab.
+        // Save state in sessionStorage for the callback page to verify.
+        sessionStorage.setItem(LINK_OAUTH_STATE_KEY, state);
+        sessionStorage.setItem(LINK_OAUTH_PROVIDER_KEY, provider);
+        window.location.href = authorize_url;
+      }
     } catch {
       showToast({
         type: 'error',
