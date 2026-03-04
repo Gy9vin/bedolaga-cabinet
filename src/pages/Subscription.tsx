@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef, useCallback, memo } from 'react';
+import { useState, useEffect, useMemo, useRef, useCallback, memo } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useTranslation } from 'react-i18next';
 import { useLocation, useNavigate } from 'react-router';
@@ -23,6 +23,13 @@ import {
   getInsufficientBalanceError,
   getFlagEmoji,
 } from '../utils/subscriptionHelpers';
+import type {
+  PurchaseSelection,
+  PeriodOption,
+  Tariff,
+  TariffPeriod,
+  ClassicPurchaseOptions,
+} from '../types';
 
 /** Isolated countdown so 1s interval doesn't re-render the whole page */
 const CountdownTimer = memo(function CountdownTimer({
@@ -186,6 +193,7 @@ type PurchaseStep = 'period' | 'traffic' | 'servers' | 'devices' | 'confirm';
 export default function Subscription() {
   const { t } = useTranslation();
   const queryClient = useQueryClient();
+  const location = useLocation();
   const { formatAmount, currencySymbol } = useCurrency();
   const navigate = useNavigate();
   const { isDark } = useTheme();
@@ -196,6 +204,24 @@ export default function Subscription() {
 
   // Helper to format price from kopeks
   const formatPrice = (kopeks: number) => `${formatAmount(kopeks / 100)} ${currencySymbol}`;
+
+  // Purchase state (classic mode)
+  const [currentStep, setCurrentStep] = useState<PurchaseStep>('period');
+  const [selectedPeriod, setSelectedPeriod] = useState<PeriodOption | null>(null);
+  const [selectedTraffic, setSelectedTraffic] = useState<number | null>(null);
+  const [selectedServers, setSelectedServers] = useState<string[]>([]);
+  const [selectedDevices, setSelectedDevices] = useState<number>(1);
+  const [showPurchaseForm, setShowPurchaseForm] = useState(false);
+
+  // Tariffs mode state
+  const [selectedTariff, setSelectedTariff] = useState<Tariff | null>(null);
+  const [selectedTariffPeriod, setSelectedTariffPeriod] = useState<TariffPeriod | null>(null);
+  const [showTariffPurchase, setShowTariffPurchase] = useState(false);
+  // Custom days/traffic state
+  const [customDays, setCustomDays] = useState<number>(30);
+  const [customTrafficGb, setCustomTrafficGb] = useState<number>(50);
+  const [useCustomDays, setUseCustomDays] = useState(false);
+  const [useCustomTraffic, setUseCustomTraffic] = useState(false);
 
   // Device/traffic topup state
   const [showDeviceTopup, setShowDeviceTopup] = useState(false);
@@ -231,12 +257,153 @@ export default function Subscription() {
   const zone = useTrafficZone(usedPercent);
 
   // Purchase options (needed for balance_kopeks in device/traffic/server management)
-  const { data: purchaseOptions } = useQuery({
+  const { data: purchaseOptions, isLoading: optionsLoading } = useQuery({
     queryKey: ['purchase-options'],
     queryFn: subscriptionApi.getPurchaseOptions,
   });
 
+  // Fetch active promo discount
+  const { data: activeDiscount } = useQuery({
+    queryKey: ['active-discount'],
+    queryFn: promoApi.getActiveDiscount,
+    staleTime: 30000,
+  });
+
+  // Helper to apply promo discount to a price, stacking with existing promo group discount
+  const applyPromoDiscount = (
+    priceKopeks: number,
+    existingOriginalPrice?: number | null,
+  ): {
+    price: number;
+    original: number | null;
+    percent: number | null;
+    isPromoGroup: boolean;
+  } => {
+    const hasExisting = (existingOriginalPrice ?? 0) > priceKopeks;
+    const hasPromo = !!activeDiscount?.is_active && !!activeDiscount.discount_percent;
+
+    if (!hasExisting && !hasPromo) {
+      return { price: priceKopeks, original: null, percent: null, isPromoGroup: false };
+    }
+
+    let finalPrice = priceKopeks;
+    if (hasPromo) {
+      finalPrice = Math.round(priceKopeks * (1 - activeDiscount!.discount_percent! / 100));
+    }
+
+    if (hasExisting) {
+      // Promo group discount exists — calculate combined percent from deepest original
+      const combinedPercent = hasPromo
+        ? Math.round((1 - finalPrice / existingOriginalPrice!) * 100)
+        : Math.round((1 - priceKopeks / existingOriginalPrice!) * 100);
+      return {
+        price: finalPrice,
+        original: existingOriginalPrice!,
+        percent: combinedPercent,
+        isPromoGroup: true,
+      };
+    }
+
+    // Only promo offer discount (no promo group)
+    return {
+      price: finalPrice,
+      original: priceKopeks,
+      percent: activeDiscount!.discount_percent!,
+      isPromoGroup: false,
+    };
+  };
+
+  // Check if in tariffs mode (moved up to be available for useEffect)
   const isTariffsMode = purchaseOptions?.sales_mode === 'tariffs';
+  const classicOptions = !isTariffsMode ? (purchaseOptions as ClassicPurchaseOptions) : null;
+  const tariffs =
+    isTariffsMode && purchaseOptions && 'tariffs' in purchaseOptions ? purchaseOptions.tariffs : [];
+
+  // Get truly available servers for a given period (same filter as rendering)
+  const getAvailableServers = useCallback(
+    (period: PeriodOption | null) => {
+      if (!period?.servers.options) return [];
+      return period.servers.options.filter((server) => {
+        if (!server.is_available) return false;
+        if (subscription?.is_trial && server.name.toLowerCase().includes('trial')) return false;
+        return true;
+      });
+    },
+    [subscription?.is_trial],
+  );
+
+  // Determine which steps are needed
+  const steps = useMemo<PurchaseStep[]>(() => {
+    const result: PurchaseStep[] = ['period'];
+    if (selectedPeriod?.traffic.selectable && (selectedPeriod.traffic.options?.length ?? 0) > 0) {
+      result.push('traffic');
+    }
+    const availableServers = getAvailableServers(selectedPeriod);
+    // Skip server selection step if only 1 server available (auto-select it)
+    if (availableServers.length > 1) {
+      result.push('servers');
+    }
+    if (selectedPeriod && selectedPeriod.devices.max > selectedPeriod.devices.min) {
+      result.push('devices');
+    }
+    result.push('confirm');
+    return result;
+  }, [selectedPeriod, getAvailableServers]);
+
+  const currentStepIndex = steps.indexOf(currentStep);
+  const isFirstStep = currentStepIndex === 0;
+  const isLastStep = currentStepIndex === steps.length - 1;
+
+  // Initialize selection from options (classic mode only)
+  useEffect(() => {
+    if (classicOptions && !selectedPeriod) {
+      const defaultPeriod =
+        classicOptions.periods.find((p) => p.id === classicOptions.selection.period_id) ||
+        classicOptions.periods[0];
+      setSelectedPeriod(defaultPeriod);
+      setSelectedTraffic(classicOptions.selection.traffic_value);
+      const availableServers = getAvailableServers(defaultPeriod);
+      const availableServerUuids = new Set(availableServers.map((s) => s.uuid));
+      // If only 1 server available, auto-select it (step will be skipped)
+      if (availableServers.length === 1) {
+        setSelectedServers([availableServers[0].uuid]);
+      } else {
+        setSelectedServers(
+          classicOptions.selection.servers.filter((uuid) => availableServerUuids.has(uuid)),
+        );
+      }
+      setSelectedDevices(classicOptions.selection.devices);
+    }
+  }, [classicOptions, selectedPeriod, getAvailableServers]);
+
+  // Build selection object
+  const currentSelection: PurchaseSelection = useMemo(
+    () => ({
+      period_id: selectedPeriod?.id,
+      period_days: selectedPeriod?.period_days,
+      traffic_value: selectedTraffic ?? undefined,
+      servers: selectedServers,
+      devices: selectedDevices,
+    }),
+    [selectedPeriod, selectedTraffic, selectedServers, selectedDevices],
+  );
+
+  // Preview query
+  const { data: preview, isLoading: previewLoading } = useQuery({
+    queryKey: ['purchase-preview', currentSelection],
+    queryFn: () => subscriptionApi.previewPurchase(currentSelection),
+    enabled: !!selectedPeriod && showPurchaseForm && currentStep === 'confirm',
+  });
+
+  const purchaseMutation = useMutation({
+    mutationFn: () => subscriptionApi.submitPurchase(currentSelection),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['subscription'] });
+      queryClient.invalidateQueries({ queryKey: ['purchase-options'] });
+      setShowPurchaseForm(false);
+      setCurrentStep('period');
+    },
+  });
 
   const autopayMutation = useMutation({
     mutationFn: (enabled: boolean) => subscriptionApi.updateAutopay(enabled),
@@ -276,8 +443,18 @@ export default function Subscription() {
     },
   });
 
-  // Auto-close all modals/forms when success notification appears
+  // Refs for auto-scroll
+  const switchModalRef = useRef<HTMLDivElement>(null);
+  const tariffPurchaseRef = useRef<HTMLDivElement>(null);
+  const tariffsCardRef = useRef<HTMLDivElement>(null);
+
+  // Tariff switch preview
+  const [switchTariffId, setSwitchTariffId] = useState<number | null>(null);
+
+  // Auto-close all modals/forms when success notification appears (e.g., subscription purchased via WebSocket)
   const handleCloseAllModals = useCallback(() => {
+    setShowPurchaseForm(false);
+    setShowTariffPurchase(false);
     setShowDeviceTopup(false);
     setShowDeviceReduction(false);
     setShowTrafficTopup(false);
@@ -289,6 +466,74 @@ export default function Subscription() {
     setSelectedTariffPeriod(null);
   }, []);
   useCloseOnSuccessNotification(handleCloseAllModals);
+
+  const { data: switchPreview, isLoading: switchPreviewLoading } = useQuery({
+    queryKey: ['tariff-switch-preview', switchTariffId],
+    queryFn: () => subscriptionApi.previewTariffSwitch(switchTariffId!),
+    enabled: !!switchTariffId,
+  });
+
+  // Tariff switch mutation
+  const switchTariffMutation = useMutation({
+    mutationFn: (tariffId: number) => subscriptionApi.switchTariff(tariffId),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['subscription'] });
+      queryClient.invalidateQueries({ queryKey: ['purchase-options'] });
+      setSwitchTariffId(null);
+    },
+    onError: (error: unknown) => {
+      // Handle subscription_expired error - redirect to purchase flow
+      if (error instanceof AxiosError) {
+        const detail = error.response?.data?.detail;
+        if (
+          typeof detail === 'object' &&
+          detail?.error_code === 'subscription_expired' &&
+          detail?.use_purchase_flow === true
+        ) {
+          // Find the tariff user was trying to switch to and open purchase form
+          const targetTariff = tariffs.find((t) => t.id === switchTariffId);
+          if (targetTariff) {
+            setSwitchTariffId(null);
+            setSelectedTariff(targetTariff);
+            setSelectedTariffPeriod(targetTariff.periods[0] || null);
+            setShowTariffPurchase(true);
+            // Refetch purchase-options to get updated expired status
+            queryClient.invalidateQueries({ queryKey: ['purchase-options'] });
+          }
+        }
+      }
+    },
+  });
+
+  // Tariff purchase mutation
+  const tariffPurchaseMutation = useMutation({
+    mutationFn: () => {
+      if (!selectedTariff) {
+        throw new Error('Tariff not selected');
+      }
+      // For daily tariffs, always use 1 day
+      const isDailyTariff =
+        selectedTariff.is_daily ||
+        (selectedTariff.daily_price_kopeks && selectedTariff.daily_price_kopeks > 0);
+      const days = isDailyTariff
+        ? 1
+        : useCustomDays
+          ? customDays
+          : selectedTariffPeriod?.days || 30;
+      const trafficGb =
+        useCustomTraffic && selectedTariff.custom_traffic_enabled ? customTrafficGb : undefined;
+      return subscriptionApi.purchaseTariff(selectedTariff.id, days, trafficGb);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['subscription'] });
+      queryClient.invalidateQueries({ queryKey: ['purchase-options'] });
+      setShowTariffPurchase(false);
+      setSelectedTariff(null);
+      setSelectedTariffPeriod(null);
+      setUseCustomDays(false);
+      setUseCustomTraffic(false);
+    },
+  });
 
   // Device price query
   const { data: devicePriceData } = useQuery({
@@ -481,6 +726,40 @@ export default function Subscription() {
 
     refreshTrafficMutation.mutate();
   }, [subscription, refreshTrafficMutation]);
+
+  // Auto-scroll to switch tariff modal when it appears
+  useEffect(() => {
+    if (switchTariffId && switchModalRef.current) {
+      const timer = setTimeout(() => {
+        switchModalRef.current?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      }, 100);
+      return () => clearTimeout(timer);
+    }
+  }, [switchTariffId]);
+
+  // Auto-scroll to tariff purchase form when it appears
+  useEffect(() => {
+    if (showTariffPurchase && tariffPurchaseRef.current) {
+      const timer = setTimeout(() => {
+        tariffPurchaseRef.current?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      }, 100);
+      return () => clearTimeout(timer);
+    }
+  }, [showTariffPurchase]);
+
+  // Auto-scroll to tariffs section when coming from Dashboard "Продлить" button
+  useEffect(() => {
+    const state = location.state as { scrollToExtend?: boolean } | null;
+    // Wait for tariffs to load before scrolling
+    if (state?.scrollToExtend && tariffsCardRef.current && tariffs.length > 0) {
+      const timer = setTimeout(() => {
+        tariffsCardRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }, 100);
+      // Clear the state to prevent re-scrolling on subsequent renders
+      window.history.replaceState({}, document.title);
+      return () => clearTimeout(timer);
+    }
+  }, [location.state, tariffs.length]);
 
   const copyUrl = () => {
     if (subscription?.subscription_url) {
