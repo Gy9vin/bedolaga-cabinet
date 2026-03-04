@@ -3869,14 +3869,6 @@ export default function Subscription() {
             padding: '24px 28px',
           }}
         >
-          <div className="mb-4 flex items-center justify-between">
-            <h2 className="text-base font-bold tracking-tight text-dark-50">
-              {subscription && !subscription.is_trial
-                ? t('subscription.extend')
-                : t('subscription.getSubscription')}
-            </h2>
-          </div>
-
           {showPurchaseForm && (
             <div className="space-y-6">
               {/* Step Indicator */}
