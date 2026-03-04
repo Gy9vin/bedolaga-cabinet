@@ -926,7 +926,7 @@ export default function Subscription() {
                     border: subscription.is_active
                       ? `1px solid ${zone.mainHex}30`
                       : '1px solid rgba(255,59,92,0.25)',
-                    color: subscription.is_active ? zone.mainHex : '#FF3B5C',
+                    color: subscription.is_active ? zone.mainHex : zone.colors.error,
                   }}
                 >
                   {subscription.is_active
@@ -957,7 +957,7 @@ export default function Subscription() {
                         height="16"
                         viewBox="0 0 24 24"
                         fill="none"
-                        stroke="#3EDBB0"
+                        stroke={zone.colors.accent}
                         strokeWidth="2"
                         strokeLinecap="round"
                         strokeLinejoin="round"
@@ -967,7 +967,7 @@ export default function Subscription() {
                       </svg>
                     </div>
                     <div className="flex-1">
-                      <div className="text-sm font-semibold" style={{ color: '#3EDBB0' }}>
+                      <div className="text-sm font-semibold" style={{ color: zone.colors.accent }}>
                         {t('subscription.trialInfo.title')}
                       </div>
                       <div className="mt-1 text-[12px] text-dark-50/40">
@@ -977,7 +977,7 @@ export default function Subscription() {
                         <div className="flex items-center gap-1.5">
                           <span
                             className="font-mono text-[12px] font-semibold"
-                            style={{ color: '#3EDBB0' }}
+                            style={{ color: zone.colors.accent }}
                           >
                             {subscription.days_left > 0
                               ? t('subscription.days', { count: subscription.days_left })
@@ -990,7 +990,7 @@ export default function Subscription() {
                         <div className="flex items-center gap-1.5">
                           <span
                             className="font-mono text-[12px] font-semibold"
-                            style={{ color: '#3EDBB0' }}
+                            style={{ color: zone.colors.accent }}
                           >
                             {subscription.traffic_limit_gb || '∞'} {t('common.units.gb')}
                           </span>
@@ -1001,7 +1001,7 @@ export default function Subscription() {
                         <div className="flex items-center gap-1.5">
                           <span
                             className="font-mono text-[12px] font-semibold"
-                            style={{ color: '#3EDBB0' }}
+                            style={{ color: zone.colors.accent }}
                           >
                             {subscription.device_limit}
                           </span>
@@ -1159,7 +1159,7 @@ export default function Subscription() {
                     style={{
                       background: copied ? 'rgba(62,219,176,0.12)' : g.innerBorder,
                       border: copied ? '1px solid rgba(62,219,176,0.2)' : `1px solid ${g.trackBg}`,
-                      color: copied ? '#3EDBB0' : g.textMuted,
+                      color: copied ? zone.colors.accent : g.textMuted,
                     }}
                     title={t('subscription.copyLink')}
                   >
@@ -1259,7 +1259,10 @@ export default function Subscription() {
                             <div
                               className="text-[11px] font-medium"
                               style={{
-                                color: purchase.days_remaining === 0 ? '#FF6B35' : g.textSecondary,
+                                color:
+                                  purchase.days_remaining === 0
+                                    ? zone.colors.warning
+                                    : g.textSecondary,
                               }}
                             >
                               {purchase.days_remaining === 0
@@ -1404,7 +1407,7 @@ export default function Subscription() {
                 border: subscription.is_daily_paused
                   ? '1px solid rgba(62,219,176,0.2)'
                   : '1px solid rgba(255,184,0,0.2)',
-                color: subscription.is_daily_paused ? '#3EDBB0' : '#FFB800',
+                color: subscription.is_daily_paused ? zone.colors.accent : zone.colors.warning,
               }}
             >
               {pauseMutation.isPending ? (
@@ -1441,7 +1444,7 @@ export default function Subscription() {
                   style={{
                     background: 'rgba(255,59,92,0.08)',
                     border: '1px solid rgba(255,59,92,0.15)',
-                    color: '#FF3B5C',
+                    color: zone.colors.error,
                   }}
                 >
                   {getErrorMessage(pauseMutation.error)}
@@ -1459,11 +1462,11 @@ export default function Subscription() {
               }}
             >
               <div className="flex items-start gap-3">
-                <div className="text-lg" style={{ color: '#FFB800' }}>
+                <div className="text-lg" style={{ color: zone.colors.warning }}>
                   ⏸️
                 </div>
                 <div>
-                  <div className="text-sm font-semibold" style={{ color: '#FFB800' }}>
+                  <div className="text-sm font-semibold" style={{ color: zone.colors.warning }}>
                     {t('subscription.pause.pausedInfo')}
                   </div>
                   <div className="mt-1 text-[12px] text-dark-50/35">
@@ -2614,7 +2617,7 @@ export default function Subscription() {
                 }}
                 disabled={deleteAllDevicesMutation.isPending}
                 className="text-[11px] font-medium transition-colors"
-                style={{ color: '#FF3B5C' }}
+                style={{ color: zone.colors.error }}
               >
                 {t('subscription.deleteAllDevices')}
               </button>
@@ -2749,7 +2752,7 @@ export default function Subscription() {
                     height="16"
                     viewBox="0 0 24 24"
                     fill="none"
-                    stroke="#FFB800"
+                    stroke={zone.colors.warning}
                     strokeWidth="1.5"
                     aria-hidden="true"
                   >
@@ -2761,7 +2764,7 @@ export default function Subscription() {
                   </svg>
                 </div>
                 <div>
-                  <div className="text-sm font-semibold" style={{ color: '#FFB800' }}>
+                  <div className="text-sm font-semibold" style={{ color: zone.colors.warning }}>
                     {t('subscription.trialUpgrade.title')}
                   </div>
                   <div className="mt-1 text-[12px] text-dark-50/40">
@@ -2794,7 +2797,7 @@ export default function Subscription() {
                       height="16"
                       viewBox="0 0 24 24"
                       fill="none"
-                      stroke="#FF3B5C"
+                      stroke={zone.colors.error}
                       strokeWidth="1.5"
                       aria-hidden="true"
                     >
@@ -2806,7 +2809,7 @@ export default function Subscription() {
                     </svg>
                   </div>
                   <div>
-                    <div className="text-sm font-semibold" style={{ color: '#FF3B5C' }}>
+                    <div className="text-sm font-semibold" style={{ color: zone.colors.error }}>
                       {t('subscription.expiredBanner.title')}
                     </div>
                     <div className="mt-1 text-[12px] text-dark-50/40">

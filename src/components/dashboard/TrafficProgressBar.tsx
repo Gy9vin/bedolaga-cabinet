@@ -34,11 +34,12 @@ export default function TrafficProgressBar({
   // Multi-segment gradient matching prototype
   const fillGradient = useMemo(() => {
     if (percent < 50) return `linear-gradient(90deg, ${startHex}, ${zone.mainHex})`;
-    if (percent < 75) return `linear-gradient(90deg, ${startHex}, #FFB800, ${zone.mainHex})`;
+    if (percent < 75)
+      return `linear-gradient(90deg, ${startHex}, ${zone.colors.warning}, ${zone.mainHex})`;
     if (percent < 90)
-      return `linear-gradient(90deg, ${startHex}, #FFB800, #FF6B35, ${zone.mainHex})`;
-    return `linear-gradient(90deg, ${startHex}, #FFB800, #FF6B35, #FF3B5C)`;
-  }, [percent, zone.mainHex, startHex]);
+      return `linear-gradient(90deg, ${startHex}, ${zone.colors.warning}, ${zone.colors.warning}, ${zone.mainHex})`;
+    return `linear-gradient(90deg, ${startHex}, ${zone.colors.warning}, ${zone.colors.warning}, ${zone.colors.error})`;
+  }, [percent, zone.mainHex, zone.colors.warning, zone.colors.error, startHex]);
 
   if (isUnlimited) {
     return (

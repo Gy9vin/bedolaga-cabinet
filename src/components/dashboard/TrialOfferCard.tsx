@@ -4,6 +4,7 @@ import { UseMutationResult } from '@tanstack/react-query';
 import type { TrialInfo } from '../../types';
 import { useCurrency } from '../../hooks/useCurrency';
 import { useTheme } from '../../hooks/useTheme';
+import { useThemeColors } from '../../hooks/useThemeColors';
 import { getGlassColors } from '../../utils/glassTheme';
 
 interface TrialOfferCardProps {
@@ -24,6 +25,7 @@ export default function TrialOfferCard({
   const { t } = useTranslation();
   const { formatAmount, currencySymbol } = useCurrency();
   const { isDark } = useTheme();
+  const { colors } = useThemeColors();
   const g = getGlassColors(isDark);
   const isFree = !trialInfo.requires_payment;
   const canAfford = balanceKopeks >= trialInfo.price_kopeks;
@@ -97,7 +99,7 @@ export default function TrialOfferCard({
             height="26"
             viewBox="0 0 24 24"
             fill="none"
-            stroke="#3EDBB0"
+            stroke={colors.accent}
             strokeWidth="1.5"
             aria-hidden="true"
           >
@@ -255,7 +257,7 @@ export default function TrialOfferCard({
                   color: '#fff',
                 }
               : {
-                  background: 'linear-gradient(135deg, #3EDBB0, #2BC49A)',
+                  background: `linear-gradient(135deg, ${colors.accent}, ${colors.accent})`,
                   color: '#0a2a1e',
                   boxShadow: '0 4px 20px rgba(62,219,176,0.25)',
                 }

@@ -129,7 +129,7 @@ export default function SubscriptionCardActive({
                   background:
                     'linear-gradient(135deg, rgba(62,219,176,0.15), rgba(62,219,176,0.06))',
                   border: '1px solid rgba(62,219,176,0.2)',
-                  color: '#3EDBB0',
+                  color: zone.colors.accent,
                 }}
               >
                 <svg

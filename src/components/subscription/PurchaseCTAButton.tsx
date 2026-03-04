@@ -1,6 +1,7 @@
 import { Link } from 'react-router';
 import { useTranslation } from 'react-i18next';
 import { HoverBorderGradient } from '../ui/hover-border-gradient';
+import { useThemeColors } from '../../hooks/useThemeColors';
 import type { Subscription } from '../../types';
 
 interface PurchaseCTAButtonProps {
@@ -9,11 +10,12 @@ interface PurchaseCTAButtonProps {
 
 export default function PurchaseCTAButton({ subscription }: PurchaseCTAButtonProps) {
   const { t } = useTranslation();
+  const { colors } = useThemeColors();
 
   const isExpired = !subscription || (!subscription.is_active && !subscription.is_trial);
   const isTrial = subscription?.is_trial;
 
-  const accentColor = isExpired ? '#FF3B5C' : '#3EDBB0';
+  const accentColor = isExpired ? colors.error : colors.accent;
 
   const buttonText = isExpired
     ? t('subscription.getSubscription')
