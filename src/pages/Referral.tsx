@@ -1,12 +1,14 @@
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useTranslation } from 'react-i18next';
 import QRCode from 'qrcode';
 import { referralApi } from '../api/referral';
+import { copyToClipboard } from '../utils/clipboard';
 import { brandingApi } from '../api/branding';
 import { partnerApi } from '../api/partners';
 import { withdrawalApi } from '../api/withdrawals';
+import { CampaignCard } from '../components/partner/CampaignCard';
 import { useCurrency } from '../hooks/useCurrency';
 
 const LinkIcon = () => (
@@ -104,7 +106,7 @@ function getWithdrawalStatusBadge(status: string): string {
 }
 
 export default function Referral() {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const navigate = useNavigate();
   const { formatAmount, currencySymbol, formatPositive, formatWithCurrency } = useCurrency();
   const queryClient = useQueryClient();
@@ -112,6 +114,13 @@ export default function Referral() {
   const [copiedLink, setCopiedLink] = useState<string | null>(null);
   const [showQr, setShowQr] = useState(false);
   const [qrDataUrl, setQrDataUrl] = useState<string | null>(null);
+  const copyTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  useEffect(() => {
+    return () => {
+      if (copyTimerRef.current) clearTimeout(copyTimerRef.current);
+    };
+  }, []);
 
   const { data: info, isLoading } = useQuery({
     queryKey: ['referral-info'],
@@ -172,11 +181,15 @@ export default function Referral() {
     },
   });
 
-  const copyLink = () => {
-    if (referralLink) {
-      navigator.clipboard.writeText(referralLink);
+  const copyLink = async () => {
+    if (!referralLink) return;
+    try {
+      await copyToClipboard(referralLink);
       setCopied(true);
-      setTimeout(() => setCopied(false), 2000);
+      if (copyTimerRef.current) clearTimeout(copyTimerRef.current);
+      copyTimerRef.current = setTimeout(() => setCopied(false), 2000);
+    } catch {
+      // clipboard write failed silently
     }
   };
 
@@ -378,10 +391,10 @@ export default function Referral() {
               >
                 <div>
                   <div className="font-medium text-dark-100">
-                    {ref.first_name || ref.username || `User #${ref.id}`}
+                    {ref.first_name || ref.username || t('referral.anonymousUser', { id: ref.id })}
                   </div>
                   <div className="mt-0.5 text-xs text-dark-500">
-                    {new Date(ref.created_at).toLocaleDateString()}
+                    {new Date(ref.created_at).toLocaleDateString(i18n.language)}
                   </div>
                 </div>
                 {ref.has_paid ? (
@@ -428,11 +441,13 @@ export default function Referral() {
               >
                 <div>
                   <div className="text-dark-100">
-                    {earning.referral_first_name || earning.referral_username || 'Referral'}
+                    {earning.referral_first_name ||
+                      earning.referral_username ||
+                      t('referral.anonymousReferral')}
                   </div>
                   <div className="mt-0.5 text-xs text-dark-500">
                     {t(`referral.reasons.${earning.reason}`, earning.reason)} •{' '}
-                    {new Date(earning.created_at).toLocaleDateString()}
+                    {new Date(earning.created_at).toLocaleDateString(i18n.language)}
                   </div>
                 </div>
                 <div className="font-semibold text-success-400">
@@ -486,9 +501,9 @@ export default function Referral() {
               {partnerStatus?.latest_application?.created_at && (
                 <p className="mt-2 text-xs text-dark-500">
                   {t('referral.partner.submittedAt', {
-                    date: new Date(
-                      partnerStatus.latest_application.created_at,
-                    ).toLocaleDateString(),
+                    date: new Date(partnerStatus.latest_application.created_at).toLocaleDateString(
+                      i18n.language,
+                    ),
                   })}
                 </p>
               )}
@@ -579,99 +594,9 @@ export default function Referral() {
               </h2>
             </div>
 
-            {partnerStatus.campaigns.map((campaign) => {
-              const copyLink = (url: string, key: string) => {
-                navigator.clipboard.writeText(url);
-                setCopiedLink(key);
-                setTimeout(() => setCopiedLink(null), 2000);
-              };
-
-              const botKey = `${campaign.id}-bot`;
-              const webKey = `${campaign.id}-web`;
-
-              return (
-                <div key={campaign.id} className="bento-card space-y-4">
-                  {/* Campaign header */}
-                  <div className="flex items-center gap-2">
-                    <h3 className="text-base font-semibold text-dark-100">{campaign.name}</h3>
-                  </div>
-
-                  {/* Bonus info */}
-                  {campaign.bonus_type !== 'none' && (
-                    <div className="rounded-lg bg-success-500/10 p-3">
-                      <div className="mb-1 text-xs font-medium text-success-500">
-                        {t('referral.partner.campaignBonus.title')}
-                      </div>
-                      <div className="text-sm font-semibold text-success-400">
-                        {campaign.bonus_type === 'balance' &&
-                          t('referral.partner.campaignBonus.balanceDesc', {
-                            amount: formatWithCurrency(campaign.balance_bonus_kopeks / 100, 0),
-                          })}
-                        {campaign.bonus_type === 'subscription' &&
-                          t('referral.partner.campaignBonus.subscriptionDesc', {
-                            days: campaign.subscription_duration_days ?? 0,
-                            ...(campaign.subscription_traffic_gb
-                              ? { traffic: campaign.subscription_traffic_gb }
-                              : {}),
-                          })}
-                        {campaign.bonus_type === 'tariff' &&
-                          t('referral.partner.campaignBonus.tariffDesc')}
-                      </div>
-                    </div>
-                  )}
-
-                  {/* Bot link */}
-                  {campaign.deep_link && (
-                    <div>
-                      <div className="mb-1 text-xs font-medium text-dark-500">
-                        {t('referral.partner.campaignLinks.bot')}
-                      </div>
-                      <div className="flex items-center gap-2">
-                        <input
-                          type="text"
-                          readOnly
-                          value={campaign.deep_link}
-                          className="input flex-1 text-xs"
-                        />
-                        <button
-                          onClick={() => copyLink(campaign.deep_link!, botKey)}
-                          className={`btn-primary shrink-0 px-3 py-2 ${
-                            copiedLink === botKey ? 'bg-success-500 hover:bg-success-500' : ''
-                          }`}
-                        >
-                          {copiedLink === botKey ? <CheckIcon /> : <CopyIcon />}
-                        </button>
-                      </div>
-                    </div>
-                  )}
-
-                  {/* Web link */}
-                  {campaign.web_link && (
-                    <div>
-                      <div className="mb-1 text-xs font-medium text-dark-500">
-                        {t('referral.partner.campaignLinks.web')}
-                      </div>
-                      <div className="flex items-center gap-2">
-                        <input
-                          type="text"
-                          readOnly
-                          value={campaign.web_link}
-                          className="input flex-1 text-xs"
-                        />
-                        <button
-                          onClick={() => copyLink(campaign.web_link!, webKey)}
-                          className={`btn-primary shrink-0 px-3 py-2 ${
-                            copiedLink === webKey ? 'bg-success-500 hover:bg-success-500' : ''
-                          }`}
-                        >
-                          {copiedLink === webKey ? <CheckIcon /> : <CopyIcon />}
-                        </button>
-                      </div>
-                    </div>
-                  )}
-                </div>
-              );
-            })}
+            {partnerStatus.campaigns.map((campaign) => (
+              <CampaignCard key={campaign.id} campaign={campaign} />
+            ))}
           </div>
         )}
 
@@ -772,7 +697,7 @@ export default function Referral() {
                       </span>
                     </div>
                     <div className="mt-0.5 text-xs text-dark-500">
-                      {new Date(item.created_at).toLocaleDateString()}
+                      {new Date(item.created_at).toLocaleDateString(i18n.language)}
                       {item.payment_details && (
                         <span className="ml-1">
                           &bull;{' '}

@@ -23,6 +23,7 @@ interface ReferralEarning {
   reason: string;
   referral_username: string | null;
   referral_first_name: string | null;
+  campaign_name: string | null;
   created_at: string;
 }
 

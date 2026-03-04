@@ -174,6 +174,7 @@ export const authApi = {
     provider: string,
     code: string,
     state: string,
+    deviceId?: string | null,
     campaignSlug?: string | null,
     referralCode?: string | null,
   ): Promise<AuthResponse> => {
@@ -182,6 +183,7 @@ export const authApi = {
       {
         code,
         state,
+        device_id: deviceId || undefined,
         campaign_slug: campaignSlug || undefined,
         referral_code: referralCode || undefined,
       },

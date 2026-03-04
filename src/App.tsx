@@ -26,6 +26,7 @@ import Dashboard from './pages/Dashboard';
 
 // User pages - lazy load
 const Subscription = lazy(() => import('./pages/Subscription'));
+const SubscriptionPurchase = lazy(() => import('./pages/SubscriptionPurchase'));
 const Balance = lazy(() => import('./pages/Balance'));
 const Referral = lazy(() => import('./pages/Referral'));
 const Support = lazy(() => import('./pages/Support'));
@@ -35,6 +36,7 @@ const Polls = lazy(() => import('./pages/Polls'));
 const Info = lazy(() => import('./pages/Info'));
 const Wheel = lazy(() => import('./pages/Wheel'));
 const Connection = lazy(() => import('./pages/Connection'));
+const ConnectionQR = lazy(() => import('./pages/ConnectionQR'));
 const TopUpMethodSelect = lazy(() => import('./pages/TopUpMethodSelect'));
 const TopUpAmount = lazy(() => import('./pages/TopUpAmount'));
 
@@ -85,6 +87,7 @@ const AdminRemnawave = lazy(() => import('./pages/AdminRemnawave'));
 const AdminRemnawaveSquadDetail = lazy(() => import('./pages/AdminRemnawaveSquadDetail'));
 const AdminEmailTemplates = lazy(() => import('./pages/AdminEmailTemplates'));
 const AdminTrafficUsage = lazy(() => import('./pages/AdminTrafficUsage'));
+const AdminSalesStats = lazy(() => import('./pages/AdminSalesStats'));
 const AdminUpdates = lazy(() => import('./pages/AdminUpdates'));
 const AdminUserDetail = lazy(() => import('./pages/AdminUserDetail'));
 const AdminBroadcastDetail = lazy(() => import('./pages/AdminBroadcastDetail'));
@@ -198,6 +201,16 @@ function App() {
             <ProtectedRoute>
               <LazyPage>
                 <Subscription />
+              </LazyPage>
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/subscription/purchase"
+          element={
+            <ProtectedRoute>
+              <LazyPage>
+                <SubscriptionPurchase />
               </LazyPage>
             </ProtectedRoute>
           }
@@ -320,6 +333,14 @@ function App() {
                 <Wheel />
               </LazyPage>
             </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/connection/qr"
+          element={
+            <LazyPage>
+              <ConnectionQR />
+            </LazyPage>
           }
         />
         <Route
@@ -720,6 +741,16 @@ function App() {
             <PermissionRoute permission="traffic:read">
               <LazyPage>
                 <AdminTrafficUsage />
+              </LazyPage>
+            </PermissionRoute>
+          }
+        />
+        <Route
+          path="/admin/sales-stats"
+          element={
+            <PermissionRoute permission="stats:read">
+              <LazyPage>
+                <AdminSalesStats />
               </LazyPage>
             </PermissionRoute>
           }

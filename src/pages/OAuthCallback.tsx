@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router';
 import { useTranslation } from 'react-i18next';
 import { useAuthStore } from '../store/auth';
@@ -41,11 +41,18 @@ export default function OAuthCallback() {
   const [error, setError] = useState('');
   const loginWithOAuth = useAuthStore((state) => state.loginWithOAuth);
   const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
+  const hasRun = useRef(false);
 
   useEffect(() => {
+    // Prevent double-fire from React StrictMode or dependency changes
+    if (hasRun.current) return;
+    hasRun.current = true;
+
     const authenticate = async () => {
       const code = searchParams.get('code');
       const urlState = searchParams.get('state');
+      // VK ID returns device_id in callback URL (required for token exchange)
+      const deviceId = searchParams.get('device_id');
 
       if (!code || !urlState) {
         setError(t('auth.oauthError', 'Authorization was denied or failed'));
@@ -87,14 +94,13 @@ export default function OAuthCallback() {
       }
 
       try {
-        await loginWithOAuth(saved.provider, code, urlState);
+        await loginWithOAuth(saved.provider, code, urlState, deviceId);
         navigate('/', { replace: true });
       } catch (err: unknown) {
-        const error = err as { response?: { data?: { detail?: string } } };
-        setError(
-          error.response?.data?.detail ||
-            t('auth.oauthError', 'Authorization was denied or failed'),
-        );
+        const detail =
+          (err as { response?: { data?: { detail?: string } } })?.response?.data?.detail ??
+          (err instanceof Error ? err.message : null);
+        setError(detail || t('auth.oauthError', 'Authorization was denied or failed'));
       }
     };
 

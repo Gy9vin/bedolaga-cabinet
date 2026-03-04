@@ -1,4 +1,3 @@
-import { useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router';
 import { Link } from 'react-router';
@@ -7,7 +6,7 @@ import TrafficProgressBar from './TrafficProgressBar';
 import Sparkline from './Sparkline';
 import { useAnimatedNumber } from '../../hooks/useAnimatedNumber';
 import { useTheme } from '../../hooks/useTheme';
-import { getTrafficZone } from '../../utils/trafficZone';
+import { useTrafficZone } from '../../hooks/useTrafficZone';
 import { formatTraffic } from '../../utils/formatTraffic';
 import { getGlassColors } from '../../utils/glassTheme';
 import { HoverBorderGradient } from '../ui/hover-border-gradient';
@@ -57,7 +56,7 @@ export default function SubscriptionCardActive({
   const usedPercent = trafficData?.traffic_used_percent ?? subscription.traffic_used_percent;
   const usedGb = trafficData?.traffic_used_gb ?? subscription.traffic_used_gb;
   const isUnlimited = trafficData?.is_unlimited ?? subscription.traffic_limit_gb === 0;
-  const zone = useMemo(() => getTrafficZone(usedPercent), [usedPercent]);
+  const zone = useTrafficZone(usedPercent);
   const animatedPercent = useAnimatedNumber(usedPercent);
 
   const formattedDate = new Date(subscription.end_date).toLocaleDateString();
@@ -73,9 +72,11 @@ export default function SubscriptionCardActive({
         background: g.cardBg,
         border: subscription.is_trial
           ? '1px solid rgba(62,219,176,0.15)'
-          : `1px solid ${g.cardBorder}`,
+          : isDark
+            ? `1px solid ${g.cardBorder}`
+            : `1px solid ${zone.mainHex}25`,
         padding: '28px 28px 24px',
-        boxShadow: g.shadow,
+        boxShadow: isDark ? g.shadow : `0 2px 16px ${zone.mainHex}12, 0 0 0 1px ${zone.mainHex}08`,
       }}
     >
       {/* Trial shimmer border */}
@@ -240,19 +241,38 @@ export default function SubscriptionCardActive({
             </div>
           </div>
 
-          {/* Device dots */}
-          <div className="flex flex-shrink-0 gap-1.5" aria-hidden="true">
-            {Array.from({ length: subscription.device_limit }, (_, i) => (
+          {/* Device indicator */}
+          {subscription.device_limit <= 10 ? (
+            <div className="flex flex-shrink-0 gap-1.5" aria-hidden="true">
+              {Array.from({ length: subscription.device_limit }, (_, i) => (
+                <div
+                  key={i}
+                  className="h-[7px] w-[7px] rounded-full transition-all duration-300"
+                  style={{
+                    background: i < connectedDevices ? zone.mainHex : g.textGhost,
+                    boxShadow: i < connectedDevices ? `0 0 6px ${zone.mainHex}50` : 'none',
+                  }}
+                />
+              ))}
+            </div>
+          ) : (
+            <div className="flex w-16 flex-shrink-0 items-center" aria-hidden="true">
               <div
-                key={i}
-                className="h-[7px] w-[7px] rounded-full transition-all duration-300"
-                style={{
-                  background: i < connectedDevices ? zone.mainHex : g.textGhost,
-                  boxShadow: i < connectedDevices ? `0 0 6px ${zone.mainHex}50` : 'none',
-                }}
-              />
-            ))}
-          </div>
+                className="h-[6px] w-full overflow-hidden rounded-full"
+                style={{ background: g.textGhost }}
+              >
+                <div
+                  className="h-full rounded-full transition-all duration-500"
+                  style={{
+                    width: `${Math.round((connectedDevices / subscription.device_limit) * 100)}%`,
+                    background: zone.mainHex,
+                    boxShadow: `0 0 8px ${zone.mainHex}40`,
+                    minWidth: connectedDevices > 0 ? '4px' : '0px',
+                  }}
+                />
+              </div>
+            </div>
+          )}
         </HoverBorderGradient>
       )}
 

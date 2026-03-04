@@ -100,7 +100,7 @@ const sanitizeHtml = (html: string): string => {
       'div',
       'tg-spoiler',
     ],
-    ALLOWED_ATTR: ['href', 'target', 'rel', 'class'],
+    ALLOWED_ATTR: ['href', 'target', 'rel', 'class', 'start'],
     ALLOW_DATA_ATTR: false,
   });
 };
@@ -135,12 +135,13 @@ const formatContent = (content: string): string => {
       if (/^[-•]\s/.test(trimmed) || /^\d+[.)]\s/.test(trimmed)) {
         const lines = trimmed.split('\n');
         const isOrdered = /^\d+[.)]\s/.test(lines[0]);
+        const startNum = isOrdered ? parseInt(lines[0].match(/^(\d+)/)?.[1] || '1', 10) : 1;
         const listItems = lines
           .map((line) => line.replace(/^[-•]\s*/, '').replace(/^\d+[.)]\s*/, ''))
           .filter((line) => line.trim())
           .map((line) => `<li>${line}</li>`)
           .join('');
-        return isOrdered ? `<ol>${listItems}</ol>` : `<ul>${listItems}</ul>`;
+        return isOrdered ? `<ol start="${startNum}">${listItems}</ol>` : `<ul>${listItems}</ul>`;
       }
 
       // Regular paragraph — single newlines become <br/>

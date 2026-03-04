@@ -243,8 +243,9 @@ export interface DashboardStats {
 
 export interface TopReferrerItem {
   user_id: number;
-  telegram_id: number;
+  telegram_id: number | null;
   username?: string;
+  email?: string | null;
   display_name: string;
   invited_count: number;
   invited_today: number;
@@ -288,15 +289,16 @@ export interface TopCampaignsResponse {
 export interface RecentPaymentItem {
   id: number;
   user_id: number;
-  telegram_id: number;
-  username?: string;
+  telegram_id: number | null;
+  email?: string | null;
+  username?: string | null;
   display_name: string;
   amount_kopeks: number;
   amount_rubles: number;
   type: string;
   type_display: string;
-  payment_method?: string;
-  description?: string;
+  payment_method?: string | null;
+  description?: string | null;
   created_at: string;
   is_completed: boolean;
 }

@@ -328,7 +328,10 @@
       "notConfigured": "روش‌های اتصال هنوز پیکربندی نشده‌اند",
       "notConfiguredUser": "تنظیمات اتصال در حال انجام است. لطفاً بعداً مراجعه کنید.",
       "notConfiguredAdmin": "هیچ برنامه اتصالی پیکربندی نشده است. آن‌ها را در تنظیمات برنامه‌ها تنظیم کنید.",
-      "goToApps": "رفتن به تنظیمات برنامه‌ها"
+      "goToApps": "رفتن به تنظیمات برنامه‌ها",
+      "qrTitle": "کد QR اشتراک",
+      "qrScanHint": "برای اتصال با دوربین اسکن کنید",
+      "qrButton": "کد QR"
     },
     "additionalOptions": {
       "title": "گزینه‌های اضافی",
@@ -534,6 +537,8 @@
     },
     "yourReferrals": "معرفی‌های شما",
     "noReferrals": "هنوز معرفی ندارید. لینک را به اشتراک بگذارید!",
+    "anonymousUser": "کاربر #{{id}}",
+    "anonymousReferral": "معرفی‌شده",
     "user": "کاربر",
     "joined": "تاریخ عضویت",
     "hasPaid": "پرداخت کرده",
@@ -582,6 +587,28 @@
         "tariff": "تعرفه جایزه",
         "tariffDesc": "طرح تعرفه رایگان"
       },
+      "stats": {
+        "registrations": "ثبت‌نام",
+        "referrals": "معرفی‌شده‌ها",
+        "earnings": "درآمد",
+        "conversionRate": "نرخ تبدیل",
+        "today": "امروز",
+        "week": "هفته",
+        "month": "ماه",
+        "showDetails": "جزئیات",
+        "hideDetails": "بستن",
+        "vsLastWeek": "مقایسه با هفته قبل",
+        "topReferrals": "برترین معرفی‌شده‌ها",
+        "noData": "داده‌ای نیست",
+        "dailyChart": "روند ۳۰ روزه",
+        "periodComparison": "مقایسه دوره‌ها",
+        "noReferrals": "هنوز معرفی‌شده‌ای نیست",
+        "paid": "پرداخت شده",
+        "pending": "در انتظار",
+        "active": "فعال",
+        "referralsCount": "تعداد معرفی",
+        "earningsAmount": "کسب شده"
+      },
       "fields": {
         "companyName": "نام شرکت",
         "companyNamePlaceholder": "نام شرکت یا برند شما",
@@ -592,7 +619,9 @@
         "description": "توضیحات",
         "descriptionPlaceholder": "درباره مخاطبان خود و نحوه تبلیغ بگویید...",
         "expectedReferrals": "تعداد معرفی ماهانه مورد انتظار",
-        "expectedReferralsPlaceholder": "تعداد تخمینی در ماه"
+        "expectedReferralsPlaceholder": "تعداد تخمینی در ماه",
+        "desiredCommission": "درصد کمیسیون مورد نظر",
+        "desiredCommissionPlaceholder": "از ۱ تا ۱۰۰٪"
       }
     },
     "withdrawal": {
@@ -613,9 +642,9 @@
       "submitRequest": "ارسال درخواست",
       "requestError": "ایجاد درخواست برداشت ناموفق بود. لطفاً دوباره تلاش کنید.",
       "fields": {
-        "amount": "مبلغ (کوپک)",
-        "amountPlaceholder": "مبلغ را به کوپک وارد کنید",
-        "amountHint": "مبلغ را به کوپک وارد کنید (۱۰۰ کوپک = ۱ {{currency}})",
+        "amount": "مبلغ",
+        "amountPlaceholder": "مبلغ را به {{currency}} وارد کنید",
+        "amountHint": "حداقل: {{min}} {{currency}}",
         "paymentDetails": "اطلاعات پرداخت",
         "paymentDetailsPlaceholder": "شماره کارت، آدرس کیف پول یا سایر اطلاعات پرداخت..."
       },
@@ -695,7 +724,8 @@
       "cannotSpin": "فعلاً امکان چرخش نیست",
       "insufficientBalance": "موجودی کافی نیست",
       "topUpRequired": "برای پرداخت شارژ کنید",
-      "starsNotAvailable": "پرداخت Stars در دسترس نیست. برنامه را از طریق تلگرام باز کنید."
+      "starsNotAvailable": "پرداخت Stars در دسترس نیست. برنامه را از طریق تلگرام باز کنید.",
+      "noSubscription": "برای چرخاندن گردونه نیاز به اشتراک فعال دارید. ابتدا اشتراک خود را فعال کنید."
     },
     "payWithStars": "پرداخت {stars} Stars",
     "processingPayment": "در حال پردازش...",
@@ -836,7 +866,8 @@
       "roles": "نقش‌ها",
       "roleAssign": "تخصیص نقش",
       "policies": "سیاست‌های دسترسی",
-      "auditLog": "گزارش بازرسی"
+      "auditLog": "گزارش بازرسی",
+      "salesStats": "آمار فروش"
     },
     "panel": {
       "title": "پنل مدیریت",
@@ -868,7 +899,87 @@
       "rolesDesc": "مدیریت نقش‌ها و مجوزهای مدیران",
       "roleAssignDesc": "تخصیص و لغو نقش‌های کاربران",
       "policiesDesc": "تنظیم سیاست‌های کنترل دسترسی ABAC",
-      "auditLogDesc": "بررسی فعالیت سیستم و تاریخچه دسترسی"
+      "auditLogDesc": "بررسی فعالیت سیستم و تاریخچه دسترسی",
+      "salesStatsDesc": "تحلیل فروش و روندها"
+    },
+    "salesStats": {
+      "title": "آمار فروش",
+      "subtitle": "درآمد، آزمایشی، اشتراک و تمدید",
+      "period": {
+        "week": "۷ روز",
+        "month": "۳۰ روز",
+        "quarter": "۹۰ روز",
+        "all": "همه",
+        "custom": "سفارشی"
+      },
+      "tabs": {
+        "trials": "آزمایشی",
+        "sales": "فروش",
+        "renewals": "تمدید",
+        "addons": "خدمات اضافی",
+        "deposits": "شارژ"
+      },
+      "summary": {
+        "revenue": "درآمد",
+        "activeSubs": "اشتراک فعال",
+        "activeTrials": "آزمایشی فعال",
+        "newTrials": "آزمایشی جدید",
+        "conversion": "تبدیل",
+        "renewals": "تمدید",
+        "addonRevenue": "درآمد خدمات اضافی"
+      },
+      "trials": {
+        "total": "کل آزمایشی",
+        "totalRegistrations": "ثبت‌نام‌ها",
+        "trialsIssued": "آزمایشی صادرشده",
+        "conversion": "نرخ تبدیل",
+        "avgDuration": "میانگین مدت",
+        "byProvider": "بر اساس منبع",
+        "dailyChart": "ثبت‌نام و آزمایشی روزانه",
+        "registrations": "ثبت‌نام"
+      },
+      "sales": {
+        "totalSales": "کل فروش",
+        "avgOrder": "میانگین سفارش",
+        "topTariff": "تعرفه برتر",
+        "byTariff": "بر اساس تعرفه",
+        "byPeriod": "بر اساس دوره",
+        "dailyChart": "فروش روزانه",
+        "dailyByTariff": "فروش روزانه بر اساس تعرفه",
+        "subscriptions": "اشتراک‌ها"
+      },
+      "renewals": {
+        "total": "کل تمدیدها",
+        "rate": "نرخ تمدید",
+        "revenue": "درآمد",
+        "comparison": "مقایسه دوره",
+        "currentPeriod": "دوره فعلی",
+        "previousPeriod": "دوره قبلی",
+        "dailyChart": "تمدید روزانه",
+        "renewals": "تمدید"
+      },
+      "addons": {
+        "totalPurchases": "کل خرید",
+        "totalGb": "کل ترافیک",
+        "revenue": "درآمد",
+        "devicePurchases": "خرید دستگاه",
+        "deviceRevenue": "درآمد دستگاه",
+        "trafficPurchases": "ترافیک",
+        "devicePurchasesDaily": "دستگاه",
+        "byPackage": "بر اساس بسته",
+        "dailyChart": "خرید روزانه خدمات اضافی",
+        "purchases": "خرید"
+      },
+      "deposits": {
+        "totalDeposits": "کل شارژ",
+        "totalAmount": "مبلغ کل",
+        "avgDeposit": "میانگین شارژ",
+        "byMethod": "بر اساس روش پرداخت",
+        "dailyChart": "شارژ روزانه",
+        "dailyByMethod": "شارژ روزانه بر اساس روش پرداخت",
+        "revenue": "درآمد"
+      },
+      "loadError": "بارگذاری آمار ناموفق بود"
     },
     "trafficUsage": {
       "title": "مصرف ترافیک",
@@ -1665,7 +1776,15 @@
         "users": "کاربران",
         "noUsers": "کاربر ثبت‌نام شده‌ای وجود ندارد",
         "paid": "پرداخت کرده",
-        "hasSub": "دارای اشتراک"
+        "hasSub": "دارای اشتراک",
+        "dailyChart": "روند ۳۰ روزه",
+        "chartRegistrations": "ثبت‌نام‌ها",
+        "chartRevenue": "درآمد",
+        "totalDeposits": "کل واریزی‌ها",
+        "totalSpending": "هزینه اشتراک",
+        "periodComparison": "مقایسه دوره‌ها",
+        "vsLastWeek": "نسبت به هفته قبل",
+        "topRegistrations": "بالاترین ثبت‌نام‌ها"
       },
       "users": {
         "title": "کاربران کمپین",
@@ -1715,7 +1834,8 @@
         "approved": "تأیید شده",
         "rejected": "رد شده",
         "completed": "تکمیل شده",
-        "cancelled": "لغو شده"
+        "cancelled": "لغو شده",
+        "unknown": "ناشناخته"
       },
       "detail": {
         "title": "جزئیات برداشت",
@@ -1726,6 +1846,7 @@
         "balance": "موجودی",
         "totalReferrals": "مجموع معرفی‌ها",
         "totalEarnings": "مجموع درآمد",
+        "requestedAmount": "مبلغ درخواستی",
         "createdAt": "تاریخ ایجاد",
         "paymentDetails": "اطلاعات پرداخت",
         "noPaymentDetails": "اطلاعات پرداختی ارائه نشده",
@@ -1781,7 +1902,8 @@
         "website": "وب‌سایت",
         "channel": "کانال",
         "description": "توضیحات",
-        "expectedReferrals": "معرفی مورد انتظار/ماه"
+        "expectedReferrals": "معرفی مورد انتظار/ماه",
+        "desiredCommission": "کمیسیون مورد نظر"
       },
       "approveDialog": {
         "title": "تأیید درخواست",

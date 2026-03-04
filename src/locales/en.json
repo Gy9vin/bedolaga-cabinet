@@ -318,6 +318,11 @@
     "price": "Price",
     "noSubscription": "You don't have an active subscription",
     "getSubscription": "Get Subscription",
+    "cta": {
+      "expiredHint": "Choose a plan and pay",
+      "trialHint": "More traffic and devices",
+      "activeHint": "Renewal and plan change"
+    },
     "connectionInfo": "Connection Info",
     "copyLink": "Copy Link",
     "qrCode": "QR Code",
@@ -423,7 +428,10 @@
       "notConfigured": "Connection methods are not configured yet",
       "notConfiguredUser": "Connection setup is in progress. Please check back later.",
       "notConfiguredAdmin": "No connection apps have been configured. Set them up in the Apps settings.",
-      "goToApps": "Go to Apps settings"
+      "goToApps": "Go to Apps settings",
+      "qrTitle": "Subscription QR Code",
+      "qrScanHint": "Scan to connect",
+      "qrButton": "QR Code"
     },
     "myDevices": "My Devices",
     "noDevices": "No connected devices",
@@ -696,6 +704,8 @@
     },
     "yourReferrals": "Your Referrals",
     "noReferrals": "No referrals yet. Share your link to invite friends!",
+    "anonymousUser": "User #{{id}}",
+    "anonymousReferral": "Referral",
     "user": "User",
     "joined": "Joined",
     "hasPaid": "Has Paid",
@@ -744,6 +754,28 @@
         "tariff": "Bonus tariff",
         "tariffDesc": "Free tariff plan"
       },
+      "stats": {
+        "registrations": "Registrations",
+        "referrals": "Referrals",
+        "earnings": "Earnings",
+        "conversionRate": "Conversion",
+        "today": "Today",
+        "week": "Week",
+        "month": "Month",
+        "showDetails": "Details",
+        "hideDetails": "Collapse",
+        "vsLastWeek": "vs last week",
+        "topReferrals": "Top Referrals",
+        "noData": "No data",
+        "dailyChart": "30-day trends",
+        "periodComparison": "Period comparison",
+        "noReferrals": "No referrals yet",
+        "paid": "Paid",
+        "pending": "Pending",
+        "active": "Active",
+        "referralsCount": "Referrals",
+        "earningsAmount": "Earned"
+      },
       "fields": {
         "companyName": "Company Name",
         "companyNamePlaceholder": "Your company or brand name",
@@ -754,7 +786,9 @@
         "description": "Description",
         "descriptionPlaceholder": "Tell us about your audience and how you plan to promote...",
         "expectedReferrals": "Expected Monthly Referrals",
-        "expectedReferralsPlaceholder": "Estimated number per month"
+        "expectedReferralsPlaceholder": "Estimated number per month",
+        "desiredCommission": "Desired Commission (%)",
+        "desiredCommissionPlaceholder": "From 1 to 100%"
       }
     },
     "withdrawal": {
@@ -775,9 +809,9 @@
       "submitRequest": "Submit Request",
       "requestError": "Failed to create withdrawal request. Please try again.",
       "fields": {
-        "amount": "Amount (kopeks)",
-        "amountPlaceholder": "Enter amount in kopeks",
-        "amountHint": "Enter the amount in kopeks (100 kopeks = 1 {{currency}})",
+        "amount": "Amount",
+        "amountPlaceholder": "Enter amount in {{currency}}",
+        "amountHint": "Minimum: {{min}} {{currency}}",
         "paymentDetails": "Payment Details",
         "paymentDetailsPlaceholder": "Card number, wallet address, or other payment info..."
       },
@@ -860,7 +894,8 @@
       "cannotSpin": "Cannot spin right now",
       "insufficientBalance": "Insufficient balance",
       "topUpRequired": "Top up your balance to pay for spin",
-      "starsNotAvailable": "Stars payment not available. Open the app via Telegram."
+      "starsNotAvailable": "Stars payment not available. Open the app via Telegram.",
+      "noSubscription": "An active subscription is required to spin the wheel. Activate your subscription first."
     },
     "payWithStars": "Pay with Stars",
     "payWithDays": "Pay with days",
@@ -1009,7 +1044,8 @@
       "roles": "Roles",
       "roleAssign": "Role Assignment",
       "policies": "Access Policies",
-      "auditLog": "Audit Log"
+      "auditLog": "Audit Log",
+      "salesStats": "Sales Statistics"
     },
     "panel": {
       "title": "Admin Panel",
@@ -1041,7 +1077,87 @@
       "rolesDesc": "Manage admin roles and permissions",
       "roleAssignDesc": "Assign and revoke user roles",
       "policiesDesc": "Configure ABAC access policies",
-      "auditLogDesc": "Review system activity and access history"
+      "auditLogDesc": "Review system activity and access history",
+      "salesStatsDesc": "Sales analytics and trends"
+    },
+    "salesStats": {
+      "title": "Sales Statistics",
+      "subtitle": "Revenue, trials, subscriptions, and renewals",
+      "period": {
+        "week": "7 days",
+        "month": "30 days",
+        "quarter": "90 days",
+        "all": "All time",
+        "custom": "Custom"
+      },
+      "tabs": {
+        "trials": "Trials",
+        "sales": "Sales",
+        "renewals": "Renewals",
+        "addons": "Add-ons",
+        "deposits": "Deposits"
+      },
+      "summary": {
+        "revenue": "Revenue",
+        "activeSubs": "Active Subs",
+        "activeTrials": "Active Trials",
+        "newTrials": "New Trials",
+        "conversion": "Conversion",
+        "renewals": "Renewals",
+        "addonRevenue": "Add-on Revenue"
+      },
+      "trials": {
+        "total": "Total Trials",
+        "totalRegistrations": "Registrations",
+        "trialsIssued": "Trials Issued",
+        "conversion": "Conversion Rate",
+        "avgDuration": "Avg Duration",
+        "byProvider": "By Registration Source",
+        "dailyChart": "Daily Registrations & Trials",
+        "registrations": "Registrations"
+      },
+      "sales": {
+        "totalSales": "Total Sales",
+        "avgOrder": "Avg Order",
+        "topTariff": "Top Tariff",
+        "byTariff": "Sales by Tariff",
+        "byPeriod": "By Subscription Period",
+        "dailyChart": "Daily Sales",
+        "dailyByTariff": "Sales by Tariff per Day",
+        "subscriptions": "Subscriptions"
+      },
+      "renewals": {
+        "total": "Total Renewals",
+        "rate": "Renewal Rate",
+        "revenue": "Revenue",
+        "comparison": "Period Comparison",
+        "currentPeriod": "Current Period",
+        "previousPeriod": "Previous Period",
+        "dailyChart": "Daily Renewals",
+        "renewals": "Renewals"
+      },
+      "addons": {
+        "totalPurchases": "Total Purchases",
+        "totalGb": "Total Traffic",
+        "revenue": "Revenue",
+        "devicePurchases": "Device Purchases",
+        "deviceRevenue": "Device Revenue",
+        "trafficPurchases": "Traffic",
+        "devicePurchasesDaily": "Devices",
+        "byPackage": "By Package Size",
+        "dailyChart": "Daily Add-on Purchases",
+        "purchases": "Purchases"
+      },
+      "deposits": {
+        "totalDeposits": "Total Deposits",
+        "totalAmount": "Total Amount",
+        "avgDeposit": "Avg Deposit",
+        "byMethod": "By Payment Method",
+        "dailyChart": "Daily Deposits",
+        "dailyByMethod": "Daily Deposits by Payment Method",
+        "revenue": "Revenue"
+      },
+      "loadError": "Failed to load statistics"
     },
     "trafficUsage": {
       "title": "Traffic Usage",
@@ -1982,7 +2098,15 @@
         "users": "Users",
         "noUsers": "No registered users",
         "paid": "Paid",
-        "hasSub": "Has sub"
+        "hasSub": "Has sub",
+        "dailyChart": "30-day trends",
+        "chartRegistrations": "Registrations",
+        "chartRevenue": "Revenue",
+        "totalDeposits": "Total Deposits",
+        "totalSpending": "Subscription Spending",
+        "periodComparison": "Period comparison",
+        "vsLastWeek": "vs last week",
+        "topRegistrations": "Top registrations"
       },
       "users": {
         "title": "Campaign Users",
@@ -2044,6 +2168,7 @@
         "balance": "Balance",
         "totalReferrals": "Total referrals",
         "totalEarnings": "Total earnings",
+        "requestedAmount": "Requested Amount",
         "createdAt": "Created",
         "paymentDetails": "Payment Details",
         "noPaymentDetails": "No payment details provided",
@@ -2099,7 +2224,8 @@
         "website": "Website",
         "channel": "Channel",
         "description": "Description",
-        "expectedReferrals": "Expected referrals/mo"
+        "expectedReferrals": "Expected referrals/mo",
+        "desiredCommission": "Desired commission"
       },
       "approveDialog": {
         "title": "Approve Application",

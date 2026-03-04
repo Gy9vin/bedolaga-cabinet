@@ -38,7 +38,12 @@ interface AuthState {
   loginWithTelegram: (initData: string) => Promise<void>;
   loginWithTelegramWidget: (data: TelegramWidgetData) => Promise<void>;
   loginWithEmail: (email: string, password: string) => Promise<void>;
-  loginWithOAuth: (provider: string, code: string, state: string) => Promise<void>;
+  loginWithOAuth: (
+    provider: string,
+    code: string,
+    state: string,
+    deviceId?: string | null,
+  ) => Promise<void>;
   registerWithEmail: (
     email: string,
     password: string,
@@ -295,13 +300,14 @@ export const useAuthStore = create<AuthState>()(
         await get().checkAdminStatus();
       },
 
-      loginWithOAuth: async (provider, code, state) => {
+      loginWithOAuth: async (provider, code, state, deviceId) => {
         const campaignSlug = consumeCampaignSlug();
         const referralCode = consumeReferralCode();
         const response = await authApi.oauthCallback(
           provider,
           code,
           state,
+          deviceId,
           campaignSlug,
           referralCode,
         );

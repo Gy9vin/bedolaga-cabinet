@@ -1,10 +1,15 @@
-import { useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { useParams, useNavigate, Link } from 'react-router';
 import { useQuery } from '@tanstack/react-query';
 import { useTranslation } from 'react-i18next';
-import i18n from '../i18n';
 import { campaignsApi, CampaignBonusType } from '../api/campaigns';
+import type { AdminCampaignChartData } from '../api/campaigns';
 import { AdminBackButton } from '../components/admin';
+import { DailyChart, PeriodComparison, StatCard } from '../components/stats';
+import { PARTNER_STATS } from '../constants/partner';
+import { useCurrency } from '../hooks/useCurrency';
+import { copyToClipboard } from '../utils/clipboard';
+import { useHaptic } from '../platform';
 
 // Icons
 const CopyIcon = () => (
@@ -74,31 +79,14 @@ const bonusTypeConfig: Record<
   },
 };
 
-// Helper functions
-const localeMap: Record<string, string> = { ru: 'ru-RU', en: 'en-US', zh: 'zh-CN', fa: 'fa-IR' };
-
-const formatRubles = (kopeks: number): string => {
-  const rubles = kopeks / 100;
-  const locale = localeMap[i18n.language] || 'ru-RU';
-  return `${rubles.toLocaleString(locale)} ₽`;
-};
-
-const formatDate = (date: string | null): string => {
-  if (!date) return '-';
-  const locale = localeMap[i18n.language] || 'ru-RU';
-  return new Date(date).toLocaleDateString(locale, {
-    day: '2-digit',
-    month: '2-digit',
-    year: 'numeric',
-    hour: '2-digit',
-    minute: '2-digit',
-  });
-};
-
 export default function AdminCampaignStats() {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const { id } = useParams<{ id: string }>();
+  const numericId = id ? Number(id) : null;
+  const isValidId = numericId !== null && !isNaN(numericId);
   const navigate = useNavigate();
+  const haptic = useHaptic();
+  const { formatWithCurrency } = useCurrency();
   const [copiedBot, setCopiedBot] = useState(false);
   const [copiedWeb, setCopiedWeb] = useState(false);
   const [showUsers, setShowUsers] = useState(false);
@@ -119,42 +107,66 @@ export default function AdminCampaignStats() {
     error,
   } = useQuery({
     queryKey: ['campaign-stats', id],
-    queryFn: () => campaignsApi.getCampaignStats(Number(id)),
-    enabled: !!id,
+    queryFn: () => campaignsApi.getCampaignStats(numericId!),
+    enabled: isValidId,
+    staleTime: PARTNER_STATS.STATS_STALE_TIME,
   });
 
   // Fetch registrations when users section is open
   const { data: registrationsData, isLoading: usersLoading } = useQuery({
     queryKey: ['campaign-registrations', id],
-    queryFn: () => campaignsApi.getCampaignRegistrations(Number(id), 1, 50),
-    enabled: !!id && showUsers,
+    queryFn: () => campaignsApi.getCampaignRegistrations(numericId!, 1, 50),
+    enabled: isValidId && showUsers,
   });
 
-  const copyBotLink = async () => {
-    if (stats?.deep_link) {
-      try {
-        await navigator.clipboard.writeText(stats.deep_link);
-        setCopiedBot(true);
-        clearTimeout(copyBotTimer.current);
-        copyBotTimer.current = setTimeout(() => setCopiedBot(false), 2000);
-      } catch {
-        // Clipboard not available
-      }
-    }
-  };
+  // Fetch chart data
+  const { data: chartData, isLoading: chartLoading } = useQuery<AdminCampaignChartData>({
+    queryKey: ['campaign-chart-data', id],
+    queryFn: () => campaignsApi.getChartData(numericId!),
+    enabled: isValidId,
+    staleTime: PARTNER_STATS.STATS_STALE_TIME,
+  });
 
-  const copyWebLink = async () => {
-    if (stats?.web_link) {
+  const handleCopy = useCallback(
+    async (url: string, type: 'bot' | 'web') => {
       try {
-        await navigator.clipboard.writeText(stats.web_link);
-        setCopiedWeb(true);
-        clearTimeout(copyWebTimer.current);
-        copyWebTimer.current = setTimeout(() => setCopiedWeb(false), 2000);
+        await copyToClipboard(url);
+        haptic.notification('success');
+        if (type === 'bot') {
+          setCopiedBot(true);
+          clearTimeout(copyBotTimer.current);
+          copyBotTimer.current = setTimeout(
+            () => setCopiedBot(false),
+            PARTNER_STATS.COPY_FEEDBACK_MS,
+          );
+        } else {
+          setCopiedWeb(true);
+          clearTimeout(copyWebTimer.current);
+          copyWebTimer.current = setTimeout(
+            () => setCopiedWeb(false),
+            PARTNER_STATS.COPY_FEEDBACK_MS,
+          );
+        }
       } catch {
-        // Clipboard not available
+        haptic.notification('error');
       }
-    }
-  };
+    },
+    [haptic],
+  );
+
+  const formatDate = useCallback(
+    (date: string | null): string => {
+      if (!date) return '-';
+      return new Date(date).toLocaleDateString(i18n.language, {
+        day: '2-digit',
+        month: '2-digit',
+        year: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit',
+      });
+    },
+    [i18n.language],
+  );
 
   if (isLoading) {
     return (
@@ -195,8 +207,8 @@ export default function AdminCampaignStats() {
           <div className="rounded-lg bg-accent-500/20 p-2 text-accent-400">
             <ChartIcon />
           </div>
-          <div>
-            <h1 className="text-xl font-semibold text-dark-100">{stats.name}</h1>
+          <div className="min-w-0">
+            <h1 className="truncate text-xl font-semibold text-dark-100">{stats.name}</h1>
             <div className="mt-1 flex items-center gap-2">
               <span
                 className={`rounded px-2 py-0.5 text-xs ${bonusTypeConfig[stats.bonus_type].bgColor} ${bonusTypeConfig[stats.bonus_type].color}`}
@@ -232,8 +244,8 @@ export default function AdminCampaignStats() {
                     <span className="truncate text-sm text-dark-300">{stats.deep_link}</span>
                   </div>
                   <button
-                    onClick={copyBotLink}
-                    className="flex shrink-0 items-center gap-1 rounded-lg bg-dark-700 px-3 py-1.5 text-dark-300 transition-colors hover:bg-dark-600"
+                    onClick={() => handleCopy(stats.deep_link!, 'bot')}
+                    className="flex shrink-0 items-center gap-1 rounded-lg bg-dark-700 px-3 py-2 text-dark-300 transition-colors hover:bg-dark-600"
                   >
                     <CopyIcon />
                     <span className="text-sm">
@@ -256,8 +268,8 @@ export default function AdminCampaignStats() {
                     <span className="truncate text-sm text-dark-300">{stats.web_link}</span>
                   </div>
                   <button
-                    onClick={copyWebLink}
-                    className="flex shrink-0 items-center gap-1 rounded-lg bg-dark-700 px-3 py-1.5 text-dark-300 transition-colors hover:bg-dark-600"
+                    onClick={() => handleCopy(stats.web_link!, 'web')}
+                    className="flex shrink-0 items-center gap-1 rounded-lg bg-dark-700 px-3 py-2 text-dark-300 transition-colors hover:bg-dark-600"
                   >
                     <CopyIcon />
                     <span className="text-sm">
@@ -275,21 +287,25 @@ export default function AdminCampaignStats() {
         {/* Main Stats */}
         <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
           <div className="rounded-xl border border-dark-700 bg-dark-800 p-4 text-center">
-            <div className="text-2xl font-bold text-dark-100">{stats.registrations}</div>
+            <div className="text-xl font-bold text-dark-100 sm:text-2xl">{stats.registrations}</div>
             <div className="text-xs text-dark-500">{t('admin.campaigns.stats.registrations')}</div>
           </div>
           <div className="rounded-xl border border-dark-700 bg-dark-800 p-4 text-center">
-            <div className="text-2xl font-bold text-success-400">
-              {formatRubles(stats.total_revenue_kopeks)}
+            <div className="truncate text-xl font-bold text-success-400 sm:text-2xl">
+              {formatWithCurrency(stats.total_revenue_kopeks / PARTNER_STATS.KOPEKS_DIVISOR)}
             </div>
             <div className="text-xs text-dark-500">{t('admin.campaigns.stats.revenue')}</div>
           </div>
           <div className="rounded-xl border border-dark-700 bg-dark-800 p-4 text-center">
-            <div className="text-2xl font-bold text-accent-400">{stats.paid_users_count}</div>
+            <div className="text-xl font-bold text-accent-400 sm:text-2xl">
+              {stats.paid_users_count}
+            </div>
             <div className="text-xs text-dark-500">{t('admin.campaigns.stats.paidUsers')}</div>
           </div>
           <div className="rounded-xl border border-dark-700 bg-dark-800 p-4 text-center">
-            <div className="text-2xl font-bold text-accent-400">{stats.conversion_rate}%</div>
+            <div className="text-xl font-bold text-accent-400 sm:text-2xl">
+              {stats.conversion_rate}%
+            </div>
             <div className="text-xs text-dark-500">{t('admin.campaigns.stats.conversion')}</div>
           </div>
         </div>
@@ -306,7 +322,7 @@ export default function AdminCampaignStats() {
               </div>
               {stats.bonus_type === 'balance' && (
                 <div className="text-lg font-medium text-success-400">
-                  {formatRubles(stats.balance_issued_kopeks)}
+                  {formatWithCurrency(stats.balance_issued_kopeks / PARTNER_STATS.KOPEKS_DIVISOR)}
                 </div>
               )}
               {stats.bonus_type === 'subscription' && (
@@ -330,7 +346,9 @@ export default function AdminCampaignStats() {
                 {t('admin.campaigns.stats.avgRevenuePerUser')}
               </div>
               <div className="text-lg font-medium text-dark-200">
-                {formatRubles(stats.avg_revenue_per_user_kopeks)}
+                {formatWithCurrency(
+                  stats.avg_revenue_per_user_kopeks / PARTNER_STATS.KOPEKS_DIVISOR,
+                )}
               </div>
             </div>
             <div className="rounded-lg bg-dark-700/50 p-3">
@@ -338,7 +356,7 @@ export default function AdminCampaignStats() {
                 {t('admin.campaigns.stats.avgFirstPayment')}
               </div>
               <div className="text-lg font-medium text-dark-200">
-                {formatRubles(stats.avg_first_payment_kopeks)}
+                {formatWithCurrency(stats.avg_first_payment_kopeks / PARTNER_STATS.KOPEKS_DIVISOR)}
               </div>
             </div>
             <div className="rounded-lg bg-dark-700/50 p-3">
@@ -369,6 +387,94 @@ export default function AdminCampaignStats() {
               </div>
             </div>
           </div>
+        </div>
+
+        {/* Analytics Charts */}
+        <div className="space-y-4">
+          {chartLoading ? (
+            <div className="space-y-3">
+              <div className="h-52 animate-pulse rounded-xl bg-dark-800/30" />
+              <div className="grid grid-cols-2 gap-3">
+                <div className="h-24 animate-pulse rounded-xl bg-dark-800/30" />
+                <div className="h-24 animate-pulse rounded-xl bg-dark-800/30" />
+              </div>
+            </div>
+          ) : chartData ? (
+            <>
+              {/* Deposits vs Spending */}
+              <div className="grid grid-cols-2 gap-3">
+                <StatCard
+                  label={t('admin.campaigns.stats.totalDeposits')}
+                  value={formatWithCurrency(
+                    chartData.total_deposits_kopeks / PARTNER_STATS.KOPEKS_DIVISOR,
+                  )}
+                  valueClassName="text-success-400"
+                />
+                <StatCard
+                  label={t('admin.campaigns.stats.totalSpending')}
+                  value={formatWithCurrency(
+                    chartData.total_spending_kopeks / PARTNER_STATS.KOPEKS_DIVISOR,
+                  )}
+                  valueClassName="text-accent-400"
+                />
+              </div>
+              <DailyChart
+                data={chartData.daily_stats}
+                chartId={`admin-${id}`}
+                title={t('admin.campaigns.stats.dailyChart')}
+                earningsLabel={t('admin.campaigns.stats.chartRevenue')}
+                countLabel={t('admin.campaigns.stats.chartRegistrations')}
+              />
+              <PeriodComparison
+                data={chartData.period_comparison}
+                title={t('admin.campaigns.stats.periodComparison')}
+                countLabel={t('admin.campaigns.stats.chartRegistrations')}
+                earningsLabel={t('admin.campaigns.stats.chartRevenue')}
+                comparisonLabel={t('admin.campaigns.stats.vsLastWeek')}
+              />
+              {/* Top Registrations */}
+              {chartData.top_registrations.length > 0 && (
+                <div className="bento-card">
+                  <h4 className="mb-3 text-sm font-semibold text-dark-200">
+                    {t('admin.campaigns.stats.topRegistrations')}
+                  </h4>
+                  <div className="space-y-2">
+                    {chartData.top_registrations.map((reg) => (
+                      <Link
+                        key={reg.id}
+                        to={`/admin/users/${reg.id}`}
+                        className="flex items-center justify-between rounded-xl border border-dark-700/30 bg-dark-800/30 p-3 transition-colors hover:bg-dark-700/50"
+                      >
+                        <div className="min-w-0 flex-1">
+                          <div className="flex min-w-0 items-center gap-2">
+                            <span className="min-w-0 truncate text-sm font-medium text-dark-100">
+                              {reg.full_name}
+                            </span>
+                            {reg.is_active && (
+                              <span className="badge-success">
+                                {t('admin.campaigns.stats.active')}
+                              </span>
+                            )}
+                            {reg.has_paid && !reg.is_active && (
+                              <span className="badge-info">{t('admin.campaigns.stats.paid')}</span>
+                            )}
+                          </div>
+                          <div className="mt-0.5 text-xs text-dark-500">
+                            {new Date(reg.created_at).toLocaleDateString(i18n.language)}
+                          </div>
+                        </div>
+                        <div className="text-sm font-semibold text-success-400">
+                          {formatWithCurrency(
+                            reg.total_earnings_kopeks / PARTNER_STATS.KOPEKS_DIVISOR,
+                          )}
+                        </div>
+                      </Link>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </>
+          ) : null}
         </div>
 
         {/* Users Section */}
@@ -414,7 +520,9 @@ export default function AdminCampaignStats() {
                     >
                       <div>
                         <div className="font-medium text-dark-100">
-                          {reg.first_name || reg.username || `User #${reg.user_id}`}
+                          {reg.first_name ||
+                            reg.username ||
+                            `${t('admin.campaigns.stats.users')} #${reg.user_id}`}
                         </div>
                         <div className="text-xs text-dark-500">{reg.telegram_id}</div>
                       </div>
