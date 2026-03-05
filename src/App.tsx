@@ -779,7 +779,7 @@ function App() {
         <Route
           path="/admin/sales-stats"
           element={
-            <PermissionRoute permission="stats:read">
+            <PermissionRoute permission="sales_stats:read">
               <LazyPage>
                 <AdminSalesStats />
               </LazyPage>
