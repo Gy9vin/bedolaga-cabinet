@@ -39,6 +39,9 @@ const Connection = lazy(() => import('./pages/Connection'));
 const ConnectionQR = lazy(() => import('./pages/ConnectionQR'));
 const TopUpMethodSelect = lazy(() => import('./pages/TopUpMethodSelect'));
 const TopUpAmount = lazy(() => import('./pages/TopUpAmount'));
+const ConnectedAccounts = lazy(() => import('./pages/ConnectedAccounts'));
+const LinkTelegramCallback = lazy(() => import('./pages/LinkTelegramCallback'));
+const MergeAccounts = lazy(() => import('./pages/MergeAccounts'));
 
 // Admin pages - lazy load (only for admins)
 const AdminPanel = lazy(() => import('./pages/AdminPanel'));
@@ -183,6 +186,14 @@ function App() {
         <Route path="/auth/oauth/callback" element={<OAuthCallback />} />
         <Route path="/verify-email" element={<VerifyEmail />} />
         <Route path="/reset-password" element={<ResetPassword />} />
+        <Route
+          path="/merge/:mergeToken"
+          element={
+            <LazyPage>
+              <MergeAccounts />
+            </LazyPage>
+          }
+        />
 
         {/* Protected routes */}
         <Route
@@ -291,6 +302,26 @@ function App() {
             <ProtectedRoute>
               <LazyPage>
                 <Profile />
+              </LazyPage>
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/profile/accounts"
+          element={
+            <ProtectedRoute>
+              <LazyPage>
+                <ConnectedAccounts />
+              </LazyPage>
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/auth/link/telegram/callback"
+          element={
+            <ProtectedRoute>
+              <LazyPage>
+                <LinkTelegramCallback />
               </LazyPage>
             </ProtectedRoute>
           }
@@ -748,7 +779,7 @@ function App() {
         <Route
           path="/admin/sales-stats"
           element={
-            <PermissionRoute permission="stats:read">
+            <PermissionRoute permission="sales_stats:read">
               <LazyPage>
                 <AdminSalesStats />
               </LazyPage>

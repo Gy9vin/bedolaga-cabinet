@@ -711,3 +711,61 @@ export interface ModemDisableResult {
   new_device_limit: number;
   old_device_limit: number;
 }
+
+// Account Linking
+export interface LinkedProvider {
+  provider: string;
+  linked: boolean;
+  identifier: string | null;
+}
+
+export interface LinkedProvidersResponse {
+  providers: LinkedProvider[];
+}
+
+export interface LinkCallbackResponse {
+  success: boolean;
+  message: string | null;
+  merge_required: boolean;
+  merge_token: string | null;
+}
+
+export interface ServerCompleteResponse extends LinkCallbackResponse {
+  provider: string;
+}
+
+// Account Merge
+export interface MergeSubscriptionPreview {
+  status: string;
+  is_trial: boolean;
+  end_date: string | null;
+  traffic_limit_gb: number;
+  traffic_used_gb: number;
+  device_limit: number;
+  tariff_name: string | null;
+  autopay_enabled: boolean;
+}
+
+export interface MergeAccountPreview {
+  id: number;
+  username: string | null;
+  first_name: string | null;
+  email: string | null;
+  auth_methods: string[];
+  balance_kopeks: number;
+  subscription: MergeSubscriptionPreview | null;
+  created_at: string | null;
+}
+
+export interface MergePreviewResponse {
+  primary: MergeAccountPreview;
+  secondary: MergeAccountPreview;
+  expires_in_seconds: number;
+}
+
+export interface MergeResponse {
+  success: boolean;
+  access_token: string | null;
+  refresh_token: string | null;
+  user: User | null;
+}

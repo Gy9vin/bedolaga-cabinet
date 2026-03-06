@@ -1,14 +1,11 @@
 import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router';
-import type { Subscription } from '../../types';
 import { useCurrency } from '../../hooks/useCurrency';
 import { useTheme } from '../../hooks/useTheme';
-import { useTrafficZone } from '../../hooks/useTrafficZone';
 import { getGlassColors } from '../../utils/glassTheme';
 
 interface StatsGridProps {
   balanceRubles: number;
-  subscription: Subscription | null;
   referralCount: number;
   earningsRubles: number;
   refLoading: boolean;
@@ -35,7 +32,6 @@ const ChevronIcon = ({ color }: { color: string }) => (
 
 export default function StatsGrid({
   balanceRubles,
-  subscription,
   referralCount,
   earningsRubles,
   refLoading,
@@ -45,13 +41,14 @@ export default function StatsGrid({
   const { isDark } = useTheme();
   const g = getGlassColors(isDark);
 
-  const zone = useTrafficZone(subscription?.traffic_used_percent ?? 0);
+  const accentColor = 'rgb(var(--color-accent-400))';
+  const accentBg = 'rgba(var(--color-accent-400), 0.07)';
 
   const cards = [
     {
       label: t('dashboard.stats.balance'),
       value: `${formatAmount(balanceRubles)} ${currencySymbol}`,
-      valueColor: zone.mainHex,
+      valueColor: accentColor,
       to: '/balance',
       icon: (color: string) => (
         <svg
@@ -70,8 +67,8 @@ export default function StatsGrid({
           <path d="M6 14h.01M10 14h.01" />
         </svg>
       ),
-      iconBg: `${zone.mainHex}12`,
-      iconColor: zone.mainHex,
+      iconBg: accentBg,
+      iconColor: accentColor,
       loading: false,
       onboarding: 'balance',
     },
@@ -80,7 +77,7 @@ export default function StatsGrid({
       value: `${referralCount}`,
       valueColor: g.text,
       subtitle: `+${formatAmount(earningsRubles)} ${currencySymbol}`,
-      subtitleColor: zone.mainHex,
+      subtitleColor: accentColor,
       to: '/referral',
       icon: (color: string) => (
         <svg

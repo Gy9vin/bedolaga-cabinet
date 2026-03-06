@@ -71,12 +71,14 @@ export default function SubscriptionCardActive({
       style={{
         background: g.cardBg,
         border: subscription.is_trial
-          ? '1px solid rgba(62,219,176,0.15)'
+          ? '1px solid rgba(var(--color-accent-400), 0.15)'
           : isDark
             ? `1px solid ${g.cardBorder}`
-            : `1px solid ${zone.mainHex}25`,
+            : `1px solid rgba(${zone.mainVarRaw}, 0.14)`,
         padding: '28px 28px 24px',
-        boxShadow: isDark ? g.shadow : `0 2px 16px ${zone.mainHex}12, 0 0 0 1px ${zone.mainHex}08`,
+        boxShadow: isDark
+          ? g.shadow
+          : `0 2px 16px rgba(${zone.mainVarRaw}, 0.07), 0 0 0 1px rgba(${zone.mainVarRaw}, 0.03)`,
       }}
     >
       {/* Trial shimmer border */}
@@ -96,7 +98,7 @@ export default function SubscriptionCardActive({
           width: 200,
           height: 200,
           borderRadius: '50%',
-          background: `radial-gradient(circle, ${zone.mainHex}${g.glowAlpha} 0%, transparent 70%)`,
+          background: `radial-gradient(circle, rgba(${zone.mainVarRaw}, ${isDark ? 0.08 : 0.03}) 0%, transparent 70%)`,
           transition: 'background 0.8s ease',
         }}
         aria-hidden="true"
@@ -110,15 +112,15 @@ export default function SubscriptionCardActive({
             <div
               className="h-2 w-2 rounded-full"
               style={{
-                background: zone.mainHex,
-                boxShadow: `0 0 8px ${zone.mainHex}80`,
+                background: zone.mainVar,
+                boxShadow: `0 0 8px rgba(${zone.mainVarRaw}, 0.5)`,
                 transition: 'all 0.6s ease',
               }}
               aria-hidden="true"
             />
             <span
               className="font-mono text-[11px] font-semibold uppercase tracking-widest"
-              style={{ color: zone.mainHex, transition: 'color 0.6s ease' }}
+              style={{ color: zone.mainVar, transition: 'color 0.6s ease' }}
             >
               {isUnlimited ? t('dashboard.unlimited') : t(zone.labelKey)}
             </span>
@@ -127,9 +129,9 @@ export default function SubscriptionCardActive({
                 className="inline-flex animate-trial-glow items-center gap-1 rounded-md px-2 py-0.5 font-mono text-[9px] font-bold uppercase tracking-widest"
                 style={{
                   background:
-                    'linear-gradient(135deg, rgba(62,219,176,0.15), rgba(62,219,176,0.06))',
-                  border: '1px solid rgba(62,219,176,0.2)',
-                  color: zone.colors.accent,
+                    'linear-gradient(135deg, rgba(var(--color-accent-400), 0.15), rgba(var(--color-accent-400), 0.06))',
+                  border: '1px solid rgba(var(--color-accent-400), 0.2)',
+                  color: 'rgb(var(--color-accent-400))',
                 }}
               >
                 <svg
@@ -164,7 +166,7 @@ export default function SubscriptionCardActive({
             <>
               <div
                 className="font-display text-[28px] font-extrabold leading-none tracking-tight"
-                style={{ color: zone.mainHex }}
+                style={{ color: zone.mainVar }}
               >
                 &#8734;
               </div>
@@ -209,14 +211,14 @@ export default function SubscriptionCardActive({
           {/* Monitor icon */}
           <div
             className="flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-[10px] transition-colors duration-500"
-            style={{ background: `${zone.mainHex}12` }}
+            style={{ background: `rgba(${zone.mainVarRaw}, 0.07)` }}
           >
             <svg
               width="16"
               height="16"
               viewBox="0 0 24 24"
               fill="none"
-              stroke={zone.mainHex}
+              stroke={zone.mainVar}
               strokeWidth="2"
               strokeLinecap="round"
               strokeLinejoin="round"
@@ -249,8 +251,9 @@ export default function SubscriptionCardActive({
                   key={i}
                   className="h-[7px] w-[7px] rounded-full transition-all duration-300"
                   style={{
-                    background: i < connectedDevices ? zone.mainHex : g.textGhost,
-                    boxShadow: i < connectedDevices ? `0 0 6px ${zone.mainHex}50` : 'none',
+                    background: i < connectedDevices ? zone.mainVar : g.textGhost,
+                    boxShadow:
+                      i < connectedDevices ? `0 0 6px rgba(${zone.mainVarRaw}, 0.31)` : 'none',
                   }}
                 />
               ))}
@@ -265,8 +268,8 @@ export default function SubscriptionCardActive({
                   className="h-full rounded-full transition-all duration-500"
                   style={{
                     width: `${Math.round((connectedDevices / subscription.device_limit) * 100)}%`,
-                    background: zone.mainHex,
-                    boxShadow: `0 0 8px ${zone.mainHex}40`,
+                    background: zone.mainVar,
+                    boxShadow: `0 0 8px rgba(${zone.mainVarRaw}, 0.25)`,
                     minWidth: connectedDevices > 0 ? '4px' : '0px',
                   }}
                 />
@@ -283,13 +286,13 @@ export default function SubscriptionCardActive({
           to="/subscription"
           className="flex-1 rounded-[14px] p-3.5 transition-all duration-500"
           style={{
-            background: `linear-gradient(135deg, ${zone.mainHex}12, ${zone.mainHex}06)`,
-            border: `1px solid ${zone.mainHex}18`,
+            background: `linear-gradient(135deg, rgba(${zone.mainVarRaw}, 0.07), rgba(${zone.mainVarRaw}, 0.02))`,
+            border: `1px solid rgba(${zone.mainVarRaw}, 0.09)`,
           }}
         >
           <div
             className="mb-1.5 text-[10px] font-semibold uppercase tracking-wider opacity-70 transition-colors duration-500"
-            style={{ color: zone.mainHex }}
+            style={{ color: zone.mainVar }}
           >
             {t('dashboard.tariff')}
           </div>
@@ -306,14 +309,17 @@ export default function SubscriptionCardActive({
           className="flex-1 rounded-[14px] p-3.5 transition-colors duration-300"
           style={{
             background: g.innerBg,
-            border: daysLeft <= 3 ? '1px solid rgba(255,184,0,0.2)' : `1px solid ${g.innerBorder}`,
+            border:
+              daysLeft <= 3
+                ? '1px solid rgba(var(--color-warning-400), 0.2)'
+                : `1px solid ${g.innerBorder}`,
           }}
         >
           <div className="mb-1 flex items-center gap-1.5 text-[10px] font-medium uppercase tracking-wider text-dark-50/35">
             <div
               className="flex h-6 w-6 items-center justify-center rounded-[7px] transition-colors duration-300"
               style={{
-                background: daysLeft <= 3 ? 'rgba(255,184,0,0.1)' : g.hoverBg,
+                background: daysLeft <= 3 ? 'rgba(var(--color-warning-400), 0.1)' : g.hoverBg,
               }}
             >
               <svg
@@ -321,7 +327,7 @@ export default function SubscriptionCardActive({
                 height="13"
                 viewBox="0 0 24 24"
                 fill="none"
-                stroke={daysLeft <= 3 ? '#FFB800' : g.textSecondary}
+                stroke={daysLeft <= 3 ? 'rgb(var(--color-warning-400))' : g.textSecondary}
                 strokeWidth="2"
                 strokeLinecap="round"
                 strokeLinejoin="round"
@@ -336,7 +342,7 @@ export default function SubscriptionCardActive({
           <div className="flex items-baseline gap-1">
             <span
               className="text-[22px] font-bold tracking-tight transition-colors duration-300"
-              style={{ color: daysLeft <= 3 ? '#FFB800' : g.text }}
+              style={{ color: daysLeft <= 3 ? 'rgb(var(--color-warning-400))' : g.text }}
             >
               {daysLeft}
             </span>
@@ -382,7 +388,7 @@ export default function SubscriptionCardActive({
               {t('dashboard.maxUsage', { amount: formatTraffic(Math.max(...dailyUsage)) })}
             </span>
           </div>
-          <Sparkline data={dailyUsage} width={440} height={44} color={zone.mainHex} />
+          <Sparkline data={dailyUsage} width={440} height={44} color={zone.mainVar} />
         </div>
       )}
     </div>

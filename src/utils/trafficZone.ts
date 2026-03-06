@@ -10,6 +10,10 @@ interface TrafficZoneResult {
   labelKey: string;
   gradientFrom: string;
   gradientTo: string;
+  /** CSS variable for the main zone color: `rgb(var(--color-accent-400))` */
+  mainVar: string;
+  /** Raw CSS variable reference for opacity manipulation: `var(--color-accent-400)` */
+  mainVarRaw: string;
   /** Key into ThemeColors for resolving mainHex at runtime */
   colorKey: TrafficColorKey;
 }
@@ -22,6 +26,8 @@ const ZONES: Record<TrafficZone, Omit<TrafficZoneResult, 'zone'>> = {
     labelKey: 'dashboard.zone.normal',
     gradientFrom: 'rgb(var(--color-accent-500))',
     gradientTo: 'rgb(var(--color-accent-400))',
+    mainVar: 'rgb(var(--color-accent-400))',
+    mainVarRaw: 'var(--color-accent-400)',
     colorKey: 'accent',
   },
   warning: {
@@ -31,6 +37,8 @@ const ZONES: Record<TrafficZone, Omit<TrafficZoneResult, 'zone'>> = {
     labelKey: 'dashboard.zone.warning',
     gradientFrom: 'rgb(var(--color-warning-500))',
     gradientTo: 'rgb(var(--color-warning-400))',
+    mainVar: 'rgb(var(--color-warning-400))',
+    mainVarRaw: 'var(--color-warning-400)',
     colorKey: 'warning',
   },
   danger: {
@@ -40,6 +48,8 @@ const ZONES: Record<TrafficZone, Omit<TrafficZoneResult, 'zone'>> = {
     labelKey: 'dashboard.zone.danger',
     gradientFrom: 'rgb(var(--color-warning-600))',
     gradientTo: 'rgb(var(--color-warning-400))',
+    mainVar: 'rgb(var(--color-warning-400))',
+    mainVarRaw: 'var(--color-warning-400)',
     colorKey: 'warning',
   },
   critical: {
@@ -49,6 +59,8 @@ const ZONES: Record<TrafficZone, Omit<TrafficZoneResult, 'zone'>> = {
     labelKey: 'dashboard.zone.critical',
     gradientFrom: 'rgb(var(--color-error-500))',
     gradientTo: 'rgb(var(--color-error-400))',
+    mainVar: 'rgb(var(--color-error-400))',
+    mainVarRaw: 'var(--color-error-400)',
     colorKey: 'error',
   },
 };

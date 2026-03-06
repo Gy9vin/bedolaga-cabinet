@@ -2577,6 +2577,7 @@
           "users": "کاربران",
           "tickets": "تیکت‌ها",
           "stats": "آمار",
+          "sales_stats": "آمار فروش",
           "broadcasts": "پیام‌های همگانی",
           "tariffs": "تعرفه‌ها",
           "promocodes": "کدهای تخفیف",
@@ -3035,6 +3036,36 @@
       "promoOffers": "پیشنهادات تبلیغاتی",
       "promoOffersDesc": "دریافت پیشنهادات ویژه و تخفیف‌ها",
       "unavailable": "تنظیمات اعلان در دسترس نیست"
+    },
+    "accounts": {
+      "title": "حساب‌های متصل",
+      "subtitle": "مدیریت روش‌های ورود",
+      "linked": "متصل",
+      "notLinked": "متصل نیست",
+      "link": "اتصال",
+      "unlink": "قطع اتصال",
+      "unlinkConfirm": "آیا مطمئن هستید؟ پس از قطع اتصال نمی‌توانید از طریق این سرویس وارد شوید.",
+      "unlinkConfirmBtn": "تأیید قطع اتصال؟",
+      "cannotUnlinkLast": "نمی‌توان آخرین روش ورود را قطع کرد",
+      "linkSuccess": "حساب با موفقیت متصل شد",
+      "unlinkSuccess": "اتصال حساب با موفقیت قطع شد",
+      "linkError": "اتصال حساب ناموفق بود",
+      "unlinkError": "قطع اتصال ناموفق بود",
+      "goToAccounts": "حساب‌های متصل",
+      "linking": "در حال اتصال حساب...",
+      "linkingTelegram": "در حال اتصال تلگرام...",
+      "returnToTelegram": "برای ادامه به تلگرام بازگردید",
+      "openTelegram": "باز کردن تلگرام",
+      "continueInBrowser": "ادامه احراز هویت در مرورگر باز شده",
+      "pollingTimeout": "بررسی احراز هویت منقضی شد. اگر اتصال را تکمیل کرده‌اید صفحه را بارگذاری مجدد کنید.",
+      "providers": {
+        "telegram": "تلگرام",
+        "email": "ایمیل",
+        "google": "گوگل",
+        "yandex": "یاندکس",
+        "discord": "دیسکورد",
+        "vk": "VK"
+      }
     }
   },
   "theme": {
@@ -3378,5 +3409,32 @@
     "error": "خطا در عملیات مودم",
     "renewalIncluded": "شامل مودم: {{price}}",
     "description": "دستگاه اضافی برای اشتراک شما"
+  },
+  "merge": {
+    "title": "ادغام حساب‌ها",
+    "description": "این روش ورود به حساب دیگری متصل است. می‌توانید هر دو حساب را ادغام کنید.",
+    "currentAccount": "حساب فعلی شما",
+    "foundAccount": "حساب یافت شده",
+    "authMethods": "روش‌های ورود",
+    "subscription": "اشتراک",
+    "noSubscription": "بدون اشتراک",
+    "traffic": "ترافیک",
+    "devices": "دستگاه‌ها",
+    "balance": "موجودی",
+    "until": "تا {{date}}",
+    "keepThisSubscription": "نگه داشتن این اشتراک",
+    "chooseSubscription": "اشتراک مورد نظر را انتخاب کنید",
+    "afterMerge": "پس از ادغام",
+    "allAuthMethodsMerged": "تمام روش‌های ورود ادغام خواهند شد",
+    "balanceSummed": "موجودی: {{amount}} ₽ (مجموع)",
+    "unselectedSubscriptionDeleted": "اشتراک انتخاب نشده حذف خواهد شد",
+    "historyPreserved": "تاریخچه تراکنش‌ها حفظ خواهد شد",
+    "confirm": "ادغام حساب‌ها",
+    "cancel": "لغو",
+    "expired": "لینک ادغام منقضی شده است. لطفاً دوباره تلاش کنید.",
+    "success": "حساب‌ها با موفقیت ادغام شدند!",
+    "error": "ادغام ناموفق بود. لطفاً بعداً دوباره تلاش کنید.",
+    "expiresIn": "{{minutes}} دقیقه باقی مانده",
+    "merging": "در حال ادغام..."
   }
 }

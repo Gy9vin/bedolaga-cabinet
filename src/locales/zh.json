@@ -2576,6 +2576,7 @@
           "users": "用户",
           "tickets": "工单",
           "stats": "统计",
+          "sales_stats": "销售统计",
           "broadcasts": "广播",
           "tariffs": "套餐",
           "promocodes": "促销码",
@@ -3034,6 +3035,36 @@
       "promoOffers": "促销活动",
       "promoOffersDesc": "接收特别优惠和折扣",
       "unavailable": "通知设置不可用"
+    },
+    "accounts": {
+      "title": "关联账户",
+      "subtitle": "管理您的登录方式",
+      "linked": "已关联",
+      "notLinked": "未关联",
+      "link": "关联",
+      "unlink": "取消关联",
+      "unlinkConfirm": "确定吗？取消关联后，您将无法通过此服务登录。",
+      "unlinkConfirmBtn": "确认取消关联？",
+      "cannotUnlinkLast": "无法取消最后一种登录方式",
+      "linkSuccess": "账户关联成功",
+      "unlinkSuccess": "账户取消关联成功",
+      "linkError": "关联账户失败",
+      "unlinkError": "取消关联失败",
+      "goToAccounts": "关联账户",
+      "linking": "正在关联账户...",
+      "linkingTelegram": "正在关联 Telegram...",
+      "returnToTelegram": "返回 Telegram 继续操作",
+      "openTelegram": "打开 Telegram",
+      "continueInBrowser": "请在打开的浏览器中继续授权",
+      "pollingTimeout": "授权检查超时。如果您已完成关联，请刷新页面。",
+      "providers": {
+        "telegram": "Telegram",
+        "email": "邮箱",
+        "google": "Google",
+        "yandex": "Yandex",
+        "discord": "Discord",
+        "vk": "VK"
+      }
     }
   },
   "theme": {
@@ -3377,5 +3408,32 @@
     "error": "调制解调器操作错误",
     "renewalIncluded": "含调制解调器：{{price}}",
     "description": "订阅的额外设备"
+  },
+  "merge": {
+    "title": "合并账户",
+    "description": "此登录方式已关联到另一个账户。您可以将两个账户合并为一个。",
+    "currentAccount": "您的当前账户",
+    "foundAccount": "发现的账户",
+    "authMethods": "登录方式",
+    "subscription": "订阅",
+    "noSubscription": "无订阅",
+    "traffic": "流量",
+    "devices": "设备",
+    "balance": "余额",
+    "until": "至 {{date}}",
+    "keepThisSubscription": "保留此订阅",
+    "chooseSubscription": "选择要保留的订阅",
+    "afterMerge": "合并后",
+    "allAuthMethodsMerged": "所有登录方式将合并",
+    "balanceSummed": "余额：{{amount}} ₽（合计）",
+    "unselectedSubscriptionDeleted": "未选择的订阅将被删除",
+    "historyPreserved": "交易记录将保留",
+    "confirm": "合并账户",
+    "cancel": "取消",
+    "expired": "合并链接已过期，请重试。",
+    "success": "账户合并成功！",
+    "error": "合并失败，请稍后重试。",
+    "expiresIn": "剩余 {{minutes}} 分钟",
+    "merging": "合并中..."
   }
 }

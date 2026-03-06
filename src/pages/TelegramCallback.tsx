@@ -56,20 +56,31 @@ export default function TelegramCallback() {
       if (flow === 'link') {
         // Account linking flow — user is already authenticated
         try {
-          // Build initData-like string from widget params for the link endpoint
-          // The backend link endpoint uses Telegram Widget validation
-          const widgetData: Record<string, string> = {
-            id,
+          // Build widget data for the unified linkTelegram endpoint
+          const widgetData: {
+            id: number;
+            first_name: string;
+            last_name?: string;
+            username?: string;
+            photo_url?: string;
+            auth_date: number;
+            hash: string;
+          } = {
+            id: Number(id),
             first_name: firstName,
-            auth_date: authDate,
+            auth_date: Number(authDate),
             hash,
           };
           if (lastName) widgetData.last_name = lastName;
           if (username) widgetData.username = username;
           if (photoUrl) widgetData.photo_url = photoUrl;
 
-          await authApi.linkTelegramWidget(widgetData);
-          navigate('/profile', { replace: true, state: { linkSuccess: 'telegram' } });
+          const result = await authApi.linkTelegram(widgetData);
+          if (result.merge_required && result.merge_token) {
+            navigate(`/merge/${result.merge_token}`, { replace: true });
+          } else {
+            navigate('/profile/accounts', { replace: true });
+          }
         } catch (err: unknown) {
           const error = err as { response?: { data?: { detail?: string } } };
           setError(

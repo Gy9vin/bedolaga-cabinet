@@ -2845,6 +2845,7 @@
           "users": "Users",
           "tickets": "Tickets",
           "stats": "Statistics",
+          "sales_stats": "Sales statistics",
           "broadcasts": "Broadcasts",
           "tariffs": "Tariffs",
           "promocodes": "Promo codes",
@@ -3619,6 +3620,36 @@
       "promoOffers": "Promo Offers",
       "promoOffersDesc": "Receive special offers and discounts",
       "unavailable": "Notification settings unavailable"
+    },
+    "accounts": {
+      "title": "Connected Accounts",
+      "subtitle": "Manage your sign-in methods",
+      "linked": "Connected",
+      "notLinked": "Not connected",
+      "link": "Connect",
+      "unlink": "Disconnect",
+      "unlinkConfirm": "Are you sure? You won't be able to sign in with this service after disconnecting.",
+      "unlinkConfirmBtn": "Confirm disconnect?",
+      "cannotUnlinkLast": "Cannot disconnect the last sign-in method",
+      "linkSuccess": "Account connected successfully",
+      "unlinkSuccess": "Account disconnected successfully",
+      "linkError": "Failed to connect account",
+      "unlinkError": "Failed to disconnect account",
+      "goToAccounts": "Connected Accounts",
+      "linking": "Linking account...",
+      "linkingTelegram": "Connecting Telegram...",
+      "returnToTelegram": "Return to Telegram to continue",
+      "openTelegram": "Open Telegram",
+      "continueInBrowser": "Continue authorization in the opened browser",
+      "pollingTimeout": "Authorization check timed out. Refresh the page if you completed linking.",
+      "providers": {
+        "telegram": "Telegram",
+        "email": "Email",
+        "google": "Google",
+        "yandex": "Yandex",
+        "discord": "Discord",
+        "vk": "VK"
+      }
     }
   },
   "theme": {
@@ -3847,5 +3878,32 @@
     "error": "Modem operation error",
     "renewalIncluded": "With modem: {{price}}",
     "description": "Additional device for subscription"
+  },
+  "merge": {
+    "title": "Merge Accounts",
+    "description": "This sign-in method is already linked to another account. You can merge both accounts into one.",
+    "currentAccount": "Your current account",
+    "foundAccount": "Found account",
+    "authMethods": "Sign-in methods",
+    "subscription": "Subscription",
+    "noSubscription": "No subscription",
+    "traffic": "Traffic",
+    "devices": "Devices",
+    "balance": "Balance",
+    "until": "until {{date}}",
+    "keepThisSubscription": "Keep this subscription",
+    "chooseSubscription": "Choose which subscription to keep",
+    "afterMerge": "After merging",
+    "allAuthMethodsMerged": "All sign-in methods will be combined",
+    "balanceSummed": "Balance: {{amount}} ₽ (combined)",
+    "unselectedSubscriptionDeleted": "The unselected subscription will be deleted",
+    "historyPreserved": "Transaction history will be preserved",
+    "confirm": "Merge Accounts",
+    "cancel": "Cancel",
+    "expired": "The merge link has expired. Please try again.",
+    "success": "Accounts merged successfully!",
+    "error": "Failed to merge accounts. Please try again later.",
+    "expiresIn": "Expires in {{minutes}}",
+    "merging": "Merging..."
   }
 }

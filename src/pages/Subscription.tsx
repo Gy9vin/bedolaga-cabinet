@@ -855,7 +855,7 @@ export default function Subscription() {
               style={{
                 background: g.cardBg,
                 border: subscription.is_trial
-                  ? '1px solid rgba(62,219,176,0.15)'
+                  ? '1px solid rgba(var(--color-accent-400), 0.15)'
                   : isDark
                     ? `1px solid ${g.cardBorder}`
                     : `1px solid ${zone.mainHex}25`,
@@ -943,21 +943,21 @@ export default function Subscription() {
                   className="mb-6 rounded-[14px] p-4"
                   style={{
                     background:
-                      'linear-gradient(135deg, rgba(62,219,176,0.08), rgba(62,219,176,0.03))',
-                    border: '1px solid rgba(62,219,176,0.12)',
+                      'linear-gradient(135deg, rgba(var(--color-accent-400), 0.08), rgba(var(--color-accent-400), 0.03))',
+                    border: '1px solid rgba(var(--color-accent-400), 0.12)',
                   }}
                 >
                   <div className="flex items-start gap-3">
                     <div
                       className="flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-[10px]"
-                      style={{ background: 'rgba(62,219,176,0.12)' }}
+                      style={{ background: 'rgba(var(--color-accent-400), 0.12)' }}
                     >
                       <svg
                         width="16"
                         height="16"
                         viewBox="0 0 24 24"
                         fill="none"
-                        stroke={zone.colors.accent}
+                        stroke="rgb(var(--color-accent-400))"
                         strokeWidth="2"
                         strokeLinecap="round"
                         strokeLinejoin="round"
@@ -967,7 +967,10 @@ export default function Subscription() {
                       </svg>
                     </div>
                     <div className="flex-1">
-                      <div className="text-sm font-semibold" style={{ color: zone.colors.accent }}>
+                      <div
+                        className="text-sm font-semibold"
+                        style={{ color: 'rgb(var(--color-accent-400))' }}
+                      >
                         {t('subscription.trialInfo.title')}
                       </div>
                       <div className="mt-1 text-[12px] text-dark-50/40">
@@ -977,7 +980,7 @@ export default function Subscription() {
                         <div className="flex items-center gap-1.5">
                           <span
                             className="font-mono text-[12px] font-semibold"
-                            style={{ color: zone.colors.accent }}
+                            style={{ color: 'rgb(var(--color-accent-400))' }}
                           >
                             {subscription.days_left > 0
                               ? t('subscription.days', { count: subscription.days_left })
@@ -990,7 +993,7 @@ export default function Subscription() {
                         <div className="flex items-center gap-1.5">
                           <span
                             className="font-mono text-[12px] font-semibold"
-                            style={{ color: zone.colors.accent }}
+                            style={{ color: 'rgb(var(--color-accent-400))' }}
                           >
                             {subscription.traffic_limit_gb || '∞'} {t('common.units.gb')}
                           </span>
@@ -1001,7 +1004,7 @@ export default function Subscription() {
                         <div className="flex items-center gap-1.5">
                           <span
                             className="font-mono text-[12px] font-semibold"
-                            style={{ color: zone.colors.accent }}
+                            style={{ color: 'rgb(var(--color-accent-400))' }}
                           >
                             {subscription.device_limit}
                           </span>
@@ -1157,9 +1160,11 @@ export default function Subscription() {
                     onClick={copyUrl}
                     className="flex h-auto items-center rounded-[10px] px-3 transition-colors duration-300"
                     style={{
-                      background: copied ? 'rgba(62,219,176,0.12)' : g.innerBorder,
-                      border: copied ? '1px solid rgba(62,219,176,0.2)' : `1px solid ${g.trackBg}`,
-                      color: copied ? zone.colors.accent : g.textMuted,
+                      background: copied ? 'rgba(var(--color-accent-400), 0.12)' : g.innerBorder,
+                      border: copied
+                        ? '1px solid rgba(var(--color-accent-400), 0.2)'
+                        : `1px solid ${g.trackBg}`,
+                      color: copied ? 'rgb(var(--color-accent-400))' : g.textMuted,
                     }}
                     title={t('subscription.copyLink')}
                   >
@@ -1402,12 +1407,12 @@ export default function Subscription() {
               className="rounded-[10px] px-4 py-2 text-sm font-semibold transition-colors duration-300"
               style={{
                 background: subscription.is_daily_paused
-                  ? 'rgba(62,219,176,0.12)'
+                  ? 'rgba(var(--color-accent-400), 0.12)'
                   : 'rgba(255,184,0,0.12)',
                 border: subscription.is_daily_paused
-                  ? '1px solid rgba(62,219,176,0.2)'
+                  ? '1px solid rgba(var(--color-accent-400), 0.2)'
                   : '1px solid rgba(255,184,0,0.2)',
-                color: subscription.is_daily_paused ? zone.colors.accent : zone.colors.warning,
+                color: subscription.is_daily_paused ? 'rgb(var(--color-accent-400))' : '#FFB800',
               }}
             >
               {pauseMutation.isPending ? (

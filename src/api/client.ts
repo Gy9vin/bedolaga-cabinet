@@ -75,11 +75,13 @@ const AUTH_ENDPOINTS = [
   '/cabinet/auth/password/forgot',
   '/cabinet/auth/password/reset',
   '/cabinet/auth/oauth/',
+  '/cabinet/auth/merge/',
+  '/cabinet/auth/account/link/server-complete',
 ];
 
 function isAuthEndpoint(url: string | undefined): boolean {
   if (!url) return false;
-  return AUTH_ENDPOINTS.some((endpoint) => url.includes(endpoint));
+  return AUTH_ENDPOINTS.some((endpoint) => url.startsWith(endpoint));
 }
 
 // Request interceptor - add auth token with expiration check
@@ -212,15 +214,10 @@ apiClient.interceptors.response.use(
     // Если получили 401 и ещё не пробовали refresh (на случай если проверка exp не сработала)
     if (error.response?.status === 401 && !originalRequest._retry) {
       // Не обрабатываем 401 для авторизационных endpoints - пусть ошибка дойдет до компонента
-      const authEndpoints = [
-        '/cabinet/auth/email/login',
-        '/cabinet/auth/telegram',
-        '/cabinet/auth/telegram/widget',
-      ];
       const requestUrl = originalRequest.url || '';
-      const isAuthEndpoint = authEndpoints.some((endpoint) => requestUrl.includes(endpoint));
+      const isLoginEndpoint = isAuthEndpoint(requestUrl);
 
-      if (isAuthEndpoint) {
+      if (isLoginEndpoint) {
         // Пробрасываем ошибку в компонент для показа сообщения пользователю
         return Promise.reject(error);
       }

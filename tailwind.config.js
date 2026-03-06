@@ -273,8 +273,8 @@ export default {
           '50%': { opacity: '0.5', transform: 'scale(0.7)' },
         },
         trialGlow: {
-          '0%, 100%': { boxShadow: '0 0 15px rgba(62, 219, 176, 0.06)' },
-          '50%': { boxShadow: '0 0 30px rgba(62, 219, 176, 0.12)' },
+          '0%, 100%': { boxShadow: '0 0 15px rgba(var(--color-accent-400), 0.06)' },
+          '50%': { boxShadow: '0 0 30px rgba(var(--color-accent-400), 0.12)' },
         },
       },
       transitionTimingFunction: {

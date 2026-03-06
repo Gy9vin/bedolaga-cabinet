@@ -45,6 +45,7 @@ const PRESETS: Record<string, string[]> = {
     'promo_offers:*',
     'promo_groups:*',
     'stats:read',
+    'sales_stats:read',
     'pinned_messages:*',
     'wheel:*',
   ],

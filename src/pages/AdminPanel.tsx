@@ -419,7 +419,7 @@ export default function AdminPanel() {
           icon: <ChartBarIcon />,
           title: t('admin.nav.salesStats'),
           description: t('admin.panel.salesStatsDesc'),
-          permission: 'stats:read',
+          permission: 'sales_stats:read',
         },
       ],
     },

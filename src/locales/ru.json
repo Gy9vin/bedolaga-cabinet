@@ -3393,6 +3393,7 @@
           "users": "Пользователи",
           "tickets": "Тикеты",
           "stats": "Статистика",
+          "sales_stats": "Статистика продаж",
           "broadcasts": "Рассылки",
           "tariffs": "Тарифы",
           "promocodes": "Промокоды",
@@ -4179,6 +4180,36 @@
       "promoOffers": "Промо-предложения",
       "promoOffersDesc": "Получать специальные предложения и скидки",
       "unavailable": "Настройки уведомлений недоступны"
+    },
+    "accounts": {
+      "title": "Привязанные аккаунты",
+      "subtitle": "Управляйте способами входа в кабинет",
+      "linked": "Привязан",
+      "notLinked": "Не привязан",
+      "link": "Привязать",
+      "unlink": "Отвязать",
+      "unlinkConfirm": "Вы уверены? После отвязки вы не сможете входить через этот сервис.",
+      "unlinkConfirmBtn": "Точно отвязать?",
+      "cannotUnlinkLast": "Нельзя отвязать последний способ входа",
+      "linkSuccess": "Аккаунт успешно привязан",
+      "unlinkSuccess": "Аккаунт успешно отвязан",
+      "linkError": "Не удалось привязать аккаунт",
+      "unlinkError": "Не удалось отвязать аккаунт",
+      "goToAccounts": "Привязанные аккаунты",
+      "linking": "Привязка аккаунта...",
+      "linkingTelegram": "Привязка Telegram...",
+      "returnToTelegram": "Вернитесь в Telegram, чтобы продолжить",
+      "openTelegram": "Открыть Telegram",
+      "continueInBrowser": "Продолжите авторизацию в открывшемся браузере",
+      "pollingTimeout": "Проверка авторизации истекла. Обновите страницу, если привязка завершена.",
+      "providers": {
+        "telegram": "Telegram",
+        "email": "Email",
+        "google": "Google",
+        "yandex": "Яндекс",
+        "discord": "Discord",
+        "vk": "VK"
+      }
     }
   },
   "theme": {
@@ -4410,5 +4441,32 @@
     "error": "Ошибка операции с модемом",
     "renewalIncluded": "С модемом: {{price}}",
     "description": "Дополнительное устройство к подписке"
+  },
+  "merge": {
+    "title": "Объединение аккаунтов",
+    "description": "Этот способ входа уже привязан к другому аккаунту. Вы можете объединить два аккаунта в один.",
+    "currentAccount": "Ваш текущий аккаунт",
+    "foundAccount": "Найденный аккаунт",
+    "authMethods": "Способы входа",
+    "subscription": "Подписка",
+    "noSubscription": "Нет подписки",
+    "traffic": "Трафик",
+    "devices": "Устройства",
+    "balance": "Баланс",
+    "until": "до {{date}}",
+    "keepThisSubscription": "Оставить эту подписку",
+    "chooseSubscription": "Выберите подписку, которую хотите сохранить",
+    "afterMerge": "После объединения",
+    "allAuthMethodsMerged": "Все способы входа объединятся",
+    "balanceSummed": "Баланс: {{amount}} ₽ (сумма)",
+    "unselectedSubscriptionDeleted": "Невыбранная подписка будет удалена",
+    "historyPreserved": "История операций сохранится",
+    "confirm": "Объединить аккаунты",
+    "cancel": "Отмена",
+    "expired": "Время на объединение истекло. Попробуйте снова.",
+    "success": "Аккаунты успешно объединены!",
+    "error": "Ошибка при объединении. Попробуйте позже.",
+    "expiresIn": "Действует ещё {{minutes}}",
+    "merging": "Объединение..."
   }
 }

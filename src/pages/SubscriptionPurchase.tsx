@@ -412,7 +412,8 @@ export default function SubscriptionPurchase() {
             <div
               className="mb-6 rounded-[14px] p-4"
               style={{
-                background: 'linear-gradient(135deg, rgba(255,184,0,0.08), rgba(62,219,176,0.06))',
+                background:
+                  'linear-gradient(135deg, rgba(255,184,0,0.08), rgba(var(--color-accent-400),0.06))',
                 border: '1px solid rgba(255,184,0,0.15)',
               }}
             >

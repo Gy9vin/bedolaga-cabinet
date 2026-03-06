@@ -1,5 +1,16 @@
 import apiClient from './client';
-import type { AuthResponse, OAuthProvider, RegisterResponse, TokenResponse, User } from '../types';
+import type {
+  AuthResponse,
+  LinkCallbackResponse,
+  LinkedProvidersResponse,
+  MergePreviewResponse,
+  MergeResponse,
+  OAuthProvider,
+  RegisterResponse,
+  ServerCompleteResponse,
+  TokenResponse,
+  User,
+} from '../types';
 
 export const authApi = {
   // Telegram WebApp authentication
@@ -191,63 +202,102 @@ export const authApi = {
     return response.data;
   },
 
-  // Get connected accounts (OAuth, Telegram, Email)
-  getConnections: async (): Promise<{
-    connections: { provider: string; connected: boolean; identifier: string | null }[];
-    total_connected: number;
-  }> => {
-    const response = await apiClient.get('/cabinet/auth/oauth/connections');
+  // Account linking
+  getLinkedProviders: async (): Promise<LinkedProvidersResponse> => {
+    const response = await apiClient.get<LinkedProvidersResponse>(
+      '/cabinet/auth/account/linked-providers',
+    );
     return response.data;
   },
 
-  // Link OAuth provider to current account
-  linkOAuthProvider: async (
+  linkProviderInit: async (provider: string): Promise<{ authorize_url: string; state: string }> => {
+    const response = await apiClient.get<{ authorize_url: string; state: string }>(
+      `/cabinet/auth/account/link/${encodeURIComponent(provider)}/init`,
+    );
+    return response.data;
+  },
+
+  linkProviderCallback: async (
     provider: string,
     code: string,
     state: string,
-  ): Promise<{ success: boolean; message: string; provider: string }> => {
-    const response = await apiClient.post(
-      `/cabinet/auth/oauth/${encodeURIComponent(provider)}/link`,
-      { code, state },
+    deviceId?: string,
+  ): Promise<LinkCallbackResponse> => {
+    const response = await apiClient.post<LinkCallbackResponse>(
+      `/cabinet/auth/account/link/${encodeURIComponent(provider)}/callback`,
+      {
+        code,
+        state,
+        device_id: deviceId,
+      },
     );
     return response.data;
   },
 
-  // Get OAuth authorize URL for linking
-  getLinkAuthorizeUrl: async (
-    provider: string,
-  ): Promise<{ authorize_url: string; state: string }> => {
-    const response = await apiClient.get<{ authorize_url: string; state: string }>(
-      `/cabinet/auth/oauth/${encodeURIComponent(provider)}/link`,
-    );
-    return response.data;
-  },
-
-  // Unlink OAuth provider from current account
-  unlinkOAuthProvider: async (
-    provider: string,
-  ): Promise<{ success: boolean; message: string; provider: string }> => {
-    const response = await apiClient.delete(
-      `/cabinet/auth/oauth/${encodeURIComponent(provider)}/link`,
-    );
-    return response.data;
-  },
-
-  // Link Telegram to current account (via WebApp initData)
+  // Link Telegram account (Mini App initData or Login Widget data)
   linkTelegram: async (
-    initData: string,
-  ): Promise<{ success: boolean; message: string; provider: string }> => {
-    const response = await apiClient.post('/cabinet/auth/telegram/link', {
-      init_data: initData,
-    });
+    data:
+      | { init_data: string }
+      | {
+          id: number;
+          first_name: string;
+          last_name?: string;
+          username?: string;
+          photo_url?: string;
+          auth_date: number;
+          hash: string;
+        },
+  ): Promise<LinkCallbackResponse> => {
+    const response = await apiClient.post<LinkCallbackResponse>(
+      '/cabinet/auth/account/link/telegram',
+      data,
+    );
     return response.data;
   },
 
-  // Link Telegram to current account (via Login Widget)
-  linkTelegramWidget: async (
-    data: Record<string, string>,
-  ): Promise<{ success: boolean; message: string; provider: string }> => {
-    const response = await apiClient.post('/cabinet/auth/telegram/link/widget', data);
+  // Server-side OAuth linking completion (no JWT needed — auth via state token)
+  // Used when OAuth opens in external browser from Telegram Mini App
+  linkServerComplete: async (
+    code: string,
+    state: string,
+    deviceId?: string,
+  ): Promise<ServerCompleteResponse> => {
+    const response = await apiClient.post<ServerCompleteResponse>(
+      '/cabinet/auth/account/link/server-complete',
+      {
+        code,
+        state,
+        device_id: deviceId,
+      },
+    );
+    return response.data;
+  },
+
+  unlinkProvider: async (provider: string): Promise<{ success: boolean }> => {
+    const response = await apiClient.post<{ success: boolean }>(
+      `/cabinet/auth/account/unlink/${encodeURIComponent(provider)}`,
+    );
+    return response.data;
+  },
+
+  // Account merge (no JWT required)
+  getMergePreview: async (mergeToken: string): Promise<MergePreviewResponse> => {
+    const response = await apiClient.get<MergePreviewResponse>(
+      `/cabinet/auth/merge/${encodeURIComponent(mergeToken)}`,
+    );
+    return response.data;
+  },
+
+  executeMerge: async (
+    mergeToken: string,
+    keepSubscriptionFrom: number,
+  ): Promise<MergeResponse> => {
+    const response = await apiClient.post<MergeResponse>(
+      `/cabinet/auth/merge/${encodeURIComponent(mergeToken)}`,
+      {
+        keep_subscription_from: keepSubscriptionFrom,
+      },
+    );
     return response.data;
   },
 };

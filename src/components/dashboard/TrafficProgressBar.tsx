@@ -26,20 +26,23 @@ export default function TrafficProgressBar({
   const { isDark } = useTheme();
   const g = getGlassColors(isDark);
   const zone = useTrafficZone(percent);
+
   // Gradient always starts from the accent color (normal zone)
-  const startHex = zone.colors.accent || '#3b82f6';
+  const startColor = 'rgb(var(--color-accent-400))';
   const clampedPercent = Math.min(percent, 100);
   const barHeight = compact ? 8 : 14;
 
   // Multi-segment gradient matching prototype
+  // Warning/danger hex colors are intentional — they represent fixed threshold tints,
+  // not theme-dynamic values, and must remain distinct from the zone-based mainVar.
   const fillGradient = useMemo(() => {
-    if (percent < 50) return `linear-gradient(90deg, ${startHex}, ${zone.mainHex})`;
+    if (percent < 50) return `linear-gradient(90deg, ${startColor}, ${zone.mainVar})`;
     if (percent < 75)
-      return `linear-gradient(90deg, ${startHex}, ${zone.colors.warning}, ${zone.mainHex})`;
+      return `linear-gradient(90deg, ${startColor}, rgb(var(--color-warning-400)), ${zone.mainVar})`;
     if (percent < 90)
-      return `linear-gradient(90deg, ${startHex}, ${zone.colors.warning}, ${zone.colors.warning}, ${zone.mainHex})`;
-    return `linear-gradient(90deg, ${startHex}, ${zone.colors.warning}, ${zone.colors.warning}, ${zone.colors.error})`;
-  }, [percent, zone.mainHex, zone.colors.warning, zone.colors.error, startHex]);
+      return `linear-gradient(90deg, ${startColor}, rgb(var(--color-warning-400)), rgb(var(--color-warning-300)), ${zone.mainVar})`;
+    return `linear-gradient(90deg, ${startColor}, rgb(var(--color-warning-400)), rgb(var(--color-warning-300)), rgb(var(--color-error-400)))`;
+  }, [percent, zone.mainVar, startColor]);
 
   if (isUnlimited) {
     return (
@@ -51,13 +54,13 @@ export default function TrafficProgressBar({
             height: barHeight,
             borderRadius: 10,
             background: g.trackBg,
-            border: `1px solid ${zone.mainHex}20`,
+            border: `1px solid rgba(${zone.mainVarRaw}, 0.12)`,
           }}
         >
           <div
             className="absolute inset-0 animate-unlimited-flow"
             style={{
-              background: `linear-gradient(90deg, ${zone.mainHex}50, ${zone.mainHex}, ${zone.mainHex}50)`,
+              background: `linear-gradient(90deg, rgba(${zone.mainVarRaw}, 0.31), ${zone.mainVar}, rgba(${zone.mainVarRaw}, 0.31))`,
               backgroundSize: '200% 100%',
             }}
           />
@@ -86,13 +89,13 @@ export default function TrafficProgressBar({
           <div className="mt-2 flex items-center justify-between px-0.5">
             <span
               className="flex items-center gap-1.5 text-[11px] font-semibold"
-              style={{ color: zone.mainHex }}
+              style={{ color: zone.mainVar }}
             >
               <span
                 className="inline-block h-1.5 w-1.5 animate-unlimited-pulse rounded-full"
                 style={{
-                  background: zone.mainHex,
-                  boxShadow: `0 0 8px ${zone.mainHex}`,
+                  background: zone.mainVar,
+                  boxShadow: `0 0 8px ${zone.mainVar}`,
                 }}
                 aria-hidden="true"
               />
@@ -128,9 +131,9 @@ export default function TrafficProgressBar({
         {/* Warning zone tint backgrounds */}
         <div className="absolute inset-0 flex" aria-hidden="true">
           <div style={{ flex: '50 0 0', background: 'transparent' }} />
-          <div style={{ flex: '25 0 0', background: 'rgba(255,184,0,0.03)' }} />
-          <div style={{ flex: '15 0 0', background: 'rgba(255,107,53,0.04)' }} />
-          <div style={{ flex: '10 0 0', background: 'rgba(255,59,92,0.05)' }} />
+          <div style={{ flex: '25 0 0', background: 'rgba(var(--color-warning-400), 0.03)' }} />
+          <div style={{ flex: '15 0 0', background: 'rgba(var(--color-warning-300), 0.04)' }} />
+          <div style={{ flex: '10 0 0', background: 'rgba(var(--color-error-400), 0.05)' }} />
         </div>
 
         {/* Fill bar */}
@@ -195,7 +198,7 @@ export default function TrafficProgressBar({
               left: `calc(${clampedPercent}% - 8px)`,
               width: 16,
               borderRadius: '50%',
-              background: `radial-gradient(circle, ${zone.mainHex}60, transparent)`,
+              background: `radial-gradient(circle, rgba(${zone.mainVarRaw}, 0.38), transparent)`,
               filter: 'blur(4px)',
               transition: 'left 1.2s cubic-bezier(0.16, 1, 0.3, 1)',
             }}

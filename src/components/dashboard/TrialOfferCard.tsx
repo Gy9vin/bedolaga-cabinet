@@ -4,7 +4,6 @@ import { UseMutationResult } from '@tanstack/react-query';
 import type { TrialInfo } from '../../types';
 import { useCurrency } from '../../hooks/useCurrency';
 import { useTheme } from '../../hooks/useTheme';
-import { useThemeColors } from '../../hooks/useThemeColors';
 import { getGlassColors } from '../../utils/glassTheme';
 
 interface TrialOfferCardProps {
@@ -25,7 +24,6 @@ export default function TrialOfferCard({
   const { t } = useTranslation();
   const { formatAmount, currencySymbol } = useCurrency();
   const { isDark } = useTheme();
-  const { colors } = useThemeColors();
   const g = getGlassColors(isDark);
   const isFree = !trialInfo.requires_payment;
   const canAfford = balanceKopeks >= trialInfo.price_kopeks;
@@ -38,12 +36,12 @@ export default function TrialOfferCard({
         border: isDark
           ? `1px solid ${g.cardBorder}`
           : isFree
-            ? '1px solid rgba(62,219,176,0.2)'
+            ? '1px solid rgba(var(--color-accent-400), 0.2)'
             : '1px solid rgba(255,184,0,0.2)',
         boxShadow: isDark
           ? g.shadow
           : isFree
-            ? '0 2px 16px rgba(62,219,176,0.12), 0 0 0 1px rgba(62,219,176,0.06)'
+            ? '0 2px 16px rgba(var(--color-accent-400), 0.12), 0 0 0 1px rgba(var(--color-accent-400), 0.06)'
             : '0 2px 16px rgba(255,184,0,0.12), 0 0 0 1px rgba(255,184,0,0.06)',
         padding: '32px 28px 28px',
       }}
@@ -57,7 +55,7 @@ export default function TrialOfferCard({
           height: 300,
           borderRadius: '50%',
           background: isFree
-            ? 'radial-gradient(circle, rgba(62,219,176,0.08) 0%, transparent 70%)'
+            ? 'radial-gradient(circle, rgba(var(--color-accent-400), 0.08) 0%, transparent 70%)'
             : 'radial-gradient(circle, rgba(255,184,0,0.07) 0%, transparent 70%)',
           transition: 'background 0.5s ease',
         }}
@@ -84,12 +82,14 @@ export default function TrialOfferCard({
         style={{
           background: isDark
             ? isFree
-              ? 'linear-gradient(135deg, #1a3a30, #142824)'
+              ? 'linear-gradient(135deg, rgba(var(--color-accent-900), 0.5), rgba(var(--color-accent-950), 0.6))'
               : 'linear-gradient(135deg, #3a3020, #282418)'
             : isFree
-              ? 'linear-gradient(135deg, rgba(62,219,176,0.15), rgba(62,219,176,0.08))'
+              ? 'linear-gradient(135deg, rgba(var(--color-accent-400), 0.15), rgba(var(--color-accent-400), 0.08))'
               : 'linear-gradient(135deg, rgba(255,184,0,0.15), rgba(255,184,0,0.08))',
-          border: isFree ? '1px solid rgba(62,219,176,0.25)' : '1px solid rgba(255,184,0,0.25)',
+          border: isFree
+            ? '1px solid rgba(var(--color-accent-400), 0.25)'
+            : '1px solid rgba(255,184,0,0.25)',
           transition: 'all 0.5s ease',
         }}
       >
@@ -99,7 +99,7 @@ export default function TrialOfferCard({
             height="26"
             viewBox="0 0 24 24"
             fill="none"
-            stroke={colors.accent}
+            stroke="rgb(var(--color-accent-400))"
             strokeWidth="1.5"
             aria-hidden="true"
           >
@@ -130,7 +130,9 @@ export default function TrialOfferCard({
         <div
           className="absolute inset-[-1px] animate-trial-glow rounded-2xl"
           style={{
-            boxShadow: isFree ? '0 0 20px rgba(62,219,176,0.15)' : '0 0 20px rgba(255,184,0,0.12)',
+            boxShadow: isFree
+              ? '0 0 20px rgba(var(--color-accent-400), 0.15)'
+              : '0 0 20px rgba(255,184,0,0.12)',
           }}
           aria-hidden="true"
         />
@@ -252,14 +254,15 @@ export default function TrialOfferCard({
             isDark
               ? {
                   background:
-                    'linear-gradient(135deg, rgba(62,219,176,0.12) 0%, rgba(62,219,176,0.04) 100%)',
-                  border: '1px solid rgba(62,219,176,0.25)',
+                    'linear-gradient(135deg, rgba(var(--color-accent-400), 0.12) 0%, rgba(var(--color-accent-400), 0.04) 100%)',
+                  border: '1px solid rgba(var(--color-accent-400), 0.25)',
                   color: '#fff',
                 }
               : {
-                  background: `linear-gradient(135deg, ${colors.accent}, ${colors.accent})`,
+                  background:
+                    'linear-gradient(135deg, rgb(var(--color-accent-400)), rgb(var(--color-accent-500)))',
                   color: '#0a2a1e',
-                  boxShadow: '0 4px 20px rgba(62,219,176,0.25)',
+                  boxShadow: '0 4px 20px rgba(var(--color-accent-400), 0.25)',
                 }
           }
         >

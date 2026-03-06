@@ -1,7 +1,6 @@
 import { Link } from 'react-router';
 import { useTranslation } from 'react-i18next';
 import { HoverBorderGradient } from '../ui/hover-border-gradient';
-import { useThemeColors } from '../../hooks/useThemeColors';
 import type { Subscription } from '../../types';
 
 interface PurchaseCTAButtonProps {
@@ -10,12 +9,10 @@ interface PurchaseCTAButtonProps {
 
 export default function PurchaseCTAButton({ subscription }: PurchaseCTAButtonProps) {
   const { t } = useTranslation();
-  const { colors } = useThemeColors();
-
   const isExpired = !subscription || (!subscription.is_active && !subscription.is_trial);
   const isTrial = subscription?.is_trial;
 
-  const accentColor = isExpired ? colors.error : colors.accent;
+  const accentColor = isExpired ? '#FF3B5C' : 'rgb(var(--color-accent-400))';
 
   const buttonText = isExpired
     ? t('subscription.getSubscription')
@@ -41,7 +38,7 @@ export default function PurchaseCTAButton({ subscription }: PurchaseCTAButtonPro
           style={{
             background: isExpired
               ? 'linear-gradient(135deg, rgba(255,59,92,0.08), rgba(255,107,53,0.06))'
-              : 'linear-gradient(135deg, rgba(62,219,176,0.08), rgba(0,229,160,0.06))',
+              : 'linear-gradient(135deg, rgba(var(--color-accent-400), 0.08), rgba(var(--color-accent-400), 0.06))',
           }}
         >
           {/* Left: icon + text */}
@@ -50,7 +47,9 @@ export default function PurchaseCTAButton({ subscription }: PurchaseCTAButtonPro
             <div
               className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-xl"
               style={{
-                background: isExpired ? 'rgba(255,59,92,0.12)' : 'rgba(62,219,176,0.12)',
+                background: isExpired
+                  ? 'rgba(255,59,92,0.12)'
+                  : 'rgba(var(--color-accent-400), 0.12)',
               }}
             >
               <svg
