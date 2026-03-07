@@ -1,5 +1,43 @@
 # Changelog
 
+## [1.25.0](https://github.com/BEDOLAGA-DEV/bedolaga-cabinet/compare/v1.24.0...v1.25.0) (2026-03-07)
+
+
+### Features
+
+* add discount UI for landing pages ([f7afa00](https://github.com/BEDOLAGA-DEV/bedolaga-cabinet/commit/f7afa002f08cfde0421ab8cfed8f699608fd6bc9))
+* add external squad selection to tariff admin form ([bc45294](https://github.com/BEDOLAGA-DEV/bedolaga-cabinet/commit/bc452944876b64c5346dc04d53c561831fb31bd8))
+* add i18n translations and admin category for Telegram OIDC ([c221c6e](https://github.com/BEDOLAGA-DEV/bedolaga-cabinet/commit/c221c6e8bfc15b160565083f0198816d4c84c146))
+* add landings permission section translations for role editor ([5228b2d](https://github.com/BEDOLAGA-DEV/bedolaga-cabinet/commit/5228b2dea6f1adc78c521c197d09726a286516ba))
+* add payment sub-option selection on quick purchase page ([58e93cd](https://github.com/BEDOLAGA-DEV/bedolaga-cabinet/commit/58e93cd2b72979ec95dd43ba7d6670d879e2f07d))
+* add sub-options UI for landing payment methods + extract components ([d0be127](https://github.com/BEDOLAGA-DEV/bedolaga-cabinet/commit/d0be127d30574af1cb90503943bfa721dda8e645))
+* add user filter chips and resource types to audit log ([4072274](https://github.com/BEDOLAGA-DEV/bedolaga-cabinet/commit/40722747e33c2dcc5d5ccc1d213b4d2eb39e0f26))
+* guest purchase activation UI & landing editor improvements ([b852e1e](https://github.com/BEDOLAGA-DEV/bedolaga-cabinet/commit/b852e1e4cda7303e19ac7af8c3826e2ba52ac68a))
+* guest purchase cabinet credentials UI ([d228d99](https://github.com/BEDOLAGA-DEV/bedolaga-cabinet/commit/d228d997d8360f8a15a23ec007a06048af7bd47d))
+* migrate Telegram Login Widget to v23 with admin-configurable settings ([2c65ca8](https://github.com/BEDOLAGA-DEV/bedolaga-cabinet/commit/2c65ca8a7ff372725bcbaa002e96bd043022bad1))
+* TelegramLoginButton with OIDC popup + legacy widget fallback ([91f0e9e](https://github.com/BEDOLAGA-DEV/bedolaga-cabinet/commit/91f0e9e2fcd0d9c3f3dc7f7e31b763244350f754))
+* мультиязычные лендинги + переключатель языка + исправления по ревью ([ab13616](https://github.com/BEDOLAGA-DEV/bedolaga-cabinet/commit/ab13616b0f0d31eac007a4c4b7f4f360f0f3c9b4))
+* публичные лендинг-страницы для быстрой покупки VPN-подписок ([8b5d777](https://github.com/BEDOLAGA-DEV/bedolaga-cabinet/commit/8b5d777f0a94296330227b5fab34c65c83fb3baa))
+
+
+### Bug Fixes
+
+* adapt admin landings list for mobile layout ([b7c7dec](https://github.com/BEDOLAGA-DEV/bedolaga-cabinet/commit/b7c7decfd0f2818b65861699336d6221ba0e0ae2))
+* add pagination to campaigns list ([46f640a](https://github.com/BEDOLAGA-DEV/bedolaga-cabinet/commit/46f640a7e0c2026c7629f0cd4cd01f7f4758bbe5))
+* add unmount safety guard to OIDC callback handler ([dfa7a09](https://github.com/BEDOLAGA-DEV/bedolaga-cabinet/commit/dfa7a09a7cb53ebbbc5de057fd587897d77dcb9b))
+* address code review findings for TelegramLoginButton ([5c11f12](https://github.com/BEDOLAGA-DEV/bedolaga-cabinet/commit/5c11f1251a9bdbb60f49c105b1a3ebcbd477d8b8))
+* admin landing editor — tariff period mapping and cleanup ([6a92814](https://github.com/BEDOLAGA-DEV/bedolaga-cabinet/commit/6a92814ce25bb718ce29450adbd7d01775e4e1dc))
+* auto-select single sub-option and remove unused return_url field ([83fbd0e](https://github.com/BEDOLAGA-DEV/bedolaga-cabinet/commit/83fbd0e44564a3b5f174f52549ff29b638701067))
+* handle Pydantic validation errors in notify + nullify empty optional fields ([9bd58cb](https://github.com/BEDOLAGA-DEV/bedolaga-cabinet/commit/9bd58cb914623b75ec2a035e8c6e077b0fe45e8d))
+* landing list crash — title is now LocaleDict, not string ([6755c1d](https://github.com/BEDOLAGA-DEV/bedolaga-cabinet/commit/6755c1dc458e7f3ff68fb180306f72b17ff2a5b8))
+* mobile layout and period label translations for quick purchase landing ([6d5c6fb](https://github.com/BEDOLAGA-DEV/bedolaga-cabinet/commit/6d5c6fb9b3905d8a0c22f39317fd5f77743d3505))
+* OIDC login UX improvements from review ([b335d66](https://github.com/BEDOLAGA-DEV/bedolaga-cabinet/commit/b335d666c2c1fb557288d70fb249e4166f99b146))
+* prevent buyer from activating gift pending subscription ([97959b0](https://github.com/BEDOLAGA-DEV/bedolaga-cabinet/commit/97959b013241597e77ed3223fb5aa2d1de8be2d0))
+* safe error handling and numeric client_id in OIDC login ([45e68ff](https://github.com/BEDOLAGA-DEV/bedolaga-cabinet/commit/45e68ffac231516577ac1f5230bf90fd5a1b5cdb))
+* show total purchase count instead of paid on admin landings ([b9f1f59](https://github.com/BEDOLAGA-DEV/bedolaga-cabinet/commit/b9f1f59e3cbcd5c9839a4a2e9eebeefa01364898))
+* админ-редактор — системные методы оплаты, реальные периоды тарифов, фильтрация на публичной странице ([e01c9f5](https://github.com/BEDOLAGA-DEV/bedolaga-cabinet/commit/e01c9f51439fe74bbf74d7d40a7f7027252dbd17))
+* безопасность и UX лендингов — 16 исправлений ([3cea482](https://github.com/BEDOLAGA-DEV/bedolaga-cabinet/commit/3cea48235f373412071afbb7d811a2306ad15b78))
+
 ## [1.24.0](https://github.com/BEDOLAGA-DEV/bedolaga-cabinet/compare/v1.23.1...v1.24.0) (2026-03-05)
 
 
