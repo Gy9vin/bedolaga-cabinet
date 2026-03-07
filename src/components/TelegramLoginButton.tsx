@@ -31,8 +31,17 @@ export default function TelegramLoginButton({ referralCode }: TelegramLoginButto
   // OIDC callback handler (ref pattern to avoid stale closures and unnecessary re-inits)
   const handleOIDCCallbackRef =
     useRef<(data: { id_token?: string; error?: string }) => void>(undefined);
+  const mountedRef = useRef(true);
+
+  useEffect(() => {
+    mountedRef.current = true;
+    return () => {
+      mountedRef.current = false;
+    };
+  }, []);
 
   handleOIDCCallbackRef.current = async (data: { id_token?: string; error?: string }) => {
+    if (!mountedRef.current) return;
     if (data.error || !data.id_token) {
       setOidcError(data.error || t('auth.loginFailed'));
       setOidcLoading(false);
@@ -42,8 +51,9 @@ export default function TelegramLoginButton({ referralCode }: TelegramLoginButto
       setOidcLoading(true);
       setOidcError('');
       await loginWithTelegramOIDC(data.id_token);
-      navigate('/');
+      if (mountedRef.current) navigate('/');
     } catch (err: unknown) {
+      if (!mountedRef.current) return;
       let message = t('common.error');
       if (err && typeof err === 'object' && 'response' in err) {
         const resp = (err as { response?: { data?: { detail?: string } } }).response;
@@ -51,7 +61,7 @@ export default function TelegramLoginButton({ referralCode }: TelegramLoginButto
       }
       setOidcError(message);
     } finally {
-      setOidcLoading(false);
+      if (mountedRef.current) setOidcLoading(false);
     }
   };
 
