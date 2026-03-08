@@ -2918,7 +2918,7 @@
       "metaDesc": "توضیحات متا",
       "active": "فعال",
       "inactive": "غیرفعال",
-      "purchases": "خرید",
+      "purchaseCount": "خرید",
       "copyUrl": "کپی URL",
       "urlCopied": "URL کپی شد",
       "deleteConfirm": "حذف صفحه فرود «{{title}}»؟",

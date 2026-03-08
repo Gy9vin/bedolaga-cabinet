@@ -2917,7 +2917,7 @@
       "metaDesc": "Meta描述",
       "active": "已激活",
       "inactive": "未激活",
-      "purchases": "次购买",
+      "purchaseCount": "次购买",
       "copyUrl": "复制URL",
       "urlCopied": "URL已复制",
       "deleteConfirm": "删除落地页「{{title}}」？",

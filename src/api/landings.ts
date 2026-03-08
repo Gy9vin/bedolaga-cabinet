@@ -1,4 +1,5 @@
 import apiClient from './client';
+import type { AnimationConfig } from '@/components/ui/backgrounds/types';
 
 // ============================================================
 // Public types
@@ -91,6 +92,7 @@ export interface LandingConfig {
   meta_title: string | null;
   meta_description: string | null;
   discount: LandingDiscountInfo | null;
+  background_config: AnimationConfig | null;
 }
 
 export interface PurchaseRequest {
@@ -201,6 +203,7 @@ export interface LandingDetail {
   discount_starts_at: string | null;
   discount_ends_at: string | null;
   discount_badge_text: LocaleDict | null;
+  background_config: AnimationConfig | null;
 }
 
 export interface LandingCreateRequest {
@@ -222,6 +225,7 @@ export interface LandingCreateRequest {
   discount_starts_at?: string | null;
   discount_ends_at?: string | null;
   discount_badge_text?: LocaleDict | null;
+  background_config?: AnimationConfig | null;
 }
 
 export type LandingUpdateRequest = Partial<LandingCreateRequest>;
@@ -275,6 +279,72 @@ export const landingApi = {
 };
 
 // ============================================================
+// Admin stats types
+// ============================================================
+
+export interface LandingDailyStat {
+  date: string;
+  purchases: number;
+  revenue_kopeks: number;
+  gifts: number;
+}
+
+export interface LandingTariffStat {
+  tariff_id: number | null;
+  tariff_name: string;
+  purchases: number;
+  revenue_kopeks: number;
+}
+
+export interface LandingStatsResponse {
+  total_purchases: number;
+  total_revenue_kopeks: number;
+  total_gifts: number;
+  total_regular: number;
+  avg_purchase_kopeks: number;
+  total_created: number;
+  total_successful: number;
+  conversion_rate: number;
+  daily_stats: LandingDailyStat[];
+  tariff_stats: LandingTariffStat[];
+}
+
+// ============================================================
+// Admin purchase list types
+// ============================================================
+
+export type PurchaseItemStatus =
+  | 'pending'
+  | 'paid'
+  | 'delivered'
+  | 'pending_activation'
+  | 'failed'
+  | 'expired';
+
+export interface LandingPurchaseItem {
+  id: number;
+  token: string;
+  contact_type: 'email' | 'telegram';
+  contact_value: string;
+  is_gift: boolean;
+  gift_recipient_type: 'email' | 'telegram' | null;
+  gift_recipient_value: string | null;
+  tariff_name: string;
+  period_days: number;
+  amount_kopeks: number;
+  currency: string;
+  payment_method: string;
+  status: PurchaseItemStatus;
+  created_at: string;
+  paid_at: string | null;
+}
+
+export interface LandingPurchaseListResponse {
+  items: LandingPurchaseItem[];
+  total: number;
+}
+
+// ============================================================
 // Admin API
 // ============================================================
 
@@ -311,5 +381,22 @@ export const adminLandingsApi = {
 
   reorder: async (landingIds: number[]): Promise<void> => {
     await apiClient.put('/cabinet/admin/landings/order', { landing_ids: landingIds });
+  },
+
+  getStats: async (id: number): Promise<LandingStatsResponse> => {
+    const response = await apiClient.get(`/cabinet/admin/landings/${id}/stats`);
+    return response.data;
+  },
+
+  getPurchases: async (
+    id: number,
+    offset: number,
+    limit: number,
+    status?: PurchaseItemStatus,
+  ): Promise<LandingPurchaseListResponse> => {
+    const params: Record<string, string | number> = { offset, limit };
+    if (status) params.status = status;
+    const response = await apiClient.get(`/cabinet/admin/landings/${id}/purchases`, { params });
+    return response.data;
   },
 };

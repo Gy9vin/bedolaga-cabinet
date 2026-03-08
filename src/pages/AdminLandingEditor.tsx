@@ -15,6 +15,9 @@ import { tariffsApi, TariffListItem, PeriodPrice } from '../api/tariffs';
 import { formatPrice } from '../utils/format';
 import { adminPaymentMethodsApi } from '../api/adminPaymentMethods';
 import { Toggle, LocaleTabs, LocalizedInput } from '../components/admin';
+import { BackgroundConfigEditor } from '../components/admin/BackgroundConfigEditor';
+import type { AnimationConfig } from '@/components/ui/backgrounds/types';
+import { DEFAULT_ANIMATION_CONFIG } from '@/components/ui/backgrounds/types';
 import { SortableFeatureItem, type FeatureWithId } from '../components/admin/SortableFeatureItem';
 import {
   SortableSelectedMethodCard,
@@ -102,6 +105,7 @@ export default function AdminLandingEditor() {
     discount: false,
     methods: false,
     gifts: false,
+    background: false,
     footer: false,
   });
 
@@ -126,6 +130,12 @@ export default function AdminLandingEditor() {
   const [giftEnabled, setGiftEnabled] = useState(false);
   const [footerText, setFooterText] = useState<LocaleDict>({});
   const [customCss, setCustomCss] = useState('');
+
+  // Background config state
+  const [backgroundConfig, setBackgroundConfig] = useState<AnimationConfig>({
+    ...DEFAULT_ANIMATION_CONFIG,
+    enabled: false,
+  });
 
   // Discount state
   const [discountPercent, setDiscountPercent] = useState<number | null>(null);
@@ -245,6 +255,9 @@ export default function AdminLandingEditor() {
     setGiftEnabled(landingData.gift_enabled);
     setFooterText(toLocaleDict(landingData.footer_text));
     setCustomCss(landingData.custom_css ?? '');
+    if (landingData.background_config) {
+      setBackgroundConfig(landingData.background_config);
+    }
     setDiscountPercent(landingData.discount_percent ?? null);
     setDiscountOverrides(landingData.discount_overrides ?? {});
     setDiscountStartsAt(
@@ -364,6 +377,7 @@ export default function AdminLandingEditor() {
         discountPercent !== null && discountEndsAt ? new Date(discountEndsAt).toISOString() : null,
       discount_badge_text:
         discountPercent !== null ? (nonEmptyDict(discountBadgeText) ?? null) : null,
+      background_config: backgroundConfig.enabled ? backgroundConfig : null,
     };
 
     if (isEdit) {
@@ -1054,6 +1068,15 @@ export default function AdminLandingEditor() {
             <label className="text-sm text-dark-400">{t('admin.landings.giftEnabled')}</label>
             <Toggle checked={giftEnabled} onChange={() => setGiftEnabled(!giftEnabled)} />
           </div>
+        </Section>
+
+        {/* Background Section */}
+        <Section
+          title={t('admin.landings.background', 'Background')}
+          open={openSections.background}
+          onToggle={() => toggleSection('background')}
+        >
+          <BackgroundConfigEditor value={backgroundConfig} onChange={setBackgroundConfig} />
         </Section>
 
         {/* Footer & Custom CSS Section */}

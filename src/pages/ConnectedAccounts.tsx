@@ -27,6 +27,10 @@ export const LINK_TELEGRAM_STATE_KEY = 'link_telegram_state';
 /** Compact Telegram Login Widget for account linking (browser only). */
 function TelegramLinkWidget() {
   const containerRef = useRef<HTMLDivElement>(null);
+  const navigate = useNavigate();
+  const { showToast } = useToast();
+  const { t } = useTranslation();
+  const queryClient = useQueryClient();
   const botUsername = import.meta.env.VITE_TELEGRAM_BOT_USERNAME || '';
 
   useEffect(() => {
@@ -37,29 +41,53 @@ function TelegramLinkWidget() {
       container.removeChild(container.firstChild);
     }
 
-    // Generate CSRF state token and store in sessionStorage
-    const csrfState = crypto.randomUUID();
-    sessionStorage.setItem(LINK_TELEGRAM_STATE_KEY, csrfState);
-
-    const redirectUrl = `${window.location.origin}/auth/link/telegram/callback?csrf_state=${encodeURIComponent(csrfState)}`;
+    // Global callback invoked by the Telegram Login Widget
+    const callbackName = '__onTelegramLinkAuth';
+    (window as unknown as Record<string, unknown>)[callbackName] = async (
+      user: Record<string, unknown>,
+    ) => {
+      try {
+        const response = await authApi.linkTelegram({
+          id: user.id as number,
+          first_name: user.first_name as string,
+          last_name: (user.last_name as string) || undefined,
+          username: (user.username as string) || undefined,
+          photo_url: (user.photo_url as string) || undefined,
+          auth_date: user.auth_date as number,
+          hash: user.hash as string,
+        });
+        if (response.merge_required && response.merge_token) {
+          navigate(`/merge/${response.merge_token}`, { replace: true });
+        } else {
+          queryClient.invalidateQueries({ queryKey: ['linked-providers'] });
+          showToast({ type: 'success', message: t('profile.accounts.linkSuccess') });
+        }
+      } catch (err: unknown) {
+        showToast({
+          type: 'error',
+          message: getErrorDetail(err) || t('profile.accounts.linkError'),
+        });
+      }
+    };
 
     const script = document.createElement('script');
     script.src = 'https://telegram.org/js/telegram-widget.js?23';
     script.setAttribute('data-telegram-login', botUsername);
     script.setAttribute('data-size', 'small');
     script.setAttribute('data-radius', '8');
-    script.setAttribute('data-auth-url', redirectUrl);
+    script.setAttribute('data-onauth', `${callbackName}(user)`);
     script.setAttribute('data-request-access', 'write');
     script.async = true;
 
     container.appendChild(script);
 
     return () => {
+      delete (window as unknown as Record<string, unknown>)[callbackName];
       while (container.firstChild) {
         container.removeChild(container.firstChild);
       }
     };
-  }, [botUsername]);
+  }, [botUsername, navigate, showToast, t, queryClient]);
 
   if (!botUsername) {
     return null;

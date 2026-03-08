@@ -1,5 +1,22 @@
 # Changelog
 
+## [1.26.0](https://github.com/BEDOLAGA-DEV/bedolaga-cabinet/compare/v1.25.0...v1.26.0) (2026-03-07)
+
+
+### Features
+
+* add configurable animated background for landing pages ([a404690](https://github.com/BEDOLAGA-DEV/bedolaga-cabinet/commit/a4046903344855d849482b585fee1e27d13efcae))
+* add landing page statistics page with recharts ([3019019](https://github.com/BEDOLAGA-DEV/bedolaga-cabinet/commit/30190199ed88cde6aea575eed44a2f7d4361dbdc))
+* add purchases list with pagination to landing stats page ([887b13d](https://github.com/BEDOLAGA-DEV/bedolaga-cabinet/commit/887b13dec22bbb6c4f07e8035cbbeefc437f10e2))
+
+
+### Bug Fixes
+
+* allow animated background to show through on landing pages ([66bb86a](https://github.com/BEDOLAGA-DEV/bedolaga-cabinet/commit/66bb86a5f286b40eb0cc7cbac8a82ad3d6336de2))
+* rename duplicate 'purchases' i18n key to 'purchaseCount' ([0ce74ea](https://github.com/BEDOLAGA-DEV/bedolaga-cabinet/commit/0ce74ea5fb7efad60bb78b56a0bf6518fecb88d8))
+* replace deprecated Telegram Login Widget redirect with callback ([32091d3](https://github.com/BEDOLAGA-DEV/bedolaga-cabinet/commit/32091d3648889795d01d78bff933da3a38caa10f))
+* send Bearer token on email register (link to Telegram account) ([68e6ce1](https://github.com/BEDOLAGA-DEV/bedolaga-cabinet/commit/68e6ce1bce1edc3c6048c1ed873865a27c39ea52))
+
 ## [1.25.0](https://github.com/BEDOLAGA-DEV/bedolaga-cabinet/compare/v1.24.0...v1.25.0) (2026-03-07)
 
 

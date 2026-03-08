@@ -106,6 +106,8 @@ export default function TelegramLoginButton({ referralCode }: TelegramLoginButto
   }, [isOIDC, widgetConfig?.oidc_client_id, widgetConfig?.request_access]);
 
   // Legacy widget effect (only when NOT OIDC)
+  const loginWithTelegramWidget = useAuthStore((s) => s.loginWithTelegramWidget);
+
   useEffect(() => {
     if (isOIDC || !containerRef.current || !botUsername || !widgetConfig) return;
 
@@ -114,7 +116,25 @@ export default function TelegramLoginButton({ referralCode }: TelegramLoginButto
       container.removeChild(container.firstChild);
     }
 
-    const redirectUrl = `${window.location.origin}/auth/telegram/callback`;
+    const callbackName = '__onTelegramWidgetAuth';
+    (window as unknown as Record<string, unknown>)[callbackName] = async (
+      user: Record<string, unknown>,
+    ) => {
+      try {
+        await loginWithTelegramWidget({
+          id: user.id as number,
+          first_name: user.first_name as string,
+          last_name: (user.last_name as string) || undefined,
+          username: (user.username as string) || undefined,
+          photo_url: (user.photo_url as string) || undefined,
+          auth_date: user.auth_date as number,
+          hash: user.hash as string,
+        });
+        navigate('/');
+      } catch {
+        // Error handled by auth store
+      }
+    };
 
     const script = document.createElement('script');
     script.src = '/js/telegram-widget.js';
@@ -122,7 +142,7 @@ export default function TelegramLoginButton({ referralCode }: TelegramLoginButto
     script.setAttribute('data-size', widgetConfig.size);
     script.setAttribute('data-radius', String(widgetConfig.radius));
     script.setAttribute('data-userpic', String(widgetConfig.userpic));
-    script.setAttribute('data-auth-url', redirectUrl);
+    script.setAttribute('data-onauth', `${callbackName}(user)`);
     if (widgetConfig.request_access) {
       script.setAttribute('data-request-access', 'write');
     }
@@ -131,11 +151,12 @@ export default function TelegramLoginButton({ referralCode }: TelegramLoginButto
     container.appendChild(script);
 
     return () => {
+      delete (window as unknown as Record<string, unknown>)[callbackName];
       while (container.firstChild) {
         container.removeChild(container.firstChild);
       }
     };
-  }, [isOIDC, botUsername, widgetConfig]);
+  }, [isOIDC, botUsername, widgetConfig, loginWithTelegramWidget, navigate]);
 
   if (!botUsername || botUsername === 'your_bot') {
     return (
