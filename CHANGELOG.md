@@ -1,5 +1,27 @@
 # Changelog
 
+## [1.27.0](https://github.com/BEDOLAGA-DEV/bedolaga-cabinet/compare/v1.26.0...v1.27.0) (2026-03-08)
+
+
+### Features
+
+* add gift purchase UI states for telegram recipients ([eed077b](https://github.com/BEDOLAGA-DEV/bedolaga-cabinet/commit/eed077b0197f215c8f74f70a2bf0b73fd41d4628))
+* unified device manager with dot-based selector ([edb7ef0](https://github.com/BEDOLAGA-DEV/bedolaga-cabinet/commit/edb7ef0488b0ae994b7a37be9b95d1ab007feb09))
+
+
+### Bug Fixes
+
+* add purchase-options cache invalidation on balance changes ([f1102d2](https://github.com/BEDOLAGA-DEV/bedolaga-cabinet/commit/f1102d278354ae3225f8b36029590d8c01b74ea0))
+* mobile layout overflow on landing page ([9aae9cc](https://github.com/BEDOLAGA-DEV/bedolaga-cabinet/commit/9aae9cc0e6e650ff6eb6633b0d08c952aa7f2c4a))
+* show infinity symbol for unlimited traffic on landing page ([bda95ed](https://github.com/BEDOLAGA-DEV/bedolaga-cabinet/commit/bda95ed23f3b445c9a4a295a3be65310dae039e0))
+* unify device manager into additional options card with unbounded dot selector ([6dc8ca0](https://github.com/BEDOLAGA-DEV/bedolaga-cabinet/commit/6dc8ca0d18bd0e23d6fa05b169f40686f6b2584c))
+* use platform-conditional replace for QR navigation to preserve Telegram back behavior ([7bb75aa](https://github.com/BEDOLAGA-DEV/bedolaga-cabinet/commit/7bb75aa92045d911533506cf922cbc8a45ef0968))
+
+
+### Reverts
+
+* remove device manager redesign, restore original device UI ([71a0111](https://github.com/BEDOLAGA-DEV/bedolaga-cabinet/commit/71a0111a04d51f25ab8f4b226018519aeb3abcdc))
+
 ## [1.26.0](https://github.com/BEDOLAGA-DEV/bedolaga-cabinet/compare/v1.25.0...v1.26.0) (2026-03-07)
 
 

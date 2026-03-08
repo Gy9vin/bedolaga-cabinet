@@ -406,9 +406,11 @@ function App() {
         <Route
           path="/connection/qr"
           element={
-            <LazyPage>
-              <ConnectionQR />
-            </LazyPage>
+            <ProtectedRoute>
+              <LazyPage>
+                <ConnectionQR />
+              </LazyPage>
+            </ProtectedRoute>
           }
         />
         <Route
