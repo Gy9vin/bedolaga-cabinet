@@ -1,5 +1,21 @@
 # Changelog
 
+## [1.28.0](https://github.com/BEDOLAGA-DEV/bedolaga-cabinet/compare/v1.27.0...v1.28.0) (2026-03-09)
+
+
+### Features
+
+* add dedicated TopUpResult page for payment return flow ([b591228](https://github.com/BEDOLAGA-DEV/bedolaga-cabinet/commit/b59122818c3242ffab512b896f75179dd9a13c1b))
+* support disabled daily subscription status in cabinet UI ([7940410](https://github.com/BEDOLAGA-DEV/bedolaga-cabinet/commit/7940410d7d913e8c92a7732f4fdc4ababd06ba3b))
+
+
+### Bug Fixes
+
+* cover all payment provider statuses in TopUpResult ([8897561](https://github.com/BEDOLAGA-DEV/bedolaga-cabinet/commit/8897561fb2af322b4b37b84ac07b7746fde70586))
+* device purchase guard condition and cache invalidation ([115c684](https://github.com/BEDOLAGA-DEV/bedolaga-cabinet/commit/115c684fe00d0e209953e4bdd3ff5d213909e423))
+* force fresh balance data on purchase-options query ([69a8fe8](https://github.com/BEDOLAGA-DEV/bedolaga-cabinet/commit/69a8fe8e03aca6b0a984a0acb3ed5d9091ed4737))
+* support method query param fallback for external browser redirects ([7ce5341](https://github.com/BEDOLAGA-DEV/bedolaga-cabinet/commit/7ce5341e955ba34e7336959b09a528269e6b3417))
+
 ## [1.27.0](https://github.com/BEDOLAGA-DEV/bedolaga-cabinet/compare/v1.26.0...v1.27.0) (2026-03-08)
 
 
