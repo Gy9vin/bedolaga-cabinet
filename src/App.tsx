@@ -43,6 +43,7 @@ const PurchaseSuccess = lazy(() => import('./pages/PurchaseSuccess'));
 const AutoLogin = lazy(() => import('./pages/AutoLogin'));
 const TopUpMethodSelect = lazy(() => import('./pages/TopUpMethodSelect'));
 const TopUpAmount = lazy(() => import('./pages/TopUpAmount'));
+const TopUpResult = lazy(() => import('./pages/TopUpResult'));
 const ConnectedAccounts = lazy(() => import('./pages/ConnectedAccounts'));
 const LinkTelegramCallback = lazy(() => import('./pages/LinkTelegramCallback'));
 const MergeAccounts = lazy(() => import('./pages/MergeAccounts'));
@@ -112,7 +113,13 @@ const AdminLandings = lazy(() => import('./pages/AdminLandings'));
 const AdminLandingEditor = lazy(() => import('./pages/AdminLandingEditor'));
 const AdminLandingStats = lazy(() => import('./pages/AdminLandingStats'));
 
-function ProtectedRoute({ children }: { children: React.ReactNode }) {
+function ProtectedRoute({
+  children,
+  withLayout = true,
+}: {
+  children: React.ReactNode;
+  withLayout?: boolean;
+}) {
   const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
   const isLoading = useAuthStore((state) => state.isLoading);
   const location = useLocation();
@@ -122,12 +129,11 @@ function ProtectedRoute({ children }: { children: React.ReactNode }) {
   }
 
   if (!isAuthenticated) {
-    // Сохраняем текущий URL для возврата после авторизации
     saveReturnUrl();
     return <Navigate to="/login" replace state={{ from: location.pathname }} />;
   }
 
-  return <Layout>{children}</Layout>;
+  return withLayout ? <Layout>{children}</Layout> : <>{children}</>;
 }
 
 function AdminRoute({ children }: { children: React.ReactNode }) {
@@ -141,7 +147,6 @@ function AdminRoute({ children }: { children: React.ReactNode }) {
   }
 
   if (!isAuthenticated) {
-    // Сохраняем текущий URL для возврата после авторизации
     saveReturnUrl();
     return <Navigate to="/login" replace state={{ from: location.pathname }} />;
   }
@@ -280,6 +285,18 @@ function App() {
               <LazyPage>
                 <TopUpMethodSelect />
               </LazyPage>
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/balance/top-up/result"
+          element={
+            <ProtectedRoute withLayout={false}>
+              <ErrorBoundary level="app">
+                <LazyPage>
+                  <TopUpResult />
+                </LazyPage>
+              </ErrorBoundary>
             </ProtectedRoute>
           }
         />

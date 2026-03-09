@@ -219,7 +219,27 @@
     "noActiveSubscription": "无有效订阅",
     "devicesUsed": "设备：{{used}} / {{total}}",
     "trafficUsed": "流量：{{used}} / {{total}} GB",
-    "unlimitedTraffic": "无限流量"
+    "unlimitedTraffic": "无限流量",
+    "expired": {
+      "title": "订阅已过期",
+      "trialTitle": "试用已过期",
+      "trialSubtitle": "试用期已结束",
+      "paidSubtitle": "订阅已到期",
+      "renew": "续订",
+      "quickRenew": "快速续订",
+      "insufficientFunds": "余额不足",
+      "renewError": "续订失败，请重试",
+      "topUp": "充值",
+      "balance": "余额",
+      "tariffs": "套餐",
+      "traffic": "流量",
+      "devices": "设备",
+      "expiredDate": "过期时间"
+    },
+    "suspended": {
+      "title": "订阅已暂停",
+      "resume": "恢复"
+    }
   },
   "subscription": {
     "title": "订阅",
@@ -429,6 +449,7 @@
       "nextCharge": "距下次扣费",
       "pauseBtn": "暂停",
       "paused": "已暂停",
+      "suspended": "已暂停（余额不足）",
       "pausedDescription": "扣费已停止。订阅有效期至",
       "pausedInfo": "订阅已暂停",
       "resumeBtn": "恢复",
@@ -512,6 +533,19 @@
     "paymentSuccess": {
       "title": "支付成功",
       "message": "您的余额已成功充值，资金现已可用。"
+    },
+    "topUpResult": {
+      "awaitingPayment": "等待付款",
+      "awaitingPaymentDesc": "我们正在等待您的付款确认。这可能需要几分钟。",
+      "topUpAmount": "充值金额",
+      "success": "充值成功！",
+      "successDesc": "您的余额已成功充值，资金现已可用。",
+      "failed": "付款失败",
+      "failedDesc": "很遗憾，付款未完成。请重试或选择其他付款方式。",
+      "timeout": "处理时间较长",
+      "timeoutDesc": "付款处理时间比平时长。您可以再次检查状态。",
+      "goToBalance": "查看余额",
+      "tryAgain": "重试"
     }
   },
   "referral": {

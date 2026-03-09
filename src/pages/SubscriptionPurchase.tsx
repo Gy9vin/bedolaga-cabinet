@@ -48,6 +48,8 @@ export default function SubscriptionPurchase() {
   const { data: purchaseOptions, isLoading: optionsLoading } = useQuery({
     queryKey: ['purchase-options'],
     queryFn: subscriptionApi.getPurchaseOptions,
+    staleTime: 0,
+    refetchOnMount: 'always',
   });
 
   // Active promo discount

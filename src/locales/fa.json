@@ -219,7 +219,27 @@
     "noActiveSubscription": "اشتراک فعال ندارید",
     "devicesUsed": "دستگاه‌ها: {{used}} از {{total}}",
     "trafficUsed": "ترافیک: {{used}} از {{total}} گیگ",
-    "unlimitedTraffic": "ترافیک نامحدود"
+    "unlimitedTraffic": "ترافیک نامحدود",
+    "expired": {
+      "title": "اشتراک منقضی شده",
+      "trialTitle": "دوره آزمایشی منقضی شده",
+      "trialSubtitle": "دوره آزمایشی پایان یافته",
+      "paidSubtitle": "اشتراک منقضی شده",
+      "renew": "تمدید اشتراک",
+      "quickRenew": "تمدید سریع",
+      "insufficientFunds": "موجودی ناکافی",
+      "renewError": "خطا در تمدید، دوباره تلاش کنید",
+      "topUp": "شارژ موجودی",
+      "balance": "موجودی",
+      "tariffs": "تعرفه‌ها",
+      "traffic": "ترافیک",
+      "devices": "دستگاه‌ها",
+      "expiredDate": "منقضی شده"
+    },
+    "suspended": {
+      "title": "اشتراک معلق شده",
+      "resume": "از سرگیری"
+    }
   },
   "subscription": {
     "title": "اشتراک",
@@ -429,6 +449,7 @@
       "nextCharge": "تا کسر بعدی",
       "pauseBtn": "توقف",
       "paused": "متوقف شده",
+      "suspended": "معلق شده (موجودی ناکافی)",
       "pausedDescription": "کسر متوقف شد. اشتراک فعال خواهد بود تا",
       "pausedInfo": "اشتراک متوقف شده",
       "resumeBtn": "ادامه",
@@ -512,6 +533,19 @@
     "paymentSuccess": {
       "title": "پرداخت موفق",
       "message": "موجودی شما با موفقیت شارژ شد. وجوه اکنون در دسترس است."
+    },
+    "topUpResult": {
+      "awaitingPayment": "در انتظار پرداخت",
+      "awaitingPaymentDesc": "ما منتظر تأیید پرداخت شما هستیم. این ممکن است چند دقیقه طول بکشد.",
+      "topUpAmount": "مبلغ شارژ",
+      "success": "شارژ موفق!",
+      "successDesc": "موجودی شما با موفقیت شارژ شد. وجوه اکنون در دسترس است.",
+      "failed": "پرداخت ناموفق",
+      "failedDesc": "متأسفانه پرداخت تکمیل نشد. لطفاً دوباره تلاش کنید یا روش پرداخت دیگری انتخاب کنید.",
+      "timeout": "بیشتر از حد معمول طول کشید",
+      "timeoutDesc": "پردازش پرداخت بیشتر از حد معمول طول می‌کشد. می‌توانید دوباره وضعیت را بررسی کنید.",
+      "goToBalance": "مشاهده موجودی",
+      "tryAgain": "تلاش مجدد"
     }
   },
   "referral": {

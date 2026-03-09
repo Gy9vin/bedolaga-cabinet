@@ -254,10 +254,19 @@
       "trialSubtitle": "Trial period ended",
       "paidSubtitle": "Subscription has expired",
       "renew": "Renew Subscription",
+      "quickRenew": "Quick Renew",
+      "insufficientFunds": "Insufficient balance",
+      "renewError": "Renewal error, try again",
+      "topUp": "Top up balance",
+      "balance": "Balance",
       "tariffs": "Tariffs",
       "traffic": "Traffic",
       "devices": "Devices",
       "expiredDate": "Expired"
+    },
+    "suspended": {
+      "title": "Subscription Suspended",
+      "resume": "Resume"
     },
     "trialOffer": {
       "freeTitle": "Free Trial Available",
@@ -447,6 +456,7 @@
     "pause": {
       "title": "Subscription Pause",
       "paused": "Paused",
+      "suspended": "Suspended (insufficient funds)",
       "active": "Active",
       "pauseBtn": "Pause",
       "resumeBtn": "Resume",
@@ -678,6 +688,19 @@
     "paymentSuccess": {
       "title": "Payment Successful",
       "message": "Your balance has been topped up successfully. The funds are now available."
+    },
+    "topUpResult": {
+      "awaitingPayment": "Awaiting Payment",
+      "awaitingPaymentDesc": "We are waiting for your payment confirmation. This may take a few minutes.",
+      "topUpAmount": "Top-up amount",
+      "success": "Balance Topped Up!",
+      "successDesc": "Your balance has been topped up successfully. The funds are now available.",
+      "failed": "Payment Failed",
+      "failedDesc": "Unfortunately, the payment was not completed. Please try again or choose a different payment method.",
+      "timeout": "Taking Longer Than Expected",
+      "timeoutDesc": "Payment processing is taking longer than usual. You can try checking the status again.",
+      "goToBalance": "Go to Balance",
+      "tryAgain": "Try Again"
     }
   },
   "referral": {

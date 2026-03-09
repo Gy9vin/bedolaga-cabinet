@@ -8,6 +8,9 @@ import { landingApi } from '../api/landings';
 import { authApi } from '../api/auth';
 import { useAuthStore } from '../store/auth';
 import { copyToClipboard } from '../utils/clipboard';
+import { Spinner } from '@/components/ui/Spinner';
+import { AnimatedCheckmark } from '@/components/ui/AnimatedCheckmark';
+import { AnimatedCrossmark } from '@/components/ui/AnimatedCrossmark';
 import { cn } from '../lib/utils';
 
 const MAX_POLL_MS = 10 * 60 * 1000; // 10 minutes
@@ -15,17 +18,6 @@ const MAX_POLL_MS = 10 * 60 * 1000; // 10 minutes
 // ============================================================
 // Sub-components
 // ============================================================
-
-function Spinner({ className }: { className?: string }) {
-  return (
-    <div
-      className={cn(
-        'animate-spin rounded-full border-2 border-dark-600 border-t-accent-500',
-        className,
-      )}
-    />
-  );
-}
 
 function PendingState() {
   const { t } = useTranslation();
@@ -135,33 +127,7 @@ function CabinetCredentialsState({
       animate={{ opacity: 1, scale: 1 }}
       className="flex flex-col items-center gap-6 text-center"
     >
-      {/* Animated checkmark */}
-      <motion.div
-        initial={{ scale: 0 }}
-        animate={{ scale: 1 }}
-        transition={{ type: 'spring', stiffness: 200, damping: 15, delay: 0.1 }}
-        className="flex h-20 w-20 items-center justify-center rounded-full bg-success-500/10"
-      >
-        <motion.svg
-          initial={{ pathLength: 0, opacity: 0 }}
-          animate={{ pathLength: 1, opacity: 1 }}
-          transition={{ duration: 0.4, delay: 0.3 }}
-          className="h-10 w-10 text-success-500"
-          fill="none"
-          viewBox="0 0 24 24"
-          stroke="currentColor"
-          strokeWidth={2.5}
-        >
-          <motion.path
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            d="M5 13l4 4L19 7"
-            initial={{ pathLength: 0 }}
-            animate={{ pathLength: 1 }}
-            transition={{ duration: 0.4, delay: 0.3 }}
-          />
-        </motion.svg>
-      </motion.div>
+      <AnimatedCheckmark />
 
       {/* Title */}
       <div>
@@ -267,33 +233,7 @@ function SuccessState({
       animate={{ opacity: 1, scale: 1 }}
       className="flex flex-col items-center gap-6 text-center"
     >
-      {/* Animated checkmark */}
-      <motion.div
-        initial={{ scale: 0 }}
-        animate={{ scale: 1 }}
-        transition={{ type: 'spring', stiffness: 200, damping: 15, delay: 0.1 }}
-        className="flex h-20 w-20 items-center justify-center rounded-full bg-success-500/10"
-      >
-        <motion.svg
-          initial={{ pathLength: 0, opacity: 0 }}
-          animate={{ pathLength: 1, opacity: 1 }}
-          transition={{ duration: 0.4, delay: 0.3 }}
-          className="h-10 w-10 text-success-500"
-          fill="none"
-          viewBox="0 0 24 24"
-          stroke="currentColor"
-          strokeWidth={2.5}
-        >
-          <motion.path
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            d="M5 13l4 4L19 7"
-            initial={{ pathLength: 0 }}
-            animate={{ pathLength: 1 }}
-            transition={{ duration: 0.4, delay: 0.3 }}
-          />
-        </motion.svg>
-      </motion.div>
+      <AnimatedCheckmark />
 
       {/* Title */}
       <div>
@@ -551,33 +491,7 @@ function GiftPendingActivationState({
       animate={{ opacity: 1, scale: 1 }}
       className="flex flex-col items-center gap-6 text-center"
     >
-      {/* Animated checkmark */}
-      <motion.div
-        initial={{ scale: 0 }}
-        animate={{ scale: 1 }}
-        transition={{ type: 'spring', stiffness: 200, damping: 15, delay: 0.1 }}
-        className="flex h-20 w-20 items-center justify-center rounded-full bg-success-500/10"
-      >
-        <motion.svg
-          initial={{ pathLength: 0, opacity: 0 }}
-          animate={{ pathLength: 1, opacity: 1 }}
-          transition={{ duration: 0.4, delay: 0.3 }}
-          className="h-10 w-10 text-success-500"
-          fill="none"
-          viewBox="0 0 24 24"
-          stroke="currentColor"
-          strokeWidth={2.5}
-        >
-          <motion.path
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            d="M5 13l4 4L19 7"
-            initial={{ pathLength: 0 }}
-            animate={{ pathLength: 1 }}
-            transition={{ duration: 0.4, delay: 0.3 }}
-          />
-        </motion.svg>
-      </motion.div>
+      <AnimatedCheckmark />
 
       <div>
         <h1 className="text-xl font-bold text-dark-50">{t('landing.giftSentSuccess')}</h1>
@@ -631,17 +545,7 @@ function FailedState() {
       animate={{ opacity: 1, scale: 1 }}
       className="flex flex-col items-center gap-6 text-center"
     >
-      <div className="flex h-20 w-20 items-center justify-center rounded-full bg-error-500/10">
-        <svg
-          className="h-10 w-10 text-error-400"
-          fill="none"
-          viewBox="0 0 24 24"
-          stroke="currentColor"
-          strokeWidth={2}
-        >
-          <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
-        </svg>
-      </div>
+      <AnimatedCrossmark />
       <div>
         <h1 className="text-xl font-bold text-dark-50">{t('landing.purchaseFailed')}</h1>
         <p className="mt-2 text-sm text-dark-400">{t('landing.purchaseFailedDesc')}</p>
@@ -785,7 +689,11 @@ export default function PurchaseSuccess() {
 
   return (
     <div className="flex min-h-dvh items-center justify-center bg-dark-950 px-4">
-      <div className="w-full max-w-md rounded-2xl border border-dark-800/50 bg-dark-900/50 p-8">
+      <div
+        className="w-full max-w-md rounded-2xl border border-dark-800/50 bg-dark-900/50 p-8"
+        aria-live="polite"
+        aria-atomic="true"
+      >
         {isError ? (
           <FailedState />
         ) : isEmailSelfPurchase ? (
