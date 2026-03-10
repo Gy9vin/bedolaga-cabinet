@@ -248,10 +248,11 @@ export const authApi = {
     return response.data;
   },
 
-  // Link Telegram account (Mini App initData or Login Widget data)
+  // Link Telegram account (Mini App initData, OIDC id_token, or Login Widget data)
   linkTelegram: async (
     data:
       | { init_data: string }
+      | { id_token: string }
       | {
           id: number;
           first_name: string;

@@ -44,7 +44,8 @@
     "polls": "Polls",
     "info": "Info",
     "wheel": "Fortune Wheel",
-    "menu": "Menu"
+    "menu": "Menu",
+    "gift": "Gift"
   },
   "notifications": {
     "ticketNotifications": "Ticket Notifications",
@@ -346,6 +347,9 @@
     "daysBeforeExpiry_one": "{{count}} day before expiry",
     "daysBeforeExpiry_other": "{{count}} days before expiry",
     "selectPeriod": "Select Period",
+    "noPeriodsAvailable": "No available periods for renewal",
+    "noPeriodsAvailableHint": "The administrator has changed this plan's settings. Please choose a different plan to renew your subscription.",
+    "chooseDifferentTariff": "Choose a different plan",
     "selectTraffic": "Select Traffic",
     "selectServers": "Select Servers",
     "selectDevices": "Devices",
@@ -1697,6 +1701,8 @@
       "darkTheme": "Dark theme",
       "emailAuth": "Email auth",
       "emailAuthDesc": "Allow login via email",
+      "giftEnabled": "Gift subscription",
+      "giftEnabledDesc": "Allow users to gift a subscription to another user",
       "favoritesEmpty": "No favorites yet",
       "favoritesHint": "Star settings to add them here",
       "interfaceOptions": "Interface options",
@@ -1747,7 +1753,8 @@
         "referral": "Referrals",
         "support": "Support",
         "info": "Info",
-        "admin": "Admin Panel"
+        "admin": "Admin Panel",
+        "language": "Language"
       },
       "descriptions": {
         "home": "Personal cabinet button",
@@ -1756,7 +1763,8 @@
         "referral": "Referral program",
         "support": "Support tickets",
         "info": "Information section",
-        "admin": "Web admin panel"
+        "admin": "Web admin panel",
+        "language": "Language selection"
       },
       "styles": {
         "default": "No color",
@@ -1764,6 +1772,26 @@
         "success": "Green",
         "danger": "Red"
       }
+    },
+    "menuEditor": {
+      "dragHint": "Drag rows to reorder them",
+      "dragToReorder": "Drag to reorder",
+      "row": "Row",
+      "addRow": "Add row",
+      "addButton": "Add button",
+      "addUrlButton": "URL button (link)",
+      "builtinButtons": "Built-in buttons",
+      "resetConfirm": "Reset menu layout to defaults?",
+      "buttonTextPlaceholder": "Custom button text",
+      "customLabelsHint": "Empty = default label",
+      "moveUp": "Move up",
+      "moveDown": "Move down",
+      "openIn": "Open in",
+      "openMode": {
+        "external": "External browser",
+        "webapp": "Telegram miniapp"
+      },
+      "invalidUrl": "Please provide a valid URL (http:// or https://) for all custom buttons"
     },
     "apps": {
       "title": "App Management",
@@ -2526,6 +2554,7 @@
       "form": {
         "name": "Group name",
         "namePlaceholder": "VIP customers",
+        "nameRequired": "Enter group name",
         "categoryDiscounts": "Category discounts",
         "periodDiscounts": "Period discounts",
         "add": "Add",
@@ -2537,6 +2566,7 @@
         "rub": "rub.",
         "autoAssignHint": "0 = don't auto-assign",
         "applyToAddons": "Apply to additional services",
+        "isDefault": "Default group",
         "cancel": "Cancel",
         "saving": "Saving...",
         "save": "Save"
@@ -3295,7 +3325,7 @@
         "status_failed": "Failed",
         "status_expired": "Expired",
         "noPurchases": "No purchases",
-        "showing": "Showing {{from}}\u2013{{to}} of {{total}}",
+        "showing": "Showing {{from}}–{{to}} of {{total}}",
         "page": "Page {{current}} of {{total}}",
         "prev": "Previous",
         "next": "Next"
@@ -4153,6 +4183,64 @@
       "nDays_other": "{{count}} days",
       "nMonths_one": "{{count}} month",
       "nMonths_other": "{{count}} months"
+    }
+  },
+  "gift": {
+    "title": "Gift Subscription",
+    "subtitle": "Send a VPN subscription as a gift",
+    "choosePeriod": "Choose period",
+    "chooseTariff": "Choose tariff",
+    "recipient": "Recipient",
+    "recipientPlaceholder": "Email or @telegram",
+    "recipientHint": "Enter email or Telegram username",
+    "giftMessage": "Greeting",
+    "giftMessagePlaceholder": "Add a personal message (optional)",
+    "paymentMode": "Payment method",
+    "fromBalance": "From balance",
+    "viaGateway": "Via payment gateway",
+    "yourBalance": "Your balance",
+    "insufficientBalance": "Insufficient funds",
+    "topUpBalance": "Top up balance",
+    "total": "Total",
+    "giftButton": "Send Gift",
+    "sending": "Sending gift...",
+    "gb": "GB",
+    "devices": "devices",
+    "paymentMethod": "Payment method",
+    "processing": "Processing...",
+    "successTitle": "Gift sent!",
+    "successDesc": "Recipient {{contact}} will be notified",
+    "pendingTitle": "Awaiting payment",
+    "pendingDesc": "Complete the payment in the payment system",
+    "pendingActivationTitle": "Pending activation",
+    "pendingActivationDesc": "Recipient has an active subscription. Gift is pending activation.",
+    "failedTitle": "Error",
+    "failedDesc": "Failed to send gift. Please try again.",
+    "backToGift": "Go back",
+    "backToDashboard": "Back to dashboard",
+    "tryAgain": "Try again",
+    "pollTimeout": "Processing is taking longer than usual",
+    "pollTimeoutDesc": "Try checking the status later",
+    "pollErrorTitle": "Could not check gift status",
+    "pollErrorDesc": "Your purchase was successful. Check your dashboard for details.",
+    "retry": "Check again",
+    "notFound": "Gift configuration not found",
+    "noToken": "Invalid link",
+    "noTokenDesc": "This gift link is invalid or has expired.",
+    "days": "days",
+    "tariff": "Tariff",
+    "period": "Period",
+    "giftMessageLabel": "Message",
+    "recipientLabel": "Recipient",
+    "featureDisabled": "Gift feature is temporarily unavailable",
+    "redirecting": "Redirecting...",
+    "pending": {
+      "title": "You received a gift!",
+      "from": "from {{sender}}",
+      "activate": "Activate"
+    },
+    "warning": {
+      "telegram_unresolvable": "Could not verify this Telegram username. The recipient may not receive a notification about the gift."
     }
   }
 }

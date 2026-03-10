@@ -38,14 +38,13 @@ export default function SubscriptionCardExpired({
 
   const formattedDate = new Date(subscription.end_date).toLocaleDateString();
 
-  // Detect DISABLED daily subscription (suspended by system due to insufficient balance)
-  const isDisabledDaily = subscription.status === 'disabled' && subscription.is_daily;
+  // Detect daily subscription (disabled or expired)
+  const isDaily = subscription.is_daily;
+  const isDisabledDaily = subscription.status === 'disabled' && isDaily;
 
-  // For disabled daily subs, check if balance covers daily price
+  // For daily subs, check if balance covers daily price; otherwise 100 kopeks minimum
   const dailyPrice = subscription.daily_price_kopeks ?? 0;
-  const hasBalance = isDisabledDaily
-    ? balanceKopeks >= dailyPrice && dailyPrice > 0
-    : balanceKopeks >= 100;
+  const hasBalance = isDaily ? balanceKopeks >= dailyPrice && dailyPrice > 0 : balanceKopeks >= 100;
 
   const handleQuickRenew = async () => {
     setIsRenewing(true);
@@ -56,6 +55,9 @@ export default function SubscriptionCardExpired({
       if (isDisabledDaily) {
         // Resume daily subscription via toggle pause endpoint
         await subscriptionApi.togglePause();
+      } else if (isDaily && subscription.tariff_id) {
+        // Expired daily tariff — purchase for 1 day
+        await subscriptionApi.purchaseTariff(subscription.tariff_id, 1);
       } else {
         await subscriptionApi.renewSubscription(30);
       }

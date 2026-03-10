@@ -1,5 +1,40 @@
 # Changelog
 
+## [1.29.1](https://github.com/BEDOLAGA-DEV/bedolaga-cabinet/compare/v1.29.0...v1.29.1) (2026-03-10)
+
+
+### Bug Fixes
+
+* daily tariff renewal uses purchaseTariff instead of renewSubscription ([8629cfe](https://github.com/BEDOLAGA-DEV/bedolaga-cabinet/commit/8629cfea18aab9daf818f1f6c8e250ede29054d4))
+* show fallback when tariff has no available periods for renewal ([ea06ad1](https://github.com/BEDOLAGA-DEV/bedolaga-cabinet/commit/ea06ad1d8f7894f5460d150fa72d094617b9fbbe))
+
+## [1.29.0](https://github.com/BEDOLAGA-DEV/bedolaga-cabinet/compare/v1.28.0...v1.29.0) (2026-03-09)
+
+
+### Features
+
+* add button reordering within rows and replace modal with inline add panel ([082471b](https://github.com/BEDOLAGA-DEV/bedolaga-cabinet/commit/082471bf92cab2577fec6ae047e0ab1ded224ba3))
+* add gift navigation, routes, and i18n translations ([7890d48](https://github.com/BEDOLAGA-DEV/bedolaga-cabinet/commit/7890d480e05e87f77ea2fea3ae3a7e955bd167d3))
+* add gift subscription API client and feature flag ([a495205](https://github.com/BEDOLAGA-DEV/bedolaga-cabinet/commit/a49520566e46eb0cfdc22a3661c5ba405dc6cc92))
+* add gift subscription toggle to admin branding settings ([9542607](https://github.com/BEDOLAGA-DEV/bedolaga-cabinet/commit/9542607832561a8a72bb742947f3388bdaa087dc))
+* add GiftSubscription and GiftResult pages ([814b1f5](https://github.com/BEDOLAGA-DEV/bedolaga-cabinet/commit/814b1f5e96f968d9bc2829ba395ac187fa4d2e11))
+* add gradient fade indicators to scrollable desktop nav ([622172f](https://github.com/BEDOLAGA-DEV/bedolaga-cabinet/commit/622172f0387dc7f029c8af797d1f8df2e790771e))
+* add menu editor tab with drag-and-drop rows, custom URL buttons, and button configuration ([23aa86f](https://github.com/BEDOLAGA-DEV/bedolaga-cabinet/commit/23aa86f1a81556ce2083e8b86107ee1a82c429b1))
+* add open_in setting for custom buttons (external browser / Telegram miniapp) ([638844e](https://github.com/BEDOLAGA-DEV/bedolaga-cabinet/commit/638844ef47686f4c9540b5591d499255cdc8ff2f))
+* read gift warning from status response, soften poll error state ([4322d58](https://github.com/BEDOLAGA-DEV/bedolaga-cabinet/commit/4322d58ff8ca56ba401b669370bee8783cf55a86))
+
+
+### Bug Fixes
+
+* add missing nameRequired i18n key for promo group form validation ([78fda22](https://github.com/BEDOLAGA-DEV/bedolaga-cabinet/commit/78fda22679b9f5b4443fa602214e28ad52f7f2e9))
+* admin promo groups - add default toggle, fix threshold reset to 0 ([9c7ab4b](https://github.com/BEDOLAGA-DEV/bedolaga-cabinet/commit/9c7ab4b789f0d2e92c81afd2199789d03d3768db))
+* harden gift subscription frontend after multi-agent review ([6ea1de2](https://github.com/BEDOLAGA-DEV/bedolaga-cabinet/commit/6ea1de2e8afba93361c48a364ddc5406f6bc5d4b))
+* make desktop nav horizontally scrollable on narrow screens ([ab7d1b7](https://github.com/BEDOLAGA-DEV/bedolaga-cabinet/commit/ab7d1b7f25215aa6fb8fe7978d570f02d884b032))
+* remove bg-dark-950 from gift pages to preserve animated background ([c8ec221](https://github.com/BEDOLAGA-DEV/bedolaga-cabinet/commit/c8ec2211112656ffc3787e905d9d6b2774bc6866))
+* remove noreferrer from payment links to preserve Referer header ([45203da](https://github.com/BEDOLAGA-DEV/bedolaga-cabinet/commit/45203dac5914c2abd60371ab552d2838048b3ef1))
+* restore session from refresh token when access token is missing ([dc740ae](https://github.com/BEDOLAGA-DEV/bedolaga-cabinet/commit/dc740ae2664059011fd755ccfa96ee46a26196d3))
+* support OIDC mode in TelegramLinkWidget for account linking ([880b2d4](https://github.com/BEDOLAGA-DEV/bedolaga-cabinet/commit/880b2d45fe8966f510f77b83d6513e8be0ec1e47))
+
 ## [1.28.0](https://github.com/BEDOLAGA-DEV/bedolaga-cabinet/compare/v1.27.0...v1.28.0) (2026-03-09)
 
 

@@ -14,6 +14,8 @@ import SubscriptionCardActive from '../components/dashboard/SubscriptionCardActi
 import SubscriptionCardExpired from '../components/dashboard/SubscriptionCardExpired';
 import TrialOfferCard from '../components/dashboard/TrialOfferCard';
 import StatsGrid from '../components/dashboard/StatsGrid';
+import { giftApi } from '../api/gift';
+import PendingGiftCard from '../components/dashboard/PendingGiftCard';
 import { API } from '../config/constants';
 
 const ChevronRightIcon = () => (
@@ -77,6 +79,13 @@ export default function Dashboard() {
     queryKey: ['wheel-config'],
     queryFn: wheelApi.getConfig,
     staleTime: 60000,
+    retry: false,
+  });
+
+  const { data: pendingGifts } = useQuery({
+    queryKey: ['pending-gifts'],
+    queryFn: giftApi.getPendingGifts,
+    staleTime: 30_000,
     retry: false,
   });
 
@@ -220,6 +229,9 @@ export default function Dashboard() {
         </h1>
         <p className="mt-1 text-dark-400">{t('dashboard.yourSubscription')}</p>
       </div>
+
+      {/* Pending Gift Activations */}
+      {pendingGifts && pendingGifts.length > 0 && <PendingGiftCard gifts={pendingGifts} />}
 
       {/* Subscription Status Card */}
       {subLoading ? (
