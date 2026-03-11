@@ -534,6 +534,26 @@
     "noPaymentMethods": "روش پرداخت در دسترس نیست",
     "selectPaymentMethod": "روش پرداخت را انتخاب کنید",
     "topUpToComplete": "برای تکمیل خرید شارژ کنید",
+    "pendingPayments": {
+      "title": "پرداخت‌های در انتظار",
+      "pay": "پرداخت",
+      "checkStatus": "بررسی وضعیت",
+      "checking": "درحال بررسی..."
+    },
+    "savedCards": {
+      "title": "کارت‌های ذخیره شده",
+      "card": "کارت",
+      "unlink": "حذف",
+      "confirmUnlink": "آیا مطمئن هستید که می‌خواهید این کارت را حذف کنید؟ شارژ خودکار موجودی دیگر امکان‌پذیر نخواهد بود.",
+      "unlinkSuccess": "کارت با موفقیت حذف شد",
+      "unlinkError": "خطا در حذف کارت",
+      "linkedAt": "متصل شده {{date}}",
+      "noCards": "کارت به طور خودکار در شارژ بعدی ذخیره می‌شود",
+      "pageTitle": "کارت‌های ذخیره شده",
+      "backToBalance": "بازگشت",
+      "empty": "کارتی ذخیره نشده است. کارت به طور خودکار در شارژ بعدی ذخیره می‌شود.",
+      "loadError": "خطا در بارگذاری کارت‌ها. لطفاً بعداً دوباره امتحان کنید."
+    },
     "paymentSuccess": {
       "title": "پرداخت موفق",
       "message": "موجودی شما با موفقیت شارژ شد. وجوه اکنون در دسترس است."
@@ -2281,7 +2301,8 @@
           "subscription": "اشتراک",
           "balance": "موجودی",
           "sync": "همگام‌سازی",
-          "tickets": "تیکت‌ها"
+          "tickets": "تیکت‌ها",
+          "gifts": "هدایا"
         },
         "noTickets": "این کاربر تیکتی ندارد",
         "ticketsCount": "تیکت",
@@ -2356,6 +2377,7 @@
           "devices": "دستگاه‌ها",
           "actions": "عملیات",
           "extend": "تمدید",
+          "shorten": "کسر روزها",
           "changeTariff": "تغییر تعرفه",
           "cancel": "لغو",
           "activate": "فعال‌سازی",
@@ -2374,7 +2396,8 @@
           "trafficAdded": "بسته ترافیک اضافه شد",
           "expired": "منقضی شده",
           "daysLeft": "روز باقیمانده",
-          "deviceLimitUpdated": "محدودیت دستگاه به‌روز شد"
+          "deviceLimitUpdated": "محدودیت دستگاه به‌روز شد",
+          "invalidDays": "لطفاً تعداد روز معتبر وارد کنید (بیشتر از ۰)"
         },
         "balance": {
           "current": "موجودی فعلی",
@@ -2399,6 +2422,41 @@
           "notLinked": "متصل نشده",
           "fromPanel": "از پنل به ربات",
           "toPanel": "از ربات به پنل"
+        },
+        "gifts": {
+          "title": "هدایای کاربر",
+          "sentTitle": "هدایای ارسال شده",
+          "receivedTitle": "هدایای دریافت شده",
+          "noSent": "این کاربر هدیه‌ای ارسال نکرده است",
+          "noReceived": "این کاربر هدیه‌ای دریافت نکرده است",
+          "noGifts": "بدون هدیه",
+          "token": "کد",
+          "tariff": "تعرفه",
+          "period": "دوره",
+          "devices": "دستگاه‌ها",
+          "amount": "مبلغ",
+          "paymentMethod": "روش پرداخت",
+          "recipient": "گیرنده",
+          "sender": "فرستنده",
+          "message": "پیام",
+          "createdAt": "ایجاد شده",
+          "paidAt": "پرداخت شده",
+          "deliveredAt": "فعال شده",
+          "status": {
+            "pending": "در انتظار",
+            "paid": "پرداخت شده",
+            "delivered": "تحویل داده شده",
+            "pending_activation": "در انتظار فعال‌سازی",
+            "failed": "ناموفق",
+            "expired": "منقضی شده"
+          },
+          "days": "روز",
+          "codeOnly": "فقط کد",
+          "via": "از طریق",
+          "balance": "موجودی",
+          "unknownUser": "ناشناس",
+          "totalSent": "کل ارسال شده",
+          "totalReceived": "کل دریافت شده"
         }
       }
     },
