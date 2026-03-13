@@ -5,75 +5,12 @@ import { brandingApi } from '@/api/branding';
 import type { AnimationConfig, BackgroundType } from '@/components/ui/backgrounds/types';
 import { DEFAULT_ANIMATION_CONFIG } from '@/components/ui/backgrounds/types';
 import { backgroundComponents, prefetchBackground } from '@/components/ui/backgrounds/registry';
-
-const ANIMATION_CACHE_KEY = 'cabinet_animation_config';
-const MAX_CONFIG_JSON_LENGTH = 10_000;
-
-const VALID_TYPES: ReadonlySet<string> = new Set<BackgroundType>([
-  'aurora',
-  'sparkles',
-  'vortex',
-  'shooting-stars',
-  'background-beams',
-  'background-beams-collision',
-  'gradient-animation',
-  'wavy',
-  'background-lines',
-  'boxes',
-  'meteors',
-  'grid',
-  'dots',
-  'spotlight',
-  'ripple',
-  'none',
-]);
-
-function validateConfig(parsed: unknown): AnimationConfig | null {
-  if (typeof parsed !== 'object' || parsed === null || Array.isArray(parsed)) return null;
-  const obj = parsed as Record<string, unknown>;
-  if (typeof obj.enabled !== 'boolean') return null;
-  if (typeof obj.type !== 'string' || !VALID_TYPES.has(obj.type)) return null;
-  if (typeof obj.opacity !== 'number') return null;
-  if (typeof obj.blur !== 'number') return null;
-  if (obj.settings != null && (typeof obj.settings !== 'object' || Array.isArray(obj.settings)))
-    return null;
-  return {
-    enabled: obj.enabled,
-    type: obj.type as BackgroundType,
-    opacity: Math.max(0, Math.min(1, obj.opacity)),
-    blur: Math.max(0, Math.min(50, obj.blur)),
-    settings: (obj.settings as Record<string, unknown>) ?? {},
-    reducedOnMobile: typeof obj.reducedOnMobile === 'boolean' ? obj.reducedOnMobile : true,
-  };
-}
-
-function getCachedConfig(): AnimationConfig | null {
-  try {
-    const cached = localStorage.getItem(ANIMATION_CACHE_KEY);
-    if (!cached || cached.length > MAX_CONFIG_JSON_LENGTH) return null;
-    return validateConfig(JSON.parse(cached));
-  } catch {
-    return null;
-  }
-}
+import { validateConfig, getCachedConfig, setCachedConfig } from '@/utils/backgroundConfig';
 
 // Prefetch the background JS chunk immediately based on localStorage cache.
 const cachedConfig = getCachedConfig();
 if (cachedConfig?.enabled && cachedConfig.type && cachedConfig.type !== 'none') {
   prefetchBackground(cachedConfig.type);
-}
-
-function setCachedConfig(config: AnimationConfig) {
-  try {
-    localStorage.setItem(ANIMATION_CACHE_KEY, JSON.stringify(config));
-  } catch {
-    // localStorage not available
-  }
-}
-
-export function setCachedAnimationConfig(config: AnimationConfig) {
-  const validated = validateConfig(config);
-  if (validated) setCachedConfig(validated);
 }
 
 function reduceMobileSettings(settings: Record<string, unknown>): Record<string, unknown> {
@@ -96,7 +33,6 @@ function reduceMobileSettings(settings: Record<string, unknown>): Record<string,
   return reduced;
 }
 
-/** Renders the background animation into a portal at document.body */
 function RenderBackground({ config }: { config: AnimationConfig }) {
   const prefersReducedMotion = useMemo(
     () => window.matchMedia('(prefers-reduced-motion: reduce)').matches,
@@ -138,7 +74,6 @@ function RenderBackground({ config }: { config: AnimationConfig }) {
   );
 }
 
-/** BackgroundRenderer that fetches config from the branding API (for authenticated app shell) */
 export function BackgroundRenderer() {
   const { data: config } = useQuery({
     queryKey: ['animation-config'],
@@ -157,7 +92,6 @@ export function BackgroundRenderer() {
   return <RenderBackground config={effectiveConfig} />;
 }
 
-/** StaticBackgroundRenderer that uses a provided config (for public landing pages) */
 export function StaticBackgroundRenderer({ config }: { config: AnimationConfig }) {
   const validated = useMemo(() => validateConfig(config), [config]);
   if (!validated) return null;

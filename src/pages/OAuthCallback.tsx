@@ -3,49 +3,16 @@ import { useNavigate, useSearchParams } from 'react-router';
 import { useTranslation } from 'react-i18next';
 import { useAuthStore } from '../store/auth';
 import { authApi } from '../api/auth';
+import {
+  peekLinkOAuthState,
+  clearLinkOAuthState,
+  loadOAuthState,
+  clearOAuthState,
+  getErrorDetail,
+} from '../utils/oauth';
 import type { ServerCompleteResponse } from '../types';
 
-// SessionStorage keys for OAuth LINK state (shared with ConnectedAccounts)
-export const LINK_OAUTH_STATE_KEY = 'link_oauth_state';
-export const LINK_OAUTH_PROVIDER_KEY = 'link_oauth_provider';
-
-// SessionStorage helpers for OAuth LOGIN state
-const OAUTH_STATE_KEY = 'oauth_state';
-const OAUTH_PROVIDER_KEY = 'oauth_provider';
-
-export function saveOAuthState(state: string, provider: string): void {
-  sessionStorage.setItem(OAUTH_STATE_KEY, state);
-  sessionStorage.setItem(OAUTH_PROVIDER_KEY, provider);
-}
-
-/** Read link OAuth state without clearing (cleared only after successful match). */
-function peekLinkOAuthState(): { state: string; provider: string } | null {
-  const state = sessionStorage.getItem(LINK_OAUTH_STATE_KEY);
-  const provider = sessionStorage.getItem(LINK_OAUTH_PROVIDER_KEY);
-  if (!state || !provider) return null;
-  return { state, provider };
-}
-
-function clearLinkOAuthState(): void {
-  sessionStorage.removeItem(LINK_OAUTH_STATE_KEY);
-  sessionStorage.removeItem(LINK_OAUTH_PROVIDER_KEY);
-}
-
 type CallbackMode = 'login' | 'link-browser' | 'link-server';
-
-export function getErrorDetail(err: unknown): string | null {
-  if (err && typeof err === 'object' && 'response' in err) {
-    const resp = (err as { response?: { data?: { detail?: unknown } } }).response;
-    const detail = resp?.data?.detail;
-    if (typeof detail === 'string') return detail;
-    if (detail && typeof detail === 'object' && 'message' in detail) {
-      const msg = (detail as Record<string, unknown>).message;
-      if (typeof msg === 'string') return msg;
-    }
-  }
-  if (err instanceof Error) return err.message;
-  return null;
-}
 
 export default function OAuthCallback() {
   const { t } = useTranslation();
@@ -96,15 +63,12 @@ export default function OAuthCallback() {
       provider = linkSaved.provider;
       state = linkSaved.state;
     } else {
-      // Peek at login state first; only clear if it matches URL state
-      const loginState = sessionStorage.getItem(OAUTH_STATE_KEY);
-      const loginProvider = sessionStorage.getItem(OAUTH_PROVIDER_KEY);
-      if (loginState && loginProvider && loginState === urlState) {
-        sessionStorage.removeItem(OAUTH_STATE_KEY);
-        sessionStorage.removeItem(OAUTH_PROVIDER_KEY);
+      const loginSaved = loadOAuthState();
+      if (loginSaved && loginSaved.state === urlState) {
+        clearOAuthState();
         mode = 'login';
-        provider = loginProvider;
-        state = loginState;
+        provider = loginSaved.provider;
+        state = loginSaved.state;
       }
     }
 

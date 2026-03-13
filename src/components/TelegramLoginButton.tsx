@@ -103,7 +103,7 @@ export default function TelegramLoginButton({ referralCode }: TelegramLoginButto
       setScriptLoaded(true);
       initTelegramLogin();
     }
-  }, [isOIDC, widgetConfig?.oidc_client_id, widgetConfig?.request_access]);
+  }, [isOIDC, widgetConfig?.oidc_client_id, widgetConfig?.request_access, t]);
 
   // Legacy widget effect (only when NOT OIDC)
   const loginWithTelegramWidget = useAuthStore((s) => s.loginWithTelegramWidget);

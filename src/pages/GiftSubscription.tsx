@@ -19,10 +19,7 @@ import { cn } from '../lib/utils';
 import { copyToClipboard } from '../utils/clipboard';
 import { getApiErrorMessage } from '../utils/api-error';
 import { formatPrice } from '../utils/format';
-
-// ============================================================
-// SVG Icons
-// ============================================================
+import { usePlatform, useHaptic } from '@/platform';
 
 function GiftIcon({ className }: { className?: string }) {
   return (
@@ -130,10 +127,6 @@ function InboxIcon({ className }: { className?: string }) {
   );
 }
 
-// ============================================================
-// Helpers
-// ============================================================
-
 function formatPeriodLabel(
   days: number,
   t: (key: string, options?: Record<string, unknown>) => string,
@@ -180,15 +173,7 @@ function formatGiftDate(dateStr: string | null): string {
   });
 }
 
-// ============================================================
-// Tab type
-// ============================================================
-
 type TabId = 'buy' | 'activate' | 'myGifts';
-
-// ============================================================
-// Sub-components: Shared
-// ============================================================
 
 function LoadingSkeleton() {
   return (
@@ -261,10 +246,6 @@ function DisabledState() {
     </div>
   );
 }
-
-// ============================================================
-// Sub-components: Buy Tab
-// ============================================================
 
 function TariffCard({
   tariff,
@@ -524,6 +505,8 @@ function BuyTabContent({
 }) {
   const { t } = useTranslation();
   const queryClient = useQueryClient();
+  const { openInvoice, capabilities } = usePlatform();
+  const haptic = useHaptic();
 
   // Selection state
   const [selectedTariffId, setSelectedTariffId] = useState<number | null>(null);
@@ -610,8 +593,29 @@ function BuyTabContent({
   // Purchase mutation
   const purchaseMutation = useMutation({
     mutationFn: (data: GiftPurchaseRequest) => giftApi.createPurchase(data),
-    onSuccess: (result) => {
+    onSuccess: async (result) => {
       if (result.payment_url) {
+        // Telegram Stars: open invoice natively instead of redirect
+        const isStars = selectedMethod === 'telegram_stars';
+        if (isStars && capabilities.hasInvoice) {
+          try {
+            const status = await openInvoice(result.payment_url);
+            if (status === 'paid') {
+              haptic.notification('success');
+              queryClient.invalidateQueries({ queryKey: ['balance'] });
+              queryClient.invalidateQueries({ queryKey: ['gift-config'] });
+              queryClient.invalidateQueries({ queryKey: ['gift-sent'] });
+              onPurchaseComplete();
+            } else if (status === 'failed') {
+              haptic.notification('error');
+              setSubmitError(t('gift.failedDesc'));
+            }
+            // 'cancelled' — user closed the invoice, do nothing
+          } catch {
+            setSubmitError(t('gift.failedDesc'));
+          }
+          return;
+        }
         window.location.href = result.payment_url;
       } else {
         // Balance purchase: switch to MyGifts tab so the new code is visible
@@ -880,10 +884,6 @@ function BuyTabContent({
   );
 }
 
-// ============================================================
-// Sub-components: Activate Tab
-// ============================================================
-
 function ActivateTabContent({ initialCode }: { initialCode?: string | null }) {
   const { t } = useTranslation();
   const queryClient = useQueryClient();
@@ -998,10 +998,6 @@ function ActivateTabContent({ initialCode }: { initialCode?: string | null }) {
     </div>
   );
 }
-
-// ============================================================
-// Sub-components: My Gifts Tab
-// ============================================================
 
 function CopiedToast({ onDismiss }: { onDismiss: () => void }) {
   const { t } = useTranslation();
@@ -1296,19 +1292,11 @@ function MyGiftsTabContent() {
   );
 }
 
-// ============================================================
-// Tab animation variants
-// ============================================================
-
 const tabContentVariants = {
   initial: { opacity: 0, x: 20 },
   animate: { opacity: 1, x: 0 },
   exit: { opacity: 0, x: -20 },
 };
-
-// ============================================================
-// Main Component
-// ============================================================
 
 export default function GiftSubscription() {
   const { t } = useTranslation();

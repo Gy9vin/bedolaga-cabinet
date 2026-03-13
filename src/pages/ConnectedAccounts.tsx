@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
@@ -10,7 +10,7 @@ import { Card } from '@/components/data-display/Card';
 import { Button } from '@/components/primitives/Button';
 import { staggerContainer, staggerItem } from '@/components/motion/transitions';
 import ProviderIcon from '../components/ProviderIcon';
-import { LINK_OAUTH_STATE_KEY, LINK_OAUTH_PROVIDER_KEY, getErrorDetail } from './OAuthCallback';
+import { LINK_OAUTH_STATE_KEY, LINK_OAUTH_PROVIDER_KEY, getErrorDetail } from '../utils/oauth';
 import { getTelegramInitData } from '../hooks/useTelegramSDK';
 import { usePlatform, useIsTelegram } from '@/platform/hooks/usePlatform';
 import type { LinkedProvider } from '../types';
@@ -53,15 +53,17 @@ function TelegramLinkWidget() {
     };
   }, []);
 
-  // Shared handler for link result
-  const handleLinkResult = async (response: Awaited<ReturnType<typeof authApi.linkTelegram>>) => {
-    if (response.merge_required && response.merge_token) {
-      navigate(`/merge/${response.merge_token}`, { replace: true });
-    } else {
-      queryClient.invalidateQueries({ queryKey: ['linked-providers'] });
-      showToast({ type: 'success', message: t('profile.accounts.linkSuccess') });
-    }
-  };
+  const handleLinkResult = useCallback(
+    async (response: Awaited<ReturnType<typeof authApi.linkTelegram>>) => {
+      if (response.merge_required && response.merge_token) {
+        navigate(`/merge/${response.merge_token}`, { replace: true });
+      } else {
+        queryClient.invalidateQueries({ queryKey: ['linked-providers'] });
+        showToast({ type: 'success', message: t('profile.accounts.linkSuccess') });
+      }
+    },
+    [navigate, queryClient, showToast, t],
+  );
 
   // OIDC callback handler (ref pattern to avoid stale closures)
   const handleOIDCCallbackRef =
@@ -129,7 +131,7 @@ function TelegramLinkWidget() {
     } else {
       initTelegramLogin();
     }
-  }, [isOIDC, widgetConfig?.oidc_client_id, widgetConfig?.request_access]);
+  }, [isOIDC, widgetConfig?.oidc_client_id, widgetConfig?.request_access, showToast, t]);
 
   // Legacy widget effect (only when NOT OIDC)
   useEffect(() => {
@@ -183,7 +185,7 @@ function TelegramLinkWidget() {
         container.removeChild(container.firstChild);
       }
     };
-  }, [isOIDC, botUsername, navigate, showToast, t, queryClient]);
+  }, [isOIDC, botUsername, navigate, showToast, t, queryClient, handleLinkResult]);
 
   if (!botUsername && !isOIDC) {
     return null;

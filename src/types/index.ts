@@ -91,6 +91,7 @@ export interface Subscription {
   hide_subscription_link: boolean;
   is_active: boolean;
   is_expired: boolean;
+  is_limited: boolean;
   traffic_purchases?: TrafficPurchase[];
   // Daily tariff fields
   is_daily?: boolean;

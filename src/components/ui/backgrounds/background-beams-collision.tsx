@@ -125,7 +125,7 @@ function CollisionMechanism({
     }, 2000);
 
     return () => clearTimeout(timer);
-  }, [collision.detected]);
+  }, [collision.detected, collision.coordinates]);
 
   return (
     <>

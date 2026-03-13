@@ -125,6 +125,9 @@ export default function AdminTariffCreate() {
   // Traffic reset mode
   const [trafficResetMode, setTrafficResetMode] = useState<string | null>(null);
 
+  // Gift visibility
+  const [showInGift, setShowInGift] = useState(true);
+
   // New period for adding
   const [newPeriodDays, setNewPeriodDays] = useState<number | ''>(30);
   const [newPeriodPrice, setNewPeriodPrice] = useState<number | ''>(300);
@@ -182,6 +185,7 @@ export default function AdminTariffCreate() {
       setMaxTopupTrafficGb(data.max_topup_traffic_gb || 0);
       setTrafficTopupPackages(data.traffic_topup_packages || {});
       setTrafficResetMode(data.traffic_reset_mode || null);
+      setShowInGift(data.show_in_gift ?? true);
       return data;
     }, []),
   });
@@ -212,6 +216,7 @@ export default function AdminTariffCreate() {
       name,
       description: description || undefined,
       is_active: isActive,
+      show_in_gift: showInGift,
       traffic_limit_gb: toNumber(trafficLimitGb, 100),
       device_limit: toNumber(deviceLimit, 1),
       device_price_kopeks:
@@ -1109,6 +1114,28 @@ export default function AdminTariffCreate() {
                 <span
                   className={`absolute top-1 h-4 w-4 rounded-full bg-white transition-transform ${
                     isActive ? 'left-6' : 'left-1'
+                  }`}
+                />
+              </button>
+            </div>
+            {/* Show in gift toggle */}
+            <div className="flex items-center justify-between rounded-lg bg-dark-800 p-3">
+              <div>
+                <span className="text-sm font-medium text-dark-200">
+                  {t('admin.tariffs.showInGiftLabel')}
+                </span>
+                <p className="text-xs text-dark-500">{t('admin.tariffs.showInGiftHint')}</p>
+              </div>
+              <button
+                type="button"
+                onClick={() => setShowInGift(!showInGift)}
+                className={`relative h-6 w-11 rounded-full transition-colors ${
+                  showInGift ? 'bg-accent-500' : 'bg-dark-600'
+                }`}
+              >
+                <span
+                  className={`absolute top-1 h-4 w-4 rounded-full bg-white transition-transform ${
+                    showInGift ? 'left-6' : 'left-1'
                   }`}
                 />
               </button>

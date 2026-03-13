@@ -5,8 +5,6 @@ import { useCurrency } from '../hooks/useCurrency';
 import { adminUsersApi, type UserListItem, type UsersStatsResponse } from '../api/adminUsers';
 import { usePlatform } from '../platform/hooks/usePlatform';
 
-// ============ Icons ============
-
 const BackIcon = () => (
   <svg
     className="h-5 w-5 text-dark-400"
@@ -57,8 +55,6 @@ const TelegramIcon = () => (
   </svg>
 );
 
-// ============ Components ============
-
 interface StatCardProps {
   title: string;
   value: string | number;
@@ -100,8 +96,6 @@ function StatusBadge({ status }: { status: string }) {
     </span>
   );
 }
-
-// ============ User List Component ============
 
 interface UserRowProps {
   user: UserListItem;
@@ -147,14 +141,18 @@ function UserRow({ user, onClick, formatAmount }: UserRowProps) {
                   ? 'border-success-500/30 bg-success-500/20 text-success-400'
                   : user.subscription_status === 'trial'
                     ? 'border-accent-500/30 bg-accent-500/20 text-accent-400'
-                    : 'border-warning-500/30 bg-warning-500/20 text-warning-400'
+                    : user.subscription_status === 'limited'
+                      ? 'border-yellow-500/30 bg-yellow-500/20 text-yellow-400'
+                      : 'border-warning-500/30 bg-warning-500/20 text-warning-400'
               }`}
             >
               {user.subscription_status === 'active'
                 ? t('admin.users.status.subscription')
                 : user.subscription_status === 'trial'
                   ? t('admin.users.status.trial')
-                  : t('admin.users.status.expired')}
+                  : user.subscription_status === 'limited'
+                    ? t('subscription.trafficLimited')
+                    : t('admin.users.status.expired')}
             </span>
           )}
         </div>
@@ -176,8 +174,6 @@ function UserRow({ user, onClick, formatAmount }: UserRowProps) {
     </div>
   );
 }
-
-// ============ Main Page ============
 
 export default function AdminUsers() {
   const { t } = useTranslation();

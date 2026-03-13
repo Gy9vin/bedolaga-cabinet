@@ -926,22 +926,75 @@ export default function Subscription() {
                   style={{
                     background: subscription.is_active
                       ? `${zone.mainHex}15`
-                      : 'rgba(255,59,92,0.12)',
+                      : subscription.is_limited
+                        ? 'rgba(255,184,0,0.12)'
+                        : 'rgba(255,59,92,0.12)',
                     border: subscription.is_active
                       ? `1px solid ${zone.mainHex}30`
-                      : '1px solid rgba(255,59,92,0.25)',
-                    color: subscription.is_active ? zone.mainHex : zone.colors.error,
+                      : subscription.is_limited
+                        ? '1px solid rgba(255,184,0,0.25)'
+                        : '1px solid rgba(255,59,92,0.25)',
+                    color: subscription.is_active
+                      ? zone.mainHex
+                      : subscription.is_limited
+                        ? '#FFB800'
+                        : '#FF3B5C',
                   }}
                 >
                   {subscription.is_active
                     ? subscription.is_trial
                       ? t('subscription.trialStatus')
                       : t('subscription.active')
-                    : subscription.status === 'disabled'
-                      ? t('subscription.pause.suspended')
-                      : t('subscription.expired')}
+                    : subscription.is_limited
+                      ? t('subscription.trafficLimited')
+                      : subscription.status === 'disabled'
+                        ? t('subscription.pause.suspended')
+                        : t('subscription.expired')}
                 </span>
               </div>
+
+              {/* ─── Traffic Limited Banner ─── */}
+              {subscription.is_limited && (
+                <div
+                  className="mb-6 rounded-[14px] p-4"
+                  style={{
+                    background:
+                      'linear-gradient(135deg, rgba(255,184,0,0.08), rgba(255,184,0,0.03))',
+                    border: '1px solid rgba(255,184,0,0.2)',
+                  }}
+                >
+                  <div className="flex items-start gap-3">
+                    <div
+                      className="flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-[10px]"
+                      style={{ background: 'rgba(255,184,0,0.12)' }}
+                    >
+                      <svg
+                        width="16"
+                        height="16"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="#FFB800"
+                        strokeWidth="2"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        aria-hidden="true"
+                      >
+                        <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z" />
+                        <line x1="12" y1="9" x2="12" y2="13" />
+                        <line x1="12" y1="17" x2="12.01" y2="17" />
+                      </svg>
+                    </div>
+                    <div className="min-w-0 flex-1">
+                      <p className="text-sm font-semibold" style={{ color: '#FFB800' }}>
+                        {t('subscription.trafficLimitedTitle')}
+                      </p>
+                      <p className="mt-1 text-xs text-dark-400">
+                        {t('subscription.trafficLimitedDescription')}
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              )}
 
               {/* ─── Trial Info Banner ─── */}
               {subscription.is_trial && subscription.is_active && (
@@ -1411,11 +1464,13 @@ export default function Subscription() {
                 {t('subscription.pause.title')}
               </h2>
               <div className="mt-1 text-[12px] text-dark-50/35">
-                {subscription.status === 'disabled'
-                  ? t('subscription.pause.suspended')
-                  : subscription.is_daily_paused
-                    ? t('subscription.pause.paused')
-                    : t('subscription.pause.active')}
+                {subscription.is_limited
+                  ? t('subscription.trafficLimited')
+                  : subscription.status === 'disabled'
+                    ? t('subscription.pause.suspended')
+                    : subscription.is_daily_paused
+                      ? t('subscription.pause.paused')
+                      : t('subscription.pause.active')}
               </div>
             </div>
             <button
@@ -1563,7 +1618,7 @@ export default function Subscription() {
 
       {/* Additional Options (Buy Devices) */}
       {subscription &&
-        subscription.is_active &&
+        (subscription.is_active || subscription.is_limited) &&
         !subscription.is_trial &&
         subscription.device_limit !== 0 && (
           <div

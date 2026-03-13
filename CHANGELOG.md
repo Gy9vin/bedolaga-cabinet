@@ -1,5 +1,45 @@
 # Changelog
 
+## [1.33.2](https://github.com/BEDOLAGA-DEV/bedolaga-cabinet/compare/v1.33.1...v1.33.2) (2026-03-13)
+
+
+### Bug Fixes
+
+* resolve telegram auth token expiration and clean up codebase ([c0b834a](https://github.com/BEDOLAGA-DEV/bedolaga-cabinet/commit/c0b834ab0610c3dc23e27099f224177187181c8a))
+* resolve telegram auth token expiration and clean up codebase ([2dab25c](https://github.com/BEDOLAGA-DEV/bedolaga-cabinet/commit/2dab25c5a036fb90f75c80e4e28f2a53885f9038))
+
+## [1.33.1](https://github.com/BEDOLAGA-DEV/bedolaga-cabinet/compare/v1.33.0...v1.33.1) (2026-03-13)
+
+
+### Bug Fixes
+
+* correct locale loader type to support nested translation objects ([ab03947](https://github.com/BEDOLAGA-DEV/bedolaga-cabinet/commit/ab0394776ad5f23778f45618e283fb319e4c688c))
+* correct locale loader type to support nested translation objects ([682b6b7](https://github.com/BEDOLAGA-DEV/bedolaga-cabinet/commit/682b6b70dc65e14e8dc6c68c59501d5ca1a2171a))
+
+## [1.33.0](https://github.com/BEDOLAGA-DEV/bedolaga-cabinet/compare/v1.32.0...v1.33.0) (2026-03-13)
+
+
+### Features
+
+* add LIMITED subscription status support with traffic-exhausted UX ([b4f9f33](https://github.com/BEDOLAGA-DEV/bedolaga-cabinet/commit/b4f9f332cf714717ed52cd18a82af9d2feb22416))
+
+
+### Performance Improvements
+
+* lazy-load locale files per language instead of bundling all ([9ae9ccc](https://github.com/BEDOLAGA-DEV/bedolaga-cabinet/commit/9ae9cccbd96408c05f70163b50a63d7a33061a75))
+
+## [1.32.0](https://github.com/BEDOLAGA-DEV/bedolaga-cabinet/compare/v1.31.0...v1.32.0) (2026-03-12)
+
+
+### Features
+
+* add show_in_gift toggle UI for tariffs in admin panel ([5a5a987](https://github.com/BEDOLAGA-DEV/bedolaga-cabinet/commit/5a5a9878931234103761d40fb24893afdb16a817))
+
+
+### Bug Fixes
+
+* handle Telegram Stars payment for gift subscriptions via openInvoice ([01e811b](https://github.com/BEDOLAGA-DEV/bedolaga-cabinet/commit/01e811bdfc5db4e0680c1b7d4bed5e91a66e503c))
+
 ## [1.31.0](https://github.com/BEDOLAGA-DEV/bedolaga-cabinet/compare/v1.30.0...v1.31.0) (2026-03-11)
 
 

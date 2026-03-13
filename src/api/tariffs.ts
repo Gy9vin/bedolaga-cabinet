@@ -32,6 +32,7 @@ export interface TariffListItem {
   description: string | null;
   is_active: boolean;
   is_trial_available: boolean;
+  show_in_gift: boolean;
   is_daily: boolean;
   daily_price_kopeks: number;
   traffic_limit_gb: number;
@@ -54,6 +55,7 @@ export interface TariffDetail {
   description: string | null;
   is_active: boolean;
   is_trial_available: boolean;
+  show_in_gift: boolean;
   traffic_limit_gb: number;
   device_limit: number;
   device_price_kopeks: number | null;
@@ -95,6 +97,7 @@ export interface TariffCreateRequest {
   name: string;
   description?: string;
   is_active?: boolean;
+  show_in_gift?: boolean;
   traffic_limit_gb?: number;
   device_limit?: number;
   device_price_kopeks?: number;
@@ -137,6 +140,7 @@ export interface TariffUpdateRequest {
   name?: string;
   description?: string;
   is_active?: boolean;
+  show_in_gift?: boolean;
   traffic_limit_gb?: number;
   device_limit?: number;
   device_price_kopeks?: number;

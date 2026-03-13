@@ -247,7 +247,9 @@ export default function Dashboard() {
             <div className="skeleton h-12 w-full rounded-xl" />
           </div>
         </div>
-      ) : subscription?.is_expired || subscription?.status === 'disabled' ? (
+      ) : subscription?.is_expired ||
+        subscription?.status === 'disabled' ||
+        subscription?.is_limited ? (
         <SubscriptionCardExpired
           subscription={subscription}
           balanceKopeks={balanceData?.balance_kopeks ?? 0}

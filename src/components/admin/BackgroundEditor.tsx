@@ -2,7 +2,7 @@ import { useState, useCallback, useRef, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { brandingApi } from '@/api/branding';
-import { setCachedAnimationConfig } from '@/components/backgrounds/BackgroundRenderer';
+import { setCachedAnimationConfig } from '@/utils/backgroundConfig';
 import type { AnimationConfig } from '@/components/ui/backgrounds/types';
 import { DEFAULT_ANIMATION_CONFIG } from '@/components/ui/backgrounds/types';
 import { BackgroundConfigEditor } from './BackgroundConfigEditor';

@@ -144,8 +144,7 @@ function SortableTariffCard({
             : 'border-dark-700/50 opacity-60'
       }`}
     >
-      <div className="flex items-start gap-3">
-        {/* Drag handle */}
+      <div className="flex gap-3">
         <button
           {...attributes}
           {...listeners}
@@ -155,88 +154,113 @@ function SortableTariffCard({
           <GripIcon />
         </button>
 
-        {/* Content */}
         <div className="min-w-0 flex-1">
-          <div className="mb-1 flex items-center gap-2">
-            <h3 className="truncate font-medium text-dark-100">{tariff.name}</h3>
-            {tariff.is_daily ? (
-              <span className="rounded bg-warning-500/20 px-2 py-0.5 text-xs text-warning-400">
-                {t('admin.tariffs.dailyType')}
-              </span>
-            ) : (
-              <span className="rounded bg-accent-500/20 px-2 py-0.5 text-xs text-accent-400">
-                {t('admin.tariffs.periodType')}
-              </span>
-            )}
-            {tariff.is_trial_available && (
-              <span className="rounded bg-success-500/20 px-2 py-0.5 text-xs text-success-400">
-                {t('admin.tariffs.trial')}
-              </span>
-            )}
-            {!tariff.is_active && (
-              <span className="rounded bg-dark-600 px-2 py-0.5 text-xs text-dark-400">
-                {t('admin.tariffs.inactive')}
-              </span>
-            )}
+          <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:gap-3">
+            <div className="min-w-0 flex-1">
+              <div className="mb-1 flex flex-wrap items-center gap-2">
+                <h3 className="truncate font-medium text-dark-100">{tariff.name}</h3>
+                {tariff.is_daily ? (
+                  <span className="rounded bg-warning-500/20 px-2 py-0.5 text-xs text-warning-400">
+                    {t('admin.tariffs.dailyType')}
+                  </span>
+                ) : (
+                  <span className="rounded bg-accent-500/20 px-2 py-0.5 text-xs text-accent-400">
+                    {t('admin.tariffs.periodType')}
+                  </span>
+                )}
+                {tariff.is_trial_available && (
+                  <span className="rounded bg-success-500/20 px-2 py-0.5 text-xs text-success-400">
+                    {t('admin.tariffs.trial')}
+                  </span>
+                )}
+                {tariff.show_in_gift && (
+                  <span className="inline-flex items-center gap-1 rounded bg-purple-500/20 px-2 py-0.5 text-xs text-purple-400">
+                    <svg
+                      className="h-3 w-3"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                      stroke="currentColor"
+                      strokeWidth={2}
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        d="M21 11.25v8.25a1.5 1.5 0 01-1.5 1.5H5.25a1.5 1.5 0 01-1.5-1.5v-8.25M12 4.875A2.625 2.625 0 109.375 7.5H12m0-2.625V7.5m0-2.625A2.625 2.625 0 1114.625 7.5H12m0 0V21m-8.625-9.75h18c.621 0 1.125-.504 1.125-1.125v-1.5c0-.621-.504-1.125-1.125-1.125h-18c-.621 0-1.125.504-1.125 1.125v1.5c0 .621.504 1.125 1.125 1.125z"
+                      />
+                    </svg>
+                    {t('admin.tariffs.giftBadge')}
+                  </span>
+                )}
+                {!tariff.is_active && (
+                  <span className="rounded bg-dark-600 px-2 py-0.5 text-xs text-dark-400">
+                    {t('admin.tariffs.inactive')}
+                  </span>
+                )}
+              </div>
+              <div className="flex flex-wrap gap-x-4 gap-y-1 text-sm text-dark-400">
+                {tariff.is_daily && tariff.daily_price_kopeks > 0 && (
+                  <span className="text-warning-400">
+                    {(tariff.daily_price_kopeks / 100).toFixed(2)}{' '}
+                    {t('admin.tariffs.currencyPerDay')}
+                  </span>
+                )}
+                <span>
+                  {tariff.traffic_limit_gb === 0
+                    ? t('admin.tariffs.unlimited')
+                    : `${tariff.traffic_limit_gb} GB`}
+                </span>
+                <span>{t('admin.tariffs.devices', { count: tariff.device_limit })}</span>
+                <span>{t('admin.tariffs.servers', { count: tariff.servers_count })}</span>
+                <span>
+                  {t('admin.tariffs.subscriptions', { count: tariff.subscriptions_count })}
+                </span>
+              </div>
+            </div>
+
+            <div className="flex items-center gap-2 sm:flex-shrink-0">
+              <button
+                onClick={onToggle}
+                className={`rounded-lg p-2 transition-colors ${
+                  tariff.is_active
+                    ? 'bg-success-500/20 text-success-400 hover:bg-success-500/30'
+                    : 'bg-dark-700 text-dark-400 hover:bg-dark-600'
+                }`}
+                title={
+                  tariff.is_active ? t('admin.tariffs.deactivate') : t('admin.tariffs.activate')
+                }
+              >
+                {tariff.is_active ? <CheckIcon /> : <XIcon />}
+              </button>
+
+              <button
+                onClick={onToggleTrial}
+                className={`rounded-lg p-2 transition-colors ${
+                  tariff.is_trial_available
+                    ? 'bg-accent-500/20 text-accent-400 hover:bg-accent-500/30'
+                    : 'bg-dark-700 text-dark-400 hover:bg-dark-600'
+                }`}
+                title={t('admin.tariffs.toggleTrial')}
+              >
+                <GiftIcon />
+              </button>
+
+              <button
+                onClick={onEdit}
+                className="rounded-lg bg-dark-700 p-2 text-dark-300 transition-colors hover:bg-dark-600 hover:text-dark-100"
+                title={t('admin.tariffs.edit')}
+              >
+                <EditIcon />
+              </button>
+
+              <button
+                onClick={onDelete}
+                className="rounded-lg bg-dark-700 p-2 text-dark-300 transition-colors hover:bg-error-500/20 hover:text-error-400"
+                title={t('admin.tariffs.delete')}
+              >
+                <TrashIcon />
+              </button>
+            </div>
           </div>
-          <div className="flex flex-wrap gap-x-4 gap-y-1 text-sm text-dark-400">
-            {tariff.is_daily && tariff.daily_price_kopeks > 0 && (
-              <span className="text-warning-400">
-                {(tariff.daily_price_kopeks / 100).toFixed(2)} {t('admin.tariffs.currencyPerDay')}
-              </span>
-            )}
-            <span>
-              {tariff.traffic_limit_gb === 0
-                ? t('admin.tariffs.unlimited')
-                : `${tariff.traffic_limit_gb} GB`}
-            </span>
-            <span>{t('admin.tariffs.devices', { count: tariff.device_limit })}</span>
-            <span>{t('admin.tariffs.servers', { count: tariff.servers_count })}</span>
-            <span>{t('admin.tariffs.subscriptions', { count: tariff.subscriptions_count })}</span>
-          </div>
-        </div>
-
-        {/* Actions */}
-        <div className="flex items-center gap-2">
-          <button
-            onClick={onToggle}
-            className={`rounded-lg p-2 transition-colors ${
-              tariff.is_active
-                ? 'bg-success-500/20 text-success-400 hover:bg-success-500/30'
-                : 'bg-dark-700 text-dark-400 hover:bg-dark-600'
-            }`}
-            title={tariff.is_active ? t('admin.tariffs.deactivate') : t('admin.tariffs.activate')}
-          >
-            {tariff.is_active ? <CheckIcon /> : <XIcon />}
-          </button>
-
-          <button
-            onClick={onToggleTrial}
-            className={`rounded-lg p-2 transition-colors ${
-              tariff.is_trial_available
-                ? 'bg-accent-500/20 text-accent-400 hover:bg-accent-500/30'
-                : 'bg-dark-700 text-dark-400 hover:bg-dark-600'
-            }`}
-            title={t('admin.tariffs.toggleTrial')}
-          >
-            <GiftIcon />
-          </button>
-
-          <button
-            onClick={onEdit}
-            className="rounded-lg bg-dark-700 p-2 text-dark-300 transition-colors hover:bg-dark-600 hover:text-dark-100"
-            title={t('admin.tariffs.edit')}
-          >
-            <EditIcon />
-          </button>
-
-          <button
-            onClick={onDelete}
-            className="rounded-lg bg-dark-700 p-2 text-dark-300 transition-colors hover:bg-error-500/20 hover:text-error-400"
-            title={t('admin.tariffs.delete')}
-          >
-            <TrashIcon />
-          </button>
         </div>
       </div>
     </div>

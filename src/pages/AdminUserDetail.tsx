@@ -119,6 +119,7 @@ function StatusBadge({ status }: { status: string }) {
     deleted: 'bg-dark-600 text-dark-400 border-dark-500',
     trial: 'bg-accent-500/20 text-accent-400 border-accent-500/30',
     expired: 'bg-warning-500/20 text-warning-400 border-warning-500/30',
+    limited: 'bg-yellow-500/20 text-yellow-400 border-yellow-500/30',
     disabled: 'bg-dark-600 text-dark-400 border-dark-500',
   };
 
@@ -432,7 +433,6 @@ export default function AdminUserDetail() {
       const data = await adminUsersApi.getReferrals(userId, 0, 50);
       setReferrals(data.users);
     } catch {
-      // ignore
     } finally {
       setReferralsLoading(false);
     }
@@ -445,7 +445,6 @@ export default function AdminUserDetail() {
       const data = await adminUsersApi.getPanelInfo(userId);
       setPanelInfo(data);
     } catch {
-      // ignore
     } finally {
       setPanelInfoLoading(false);
     }
@@ -456,9 +455,7 @@ export default function AdminUserDetail() {
     try {
       const data = await adminUsersApi.getNodeUsage(userId);
       setNodeUsage(data);
-    } catch {
-      // ignore
-    }
+    } catch {}
   }, [userId]);
 
   const loadDevices = useCallback(async () => {
@@ -470,7 +467,6 @@ export default function AdminUserDetail() {
       setDevicesTotal(data.total);
       setDeviceLimit(data.device_limit);
     } catch {
-      // ignore
     } finally {
       setDevicesLoading(false);
     }
@@ -487,7 +483,6 @@ export default function AdminUserDetail() {
       const data = await adminUsersApi.getUserGifts(userId);
       setGiftsData(data);
     } catch {
-      // ignore
     } finally {
       setGiftsLoading(false);
     }
@@ -497,9 +492,7 @@ export default function AdminUserDetail() {
     try {
       const data = await promocodesApi.getPromoGroups({ limit: 100 });
       setPromoGroups(data.items);
-    } catch {
-      // ignore
-    }
+    } catch {}
   }, []);
 
   const handleTicketReply = async () => {
@@ -953,9 +946,7 @@ export default function AdminUserDetail() {
     try {
       await navigator.clipboard.writeText(text);
       notify.success(t('admin.users.detail.copied'));
-    } catch {
-      // ignore
-    }
+    } catch {}
   };
 
   if (loading) {

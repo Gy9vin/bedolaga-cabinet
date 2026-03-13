@@ -4,7 +4,7 @@ import { useTranslation } from 'react-i18next';
 import { authApi } from '../api/auth';
 import { useToast } from '../components/Toast';
 import { LINK_TELEGRAM_STATE_KEY } from './ConnectedAccounts';
-import { getErrorDetail } from './OAuthCallback';
+import { getErrorDetail } from '../utils/oauth';
 
 export default function LinkTelegramCallback() {
   const { t } = useTranslation();
