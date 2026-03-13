@@ -1,10 +1,18 @@
-import { useState } from 'react';
+import { useState, useRef, useCallback } from 'react';
 import { useNavigate } from 'react-router';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useTranslation } from 'react-i18next';
 import { adminApi, AdminTicket, AdminTicketDetail, AdminTicketMessage } from '../api/admin';
 import { ticketsApi } from '../api/tickets';
 import { usePlatform } from '../platform/hooks/usePlatform';
+
+interface MediaAttachment {
+  file: File;
+  preview: string;
+  uploading: boolean;
+  fileId?: string;
+  error?: string;
+}
 
 function AdminMessageMedia({
   message,
@@ -126,6 +134,9 @@ export default function AdminTickets() {
   const [statusFilter, setStatusFilter] = useState<string>('');
   const [replyText, setReplyText] = useState('');
   const [aiSuggesting, setAiSuggesting] = useState(false);
+  const [replyAttachment, setReplyAttachment] = useState<MediaAttachment | null>(null);
+  const replyFileInputRef = useRef<HTMLInputElement>(null);
+  const previewUrlRef = useRef<string | null>(null);
   const [page, setPage] = useState(1);
 
   const { data: stats } = useQuery({
@@ -147,13 +158,49 @@ export default function AdminTickets() {
     queryKey: ['admin-ticket', selectedTicketId],
     queryFn: () => adminApi.getTicket(selectedTicketId!),
     enabled: !!selectedTicketId,
+    refetchInterval: 5000, // поллинг пока WebSocket сломан
   });
 
+  const clearAttachment = useCallback(() => {
+    if (previewUrlRef.current) {
+      URL.revokeObjectURL(previewUrlRef.current);
+      previewUrlRef.current = null;
+    }
+    setReplyAttachment(null);
+  }, []);
+
+  const handleFileSelect = useCallback(async (file: File) => {
+    const allowedTypes = ['image/jpeg', 'image/png', 'image/gif', 'image/webp'];
+    if (!allowedTypes.includes(file.type)) {
+      setReplyAttachment({ file, preview: '', uploading: false, error: 'Неверный тип файла' });
+      return;
+    }
+    if (file.size > 10 * 1024 * 1024) {
+      setReplyAttachment({ file, preview: '', uploading: false, error: 'Файл > 10МБ' });
+      return;
+    }
+    if (previewUrlRef.current) URL.revokeObjectURL(previewUrlRef.current);
+    const preview = URL.createObjectURL(file);
+    previewUrlRef.current = preview;
+    setReplyAttachment({ file, preview, uploading: true });
+    try {
+      const result = await ticketsApi.uploadMedia(file, 'photo');
+      setReplyAttachment({ file, preview, uploading: false, fileId: result.file_id });
+    } catch {
+      setReplyAttachment({ file, preview, uploading: false, error: 'Ошибка загрузки' });
+    }
+  }, []);
+
   const replyMutation = useMutation({
-    mutationFn: ({ ticketId, message }: { ticketId: number; message: string }) =>
-      adminApi.replyToTicket(ticketId, message),
+    mutationFn: ({ ticketId, message }: { ticketId: number; message: string }) => {
+      const media = replyAttachment?.fileId
+        ? { media_type: 'photo', media_file_id: replyAttachment.fileId }
+        : undefined;
+      return adminApi.replyToTicket(ticketId, message, media);
+    },
     onSuccess: () => {
       setReplyText('');
+      clearAttachment();
       queryClient.invalidateQueries({ queryKey: ['admin-ticket', selectedTicketId] });
       queryClient.invalidateQueries({ queryKey: ['admin-tickets'] });
       queryClient.invalidateQueries({ queryKey: ['admin-ticket-stats'] });
@@ -172,9 +219,26 @@ export default function AdminTickets() {
 
   const handleReply = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!selectedTicketId || !replyText.trim()) return;
+    if (!selectedTicketId) return;
+    if (!replyText.trim() && !replyAttachment?.fileId) return;
     replyMutation.mutate({ ticketId: selectedTicketId, message: replyText });
   };
+
+  const handlePaste = useCallback(
+    (e: React.ClipboardEvent<HTMLTextAreaElement>) => {
+      const items = e.clipboardData?.items;
+      if (!items) return;
+      for (const item of Array.from(items)) {
+        if (item.type.startsWith('image/')) {
+          e.preventDefault();
+          const file = item.getAsFile();
+          if (file) handleFileSelect(file);
+          break;
+        }
+      }
+    },
+    [handleFileSelect],
+  );
 
   const handleAiSuggest = async () => {
     if (!selectedTicketId) return;
@@ -527,29 +591,84 @@ export default function AdminTickets() {
                   <textarea
                     value={replyText}
                     onChange={(e) => setReplyText(e.target.value)}
-                    placeholder={t('admin.tickets.replyPlaceholder')}
+                    onPaste={handlePaste}
+                    placeholder={`${t('admin.tickets.replyPlaceholder')} (Ctrl+V для вставки картинки)`}
                     rows={3}
                     className="input resize-none"
                   />
-                  <div className="mt-3 flex items-center justify-between gap-2">
-                    <button
-                      type="button"
-                      onClick={handleAiSuggest}
-                      disabled={aiSuggesting}
-                      className="flex items-center gap-1.5 rounded-lg border border-dark-700 bg-dark-800 px-3 py-1.5 text-xs text-dark-300 transition-colors hover:border-accent-500/50 hover:text-accent-400 disabled:opacity-50"
-                    >
-                      {aiSuggesting ? (
-                        <span className="h-3.5 w-3.5 animate-spin rounded-full border border-accent-500 border-t-transparent" />
-                      ) : (
-                        <span>🤖</span>
+
+                  {/* Attachment preview */}
+                  {replyAttachment && (
+                    <div className="relative mt-2 inline-block">
+                      {replyAttachment.preview && (
+                        <img
+                          src={replyAttachment.preview}
+                          alt="preview"
+                          className="h-20 w-auto rounded-lg border border-dark-700"
+                        />
                       )}
-                      {aiSuggesting
-                        ? t('admin.tickets.aiSuggesting')
-                        : t('admin.tickets.aiSuggest')}
-                    </button>
+                      {replyAttachment.uploading && (
+                        <div className="absolute inset-0 flex items-center justify-center rounded-lg bg-dark-900/70">
+                          <span className="h-5 w-5 animate-spin rounded-full border-2 border-accent-500 border-t-transparent" />
+                        </div>
+                      )}
+                      {replyAttachment.error && (
+                        <p className="mt-1 text-xs text-red-400">{replyAttachment.error}</p>
+                      )}
+                      <button
+                        type="button"
+                        onClick={clearAttachment}
+                        className="absolute -right-2 -top-2 flex h-5 w-5 items-center justify-center rounded-full bg-red-500 text-white hover:bg-red-600"
+                      >
+                        ✕
+                      </button>
+                    </div>
+                  )}
+
+                  <input
+                    ref={replyFileInputRef}
+                    type="file"
+                    accept="image/jpeg,image/png,image/gif,image/webp"
+                    className="hidden"
+                    onChange={(e) => {
+                      const file = e.target.files?.[0];
+                      if (file) handleFileSelect(file);
+                      e.target.value = '';
+                    }}
+                  />
+
+                  <div className="mt-3 flex items-center justify-between gap-2">
+                    <div className="flex items-center gap-2">
+                      <button
+                        type="button"
+                        onClick={() => replyFileInputRef.current?.click()}
+                        className="flex items-center gap-1.5 rounded-lg border border-dark-700 bg-dark-800 px-2.5 py-1.5 text-xs text-dark-300 transition-colors hover:border-dark-500 hover:text-dark-100"
+                      >
+                        🖼 {t('support.attachImage')}
+                      </button>
+                      <button
+                        type="button"
+                        onClick={handleAiSuggest}
+                        disabled={aiSuggesting}
+                        className="flex items-center gap-1.5 rounded-lg border border-dark-700 bg-dark-800 px-2.5 py-1.5 text-xs text-dark-300 transition-colors hover:border-accent-500/50 hover:text-accent-400 disabled:opacity-50"
+                      >
+                        {aiSuggesting ? (
+                          <span className="h-3.5 w-3.5 animate-spin rounded-full border border-accent-500 border-t-transparent" />
+                        ) : (
+                          '🤖'
+                        )}
+                        {aiSuggesting
+                          ? t('admin.tickets.aiSuggesting')
+                          : t('admin.tickets.aiSuggest')}
+                      </button>
+                    </div>
                     <button
                       type="submit"
-                      disabled={!replyText.trim() || replyMutation.isPending}
+                      disabled={
+                        (!replyText.trim() && !replyAttachment?.fileId) ||
+                        replyMutation.isPending ||
+                        replyAttachment?.uploading
+                      }
                       className="btn-primary"
                     >
                       {replyMutation.isPending ? (
