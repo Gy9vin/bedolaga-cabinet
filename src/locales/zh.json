@@ -752,7 +752,9 @@
     "contactUs": "联系支持",
     "openSupport": "打开支持",
     "ticketsDisabled": "工单已禁用",
-    "useExternalLink": "请使用外部链接获取支持"
+    "useExternalLink": "请使用外部链接获取支持",
+    "aiSuggest": "AI建议回复",
+    "aiSuggesting": "分析中..."
   },
   "wheel": {
     "title": "幸运转盘",
@@ -1604,7 +1606,9 @@
       "copyTelegramId": "点击复制Telegram ID",
       "viewUser": "用户",
       "userNotificationsEnabled": "用户通知",
-      "userNotificationsEnabledDesc": "向用户发送管理员回复通知"
+      "userNotificationsEnabledDesc": "向用户发送管理员回复通知",
+      "aiSuggest": "AI建议回复",
+      "aiSuggesting": "分析中..."
     },
     "tariffs": {
       "title": "套餐管理",

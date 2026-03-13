@@ -81,4 +81,12 @@ export const ticketsApi = {
     const baseUrl = import.meta.env.VITE_API_URL || '';
     return `${baseUrl}/cabinet/media/${fileId}`;
   },
+
+  // Get AI suggested reply for ticket
+  getAiSuggest: async (ticketId: number): Promise<{ text: string }> => {
+    const response = await apiClient.get<{ text: string }>(
+      `/cabinet/tickets/${ticketId}/ai_suggest`,
+    );
+    return response.data;
+  },
 };

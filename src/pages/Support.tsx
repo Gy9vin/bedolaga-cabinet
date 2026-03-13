@@ -160,6 +160,7 @@ export default function Support() {
   const [newMessage, setNewMessage] = useState('');
   const [replyMessage, setReplyMessage] = useState('');
   const [rateLimitError, setRateLimitError] = useState<string | null>(null);
+  const [aiSuggesting, setAiSuggesting] = useState(false);
 
   // Media attachment states
   const [createAttachment, setCreateAttachment] = useState<MediaAttachment | null>(null);
@@ -184,7 +185,7 @@ export default function Support() {
       URL.revokeObjectURL(createPreviewRef.current);
       createPreviewRef.current = null;
     }
-    clearCreateAttachment();
+    setCreateAttachment(null);
   };
 
   const clearReplyAttachment = () => {
@@ -192,7 +193,7 @@ export default function Support() {
       URL.revokeObjectURL(replyPreviewRef.current);
       replyPreviewRef.current = null;
     }
-    clearReplyAttachment();
+    setReplyAttachment(null);
   };
 
   // Get support configuration
@@ -302,6 +303,19 @@ export default function Support() {
       clearReplyAttachment();
     },
   });
+
+  const handleAiSuggest = async () => {
+    if (!selectedTicket) return;
+    setAiSuggesting(true);
+    try {
+      const result = await ticketsApi.getAiSuggest(selectedTicket.id);
+      setReplyMessage(result.text);
+    } catch {
+      // silently fail - user stays on their own reply
+    } finally {
+      setAiSuggesting(false);
+    }
+  };
 
   const getStatusBadge = (status: string) => {
     switch (status) {
@@ -730,8 +744,8 @@ export default function Support() {
                     </div>
 
                     {/* Image attachment for reply */}
-                    <div className="flex items-center justify-between">
-                      <div>
+                    <div className="flex items-center justify-between gap-2">
+                      <div className="flex items-center gap-3">
                         <input
                           ref={replyFileInputRef}
                           type="file"
@@ -760,13 +774,29 @@ export default function Support() {
                         )}
                       </div>
 
-                      <Button
-                        type="submit"
-                        disabled={!replyMessage.trim() || replyAttachment?.uploading}
-                        loading={replyMutation.isPending}
-                      >
-                        <SendIcon />
-                      </Button>
+                      <div className="flex items-center gap-2">
+                        <button
+                          type="button"
+                          onClick={handleAiSuggest}
+                          disabled={aiSuggesting}
+                          title={t('support.aiSuggest')}
+                          className="flex items-center gap-1.5 rounded-lg border border-dark-700 bg-dark-800 px-2.5 py-1.5 text-xs text-dark-300 transition-colors hover:border-accent-500/50 hover:text-accent-400 disabled:opacity-50"
+                        >
+                          {aiSuggesting ? (
+                            <span className="h-3.5 w-3.5 animate-spin rounded-full border border-accent-500 border-t-transparent" />
+                          ) : (
+                            <span>🤖</span>
+                          )}
+                          {aiSuggesting ? t('support.aiSuggesting') : t('support.aiSuggest')}
+                        </button>
+                        <Button
+                          type="submit"
+                          disabled={!replyMessage.trim() || replyAttachment?.uploading}
+                          loading={replyMutation.isPending}
+                        >
+                          <SendIcon />
+                        </Button>
+                      </div>
                     </div>
                     {rateLimitError && (
                       <div className="mt-2 rounded-lg border border-error-500/30 bg-error-500/10 p-2 text-sm text-error-400">

@@ -904,7 +904,9 @@
     "useExternalLink": "Please use the external link to get support",
     "openSupport": "Open Support",
     "contactSupport": "Please contact {{username}} for support",
-    "contactUs": "Contact Support"
+    "contactUs": "Contact Support",
+    "aiSuggest": "Suggest Reply",
+    "aiSuggesting": "Analyzing..."
   },
   "wheel": {
     "title": "Fortune Wheel",
@@ -1899,7 +1901,9 @@
       "userNotificationsEnabled": "User Notifications",
       "userNotificationsEnabledDesc": "Send notifications to users about admin replies",
       "adminNotificationsEnabled": "Admin Notifications",
-      "adminNotificationsEnabledDesc": "Send notifications to admins about new tickets and replies"
+      "adminNotificationsEnabledDesc": "Send notifications to admins about new tickets and replies",
+      "aiSuggest": "AI Suggest Reply",
+      "aiSuggesting": "Analyzing..."
     },
     "tariffs": {
       "title": "Tariff Management",

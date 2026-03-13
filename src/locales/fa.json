@@ -752,7 +752,9 @@
     "contactUs": "تماس با پشتیبانی",
     "openSupport": "باز کردن پشتیبانی",
     "ticketsDisabled": "تیکت‌ها غیرفعال است",
-    "useExternalLink": "لطفاً از لینک خارجی برای دریافت پشتیبانی استفاده کنید"
+    "useExternalLink": "لطفاً از لینک خارجی برای دریافت پشتیبانی استفاده کنید",
+    "aiSuggest": "پیشنهاد پاسخ",
+    "aiSuggesting": "در حال تحلیل..."
   },
   "wheel": {
     "title": "چرخ شانس",
@@ -1566,7 +1568,9 @@
       "copyTelegramId": "برای کپی شناسه تلگرام کلیک کنید",
       "viewUser": "کاربر",
       "userNotificationsEnabled": "اعلان‌های کاربر",
-      "userNotificationsEnabledDesc": "ارسال اعلان به کاربران درباره پاسخ‌های مدیر"
+      "userNotificationsEnabledDesc": "ارسال اعلان به کاربران درباره پاسخ‌های مدیر",
+      "aiSuggest": "پیشنهاد پاسخ AI",
+      "aiSuggesting": "در حال تحلیل..."
     },
     "tariffs": {
       "title": "مدیریت تعرفه‌ها",

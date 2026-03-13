@@ -932,7 +932,9 @@
     "useExternalLink": "Для получения поддержки воспользуйтесь внешней ссылкой",
     "openSupport": "Открыть поддержку",
     "contactSupport": "Для получения поддержки обратитесь к {{username}}",
-    "contactUs": "Связаться с поддержкой"
+    "contactUs": "Связаться с поддержкой",
+    "aiSuggest": "Предложить ответ",
+    "aiSuggesting": "Анализирую..."
   },
   "wheel": {
     "title": "Колесо удачи",
@@ -2410,7 +2412,9 @@
       "userNotificationsEnabled": "Уведомления для пользователей",
       "userNotificationsEnabledDesc": "Отправлять уведомления пользователям об ответах админа",
       "adminNotificationsEnabled": "Уведомления для админов",
-      "adminNotificationsEnabledDesc": "Отправлять уведомления админам о новых тикетах и ответах"
+      "adminNotificationsEnabledDesc": "Отправлять уведомления админам о новых тикетах и ответах",
+      "aiSuggest": "Предложить ответ AI",
+      "aiSuggesting": "Анализирую..."
     },
     "tariffs": {
       "title": "Управление тарифами",

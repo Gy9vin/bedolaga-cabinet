@@ -120,6 +120,14 @@ export const adminApi = {
     return response.data;
   },
 
+  // Get AI suggested reply for ticket (admin)
+  getTicketAiSuggest: async (ticketId: number): Promise<{ text: string }> => {
+    const response = await apiClient.get<{ text: string }>(
+      `/cabinet/admin/tickets/${ticketId}/ai_suggest`,
+    );
+    return response.data;
+  },
+
   // Update ticket status
   updateTicketStatus: async (ticketId: number, status: string): Promise<AdminTicketDetail> => {
     const response = await apiClient.post(`/cabinet/admin/tickets/${ticketId}/status`, { status });

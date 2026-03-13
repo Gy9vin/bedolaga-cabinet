@@ -125,6 +125,7 @@ export default function AdminTickets() {
   const [selectedTicketId, setSelectedTicketId] = useState<number | null>(null);
   const [statusFilter, setStatusFilter] = useState<string>('');
   const [replyText, setReplyText] = useState('');
+  const [aiSuggesting, setAiSuggesting] = useState(false);
   const [page, setPage] = useState(1);
 
   const { data: stats } = useQuery({
@@ -173,6 +174,19 @@ export default function AdminTickets() {
     e.preventDefault();
     if (!selectedTicketId || !replyText.trim()) return;
     replyMutation.mutate({ ticketId: selectedTicketId, message: replyText });
+  };
+
+  const handleAiSuggest = async () => {
+    if (!selectedTicketId) return;
+    setAiSuggesting(true);
+    try {
+      const result = await adminApi.getTicketAiSuggest(selectedTicketId);
+      setReplyText(result.text);
+    } catch {
+      // silently fail
+    } finally {
+      setAiSuggesting(false);
+    }
   };
 
   const getStatusBadge = (status: string) => {
@@ -517,7 +531,22 @@ export default function AdminTickets() {
                     rows={3}
                     className="input resize-none"
                   />
-                  <div className="mt-3 flex justify-end">
+                  <div className="mt-3 flex items-center justify-between gap-2">
+                    <button
+                      type="button"
+                      onClick={handleAiSuggest}
+                      disabled={aiSuggesting}
+                      className="flex items-center gap-1.5 rounded-lg border border-dark-700 bg-dark-800 px-3 py-1.5 text-xs text-dark-300 transition-colors hover:border-accent-500/50 hover:text-accent-400 disabled:opacity-50"
+                    >
+                      {aiSuggesting ? (
+                        <span className="h-3.5 w-3.5 animate-spin rounded-full border border-accent-500 border-t-transparent" />
+                      ) : (
+                        <span>🤖</span>
+                      )}
+                      {aiSuggesting
+                        ? t('admin.tickets.aiSuggesting')
+                        : t('admin.tickets.aiSuggest')}
+                    </button>
                     <button
                       type="submit"
                       disabled={!replyText.trim() || replyMutation.isPending}
