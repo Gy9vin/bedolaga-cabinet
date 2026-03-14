@@ -1792,6 +1792,15 @@ export default function SubscriptionPurchase() {
                       </div>
                     )}
                   </div>
+                  {selectedPeriod.devices.min > 1 && (
+                    <div className="mt-4 flex items-start gap-2 rounded-lg bg-yellow-500/10 px-4 py-3 text-sm text-yellow-400">
+                      <span className="mt-0.5 shrink-0">⚠️</span>
+                      <span>
+                        У вас подключено {selectedPeriod.devices.min} устройств. Чтобы уменьшить
+                        лимит — сначала отключите лишние устройства в разделе «Устройства».
+                      </span>
+                    </div>
+                  )}
                 </div>
               )}
 
