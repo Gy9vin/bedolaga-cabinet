@@ -112,6 +112,7 @@ const AdminRoleAssign = lazy(() => import('./pages/AdminRoleAssign'));
 const AdminPolicies = lazy(() => import('./pages/AdminPolicies'));
 const AdminPolicyEdit = lazy(() => import('./pages/AdminPolicyEdit'));
 const AdminAuditLog = lazy(() => import('./pages/AdminAuditLog'));
+const AdminHappManagement = lazy(() => import('./pages/AdminHappManagement'));
 const AdminLandings = lazy(() => import('./pages/AdminLandings'));
 const AdminLandingEditor = lazy(() => import('./pages/AdminLandingEditor'));
 const AdminLandingStats = lazy(() => import('./pages/AdminLandingStats'));
@@ -1157,6 +1158,17 @@ function App() {
             <PermissionRoute permission="audit_log:read">
               <LazyPage>
                 <AdminAuditLog />
+              </LazyPage>
+            </PermissionRoute>
+          }
+        />
+
+        <Route
+          path="/admin/happ"
+          element={
+            <PermissionRoute permission="admin">
+              <LazyPage>
+                <AdminHappManagement />
               </LazyPage>
             </PermissionRoute>
           }
