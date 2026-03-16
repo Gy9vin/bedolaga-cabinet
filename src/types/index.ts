@@ -422,6 +422,7 @@ export interface PaymentMethod {
 export interface ReferralInfo {
   referral_code: string;
   referral_link: string;
+  bot_referral_link?: string;
   total_referrals: number;
   active_referrals: number;
   total_earnings_kopeks: number;
@@ -504,7 +505,7 @@ export interface TicketDetail extends Omit<Ticket, 'messages_count' | 'last_mess
 
 export interface SupportConfig {
   tickets_enabled: boolean;
-  support_type: 'tickets' | 'profile' | 'url';
+  support_type: 'tickets' | 'profile' | 'url' | 'both';
   support_url?: string | null;
   support_username?: string | null;
 }

@@ -727,8 +727,10 @@
   },
   "referral": {
     "title": "Referral Program",
-    "yourLink": "Your Referral Link",
-    "copyLink": "Copy Link",
+    "yourLink": "Your Referral Links",
+    "botLink": "Bot link",
+    "cabinetLink": "Cabinet link",
+    "copyLink": "Copy",
     "copied": "Copied!",
     "shareButton": "Share",
     "qrCode": "QR Code",
