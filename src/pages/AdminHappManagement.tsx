@@ -5,7 +5,7 @@ import { adminHappApi, type HappSetting, type HappSyncResult } from '../api/admi
 
 // ============== Tabs ==============
 
-type TabId = 'settings' | 'providers' | 'sync' | 'sources' | 'export';
+type TabId = 'settings' | 'providers' | 'sync' | 'sources' | 'export' | 'guide';
 
 const TABS: { id: TabId; label: string }[] = [
   { id: 'settings', label: 'Настройки' },
@@ -13,6 +13,7 @@ const TABS: { id: TabId; label: string }[] = [
   { id: 'sync', label: 'Синхронизация' },
   { id: 'sources', label: 'Источники' },
   { id: 'export', label: 'Экспорт/Импорт' },
+  { id: 'guide', label: '📖 Инструкция' },
 ];
 
 // ============== Toggle Component ==============
@@ -824,6 +825,403 @@ function ExportImportTab() {
   );
 }
 
+// ============== Guide Tab ==============
+
+function GuideSection({ title, children }: { title: string; children: React.ReactNode }) {
+  return (
+    <div className="rounded-xl border border-dark-700/50 bg-dark-800/40 p-4">
+      <h3 className="mb-3 text-base font-semibold text-dark-100">{title}</h3>
+      {children}
+    </div>
+  );
+}
+
+function GuidePill({ label, desc }: { label: string; desc: string }) {
+  return (
+    <div className="rounded-lg border border-dark-700/30 bg-dark-800/60 p-3">
+      <p className="text-sm font-medium text-accent-400">{label}</p>
+      <p className="mt-0.5 text-xs text-dark-400">{desc}</p>
+    </div>
+  );
+}
+
+function GuideTable({ rows }: { rows: [string, string][] }) {
+  return (
+    <div className="overflow-x-auto">
+      <table className="w-full text-left text-xs">
+        <tbody className="divide-y divide-dark-700/30">
+          {rows.map(([key, val]) => (
+            <tr key={key}>
+              <td className="whitespace-nowrap py-2 pr-4 font-medium text-dark-300">{key}</td>
+              <td className="py-2 text-dark-400">{val}</td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+  );
+}
+
+function GuideTab() {
+  return (
+    <div className="space-y-4">
+      {/* Intro */}
+      <div className="rounded-xl border border-accent-500/30 bg-accent-500/5 p-4">
+        <p className="text-sm text-dark-200">
+          <span className="font-semibold text-accent-400">Happ App Management</span> — модуль
+          настройки VPN-приложения Happ через HTTP-заголовки подписки. Все параметры применяются без
+          перезапуска бота и автоматически передаются клиентам при обновлении подписки.
+        </p>
+      </div>
+
+      {/* Quick Start */}
+      <GuideSection title="⚡ Быстрый старт">
+        <div className="space-y-3">
+          <div>
+            <p className="mb-1.5 text-xs font-medium text-dark-300">Без Provider ID (минимум):</p>
+            <ol className="ml-1 list-inside list-decimal space-y-1 text-xs text-dark-400">
+              <li>Настройки → ⚙️ Модуль → «Модуль включён» ✅</li>
+              <li>Настройки → 🔄 Обновление → «Автообновление» ✅</li>
+              <li>Настройки → 🔔 Уведомления → «Баннер истечения» + «Push за 3 дня» ✅</li>
+              <li>Готово — заголовки добавляются к новым ссылкам подписок</li>
+            </ol>
+          </div>
+          <div>
+            <p className="mb-1.5 text-xs font-medium text-dark-300">
+              С Provider ID (полная настройка):
+            </p>
+            <ol className="ml-1 list-inside list-decimal space-y-1 text-xs text-dark-400">
+              <li>
+                Зарегистрируйтесь на happ-proxy.com (или используйте авторегистрацию из
+                Telegram-бота)
+              </li>
+              <li>Настройки → 🔑 Провайдер → заполните Provider ID и домен подписки</li>
+              <li>Привяжите домен подписки в кабинете happ-proxy.com</li>
+              <li>Настройки → ⚙️ Модуль → «Синхронизация с Remnawave» ✅</li>
+              <li>Синхронизация → нажмите «Синхронизировать»</li>
+            </ol>
+          </div>
+        </div>
+      </GuideSection>
+
+      {/* Categories */}
+      <GuideSection title="⚙️ Категории настроек">
+        <div className="grid gap-2 sm:grid-cols-2">
+          <GuidePill
+            label="⚙️ Модуль"
+            desc="Включить/выключить модуль и синхронизацию с Remnawave"
+          />
+          <GuidePill
+            label="🔑 Провайдер"
+            desc="Provider ID, домен, API-ключ капчи, метод авторегистрации"
+          />
+          <GuidePill
+            label="🔐 Безопасность"
+            desc="Скрытие IP серверов, неотключаемый HWID, запрет сворачивания"
+          />
+          <GuidePill label="🔔 Уведомления" desc="Баннер и Push за 3 дня до истечения подписки" />
+          <GuidePill
+            label="🎨 Внешний вид"
+            desc="Объявления, инфо-баннер, описание серверов, iOS-тема"
+          />
+          <GuidePill label="🔄 Обновление" desc="Автообновление списка серверов и интервал" />
+          <GuidePill label="📱 Поведение" desc="Автоподключение, пинг серверов и отображение" />
+          <GuidePill
+            label="🛡 Обход блокировок"
+            desc="Фрагментация (DPI), шум, подмена User-Agent"
+          />
+          <GuidePill
+            label="🌐 Сеть"
+            desc="Мультиплексирование (Mux) для ускорения открытия сайтов"
+          />
+        </div>
+      </GuideSection>
+
+      {/* Settings reference */}
+      <GuideSection title="📋 Справочник по параметрам">
+        <div className="space-y-4">
+          <div>
+            <p className="mb-2 text-xs font-semibold uppercase tracking-wide text-dark-200">
+              ⚙️ Модуль
+            </p>
+            <GuideTable
+              rows={[
+                [
+                  'Модуль включён',
+                  'Добавляет Happ-заголовки к подпискам. Выключите для диагностики если подписка не обновляется в Happ.',
+                ],
+                [
+                  'Синхронизация с Remnawave',
+                  'Прописывает заголовки в Remnawave API — старые ссылки подписок начнут работать без перевыпуска. Включайте всегда при использовании Remnawave.',
+                ],
+              ]}
+            />
+          </div>
+
+          <div>
+            <p className="mb-2 text-xs font-semibold uppercase tracking-wide text-dark-200">
+              🔑 Провайдер
+            </p>
+            <GuideTable
+              rows={[
+                [
+                  'Provider ID',
+                  '8-символьный ID с happ-proxy.com. Обязателен для расширенных параметров и ограничения устройств. Привяжите домен подписки на happ-proxy.com после установки.',
+                ],
+                [
+                  'Домен подписки',
+                  'Домен, через который клиенты получают подписки (например mydomain.com). Нужен для авторегистрации.',
+                ],
+                [
+                  'Забирать из чужих сквадов',
+                  'При синхронизации перетягивает пользователей из чужих сквадов. Если задан список источников — только из них; если пуст — из всех (осторожно!).',
+                ],
+                [
+                  'API-ключ капчи',
+                  'Ключ rucaptcha.com или 2captcha.com. Только для HTTP-метода авторегистрации (~$2–3 за 1000 регистраций).',
+                ],
+                [
+                  'Метод авторегистрации',
+                  'auto — выберет лучший; nodriver — бесплатный через Chrome+Xvfb; http — быстрый через капчу.',
+                ],
+              ]}
+            />
+          </div>
+
+          <div>
+            <p className="mb-2 text-xs font-semibold uppercase tracking-wide text-dark-200">
+              🔐 Безопасность
+            </p>
+            <GuideTable
+              rows={[
+                [
+                  'Скрыть настройки серверов',
+                  'Клиент не видит IP, порты и протоколы серверов. Рекомендуется включить.',
+                ],
+                [
+                  'Неотключаемый HWID',
+                  'Клиент не может отключить передачу отпечатка устройства. Включайте при ограничении устройств на подписку.',
+                ],
+                [
+                  'Запретить сворачивание',
+                  'Подписка всегда развёрнута в приложении, нельзя скрыть.',
+                ],
+              ]}
+            />
+          </div>
+
+          <div>
+            <p className="mb-2 text-xs font-semibold uppercase tracking-wide text-dark-200">
+              🔔 Уведомления
+            </p>
+            <GuideTable
+              rows={[
+                [
+                  'Баннер «Подписка заканчивается»',
+                  'Баннер в Happ за 3 дня до конца подписки. Рекомендуется включить.',
+                ],
+                [
+                  'Ссылка кнопки «Продлить»',
+                  'URL кнопки в баннере истечения (например ссылка на бота). Пусто = кнопки нет.',
+                ],
+                [
+                  'Push за 3 дня до истечения',
+                  'Push-уведомление 1 раз в день, 3 дня подряд. Рекомендуется включить.',
+                ],
+              ]}
+            />
+          </div>
+
+          <div>
+            <p className="mb-2 text-xs font-semibold uppercase tracking-wide text-dark-200">
+              🎨 Внешний вид
+            </p>
+            <GuideTable
+              rows={[
+                [
+                  'Текст объявления',
+                  'Текст в красной рамке внутри подписки (до 200 символов). Поддерживает эмодзи.',
+                ],
+                [
+                  'Начало/Конец показа',
+                  'Временной интервал показа объявления (ЧЧ:ММ). Оба пустых = всегда.',
+                ],
+                ['Показать один раз', 'Объявление появится один раз и автоматически исчезнет.'],
+                [
+                  'Текст/Цвет инфо-баннера',
+                  'Произвольный баннер в приложении (до 200 символов). Цвет: red/blue/green.',
+                ],
+                ['Текст/Ссылка кнопки баннера', 'Кнопка в инфо-баннере. Пусто — кнопки нет.'],
+                ['Описание сервера', 'Текст под названием сервера (до 30 символов).'],
+                [
+                  'Тема оформления (iOS)',
+                  'Только iOS. Экспортируйте JSON из Happ → Настройки → удержите «Тема оформления». Невалидный JSON ломает подписку — будьте осторожны.',
+                ],
+              ]}
+            />
+          </div>
+
+          <div>
+            <p className="mb-2 text-xs font-semibold uppercase tracking-wide text-dark-200">
+              🔄 Обновление
+            </p>
+            <GuideTable
+              rows={[
+                [
+                  'Автообновление подписки',
+                  'Happ обновляет список серверов по расписанию. Рекомендуется включить.',
+                ],
+                [
+                  'Интервал обновления (часы)',
+                  'Как часто обновляется список (1–24 ч). По умолчанию: 3.',
+                ],
+                [
+                  'Обновлять при открытии',
+                  'Все подписки обновляются при каждом открытии приложения. Решает «открыл — серверов нет».',
+                ],
+              ]}
+            />
+          </div>
+
+          <div>
+            <p className="mb-2 text-xs font-semibold uppercase tracking-wide text-dark-200">
+              📱 Поведение
+            </p>
+            <GuideTable
+              rows={[
+                ['Автоподключение', 'При запуске приложение само подключается к серверу.'],
+                [
+                  'Режим автоподключения',
+                  'lastused = последний сервер; lowestdelay = с минимальным пингом.',
+                ],
+                [
+                  'Пинг при открытии',
+                  'Автоматически тестирует все серверы при открытии приложения.',
+                ],
+                [
+                  'Тип пинга',
+                  'proxy = через VPN (точнее); tcp = TCP; icmp = ICMP. Пусто = по умолчанию.',
+                ],
+                ['Отображение пинга', 'time = мс; icon = цветная иконка. Пусто = по умолчанию.'],
+              ]}
+            />
+          </div>
+
+          <div>
+            <p className="mb-2 text-xs font-semibold uppercase tracking-wide text-dark-200">
+              🛡 Обход блокировок
+            </p>
+            <div className="mb-2 rounded-lg bg-warning-500/10 px-3 py-2 text-xs text-warning-400">
+              ⚠️ Включайте только если провайдер блокирует VPN-трафик. Влияет на сетевое поведение.
+            </div>
+            <GuideTable
+              rows={[
+                [
+                  'Фрагментация (обход DPI)',
+                  'Разбивает пакеты на части — провайдер не распознаёт VPN. Рекомендуемые настройки: пакеты=tlshello, размер=50-100, задержка=5.',
+                ],
+                [
+                  'Шум (маскировка VPN)',
+                  'Добавляет мусорный трафик для маскировки. Используйте вместе с фрагментацией.',
+                ],
+                [
+                  'Подмена User-Agent',
+                  'Happ притворяется браузером при запросе подписки. Пусто = стандартный Happ/1.0.',
+                ],
+              ]}
+            />
+          </div>
+
+          <div>
+            <p className="mb-2 text-xs font-semibold uppercase tracking-wide text-dark-200">
+              🌐 Сеть
+            </p>
+            <div className="mb-2 rounded-lg bg-warning-500/10 px-3 py-2 text-xs text-warning-400">
+              ⚠️ Включайте только если клиенты жалуются на медленное открытие сайтов. Может
+              замедлить скачивание.
+            </div>
+            <GuideTable
+              rows={[
+                [
+                  'Мультиплексирование (Mux)',
+                  'Несколько соединений через один канал. Ускоряет открытие страниц.',
+                ],
+                ['TCP/xUDP-соединений', 'Число соединений (рекомендуется 8 для обоих).'],
+                ['Mux: QUIC-трафик', 'skip = QUIC идёт без Mux. Пусто = по умолчанию.'],
+              ]}
+            />
+          </div>
+        </div>
+      </GuideSection>
+
+      {/* Tabs guide */}
+      <GuideSection title="🗂 Разделы этой страницы">
+        <GuideTable
+          rows={[
+            [
+              'Настройки',
+              'Все параметры модуля сгруппированы по категориям. Переключатели сохраняются мгновенно.',
+            ],
+            [
+              'Провайдеры',
+              'Список Provider ID. Добавление и удаление. Каждый Provider ID поддерживает до 100 устройств.',
+            ],
+            [
+              'Синхронизация',
+              'Ручная синхронизация заголовков с Remnawave, очистка, назначение пользователей по сквадам. Превью заголовков и статус сквадов.',
+            ],
+            [
+              'Источники',
+              'Сквады-источники для перетягивания пользователей. Если список пуст + «Забирать из чужих сквадов» включено — перетягивание из ВСЕХ сквадов.',
+            ],
+            [
+              'Экспорт/Импорт',
+              'Резервная копия всех настроек в JSON. Импорт полностью заменяет текущую конфигурацию.',
+            ],
+          ]}
+        />
+      </GuideSection>
+
+      {/* Troubleshooting */}
+      <GuideSection title="🔧 Диагностика">
+        <div className="space-y-3">
+          <div>
+            <p className="mb-1 text-xs font-medium text-dark-300">
+              Подписка в Happ не обновляется:
+            </p>
+            <ol className="ml-1 list-inside list-decimal space-y-1 text-xs text-dark-400">
+              <li>Настройки → ⚙️ Модуль → «Модуль включён» = ✅</li>
+              <li>
+                Попробуйте выключить модуль → если заработало, проблема в заголовках или Provider ID
+              </li>
+              <li>Проверьте Provider ID и привязку домена на happ-proxy.com</li>
+            </ol>
+          </div>
+          <div>
+            <p className="mb-1 text-xs font-medium text-dark-300">
+              Заголовки не применяются через Remnawave:
+            </p>
+            <ol className="ml-1 list-inside list-decimal space-y-1 text-xs text-dark-400">
+              <li>Настройки → ⚙️ Модуль → «Синхронизация с Remnawave» = ✅</li>
+              <li>Синхронизация → нажмите «Синхронизировать»</li>
+            </ol>
+          </div>
+          <div>
+            <p className="mb-1 text-xs font-medium text-dark-300">
+              Тема оформления (iOS) не применяется:
+            </p>
+            <ol className="ml-1 list-inside list-decimal space-y-1 text-xs text-dark-400">
+              <li>Работает только на iOS — на Android не применяется</li>
+              <li>Проверьте валидность JSON (jsonlint.com)</li>
+              <li>Пользователь должен обновить подписку в приложении</li>
+            </ol>
+          </div>
+        </div>
+      </GuideSection>
+    </div>
+  );
+}
+
 // ============== Main Component ==============
 
 export default function AdminHappManagement() {
@@ -906,6 +1304,7 @@ export default function AdminHappManagement() {
       {activeTab === 'sync' && <SyncTab />}
       {activeTab === 'sources' && <SourcesTab />}
       {activeTab === 'export' && <ExportImportTab />}
+      {activeTab === 'guide' && <GuideTab />}
     </div>
   );
 }
