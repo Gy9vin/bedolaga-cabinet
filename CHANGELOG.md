@@ -1,5 +1,14 @@
 # Changelog
 
+## [1.37.1](https://github.com/BEDOLAGA-DEV/bedolaga-cabinet/compare/v1.37.0...v1.37.1) (2026-03-18)
+
+
+### Bug Fixes
+
+* add tooltip text color for dark theme in all charts ([d640cc1](https://github.com/BEDOLAGA-DEV/bedolaga-cabinet/commit/d640cc1a04825b687d59b3a7b2d7fa814e189819))
+* add tooltip text color for dark theme in landing stats charts ([18b8605](https://github.com/BEDOLAGA-DEV/bedolaga-cabinet/commit/18b860533cfb6d6e27ebdad919fc86b7406309b5))
+* load telegram-web-app.js asynchronously to prevent page blocking ([c5f621b](https://github.com/BEDOLAGA-DEV/bedolaga-cabinet/commit/c5f621b399e415d58af8c3c9723ec473294138e7))
+
 ## [1.37.0](https://github.com/BEDOLAGA-DEV/bedolaga-cabinet/compare/v1.36.0...v1.37.0) (2026-03-18)
 
 
