@@ -115,6 +115,7 @@ export interface UserDetailResponse {
   restriction_topup: boolean;
   restriction_subscription: boolean;
   restriction_reason: string | null;
+  personal_price_multiplier: number;
   promo_offer_discount_percent: number;
   promo_offer_discount_source: string | null;
   promo_offer_discount_expires_at: string | null;
@@ -502,6 +503,21 @@ export const adminUsersApi = {
   ): Promise<{ success: boolean; message: string }> => {
     const response = await apiClient.post(`/cabinet/admin/users/${userId}/referral-commission`, {
       commission_percent: commissionPercent,
+    });
+    return response.data;
+  },
+
+  updatePriceMultiplier: async (
+    userId: number,
+    multiplier: number,
+  ): Promise<{
+    success: boolean;
+    old_multiplier: number;
+    new_multiplier: number;
+    message: string;
+  }> => {
+    const response = await apiClient.post(`/cabinet/admin/users/${userId}/price-multiplier`, {
+      multiplier,
     });
     return response.data;
   },

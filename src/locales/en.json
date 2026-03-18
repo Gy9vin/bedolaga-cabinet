@@ -2874,6 +2874,12 @@
           "unknownUser": "Unknown",
           "totalSent": "Total sent",
           "totalReceived": "Total received"
+        },
+        "priceMultiplier": {
+          "title": "Price Multiplier",
+          "standard": "Standard price (×1)",
+          "updated": "Price multiplier updated",
+          "invalid": "Value must be between 0.01 and 1000"
         }
       }
     },

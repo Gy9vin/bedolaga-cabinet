@@ -2500,6 +2500,12 @@
           "unknownUser": "未知",
           "totalSent": "已发送总数",
           "totalReceived": "已收到总数"
+        },
+        "priceMultiplier": {
+          "title": "Price Multiplier",
+          "standard": "Standard price (×1)",
+          "updated": "Price multiplier updated",
+          "invalid": "Value must be between 0.01 and 1000"
         }
       }
     },

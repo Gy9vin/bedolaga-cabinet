@@ -2501,6 +2501,12 @@
           "unknownUser": "ناشناس",
           "totalSent": "کل ارسال شده",
           "totalReceived": "کل دریافت شده"
+        },
+        "priceMultiplier": {
+          "title": "Price Multiplier",
+          "standard": "Standard price (×1)",
+          "updated": "Price multiplier updated",
+          "invalid": "Value must be between 0.01 and 1000"
         }
       }
     },

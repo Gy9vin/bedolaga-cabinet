@@ -344,6 +344,10 @@ export default function AdminUserDetail() {
   const [editingReferralCommission, setEditingReferralCommission] = useState(false);
   const [referralCommissionValue, setReferralCommissionValue] = useState<number | ''>('');
 
+  // Price multiplier
+  const [editingPriceMultiplier, setEditingPriceMultiplier] = useState(false);
+  const [priceMultiplierValue, setPriceMultiplierValue] = useState<number>(1);
+
   // Send promo offer
   const [offerDiscountPercent, setOfferDiscountPercent] = useState<number | ''>('');
   const [offerValidHours, setOfferValidHours] = useState<number | ''>(24);
@@ -794,6 +798,25 @@ export default function AdminUserDetail() {
       await adminUsersApi.updateReferralCommission(userId, value);
       await loadUser();
       setEditingReferralCommission(false);
+    } catch {
+      notify.error(t('admin.users.userActions.error'), t('common.error'));
+    } finally {
+      setActionLoading(false);
+    }
+  };
+
+  const handleUpdatePriceMultiplier = async () => {
+    if (!userId) return;
+    if (priceMultiplierValue < 0.01 || priceMultiplierValue > 1000) {
+      notify.error(t('admin.users.detail.priceMultiplier.invalid'), t('common.error'));
+      return;
+    }
+    setActionLoading(true);
+    try {
+      await adminUsersApi.updatePriceMultiplier(userId, priceMultiplierValue);
+      await loadUser();
+      setEditingPriceMultiplier(false);
+      notify.success(t('admin.users.detail.priceMultiplier.updated'), t('common.success'));
     } catch {
       notify.error(t('admin.users.userActions.error'), t('common.error'));
     } finally {
@@ -1261,6 +1284,68 @@ export default function AdminUserDetail() {
                         </div>
                       </button>
                     ))}
+                  </div>
+                )}
+              </div>
+            )}
+
+            {/* Price multiplier */}
+            {hasPermission('users:edit') && (
+              <div className="rounded-xl bg-dark-800/50 p-3">
+                <div className="mb-2 flex items-center justify-between">
+                  <span className="text-sm font-medium text-dark-200">
+                    💸 {t('admin.users.detail.priceMultiplier.title')}
+                  </span>
+                  <button
+                    onClick={() => {
+                      if (!editingPriceMultiplier) {
+                        setPriceMultiplierValue(user.personal_price_multiplier ?? 1);
+                      }
+                      setEditingPriceMultiplier(!editingPriceMultiplier);
+                    }}
+                    className="text-xs text-accent-400 transition-colors hover:text-accent-300"
+                  >
+                    {editingPriceMultiplier ? t('common.cancel') : t('common.edit')}
+                  </button>
+                </div>
+                {editingPriceMultiplier ? (
+                  <div className="flex items-center gap-2">
+                    <input
+                      type="number"
+                      value={priceMultiplierValue}
+                      onChange={(e) => setPriceMultiplierValue(parseFloat(e.target.value) || 1)}
+                      placeholder="1.0"
+                      step="0.1"
+                      min={0.01}
+                      max={1000}
+                      className="input w-full text-center text-sm"
+                      disabled={actionLoading}
+                    />
+                    <button
+                      onClick={handleUpdatePriceMultiplier}
+                      disabled={actionLoading}
+                      className="rounded-lg bg-accent-500 px-3 py-2 text-xs text-white transition-colors hover:bg-accent-600 disabled:opacity-50"
+                    >
+                      {actionLoading ? t('common.loading') : t('common.save')}
+                    </button>
+                  </div>
+                ) : (
+                  <div className="text-center">
+                    {(user.personal_price_multiplier ?? 1) === 1 ? (
+                      <span className="text-sm text-dark-400">
+                        {t('admin.users.detail.priceMultiplier.standard')}
+                      </span>
+                    ) : (user.personal_price_multiplier ?? 1) < 1 ? (
+                      <span className="text-sm font-medium text-green-400">
+                        -{Math.round((1 - (user.personal_price_multiplier ?? 1)) * 100)}% (×
+                        {user.personal_price_multiplier})
+                      </span>
+                    ) : (
+                      <span className="text-sm font-medium text-error-400">
+                        ×{user.personal_price_multiplier} (+
+                        {Math.round(((user.personal_price_multiplier ?? 1) - 1) * 100)}%)
+                      </span>
+                    )}
                   </div>
                 )}
               </div>
