@@ -175,6 +175,10 @@
     "authenticating": "Authenticating...",
     "orOpenInApp": "Or open the bot in the app",
     "loginFailed": "Login Failed",
+    "telegramWidgetBlocked": "Telegram login widget is unavailable. Use the bot to sign in:",
+    "openBotToLogin": "Open bot to sign in",
+    "waitingForConfirmation": "Waiting for confirmation...",
+    "deepLinkExpired": "Link expired. Please try again.",
     "tryAgain": "Try Again",
     "welcomeBack": "Welcome back!",
     "loginTitle": "Login to Cabinet",
@@ -250,6 +254,7 @@
     "daysRemaining": "Days left",
     "usageLast14Days": "Usage last 14 days",
     "maxUsage": "max {{amount}}",
+    "deviceLimitReached": "Disconnect devices to add new ones",
     "expired": {
       "title": "Subscription Expired",
       "trialTitle": "Trial Expired",
@@ -631,6 +636,15 @@
       },
       "tribute": {
         "description": "Pay with bank card via Tribute"
+      },
+      "severpay": {
+        "description": "Pay via SeverPay"
+      },
+      "riopay": {
+        "description": "Pay via RioPay"
+      },
+      "kassa_ai": {
+        "description": "Pay via Kassa AI"
       }
     },
     "transactionHistory": "Transaction History",
@@ -927,6 +941,7 @@
     "days_other": "{{count}} days",
     "subscriptionDays": "Subscription days",
     "day": "Day",
+    "spinCost": "Spin cost",
     "spin": "SPIN!",
     "spinning": "Spinning...",
     "history": "History",
@@ -1275,18 +1290,40 @@
       "previewNotAvailable": "Preview not available"
     },
     "payments": {
-      "title": "Payment verification",
-      "description": "Pending payments in the last 24 hours",
+      "title": "Payments",
+      "description": "Search and manage payments",
+      "searchPlaceholder": "Search: invoice, TG ID, @username, email...",
+      "searchHint": "Examples: SP-78291, @username, 123456789, user@mail.ru",
+      "searchResults": "Results for: {{query}} — found {{count}}",
+      "resetSearch": "Reset",
+      "statusAll": "All",
+      "statusPending": "Pending",
+      "statusPaid": "Paid",
+      "statusCancelled": "Cancelled",
+      "period24h": "24h",
+      "period7d": "7d",
+      "period30d": "30d",
+      "periodAll": "All",
+      "periodCustom": "Range",
+      "dateFrom": "From",
+      "dateTo": "To",
+      "applyDate": "Apply",
+      "allMethods": "All methods",
+      "totalCount": "Total",
+      "pendingCount": "Pending",
+      "paidCount": "Paid",
+      "cancelledCount": "Cancelled",
       "totalPending": "Total pending",
       "filterByMethod": "Filter by method",
-      "noPayments": "No pending payments",
+      "noPayments": "No payments found",
       "paid": "Paid",
       "user": "User",
       "openLink": "Open link",
       "checkStatus": "Check status",
       "checking": "Checking...",
-      "prev": "Previous",
-      "next": "Next"
+      "prev": "Prev",
+      "next": "Next",
+      "checkError": "Status check failed"
     },
     "paymentMethods": {
       "title": "Payment Methods",
@@ -3889,6 +3926,7 @@
       "linkSuccess": "Account connected successfully",
       "unlinkSuccess": "Account disconnected successfully",
       "linkError": "Failed to connect account",
+      "telegramLinkUnavailable": "Telegram linking is temporarily unavailable. Use the bot:",
       "unlinkError": "Failed to disconnect account",
       "goToAccounts": "Connected Accounts",
       "linking": "Linking account...",

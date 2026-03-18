@@ -167,6 +167,10 @@
     "authenticating": "در حال تایید هویت...",
     "orOpenInApp": "یا ربات را در برنامه باز کنید",
     "loginFailed": "ورود ناموفق",
+    "telegramWidgetBlocked": "ویجت ورود تلگرام در دسترس نیست. از طریق ربات وارد شوید:",
+    "openBotToLogin": "باز کردن ربات برای ورود",
+    "waitingForConfirmation": "در انتظار تایید...",
+    "deepLinkExpired": "لینک منقضی شده است. لطفا دوباره تلاش کنید.",
     "tryAgain": "تلاش مجدد",
     "welcomeBack": "خوش آمدید!",
     "loginTitle": "ورود به کابین",
@@ -238,6 +242,7 @@
       "devices": "دستگاه‌ها",
       "expiredDate": "منقضی شده"
     },
+    "deviceLimitReached": "برای افزودن دستگاه جدید، دستگاه‌های فعلی را قطع کنید",
     "suspended": {
       "title": "اشتراک معلق شده",
       "resume": "از سرگیری"
@@ -484,6 +489,9 @@
       },
       "tribute": {
         "description": "پرداخت با کارت بانکی از طریق Tribute"
+      },
+      "severpay": {
+        "description": "پرداخت از طریق SeverPay"
       }
     },
     "transactionHistory": "تاریخچه تراکنش‌ها",
@@ -774,6 +782,7 @@
     "days_other": "{{count}} روز",
     "subscriptionDays": "روز اشتراک",
     "day": "روز",
+    "spinCost": "هزینه چرخش",
     "spin": "بچرخان!",
     "spinning": "در حال چرخش...",
     "history": "تاریخچه",
@@ -1320,18 +1329,40 @@
       }
     },
     "payments": {
-      "title": "تأیید پرداخت",
-      "description": "پرداخت‌های معلق در ۲۴ ساعت گذشته",
+      "title": "پرداخت‌ها",
+      "description": "جستجو و مدیریت پرداخت‌ها",
+      "searchPlaceholder": "جستجو: فاکتور، شناسه تلگرام، @نام‌کاربری، ایمیل...",
+      "searchHint": "مثال‌ها: SP-78291, @username, 123456789, user@mail.ru",
+      "searchResults": "نتایج برای: {{query}} — {{count}} یافت شد",
+      "resetSearch": "بازنشانی",
+      "statusAll": "همه",
+      "statusPending": "در انتظار",
+      "statusPaid": "پرداخت شده",
+      "statusCancelled": "لغو شده",
+      "period24h": "۲۴ساعت",
+      "period7d": "۷روز",
+      "period30d": "۳۰روز",
+      "periodAll": "همه",
+      "periodCustom": "بازه",
+      "dateFrom": "از",
+      "dateTo": "تا",
+      "applyDate": "اعمال",
+      "allMethods": "همه روش‌ها",
+      "totalCount": "کل",
+      "pendingCount": "در انتظار",
+      "paidCount": "پرداخت شده",
+      "cancelledCount": "لغو شده",
       "totalPending": "کل معلق",
       "filterByMethod": "فیلتر بر اساس روش",
+      "noPayments": "پرداختی یافت نشد",
       "paid": "پرداخت شده",
       "user": "کاربر",
       "openLink": "باز کردن لینک",
-      "checking": "در حال بررسی...",
       "checkStatus": "بررسی وضعیت",
-      "noPayments": "هیچ پرداخت معلقی نیست",
+      "checking": "در حال بررسی...",
       "prev": "قبلی",
-      "next": "بعدی"
+      "next": "بعدی",
+      "checkError": "خطا در بررسی وضعیت"
     },
     "settings": {
       "title": "تنظیمات سیستم",
@@ -3263,6 +3294,7 @@
       "linkSuccess": "حساب با موفقیت متصل شد",
       "unlinkSuccess": "اتصال حساب با موفقیت قطع شد",
       "linkError": "اتصال حساب ناموفق بود",
+      "telegramLinkUnavailable": "اتصال تلگرام موقتاً در دسترس نیست. از ربات استفاده کنید:",
       "unlinkError": "قطع اتصال ناموفق بود",
       "goToAccounts": "حساب‌های متصل",
       "linking": "در حال اتصال حساب...",

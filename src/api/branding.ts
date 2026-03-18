@@ -21,6 +21,7 @@ export interface FullscreenEnabled {
 
 export interface EmailAuthEnabled {
   enabled: boolean;
+  verification_enabled?: boolean;
 }
 
 export interface GiftEnabled {

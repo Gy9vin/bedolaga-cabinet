@@ -18,6 +18,7 @@ import { useCurrency } from '../hooks/useCurrency';
 import { useCloseOnSuccessNotification } from '../store/successNotification';
 import PurchaseCTAButton from '../components/subscription/PurchaseCTAButton';
 import { CopyIcon, CheckIcon } from '../components/icons';
+import { useHaptic } from '../platform';
 import {
   getErrorMessage,
   getInsufficientBalanceError,
@@ -198,6 +199,7 @@ export default function Subscription() {
   const navigate = useNavigate();
   const { isDark } = useTheme();
   const g = getGlassColors(isDark);
+  const haptic = useHaptic();
   const [copied, setCopied] = useState(false);
   const [showQr, setShowQr] = useState(false);
   const [qrDataUrl, setQrDataUrl] = useState<string | null>(null);
@@ -852,6 +854,8 @@ export default function Subscription() {
           const isUnlimited =
             (trafficData?.is_unlimited ?? false) || subscription.traffic_limit_gb === 0;
           const connectedDevices = devicesData?.total ?? 0;
+          const isAtDeviceLimit =
+            subscription.device_limit > 0 && connectedDevices >= subscription.device_limit;
 
           return (
             <div
@@ -1134,8 +1138,15 @@ export default function Subscription() {
                 <HoverBorderGradient
                   as="button"
                   accentColor={zone.mainHex}
-                  onClick={() => navigate('/connection')}
-                  className="mb-5 flex w-full items-center gap-3.5 rounded-[14px] p-3.5 text-left transition-shadow duration-300"
+                  disabled={isAtDeviceLimit}
+                  onClick={() => {
+                    if (isAtDeviceLimit) {
+                      haptic.notification('error');
+                      return;
+                    }
+                    navigate('/connection');
+                  }}
+                  className={`mb-5 flex w-full items-center gap-3.5 rounded-[14px] p-3.5 text-left transition-shadow duration-300${isAtDeviceLimit ? 'cursor-not-allowed opacity-50' : ''}`}
                   style={{ fontFamily: 'inherit' }}
                 >
                   <div
@@ -1170,6 +1181,14 @@ export default function Subscription() {
                             max: subscription.device_limit,
                           })}
                     </div>
+                    {isAtDeviceLimit && (
+                      <div
+                        className="mt-1 text-[10px] font-medium"
+                        style={{ color: 'rgb(var(--color-warning-400))' }}
+                      >
+                        {t('dashboard.deviceLimitReached')}
+                      </div>
+                    )}
                   </div>
                   {subscription.device_limit === 0 ? (
                     <div

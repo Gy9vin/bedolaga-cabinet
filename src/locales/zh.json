@@ -167,6 +167,10 @@
     "authenticating": "正在验证...",
     "orOpenInApp": "或在应用中打开机器人",
     "loginFailed": "登录失败",
+    "telegramWidgetBlocked": "Telegram登录小部件不可用。请使用机器人登录：",
+    "openBotToLogin": "打开机器人登录",
+    "waitingForConfirmation": "等待确认...",
+    "deepLinkExpired": "链接已过期，请重试。",
     "tryAgain": "重试",
     "welcomeBack": "欢迎回来！",
     "loginTitle": "登录个人中心",
@@ -238,6 +242,7 @@
       "devices": "设备",
       "expiredDate": "过期时间"
     },
+    "deviceLimitReached": "断开设备以添加新设备",
     "suspended": {
       "title": "订阅已暂停",
       "resume": "恢复"
@@ -484,6 +489,9 @@
       },
       "tribute": {
         "description": "通过Tribute银行卡支付"
+      },
+      "severpay": {
+        "description": "通过SeverPay支付"
       }
     },
     "transactionHistory": "交易记录",
@@ -774,6 +782,7 @@
     "days_other": "{{count}} 天",
     "subscriptionDays": "订阅天数",
     "day": "天",
+    "spinCost": "抽奖费用",
     "spin": "开始抽奖！",
     "spinning": "抽奖中...",
     "history": "历史",
@@ -1152,18 +1161,40 @@
       "previewNotAvailable": "预览不可用"
     },
     "payments": {
-      "title": "支付验证",
-      "description": "最近24小时内的待处理支付",
+      "title": "支付",
+      "description": "搜索和管理支付",
+      "searchPlaceholder": "搜索：发票、TG ID、@用户名、邮箱...",
+      "searchHint": "示例：SP-78291、@username、123456789、user@mail.ru",
+      "searchResults": "搜索结果：{{query}} — 找到 {{count}} 条",
+      "resetSearch": "重置",
+      "statusAll": "全部",
+      "statusPending": "待处理",
+      "statusPaid": "已支付",
+      "statusCancelled": "已取消",
+      "period24h": "24小时",
+      "period7d": "7天",
+      "period30d": "30天",
+      "periodAll": "全部",
+      "periodCustom": "范围",
+      "dateFrom": "从",
+      "dateTo": "到",
+      "applyDate": "应用",
+      "allMethods": "所有方式",
+      "totalCount": "总计",
+      "pendingCount": "待处理",
+      "paidCount": "已支付",
+      "cancelledCount": "已取消",
       "totalPending": "总待处理",
-      "filterByMethod": "按方法筛选",
+      "filterByMethod": "按方式筛选",
+      "noPayments": "未找到支付记录",
       "paid": "已支付",
       "user": "用户",
       "openLink": "打开链接",
-      "checking": "检查中...",
       "checkStatus": "检查状态",
-      "noPayments": "没有待处理的支付",
+      "checking": "检查中...",
       "prev": "上一页",
-      "next": "下一页"
+      "next": "下一页",
+      "checkError": "状态检查失败"
     },
     "wheel": {
       "title": "幸运转盘设置",
@@ -3262,6 +3293,7 @@
       "linkSuccess": "账户关联成功",
       "unlinkSuccess": "账户取消关联成功",
       "linkError": "关联账户失败",
+      "telegramLinkUnavailable": "Telegram关联暂时不可用。请使用机器人：",
       "unlinkError": "取消关联失败",
       "goToAccounts": "关联账户",
       "linking": "正在关联账户...",

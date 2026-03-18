@@ -178,6 +178,10 @@
     "authenticating": "Авторизация...",
     "orOpenInApp": "Или откройте бота в приложении",
     "loginFailed": "Ошибка входа",
+    "telegramWidgetBlocked": "Виджет входа через Telegram недоступен. Войдите через бота:",
+    "openBotToLogin": "Открыть бота для входа",
+    "waitingForConfirmation": "Ожидание подтверждения...",
+    "deepLinkExpired": "Ссылка истекла. Попробуйте снова.",
     "tryAgain": "Попробовать снова",
     "welcomeBack": "Добро пожаловать!",
     "loginTitle": "Вход в личный кабинет",
@@ -262,6 +266,7 @@
     "daysRemaining": "Дней осталось",
     "usageLast14Days": "Расход за 14 дней",
     "maxUsage": "макс {{amount}}",
+    "deviceLimitReached": "Отключите устройства для подключения новых",
     "expired": {
       "title": "Подписка истекла",
       "trialTitle": "Пробный период истёк",
@@ -659,6 +664,15 @@
       },
       "tribute": {
         "description": "Оплата банковской картой через Tribute"
+      },
+      "severpay": {
+        "description": "Оплата через SeverPay"
+      },
+      "riopay": {
+        "description": "Оплата через RioPay"
+      },
+      "kassa_ai": {
+        "description": "Оплата через Kassa AI"
       }
     },
     "transactionHistory": "История операций",
@@ -956,6 +970,7 @@
     "days_many": "{{count}} дней",
     "subscriptionDays": "Дни подписки",
     "day": "День",
+    "spinCost": "Стоимость вращения",
     "spin": "КРУТИТЬ!",
     "spinning": "Крутится...",
     "history": "История",
@@ -1296,18 +1311,40 @@
       "previewNotAvailable": "Предпросмотр недоступен"
     },
     "payments": {
-      "title": "Проверка платежей",
-      "description": "Ожидающие платежи за последние 24 часа",
+      "title": "Платежи",
+      "description": "Поиск и управление платежами",
+      "searchPlaceholder": "Поиск: инвойс, TG ID, @username, email...",
+      "searchHint": "Примеры: SP-78291, @username, 123456789, user@mail.ru",
+      "searchResults": "Результаты по запросу: {{query}} — найдено {{count}}",
+      "resetSearch": "Сбросить",
+      "statusAll": "Все",
+      "statusPending": "В ожидании",
+      "statusPaid": "Оплачено",
+      "statusCancelled": "Отменено",
+      "period24h": "24ч",
+      "period7d": "7д",
+      "period30d": "30д",
+      "periodAll": "Все",
+      "periodCustom": "Период",
+      "dateFrom": "С",
+      "dateTo": "По",
+      "applyDate": "Применить",
+      "allMethods": "Все методы",
+      "totalCount": "Всего",
+      "pendingCount": "В ожидании",
+      "paidCount": "Оплачено",
+      "cancelledCount": "Отменено",
       "totalPending": "Всего ожидает",
       "filterByMethod": "Фильтр по методу",
-      "noPayments": "Нет ожидающих платежей",
+      "noPayments": "Платежи не найдены",
       "paid": "Оплачено",
       "user": "Пользователь",
       "openLink": "Открыть ссылку",
       "checkStatus": "Проверить статус",
       "checking": "Проверка...",
       "prev": "Назад",
-      "next": "Далее"
+      "next": "Далее",
+      "checkError": "Ошибка проверки статуса"
     },
     "paymentMethods": {
       "title": "Платёжные методы",
@@ -4446,6 +4483,7 @@
       "linkSuccess": "Аккаунт успешно привязан",
       "unlinkSuccess": "Аккаунт успешно отвязан",
       "linkError": "Не удалось привязать аккаунт",
+      "telegramLinkUnavailable": "Привязка Telegram временно недоступна. Используйте бота:",
       "unlinkError": "Не удалось отвязать аккаунт",
       "goToAccounts": "Привязанные аккаунты",
       "linking": "Привязка аккаунта...",
