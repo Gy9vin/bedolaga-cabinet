@@ -46,10 +46,10 @@ export function ReferralNetwork() {
       </div>
 
       {/* Main content area */}
-      <div className="relative flex min-h-0 flex-1">
+      <div className="relative min-h-0 flex-1 overflow-hidden">
         {/* Loading state */}
         {isLoading && (
-          <div className="flex flex-1 items-center justify-center">
+          <div className="absolute inset-0 flex items-center justify-center">
             <div className="text-center">
               <div className="mx-auto mb-3 h-8 w-8 animate-spin rounded-full border-2 border-dark-600 border-t-accent-400" />
               <p className="text-sm text-dark-400">{t('admin.referralNetwork.loading')}</p>
@@ -59,14 +59,14 @@ export function ReferralNetwork() {
 
         {/* Error state */}
         {isError && (
-          <div className="flex flex-1 items-center justify-center">
+          <div className="absolute inset-0 flex items-center justify-center">
             <p className="text-sm text-error-400">{t('admin.referralNetwork.error')}</p>
           </div>
         )}
 
         {/* Empty state */}
         {networkData && networkData.users.length === 0 && networkData.campaigns.length === 0 && (
-          <div className="flex flex-1 items-center justify-center">
+          <div className="absolute inset-0 flex items-center justify-center">
             <p className="text-sm text-dark-500">{t('admin.referralNetwork.empty')}</p>
           </div>
         )}
@@ -74,7 +74,7 @@ export function ReferralNetwork() {
         {/* Graph */}
         {networkData && (networkData.users.length > 0 || networkData.campaigns.length > 0) && (
           <>
-            <NetworkGraph data={networkData} className="flex-1" />
+            <NetworkGraph data={networkData} className="absolute inset-0" />
 
             {/* Bottom-left: stats overlay */}
             <div className="absolute bottom-4 left-4 z-10">
