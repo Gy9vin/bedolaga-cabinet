@@ -113,8 +113,6 @@ export function NetworkGraph({ data, className }: NetworkGraphProps) {
   const hoveredNodeId = useReferralNetworkStore((s) => s.hoveredNodeId);
   const highlightedNodes = useReferralNetworkStore((s) => s.highlightedNodes);
   const filters = useReferralNetworkStore((s) => s.filters);
-  const setNetworkData = useReferralNetworkStore((s) => s.setNetworkData);
-
   const killFA2 = useCallback(() => {
     if (fa2TimerRef.current !== null) {
       clearTimeout(fa2TimerRef.current);
@@ -139,8 +137,6 @@ export function NetworkGraph({ data, className }: NetworkGraphProps) {
 
     const graph = buildFullGraph(data);
     graphRef.current = graph;
-
-    setNetworkData(data);
 
     // Compute initial hidden set from current filters
     const initialFilters = useReferralNetworkStore.getState().filters;
@@ -301,7 +297,7 @@ export function NetworkGraph({ data, className }: NetworkGraphProps) {
       setSigmaInstance(null);
       setGraphInstance(null);
     };
-  }, [data, setSelectedNode, setHoveredNode, setNetworkData, killFA2]);
+  }, [data, setSelectedNode, setHoveredNode, killFA2]);
 
   // Recompute hidden nodes when filters change, then refresh sigma
   // (no graph rebuild — positions and Sigma instance preserved)

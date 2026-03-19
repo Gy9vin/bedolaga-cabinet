@@ -117,6 +117,7 @@ export function NetworkSearch({ className }: NetworkSearchProps) {
           ref={inputRef}
           type="text"
           value={inputValue}
+          maxLength={200}
           onChange={(e) => setInputValue(e.target.value)}
           onFocus={() => {
             if (searchResults && debouncedQuery.length >= 2) setIsDropdownOpen(true);
