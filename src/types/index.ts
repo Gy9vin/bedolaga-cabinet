@@ -598,6 +598,7 @@ export interface PendingPayment {
   user_id?: number;
   user_telegram_id?: number;
   user_username?: string | null;
+  user_email?: string | null;
 }
 
 export interface ManualCheckResponse {

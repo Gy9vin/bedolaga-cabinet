@@ -478,17 +478,53 @@ export default function AdminPayments() {
                       </div>
 
                       {/* User info */}
-                      {(payment.user_username || payment.user_telegram_id) && (
+                      {(payment.user_username ||
+                        payment.user_telegram_id ||
+                        payment.user_email) && (
                         <div className="mt-2 text-sm text-dark-400">
                           <span className="text-dark-500">{t('admin.payments.user')}:</span>{' '}
-                          {payment.user_username && (
-                            <span className="text-dark-200">@{payment.user_username}</span>
-                          )}
-                          {payment.user_username && payment.user_telegram_id && (
-                            <span className="text-dark-500"> &middot; </span>
-                          )}
-                          {payment.user_telegram_id && (
-                            <span className="text-dark-300">TG: {payment.user_telegram_id}</span>
+                          {payment.user_id ? (
+                            <button
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                navigate(`/admin/users/${payment.user_id}`);
+                              }}
+                              className="inline-flex items-center gap-1 transition-colors hover:underline"
+                            >
+                              {payment.user_username && (
+                                <span className="text-accent-400">@{payment.user_username}</span>
+                              )}
+                              {payment.user_username &&
+                                (payment.user_telegram_id || payment.user_email) && (
+                                  <span className="text-dark-500"> &middot; </span>
+                                )}
+                              {payment.user_telegram_id && (
+                                <span className="text-accent-300">
+                                  TG: {payment.user_telegram_id}
+                                </span>
+                              )}
+                              {!payment.user_telegram_id && payment.user_email && (
+                                <span className="text-accent-300">{payment.user_email}</span>
+                              )}
+                            </button>
+                          ) : (
+                            <>
+                              {payment.user_username && (
+                                <span className="text-dark-200">@{payment.user_username}</span>
+                              )}
+                              {payment.user_username &&
+                                (payment.user_telegram_id || payment.user_email) && (
+                                  <span className="text-dark-500"> &middot; </span>
+                                )}
+                              {payment.user_telegram_id && (
+                                <span className="text-dark-300">
+                                  TG: {payment.user_telegram_id}
+                                </span>
+                              )}
+                              {!payment.user_telegram_id && payment.user_email && (
+                                <span className="text-dark-300">{payment.user_email}</span>
+                              )}
+                            </>
                           )}
                         </div>
                       )}

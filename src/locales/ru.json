@@ -1191,7 +1191,8 @@
         "newTrials": "Новые триалы",
         "conversion": "Конверсия",
         "renewals": "Продления",
-        "addonRevenue": "Доп. услуги"
+        "addonRevenue": "Доп. услуги",
+        "manualTopup": "Ручные пополнения"
       },
       "trials": {
         "total": "Всего триалов",

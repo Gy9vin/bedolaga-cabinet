@@ -1003,7 +1003,8 @@
         "newTrials": "新试用",
         "conversion": "转化率",
         "renewals": "续订",
-        "addonRevenue": "附加服务收入"
+        "addonRevenue": "附加服务收入",
+        "manualTopup": "手动充值"
       },
       "trials": {
         "total": "试用总数",

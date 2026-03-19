@@ -1170,7 +1170,8 @@
         "newTrials": "New Trials",
         "conversion": "Conversion",
         "renewals": "Renewals",
-        "addonRevenue": "Add-on Revenue"
+        "addonRevenue": "Add-on Revenue",
+        "manualTopup": "Manual Top-ups"
       },
       "trials": {
         "total": "Total Trials",
