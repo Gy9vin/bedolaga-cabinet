@@ -1173,7 +1173,10 @@ export default function Subscription() {
                     <div className="text-sm font-semibold tracking-tight text-dark-50">
                       {t('dashboard.connectDevice')}
                     </div>
-                    <div className="mt-0.5 text-[11px] text-dark-50/60">
+                    <div
+                      className="mt-0.5 text-[11px]"
+                      style={{ color: 'var(--color-dark-text-secondary)' }}
+                    >
                       {subscription.device_limit === 0
                         ? t('dashboard.devicesConnectedUnlimited', { used: connectedDevices })
                         : t('dashboard.devicesOfMax', {
@@ -1235,8 +1238,9 @@ export default function Subscription() {
               {subscription.subscription_url && !subscription.hide_subscription_link && (
                 <div className="mb-5 flex gap-2">
                   <code
-                    className="scrollbar-hide flex-1 overflow-x-auto break-all rounded-[10px] px-3 py-2 font-mono text-[11px] text-dark-50/70"
+                    className="scrollbar-hide flex-1 overflow-x-auto break-all rounded-[10px] px-3 py-2 font-mono text-[11px]"
                     style={{
+                      color: 'var(--color-dark-text-secondary)',
                       background: g.codeBg,
                       border: `1px solid ${g.codeBorder}`,
                     }}
@@ -1406,7 +1410,10 @@ export default function Subscription() {
                     <div className="text-sm font-semibold text-dark-50">
                       {t('subscription.autoRenewal')}
                     </div>
-                    <div className="mt-0.5 text-[11px] text-dark-50/60">
+                    <div
+                      className="mt-0.5 text-[11px]"
+                      style={{ color: 'var(--color-dark-text-secondary)' }}
+                    >
                       {t('subscription.daysBeforeExpiry', {
                         count: subscription.autopay_days_before,
                       })}

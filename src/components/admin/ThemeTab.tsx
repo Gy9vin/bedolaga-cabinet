@@ -307,6 +307,98 @@ export function ThemeTab() {
         )}
       </div>
 
+      {/* Live Preview */}
+      <div className="rounded-2xl border border-dark-700/50 bg-dark-800/50 p-6">
+        <h3 className="mb-4 text-lg font-semibold text-dark-100">
+          {t('admin.settings.livePreview', 'Превью')}
+        </h3>
+        <div
+          className="rounded-xl p-4"
+          style={{
+            background: draftColors.darkBackground,
+            border: `1px solid ${draftColors.darkSurface}`,
+          }}
+        >
+          {/* Header */}
+          <div className="mb-3 flex items-center justify-between">
+            <span className="text-sm font-bold" style={{ color: draftColors.darkText }}>
+              {t('admin.settings.previewSubscription', 'Подписка')}
+            </span>
+            <span
+              className="rounded-full px-2 py-0.5 text-[10px] font-semibold"
+              style={{ background: `${draftColors.accent}22`, color: draftColors.accent }}
+            >
+              {t('subscription.status.active', 'АКТИВНА')}
+            </span>
+          </div>
+          {/* Connect device row */}
+          <div
+            className="mb-3 flex items-center gap-3 rounded-[10px] p-3"
+            style={{ background: draftColors.darkSurface }}
+          >
+            <div
+              className="flex h-8 w-8 items-center justify-center rounded-[8px]"
+              style={{ background: `${draftColors.accent}18` }}
+            >
+              <svg
+                width="14"
+                height="14"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke={draftColors.accent}
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              >
+                <rect x="2" y="3" width="20" height="14" rx="2" />
+                <path d="M12 17v4M8 21h8" />
+              </svg>
+            </div>
+            <div>
+              <div className="text-[13px] font-semibold" style={{ color: draftColors.darkText }}>
+                {t('dashboard.connectDevice', 'Подключить устройство')}
+              </div>
+              <div className="text-[11px]" style={{ color: draftColors.darkTextSecondary }}>
+                1 {t('admin.settings.previewOf', 'из')} 3{' '}
+                {t('admin.settings.previewConnected', 'подключено')}
+              </div>
+            </div>
+          </div>
+          {/* URL row */}
+          <div
+            className="mb-3 rounded-[8px] px-3 py-2 font-mono text-[11px]"
+            style={{
+              background: draftColors.darkSurface,
+              color: draftColors.darkTextSecondary,
+              border: `1px solid ${draftColors.accent}20`,
+            }}
+          >
+            https://sub.example.com/abc-XYZ
+          </div>
+          {/* Status colors */}
+          <div className="flex gap-2 text-[11px]">
+            <span
+              className="rounded px-2 py-0.5"
+              style={{ background: `${draftColors.success}22`, color: draftColors.success }}
+            >
+              {t('admin.settings.colors.success', 'Успех')}
+            </span>
+            <span
+              className="rounded px-2 py-0.5"
+              style={{ background: `${draftColors.warning}22`, color: draftColors.warning }}
+            >
+              {t('admin.settings.colors.warning', 'Предупреждение')}
+            </span>
+            <span
+              className="rounded px-2 py-0.5"
+              style={{ background: `${draftColors.error}22`, color: draftColors.error }}
+            >
+              {t('admin.settings.colors.error', 'Ошибка')}
+            </span>
+          </div>
+        </div>
+      </div>
+
       {/* Custom Colors */}
       <div className="rounded-2xl border border-dark-700/50 bg-dark-800/50 p-6">
         <button
