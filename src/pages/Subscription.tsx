@@ -2687,15 +2687,46 @@ export default function Subscription() {
                     {/* Success message after modem purchase */}
                     {showModemSuccess && (
                       <div className="mt-4 rounded-xl border border-success-500/30 bg-success-500/10 p-4">
-                        <div className="mb-2 text-center text-sm font-medium text-success-400">
+                        <div className="mb-1 text-center text-sm font-medium text-success-400">
                           {t('modem.enableSuccess')}
                         </div>
-                        <div className="text-center text-sm" style={{ color: g.textSecondary }}>
+                        <div
+                          className="mb-3 text-center text-xs"
+                          style={{ color: g.textSecondary }}
+                        >
                           {t('modem.contactAdmin')}
+                        </div>
+                        {/* Modem setup instructions */}
+                        <div
+                          className="mb-3 rounded-lg p-3 text-xs"
+                          style={{ background: g.innerBg, border: `1px solid ${g.innerBorder}` }}
+                        >
+                          <div className="mb-2 font-semibold" style={{ color: g.text }}>
+                            {t('modem.instructionsTitle')}
+                          </div>
+                          <div className="mb-2">
+                            <div className="mb-0.5 font-medium text-accent-400">
+                              {t('modem.instructionsHappTitle')}
+                            </div>
+                            <div style={{ color: g.textSecondary }}>
+                              {t('modem.instructionsHapp')}
+                            </div>
+                          </div>
+                          <div>
+                            <div className="mb-0.5 font-medium text-accent-400">
+                              {t('modem.instructionsDevicesTitle')}
+                            </div>
+                            <div className="mb-1" style={{ color: g.textSecondary }}>
+                              {t('modem.instructionsAndroid')}
+                            </div>
+                            <div style={{ color: g.textSecondary }}>
+                              {t('modem.instructionsIos')}
+                            </div>
+                          </div>
                         </div>
                         <button
                           onClick={() => setShowModemSuccess(false)}
-                          className="btn-secondary mt-3 w-full"
+                          className="btn-secondary w-full"
                         >
                           {t('common.ok', 'OK')}
                         </button>
