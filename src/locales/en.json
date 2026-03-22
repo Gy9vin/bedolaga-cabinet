@@ -180,6 +180,9 @@
     "waitingForConfirmation": "Waiting for confirmation...",
     "deepLinkExpired": "Link expired. Please try again.",
     "tryAgain": "Try Again",
+    "scanQrToLogin": "Scan QR code with your phone camera",
+    "orSendCommand": "Or send the bot this command:",
+    "commandCopied": "Command copied",
     "welcomeBack": "Welcome back!",
     "loginTitle": "Login to Cabinet",
     "loginSubtitle": "Sign in with Telegram or use your email",
@@ -1248,17 +1251,24 @@
         "totalUsers": "Users",
         "totalReferrers": "Referrers",
         "totalCampaigns": "Campaigns",
-        "totalEarnings": "Total earnings"
+        "subscriptionRevenue": "Subscription revenue",
+        "totalEarnings": "Ref. earnings"
       },
       "legend": {
         "title": "Legend",
-        "regularUser": "Regular user",
+        "fillTitle": "Subscription",
+        "borderTitle": "Referral role",
+        "regularUser": "No subscription",
         "activeReferrer": "Active referrer",
         "partner": "Partner",
         "topReferrer": "Top referrer (10+)",
         "campaignUser": "From campaign",
         "partnerCampaignEdge": "Partner → Campaign",
-        "campaignNode": "Ad campaign"
+        "campaignNode": "Ad campaign",
+        "paidActive": "Paid subscription",
+        "trialActive": "Trial",
+        "paidExpired": "Paid expired",
+        "trialExpired": "Trial expired"
       },
       "user": {
         "tgId": "TG ID",
@@ -1277,7 +1287,13 @@
         "source": "Source",
         "referredBy": "Referred by",
         "fromCampaign": "Campaign",
-        "organic": "Organic"
+        "organic": "Organic",
+        "subscriptionStatus": {
+          "trial_active": "Trial",
+          "paid_active": "Paid",
+          "trial_expired": "Trial expired",
+          "paid_expired": "Paid expired"
+        }
       },
       "campaign": {
         "startParam": "Parameter",
@@ -1705,7 +1721,14 @@
       "enableEmail": "Email",
       "sendingBoth": "2 broadcasts will be created",
       "bothCreated": "Broadcasts created",
-      "atLeastOneChannel": "Select at least one channel"
+      "atLeastOneChannel": "Select at least one channel",
+      "customButtons": "Custom buttons",
+      "addCustomButton": "Add button",
+      "customButtonLabelPlaceholder": "Button text",
+      "customButtonTypeCallback": "Callback",
+      "customButtonTypeUrl": "URL",
+      "customButtonCallbackPlaceholder": "callback_data (e.g. back_to_menu)",
+      "customButtonUrlPlaceholder": "https://example.com"
     },
     "pinnedMessages": {
       "title": "Pinned Messages",
@@ -3229,6 +3252,7 @@
       "system": "System",
       "permanent": "Permanent",
       "expired": "expired",
+      "envManaged": "Managed via ADMIN_IDS / ADMIN_EMAILS in env",
       "revoke": "Revoke",
       "revokeAriaLabel": "Revoke role {{role}} from {{user}}",
       "table": {
