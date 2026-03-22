@@ -1,5 +1,24 @@
 # Changelog
 
+## [1.40.0](https://github.com/BEDOLAGA-DEV/bedolaga-cabinet/compare/v1.39.1...v1.40.0) (2026-03-22)
+
+
+### Features
+
+* add QR code and command to deeplink auth fallback, fix polling on tab return ([76c9d64](https://github.com/BEDOLAGA-DEV/bedolaga-cabinet/commit/76c9d6448aa2cf79a856076a781c3f285633ee10))
+* custom broadcast buttons UI and fix stale mediaType bug ([86d997d](https://github.com/BEDOLAGA-DEV/bedolaga-cabinet/commit/86d997d01d860b42a4d7fd61c703dc03c39f0a2a))
+* show short device identifier (HWID) in device list ([58b1f96](https://github.com/BEDOLAGA-DEV/bedolaga-cabinet/commit/58b1f96852fb32f57bfb1ca255b27ebc021236e9))
+
+
+### Bug Fixes
+
+* clear all cached auth state on Telegram MiniApp retry ([3e27472](https://github.com/BEDOLAGA-DEV/bedolaga-cabinet/commit/3e27472c8aaf836e855a7163f5a2829395655ccc))
+* clear expire timer on 410/error and reset pollInFlight on retry ([1538879](https://github.com/BEDOLAGA-DEV/bedolaga-cabinet/commit/1538879f970bcadc115d10ff027ce4d015606099))
+* prevent polling race condition and add missing zh/fa translations ([e571667](https://github.com/BEDOLAGA-DEV/bedolaga-cabinet/commit/e57166745c24875ffd50b78e31bbd1e20480720f))
+* referral system — stop cabinet redirect to Telegram, fix deep link code handling ([3c034d2](https://github.com/BEDOLAGA-DEV/bedolaga-cabinet/commit/3c034d2e70359357c6522ff9ba703a69f1a2f5d6))
+* show error state instead of blank page on purchase-options failure ([9d519fb](https://github.com/BEDOLAGA-DEV/bedolaga-cabinet/commit/9d519fb5ec8c06c35f0967a0901940d934e1c882))
+* use live panel traffic data in admin subscription card ([ac1550c](https://github.com/BEDOLAGA-DEV/bedolaga-cabinet/commit/ac1550ce107fc37b81cdf0271666976499fed4ef))
+
 ## [1.39.1](https://github.com/BEDOLAGA-DEV/bedolaga-cabinet/compare/v1.39.0...v1.39.1) (2026-03-21)
 
 
