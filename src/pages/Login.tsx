@@ -22,7 +22,7 @@ import LanguageSwitcher from '../components/LanguageSwitcher';
 import TelegramLoginButton from '../components/TelegramLoginButton';
 import OAuthProviderIcon from '../components/OAuthProviderIcon';
 import { saveOAuthState } from '../utils/oauth';
-import { getPendingReferralCode } from '../utils/referral';
+import { consumeReferralCode, getPendingReferralCode } from '../utils/referral';
 
 export default function Login() {
   const { t } = useTranslation();
