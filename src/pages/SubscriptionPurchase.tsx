@@ -383,34 +383,7 @@ export default function SubscriptionPurchase() {
   if (optionsError || (!purchaseOptions && !optionsLoading)) {
     return (
       <div className="space-y-6">
-        <div className="flex items-center gap-3">
-          <button
-            onClick={() => navigate('/subscription')}
-            aria-label="Back"
-            className="flex h-9 w-9 items-center justify-center rounded-xl transition-colors"
-            style={{
-              background: g.innerBg,
-              border: `1px solid ${g.innerBorder}`,
-            }}
-          >
-            <svg
-              width="18"
-              height="18"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="2"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              className="text-dark-50/60"
-            >
-              <path d="M19 12H5M12 19l-7-7 7-7" />
-            </svg>
-          </button>
-          <h1 className="text-2xl font-bold text-dark-50 sm:text-3xl">
-            {t('subscription.extend')}
-          </h1>
-        </div>
+        <h1 className="text-2xl font-bold text-dark-50 sm:text-3xl">{t('subscription.extend')}</h1>
         <div
           className="rounded-3xl p-6 text-center"
           style={{
@@ -434,41 +407,16 @@ export default function SubscriptionPurchase() {
 
   return (
     <div className="space-y-6">
-      {/* Header with back link */}
-      <div className="flex items-center gap-3">
-        <button
-          onClick={() => navigate('/subscriptions')}
-          aria-label="Back"
-          className="flex h-9 w-9 items-center justify-center rounded-xl transition-colors"
-          style={{
-            background: g.innerBg,
-            border: `1px solid ${g.innerBorder}`,
-          }}
-        >
-          <svg
-            width="18"
-            height="18"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            strokeWidth="2"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            className="text-dark-50/60"
-          >
-            <path d="M19 12H5M12 19l-7-7 7-7" />
-          </svg>
-        </button>
-        <h1 className="text-2xl font-bold text-dark-50 sm:text-3xl">
-          {isMultiTariff && !subscriptionId
-            ? t('subscription.buyTariff', 'Купить тариф')
-            : subscription?.is_daily && !subscription?.is_trial
-              ? t('subscription.switchTariff.title')
-              : subscription && !subscription.is_trial
-                ? t('subscription.extend')
-                : t('subscription.getSubscription')}
-        </h1>
-      </div>
+      {/* Header — native Telegram back button handles navigation */}
+      <h1 className="text-2xl font-bold text-dark-50 sm:text-3xl">
+        {isMultiTariff && !subscriptionId
+          ? t('subscription.newTariff', 'Новый тариф')
+          : subscription?.is_daily && !subscription?.is_trial
+            ? t('subscription.switchTariff.title')
+            : subscription && !subscription.is_trial
+              ? t('subscription.extend')
+              : t('subscription.getSubscription')}
+      </h1>
 
       {/* Tariffs Section */}
       {isTariffsMode && tariffs.length > 0 && (

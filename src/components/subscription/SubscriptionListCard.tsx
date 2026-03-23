@@ -19,14 +19,27 @@ function formatDate(iso: string | null, locale?: string): string {
 
 function StatusBadge({
   status,
+  isTrial,
   t,
 }: {
   status: string;
+  isTrial: boolean;
   t: (key: string, fallback: string) => string;
 }) {
   const isActive = status === 'active' || status === 'trial';
   const isLimited = status === 'limited';
   const isExpired = status === 'expired' || status === 'disabled';
+
+  if (isTrial) {
+    return (
+      <span className="inline-flex items-center gap-1 rounded-full border border-amber-400/25 bg-amber-400/10 px-2 py-0.5 text-[10px] font-semibold text-amber-400">
+        <svg className="h-2.5 w-2.5" viewBox="0 0 24 24" fill="currentColor">
+          <path d="M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9.27L8.91 8.26L12 2Z" />
+        </svg>
+        {t('subscription.statusTrial', 'Тестовая')}
+      </span>
+    );
+  }
 
   const color = isActive
     ? 'bg-emerald-400/15 text-emerald-400 border-emerald-400/20'
@@ -35,9 +48,7 @@ function StatusBadge({
       : 'bg-red-400/15 text-red-400 border-red-400/20';
 
   const label = isActive
-    ? status === 'trial'
-      ? t('subscription.statusTrial', 'Тестовая')
-      : t('subscription.statusActive', 'Активна')
+    ? t('subscription.statusActive', 'Активна')
     : isLimited
       ? t('subscription.statusLimited', 'Ограничена')
       : isExpired
@@ -70,6 +81,7 @@ export default function SubscriptionListCard({
     onClick();
   };
 
+  const isTrial = subscription.is_trial;
   const isActive = subscription.status === 'active' || subscription.status === 'trial';
   const isExpired = subscription.status === 'expired' || subscription.status === 'disabled';
   const trafficLimit = subscription.traffic_limit_gb;
@@ -83,18 +95,27 @@ export default function SubscriptionListCard({
   const trafficColor =
     trafficPercent >= 90 ? 'bg-red-400' : trafficPercent >= 70 ? 'bg-amber-400' : 'bg-emerald-400';
 
+  const borderColor = isTrial
+    ? 'rgba(251,191,36,0.2)'
+    : isExpired
+      ? 'rgba(255,59,92,0.15)'
+      : g.cardBorder;
+
+  const bgColor = isTrial
+    ? isDark
+      ? 'rgba(251,191,36,0.04)'
+      : 'rgba(251,191,36,0.03)'
+    : isExpired
+      ? isDark
+        ? 'rgba(255,59,92,0.04)'
+        : 'rgba(255,59,92,0.03)'
+      : g.cardBg;
+
   return (
     <button
       onClick={handleClick}
       className="w-full rounded-2xl border p-4 text-left transition-all duration-200 hover:scale-[1.01] active:scale-[0.99]"
-      style={{
-        background: isExpired
-          ? isDark
-            ? 'rgba(255,59,92,0.04)'
-            : 'rgba(255,59,92,0.03)'
-          : g.cardBg,
-        borderColor: isExpired ? 'rgba(255,59,92,0.15)' : g.cardBorder,
-      }}
+      style={{ background: bgColor, borderColor }}
     >
       {/* Header: tariff name + status badge + chevron */}
       <div className="flex items-center justify-between gap-2">
@@ -102,7 +123,7 @@ export default function SubscriptionListCard({
           <span className="truncate text-base font-semibold" style={{ color: g.text }}>
             {subscription.tariff_name || t('subscription.defaultName', 'Подписка')}
           </span>
-          <StatusBadge status={subscription.status} t={t} />
+          <StatusBadge status={subscription.status} isTrial={isTrial} t={t} />
         </div>
         <svg
           className="h-4 w-4 shrink-0 opacity-30"
