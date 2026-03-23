@@ -242,11 +242,7 @@ export const adminBroadcastsApi = {
     formData.append('file', file);
     formData.append('media_type', mediaType);
 
-    const response = await apiClient.post<MediaUploadResponse>('/cabinet/media/upload', formData, {
-      headers: {
-        'Content-Type': 'multipart/form-data',
-      },
-    });
+    const response = await apiClient.post<MediaUploadResponse>('/cabinet/media/upload', formData);
     return response.data;
   },
 };

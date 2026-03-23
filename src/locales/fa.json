@@ -947,7 +947,8 @@
       "auditLog": "گزارش بازرسی",
       "salesStats": "آمار فروش",
       "landings": "صفحات فرود",
-      "referralNetwork": "شبکه ارجاع"
+      "referralNetwork": "شبکه ارجاع",
+      "news": "اخبار"
     },
     "panel": {
       "title": "پنل مدیریت",
@@ -982,7 +983,8 @@
       "auditLogDesc": "بررسی فعالیت سیستم و تاریخچه دسترسی",
       "salesStatsDesc": "تحلیل فروش و روندها",
       "landingsDesc": "صفحات خرید سریع",
-      "referralNetworkDesc": "نمایش بصری گراف ارجاعات و کمپین‌ها"
+      "referralNetworkDesc": "نمایش بصری گراف ارجاعات و کمپین‌ها",
+      "newsDesc": "مدیریت مقالات خبری و انتشارات"
     },
     "salesStats": {
       "title": "آمار فروش",
@@ -3958,6 +3960,66 @@
     },
     "warning": {
       "telegram_unresolvable": "نام کاربری تلگرام قابل تأیید نبود. ممکن است گیرنده اعلان هدیه را دریافت نکند."
+    }
+  },
+  "news": {
+    "title": "اخبار و به‌روزرسانی‌ها",
+    "filterAll": "همه",
+    "readMore": "ادامه مطلب",
+    "readTime": "دقیقه مطالعه",
+    "loadMore": "بارگذاری بیشتر",
+    "noNews": "هنوز خبری نیست",
+    "backToHome": "بازگشت",
+    "views": "بازدید",
+    "admin": {
+      "title": "مدیریت اخبار",
+      "create": "ایجاد مقاله",
+      "edit": "ویرایش",
+      "delete": "حذف",
+      "confirmDelete": "این مقاله حذف شود؟",
+      "published": "منتشر شده",
+      "draft": "پیش‌نویس",
+      "featured": "ویژه",
+      "titleLabel": "عنوان",
+      "slugLabel": "شناسه URL",
+      "categoryLabel": "دسته‌بندی",
+      "categoryColorLabel": "رنگ دسته‌بندی",
+      "tagLabel": "برچسب",
+      "excerptLabel": "توضیح کوتاه",
+      "contentLabel": "محتوا",
+      "imageLabel": "تصویر ویژه",
+      "readTimeLabel": "زمان مطالعه (دقیقه)",
+      "save": "ذخیره",
+      "saving": "در حال ذخیره...",
+      "saveError": "ذخیره مقاله ناموفق بود. لطفاً دوباره تلاش کنید.",
+      "saved": "مقاله ذخیره شد",
+      "deleted": "مقاله حذف شد",
+      "selectColor": "انتخاب رنگ {{color}}",
+      "uploading": "در حال آپلود...",
+      "dropMedia": "تصویر یا ویدیو را اینجا رها کنید",
+      "uploadError": "آپلود ناموفق بود",
+      "fileTooLarge": "فایل خیلی بزرگ است",
+      "uploadFeaturedImage": "آپلود تصویر",
+      "toolbar": {
+        "bold": "پررنگ",
+        "italic": "کج",
+        "underline": "زیرخط",
+        "strikethrough": "خط‌خورده",
+        "heading1": "عنوان ۱",
+        "heading2": "عنوان ۲",
+        "heading3": "عنوان ۳",
+        "bulletList": "لیست نقطه‌ای",
+        "orderedList": "لیست شماره‌دار",
+        "blockquote": "نقل قول",
+        "codeBlock": "بلوک کد",
+        "alignLeft": "چپ‌چین",
+        "alignCenter": "وسط‌چین",
+        "highlight": "برجسته",
+        "link": "پیوند",
+        "image": "تصویر",
+        "imageUrlPrompt": "آدرس تصویر:",
+        "linkUrlPrompt": "آدرس پیوند:"
+      }
     }
   }
 }

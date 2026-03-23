@@ -1,5 +1,31 @@
 # Changelog
 
+## [1.42.0](https://github.com/BEDOLAGA-DEV/bedolaga-cabinet/compare/v1.41.0...v1.42.0) (2026-03-23)
+
+
+### Features
+
+* add category/tag management UI with ColoredItemCombobox ([2ae01c9](https://github.com/BEDOLAGA-DEV/bedolaga-cabinet/commit/2ae01c95aececf97ddec12337c7251ce6c0a82ec))
+* add delete buttons for categories and tags in combobox dropdown ([be7219e](https://github.com/BEDOLAGA-DEV/bedolaga-cabinet/commit/be7219ec06efdfff6052cbcf6bd736af2e3691fc))
+* add media upload to news editor with drag-drop, paste, and file picker ([723591e](https://github.com/BEDOLAGA-DEV/bedolaga-cabinet/commit/723591e5c386639f69a3716a306e04906224df24))
+* add news section with admin editor and public article view ([99fc336](https://github.com/BEDOLAGA-DEV/bedolaga-cabinet/commit/99fc33625e95430d465f09229b4f56a22a0589c1))
+
+
+### Bug Fixes
+
+* add multipart/form-data header to news media upload request ([4bcae6c](https://github.com/BEDOLAGA-DEV/bedolaga-cabinet/commit/4bcae6ce11e18c42f8dd99316b918bfb70cb8fc5))
+* add news link to admin panel, prevent empty news section flash ([38b0f4b](https://github.com/BEDOLAGA-DEV/bedolaga-cabinet/commit/38b0f4be9a921fa1af4a49817f6b17d738c5b074))
+* disable duplicate link/underline extensions from StarterKit ([59d8b66](https://github.com/BEDOLAGA-DEV/bedolaga-cabinet/commit/59d8b66884e544f2752e843c6040adfaa3b78cc4))
+* isolated DOMPurify instance and correct video controls attribute ([f788f10](https://github.com/BEDOLAGA-DEV/bedolaga-cabinet/commit/f788f1034ccfe62dcfedc5eed52086b7f36e5a82))
+* media upload security hardening from 6-agent review ([7408000](https://github.com/BEDOLAGA-DEV/bedolaga-cabinet/commit/74080004e8156ad1f302f9c3b5ad809c6b3b8742))
+* news feature security, accessibility, performance improvements ([74e6d52](https://github.com/BEDOLAGA-DEV/bedolaga-cabinet/commit/74e6d52fee474f73f148c3f0081be727aa9b7e64))
+* news section — remove duplicate title, add newspaper icon, hide views from users, fix cache invalidation ([b7ab2cf](https://github.com/BEDOLAGA-DEV/bedolaga-cabinet/commit/b7ab2cff55a206d7a705ffe42a01a652c5c1ddba))
+* register DOMPurify hooks once, abort featured upload, fix double drop ([5c0eb12](https://github.com/BEDOLAGA-DEV/bedolaga-cabinet/commit/5c0eb129f437fe84e900391b02f1d4ff7557d26d))
+* remove animated background from news section, fix mobile borders ([8d994f7](https://github.com/BEDOLAGA-DEV/bedolaga-cabinet/commit/8d994f75d9c34443276cc4203fc01c0d3bedf40e))
+* remove duplicate news title and replace N icon with newspaper SVG ([de5414f](https://github.com/BEDOLAGA-DEV/bedolaga-cabinet/commit/de5414f42ef13bc9d2dc9a8349243a2f1cb821e3))
+* tag color bug, FormData interceptor, falsy id check ([13d27a5](https://github.com/BEDOLAGA-DEV/bedolaga-cabinet/commit/13d27a5929fd688a3a38abc587f3ce15683c7f86))
+* video not rendering — add TipTap Video extension, allow HTTP src ([25f3602](https://github.com/BEDOLAGA-DEV/bedolaga-cabinet/commit/25f3602aeab451f3463a872256706dd91f35db5b))
+
 ## [1.41.0](https://github.com/BEDOLAGA-DEV/bedolaga-cabinet/compare/v1.40.0...v1.41.0) (2026-03-22)
 
 
