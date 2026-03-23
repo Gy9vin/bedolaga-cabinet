@@ -4506,6 +4506,7 @@
       "saveError": "Failed to save article. Please try again.",
       "saved": "Article saved",
       "deleted": "Article deleted",
+      "selectColor": "Select color {{color}}",
       "toolbar": {
         "bold": "Bold",
         "italic": "Italic",
