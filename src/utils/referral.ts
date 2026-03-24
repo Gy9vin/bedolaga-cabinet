@@ -1,38 +1,54 @@
 const REFERRAL_KEY = 'referral_code';
 const REFERRAL_TTL_KEY = 'referral_code_ttl';
+const SESSION_KEY = 'referral_code_session';
 const TTL_MS = 24 * 60 * 60 * 1000; // 24 hours
 const CODE_PATTERN = /^[a-zA-Z0-9_-]{1,64}$/;
 
+// In-memory fallback for environments where both storages are blocked
+let _memoryCode: string | null = null;
+
 /**
- * Get valid referral code from localStorage, clearing expired entries.
+ * Get valid referral code from localStorage, falling back to sessionStorage
+ * and in-memory cache. Clears expired localStorage entries.
  */
 function getValidCode(): string | null {
+  // 1. Try localStorage (with TTL)
   try {
     const code = localStorage.getItem(REFERRAL_KEY);
-    if (!code) return null;
-
-    const ttl = localStorage.getItem(REFERRAL_TTL_KEY);
-    if (!ttl || Number.isNaN(Number(ttl)) || Date.now() > Number(ttl)) {
-      localStorage.removeItem(REFERRAL_KEY);
-      localStorage.removeItem(REFERRAL_TTL_KEY);
-      return null;
+    if (code) {
+      const ttl = localStorage.getItem(REFERRAL_TTL_KEY);
+      if (!ttl || Number.isNaN(Number(ttl)) || Date.now() > Number(ttl)) {
+        localStorage.removeItem(REFERRAL_KEY);
+        localStorage.removeItem(REFERRAL_TTL_KEY);
+      } else {
+        return code;
+      }
     }
+  } catch {}
 
-    return code;
-  } catch {
-    return null;
-  }
+  // 2. Fallback: sessionStorage (works in most private/incognito modes)
+  try {
+    const code = sessionStorage.getItem(SESSION_KEY);
+    if (code) return code;
+  } catch {}
+
+  // 3. Last resort: in-memory (survives within same page load only)
+  return _memoryCode;
 }
 
 function clearCode(): void {
+  _memoryCode = null;
   try {
     localStorage.removeItem(REFERRAL_KEY);
     localStorage.removeItem(REFERRAL_TTL_KEY);
   } catch {}
+  try {
+    sessionStorage.removeItem(SESSION_KEY);
+  } catch {}
 }
 
 /**
- * Capture referral code from URL query param (?ref=), store in localStorage with TTL,
+ * Capture referral code from URL query param (?ref=), store in localStorage/sessionStorage/memory,
  * and clean the URL.
  */
 export function captureReferralFromUrl(): void {
@@ -41,8 +57,15 @@ export function captureReferralFromUrl(): void {
     const code = params.get('ref');
     if (!code || !CODE_PATTERN.test(code)) return;
 
-    localStorage.setItem(REFERRAL_KEY, code);
-    localStorage.setItem(REFERRAL_TTL_KEY, String(Date.now() + TTL_MS));
+    // Store in all available storages as fallbacks
+    _memoryCode = code;
+    try {
+      localStorage.setItem(REFERRAL_KEY, code);
+      localStorage.setItem(REFERRAL_TTL_KEY, String(Date.now() + TTL_MS));
+    } catch {}
+    try {
+      sessionStorage.setItem(SESSION_KEY, code);
+    } catch {}
 
     // Clean URL
     params.delete('ref');

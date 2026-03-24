@@ -64,13 +64,11 @@ export const authApi = {
     email: string,
     password: string,
     campaignSlug?: string | null,
-    referralCode?: string | null,
   ): Promise<AuthResponse> => {
     const response = await apiClient.post<AuthResponse>('/cabinet/auth/email/login', {
       email,
       password,
       campaign_slug: campaignSlug || undefined,
-      referral_code: referralCode || undefined,
     });
     return response.data;
   },

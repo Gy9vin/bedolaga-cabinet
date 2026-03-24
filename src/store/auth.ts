@@ -4,7 +4,11 @@ import type { CampaignBonusInfo, RegisterResponse, User } from '../types';
 import { authApi } from '../api/auth';
 import { apiClient } from '../api/client';
 import { captureCampaignFromUrl, consumeCampaignSlug } from '../utils/campaign';
-import { captureReferralFromUrl, consumeReferralCode } from '../utils/referral';
+import {
+  captureReferralFromUrl,
+  consumeReferralCode,
+  getPendingReferralCode,
+} from '../utils/referral';
 import { tokenStorage, isTokenValid, tokenRefreshManager } from '../utils/token';
 import { usePermissionStore } from './permissions';
 
@@ -242,8 +246,10 @@ export const useAuthStore = create<AuthState>()(
 
       loginWithTelegram: async (initData) => {
         const campaignSlug = consumeCampaignSlug();
-        const referralCode = consumeReferralCode();
+        // Read without clearing — clear only after success so failed requests don't lose the code
+        const referralCode = getPendingReferralCode();
         const response = await authApi.loginTelegram(initData, campaignSlug, referralCode);
+        consumeReferralCode();
         tokenStorage.setTokens(response.access_token, response.refresh_token);
         set({
           accessToken: response.access_token,
@@ -257,8 +263,9 @@ export const useAuthStore = create<AuthState>()(
 
       loginWithTelegramWidget: async (data) => {
         const campaignSlug = consumeCampaignSlug();
-        const referralCode = consumeReferralCode();
+        const referralCode = getPendingReferralCode();
         const response = await authApi.loginTelegramWidget(data, campaignSlug, referralCode);
+        consumeReferralCode();
         tokenStorage.setTokens(response.access_token, response.refresh_token);
         set({
           accessToken: response.access_token,
@@ -272,8 +279,9 @@ export const useAuthStore = create<AuthState>()(
 
       loginWithTelegramOIDC: async (idToken) => {
         const campaignSlug = consumeCampaignSlug();
-        const referralCode = consumeReferralCode();
+        const referralCode = getPendingReferralCode();
         const response = await authApi.loginTelegramOIDC(idToken, campaignSlug, referralCode);
+        consumeReferralCode();
         tokenStorage.setTokens(response.access_token, response.refresh_token);
         set({
           accessToken: response.access_token,
@@ -286,9 +294,10 @@ export const useAuthStore = create<AuthState>()(
       },
 
       loginWithEmail: async (email, password) => {
+        // Email login does NOT process referrals on the backend — don't consume the code here.
+        // The referral code must survive until registerWithEmail is called.
         const campaignSlug = consumeCampaignSlug();
-        const referralCode = consumeReferralCode();
-        const response = await authApi.loginEmail(email, password, campaignSlug, referralCode);
+        const response = await authApi.loginEmail(email, password, campaignSlug);
         tokenStorage.setTokens(response.access_token, response.refresh_token);
         set({
           accessToken: response.access_token,
@@ -302,7 +311,7 @@ export const useAuthStore = create<AuthState>()(
 
       loginWithOAuth: async (provider, code, state, deviceId) => {
         const campaignSlug = consumeCampaignSlug();
-        const referralCode = consumeReferralCode();
+        const referralCode = getPendingReferralCode();
         const response = await authApi.oauthCallback(
           provider,
           code,
@@ -311,6 +320,7 @@ export const useAuthStore = create<AuthState>()(
           campaignSlug,
           referralCode,
         );
+        consumeReferralCode();
         tokenStorage.setTokens(response.access_token, response.refresh_token);
         set({
           accessToken: response.access_token,
