@@ -4304,30 +4304,22 @@ export default function Subscription() {
                         </div>
                       ))}
 
-                      {(() => {
-                        const promoTotal = applyPromoDiscount(
-                          preview.total_price_kopeks,
-                          preview.original_price_kopeks,
-                        );
-
-                        return (
-                          <div className="flex items-center justify-between border-t border-dark-700/50 pt-4">
-                            <span className="text-lg font-semibold text-dark-100">
-                              {t('subscription.total')}
-                            </span>
-                            <div className="text-right">
-                              <div className="text-2xl font-bold text-accent-400">
-                                {formatPrice(promoTotal.price)}
-                              </div>
-                              {promoTotal.original && promoTotal.original > promoTotal.price && (
-                                <div className="text-sm text-dark-500 line-through">
-                                  {formatPrice(promoTotal.original)}
-                                </div>
-                              )}
-                            </div>
+                      <div className="flex items-center justify-between border-t border-dark-700/50 pt-4">
+                        <span className="text-lg font-semibold text-dark-100">
+                          {t('subscription.total')}
+                        </span>
+                        <div className="text-right">
+                          <div className="text-2xl font-bold text-accent-400">
+                            {formatPrice(preview.total_price_kopeks)}
                           </div>
-                        );
-                      })()}
+                          {preview.original_price_kopeks &&
+                            preview.original_price_kopeks > preview.total_price_kopeks && (
+                              <div className="text-sm text-dark-500 line-through">
+                                {formatPrice(preview.original_price_kopeks)}
+                              </div>
+                            )}
+                        </div>
+                      </div>
 
                       {preview.discount_label && (
                         <div className="text-center text-sm text-success-400">

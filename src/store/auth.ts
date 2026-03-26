@@ -333,10 +333,12 @@ export const useAuthStore = create<AuthState>()(
       },
 
       loginWithDeepLink: async (token, campaignSlug) => {
-        const response = await authApi.pollDeepLinkToken(token, campaignSlug);
+        const referralCode = getPendingReferralCode();
+        const response = await authApi.pollDeepLinkToken(token, campaignSlug, referralCode);
         if (!response.access_token || !response.refresh_token) {
           throw new Error('Invalid auth response: missing tokens');
         }
+        consumeReferralCode();
         tokenStorage.setTokens(response.access_token, response.refresh_token);
         set({
           accessToken: response.access_token,

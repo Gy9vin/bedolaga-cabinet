@@ -288,7 +288,11 @@ export const authApi = {
     return response.data;
   },
 
-  pollDeepLinkToken: async (token: string, campaignSlug?: string | null): Promise<AuthResponse> => {
+  pollDeepLinkToken: async (
+    token: string,
+    campaignSlug?: string | null,
+    referralCode?: string | null,
+  ): Promise<AuthResponse> => {
     // validateStatus: only treat 200 as success.
     // Server returns 202 for "pending" and 410 for "expired" —
     // these must reject so the polling catch-block can handle them.
@@ -297,7 +301,11 @@ export const authApi = {
     // which triggers checkAdminStatus() → 401 → safeRedirectToLogin() → infinite reload.
     const response = await apiClient.post<AuthResponse>(
       '/cabinet/auth/deeplink/poll',
-      { token, campaign_slug: campaignSlug || undefined },
+      {
+        token,
+        campaign_slug: campaignSlug || undefined,
+        referral_code: referralCode || undefined,
+      },
       { validateStatus: (status) => status === 200 },
     );
     return response.data;
