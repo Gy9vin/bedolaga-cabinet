@@ -39,11 +39,12 @@ export default function ReferralWithdrawalRequest() {
 
   const handleSubmit = (e: FormEvent) => {
     e.preventDefault();
-    if (form.payment_details.length < 5) return;
+    const trimmedDetails = form.payment_details.trim();
+    if (trimmedDetails.length < 5) return;
     if (form.amount_rubles <= 0) return;
     withdrawMutation.mutate({
       amount_kopeks: Math.round(form.amount_rubles * 100),
-      payment_details: form.payment_details,
+      payment_details: trimmedDetails,
     });
   };
 
@@ -118,12 +119,12 @@ export default function ReferralWithdrawalRequest() {
             type="submit"
             disabled={
               withdrawMutation.isPending ||
-              form.payment_details.length < 5 ||
+              form.payment_details.trim().length < 5 ||
               form.amount_rubles <= 0
             }
             className={`btn-primary flex-1 px-5 ${
               withdrawMutation.isPending ||
-              form.payment_details.length < 5 ||
+              form.payment_details.trim().length < 5 ||
               form.amount_rubles <= 0
                 ? 'opacity-50'
                 : ''
