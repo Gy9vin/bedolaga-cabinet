@@ -29,7 +29,7 @@ export function MobileBottomNav({
   // When wheel is enabled, it replaces Support in the bottom nav (Support is still accessible via hamburger menu)
   const coreItems = [
     { path: '/', label: t('nav.dashboard'), icon: HomeIcon },
-    { path: '/subscription', label: t('nav.subscription'), icon: SubscriptionIcon },
+    { path: '/subscriptions', label: t('nav.subscription'), icon: SubscriptionIcon },
     { path: '/balance', label: t('nav.balance'), icon: WalletIcon },
     ...(referralEnabled ? [{ path: '/referral', label: t('nav.referral'), icon: UsersIcon }] : []),
     ...(wheelEnabled
