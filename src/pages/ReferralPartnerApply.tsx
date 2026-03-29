@@ -41,13 +41,22 @@ export default function ReferralPartnerApply() {
     },
   });
 
+  const trimmedChannel = (form.telegram_channel ?? '').trim();
+  const trimmedDescription = (form.description ?? '').trim();
+
+  const isFormValid =
+    trimmedChannel.length >= 3 &&
+    trimmedDescription.length >= 10 &&
+    (form.expected_monthly_referrals === undefined || form.expected_monthly_referrals >= 1);
+
   const handleSubmit = (e: FormEvent) => {
     e.preventDefault();
+    if (!isFormValid) return;
     const payload: PartnerApplicationRequest = {};
-    if (form.company_name) payload.company_name = form.company_name;
-    if (form.website_url) payload.website_url = form.website_url;
-    if (form.telegram_channel) payload.telegram_channel = form.telegram_channel;
-    if (form.description) payload.description = form.description;
+    if (form.company_name?.trim()) payload.company_name = form.company_name.trim();
+    if (form.website_url?.trim()) payload.website_url = form.website_url.trim();
+    if (trimmedChannel) payload.telegram_channel = trimmedChannel;
+    if (trimmedDescription) payload.description = trimmedDescription;
     if (form.expected_monthly_referrals) {
       payload.expected_monthly_referrals = form.expected_monthly_referrals;
     }
@@ -78,7 +87,8 @@ export default function ReferralPartnerApply() {
           </div>
           <div>
             <label className="mb-1 block text-sm font-medium text-dark-300">
-              {t('referral.partner.fields.telegramChannel')}
+              {t('referral.partner.fields.telegramChannel')}{' '}
+              <span className="text-error-400">*</span>
             </label>
             <input
               type="text"
@@ -86,6 +96,8 @@ export default function ReferralPartnerApply() {
               value={form.telegram_channel ?? ''}
               onChange={(e) => setForm({ ...form, telegram_channel: e.target.value })}
               placeholder={t('referral.partner.fields.telegramChannelPlaceholder')}
+              required
+              minLength={3}
             />
           </div>
           <div>
@@ -102,13 +114,15 @@ export default function ReferralPartnerApply() {
           </div>
           <div>
             <label className="mb-1 block text-sm font-medium text-dark-300">
-              {t('referral.partner.fields.description')}
+              {t('referral.partner.fields.description')} <span className="text-error-400">*</span>
             </label>
             <textarea
               className="input min-h-[80px] w-full"
               value={form.description ?? ''}
               onChange={(e) => setForm({ ...form, description: e.target.value })}
               placeholder={t('referral.partner.fields.descriptionPlaceholder')}
+              required
+              minLength={10}
             />
           </div>
           <div>
@@ -117,7 +131,7 @@ export default function ReferralPartnerApply() {
             </label>
             <input
               type="number"
-              min={0}
+              min={1}
               max={2000000000}
               className="input w-full"
               value={form.expected_monthly_referrals ?? ''}
@@ -167,8 +181,8 @@ export default function ReferralPartnerApply() {
           </button>
           <button
             type="submit"
-            disabled={applyMutation.isPending}
-            className={`btn-primary flex-1 px-5 ${applyMutation.isPending ? 'opacity-50' : ''}`}
+            disabled={applyMutation.isPending || !isFormValid}
+            className={`btn-primary flex-1 px-5 ${applyMutation.isPending || !isFormValid ? 'opacity-50' : ''}`}
           >
             {applyMutation.isPending
               ? t('referral.partner.applying')
