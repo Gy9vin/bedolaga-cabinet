@@ -9,6 +9,7 @@ import { useAuthStore } from '../store/auth';
 import { useNavigate } from 'react-router';
 import { consumeCampaignSlug } from '../utils/campaign';
 import { copyToClipboard } from '../utils/clipboard';
+import { getPendingReferralCode } from '../utils/referral';
 
 interface TelegramLoginButtonProps {
   referralCode?: string;
@@ -249,16 +250,16 @@ export default function TelegramLoginButton({ referralCode }: TelegramLoginButto
     try {
       // Consume campaign slug ONCE (first call only).
       // Clears localStorage on first call, so subsequent retries reuse the ref.
-      // Note: referral code is NOT consumed here — deep link auth is for existing
-      // bot users where referrals don't apply. Leaving it in localStorage allows
-      // other auth methods (OIDC, widget) to pick it up if the user switches paths.
+      // Referral code is read (not consumed) and embedded in the token request so it
+      // survives the Telegram WebApp context switch (different localStorage).
       if (!codesConsumedRef.current) {
         capturedCampaignRef.current = consumeCampaignSlug();
         codesConsumedRef.current = true;
       }
       const capturedCampaign = capturedCampaignRef.current;
+      const capturedReferral = getPendingReferralCode();
 
-      const response = await authApi.requestDeepLinkToken();
+      const response = await authApi.requestDeepLinkToken(capturedReferral);
       const { token, bot_username, expires_in } = response;
       setDeepLinkToken(token);
       setDeepLinkBotUsername(bot_username || botUsername);
