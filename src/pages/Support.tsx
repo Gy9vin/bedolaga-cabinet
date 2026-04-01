@@ -742,9 +742,45 @@ export default function Support() {
                         >
                           {msg.is_from_admin ? t('support.supportTeam') : t('support.you')}
                         </span>
-                        <span className="text-xs text-dark-500">
-                          {new Date(msg.created_at).toLocaleString()}
-                        </span>
+                        <div className="flex items-center gap-2">
+                          <span className="text-xs text-dark-500">
+                            {new Date(msg.created_at).toLocaleString()}
+                          </span>
+                          {!msg.is_from_admin && (
+                            <button
+                              onClick={async () => {
+                                if (
+                                  !confirm(t('support.deleteMessageConfirm', 'Удалить сообщение?'))
+                                )
+                                  return;
+                                try {
+                                  await ticketsApi.deleteMessage(ticketDetail!.id, msg.id);
+                                  queryClient.invalidateQueries({
+                                    queryKey: ['ticket', ticketDetail!.id],
+                                  });
+                                } catch {
+                                  /* ignore */
+                                }
+                              }}
+                              className="text-red-400/50 transition-colors hover:text-red-400"
+                              title={t('support.deleteMessage', 'Удалить')}
+                            >
+                              <svg
+                                className="h-3.5 w-3.5"
+                                viewBox="0 0 24 24"
+                                fill="none"
+                                stroke="currentColor"
+                                strokeWidth={2}
+                              >
+                                <path
+                                  strokeLinecap="round"
+                                  strokeLinejoin="round"
+                                  d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
+                                />
+                              </svg>
+                            </button>
+                          )}
+                        </div>
                       </div>
                       <div className="whitespace-pre-wrap text-dark-200">{msg.message_text}</div>
                       {/* Display media if present */}

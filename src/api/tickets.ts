@@ -78,6 +78,12 @@ export const ticketsApi = {
     return `${baseUrl}/cabinet/media/${fileId}`;
   },
 
+  // Delete own message from ticket
+  deleteMessage: async (ticketId: number, messageId: number): Promise<{ message: string }> => {
+    const response = await apiClient.delete(`/cabinet/tickets/${ticketId}/messages/${messageId}`);
+    return response.data;
+  },
+
   // Get AI suggested reply for ticket
   getAiSuggest: async (ticketId: number): Promise<{ text: string }> => {
     const response = await apiClient.get<{ text: string }>(
