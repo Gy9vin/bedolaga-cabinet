@@ -2044,6 +2044,38 @@ export default function AdminUserDetail() {
                           ? t('admin.users.actions.applying')
                           : t('admin.users.actions.apply')}
                       </button>
+
+                      {/* Delete subscription button */}
+                      <button
+                        onClick={async () => {
+                          if (!activeSubscriptionId) return;
+                          if (
+                            !confirm(
+                              t(
+                                'admin.users.detail.subscription.confirmDelete',
+                                'Удалить подписку безвозвратно? Ключ будет удалён из Remnawave.',
+                              ),
+                            )
+                          )
+                            return;
+                          setActionLoading(true);
+                          try {
+                            await adminUsersApi.deleteSubscription(userId, activeSubscriptionId);
+                            notify.success(
+                              t('admin.users.detail.subscription.deleted', 'Подписка удалена'),
+                            );
+                            await loadUser();
+                          } catch (error) {
+                            console.error('Failed to delete subscription:', error);
+                          } finally {
+                            setActionLoading(false);
+                          }
+                        }}
+                        disabled={actionLoading || !activeSubscriptionId}
+                        className="w-full rounded-xl border border-red-500/30 bg-red-500/10 py-2.5 text-sm font-medium text-red-400 transition-colors hover:bg-red-500/20 disabled:opacity-50"
+                      >
+                        {t('admin.users.detail.subscription.delete', '🗑 Удалить подписку')}
+                      </button>
                     </div>
                   </div>
                 )}

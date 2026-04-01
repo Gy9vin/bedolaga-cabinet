@@ -453,6 +453,15 @@ export const adminUsersApi = {
     return response.data;
   },
 
+  // Delete subscription
+  deleteSubscription: async (
+    userId: number,
+    subscriptionId: number,
+  ): Promise<{ message: string }> => {
+    const response = await apiClient.delete(`/cabinet/subscriptions/${subscriptionId}`);
+    return response.data;
+  },
+
   // Update status
   updateStatus: async (
     userId: number,
