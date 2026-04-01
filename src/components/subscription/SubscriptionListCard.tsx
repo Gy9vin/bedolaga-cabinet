@@ -111,16 +111,17 @@ export default function SubscriptionListCard({
         : 'rgba(255,59,92,0.03)'
       : g.cardBg;
 
-  // Оставшиеся дни до окончания
+  // Срок подписки: 1 мес / 3 мес / 6 мес / 1 год
   const periodLabel = (() => {
     if (!subscription.end_date) return '';
     const now = new Date();
     const end = new Date(subscription.end_date);
     const days = Math.round((end.getTime() - now.getTime()) / (1000 * 60 * 60 * 24));
     if (days <= 0) return '';
-    if (days <= 30) return ` · ${days} ${t('common.units.days', 'дн.')}`;
-    const months = Math.round(days / 30);
-    return ` · ${months} ${t('common.units.months', 'мес.')}`;
+    if (days <= 45) return ' · 1 мес';
+    if (days <= 100) return ' · 3 мес';
+    if (days <= 200) return ' · 6 мес';
+    return ' · 1 год';
   })();
 
   return (
