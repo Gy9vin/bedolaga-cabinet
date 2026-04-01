@@ -1705,18 +1705,24 @@ export default function Subscription() {
       {/* Purchase / Renewal CTA */}
       <PurchaseCTAButton subscription={subscription} isMultiTariff={isMultiTariff} />
 
-      {/* Delete expired subscription */}
-      {isMultiTariff && subscription && !subscription.is_active && !subscription.is_trial && (
+      {/* Delete subscription */}
+      {isMultiTariff && subscription && !subscription.is_trial && (
         <div className="space-y-3">
           {!showDeleteSheet ? (
             <button
               onClick={async () => {
                 if (platform === 'telegram') {
+                  const warning = subscription.is_active
+                    ? t(
+                        'subscription.deleteActiveWarning',
+                        '⚠️ Подписка АКТИВНА! VPN перестанет работать СРАЗУ. Деньги НЕ возвращаются. Это действие НЕЛЬЗЯ отменить.',
+                      )
+                    : t(
+                        'subscription.deleteWarning',
+                        'Подписка будет удалена безвозвратно. Все данные, устройства и настройки будут потеряны.',
+                      );
                   const confirmed = await destructiveConfirm(
-                    t(
-                      'subscription.deleteWarning',
-                      'Подписка будет удалена безвозвратно. Все данные, устройства и настройки будут потеряны.',
-                    ),
+                    warning,
                     t('subscription.confirmDelete', 'Да, удалить'),
                     t('subscription.deleteTitle', 'Удалить подписку?'),
                   );
@@ -1760,10 +1766,15 @@ export default function Subscription() {
                 {t('subscription.deleteTitle', 'Удалить подписку?')}
               </div>
               <div className="mb-4 text-xs" style={{ color: g.textSecondary }}>
-                {t(
-                  'subscription.deleteWarning',
-                  'Подписка будет удалена безвозвратно. Все данные, устройства и настройки будут потеряны. Это действие нельзя отменить.',
-                )}
+                {subscription.is_active
+                  ? t(
+                      'subscription.deleteActiveWarning',
+                      '⚠️ Подписка АКТИВНА! VPN перестанет работать СРАЗУ. Деньги НЕ возвращаются. Это действие НЕЛЬЗЯ отменить.',
+                    )
+                  : t(
+                      'subscription.deleteWarning',
+                      'Подписка будет удалена безвозвратно. Все данные, устройства и настройки будут потеряны. Это действие нельзя отменить.',
+                    )}
               </div>
               <div className="flex gap-2">
                 <button
