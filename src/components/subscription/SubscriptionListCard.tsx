@@ -111,17 +111,32 @@ export default function SubscriptionListCard({
         : 'rgba(255,59,92,0.03)'
       : g.cardBg;
 
+  // Вычислить срок подписки в днях/месяцах
+  const periodLabel = (() => {
+    if (!subscription.start_date || !subscription.end_date) return '';
+    const start = new Date(subscription.start_date);
+    const end = new Date(subscription.end_date);
+    const days = Math.round((end.getTime() - start.getTime()) / (1000 * 60 * 60 * 24));
+    if (days <= 0) return '';
+    if (days <= 7) return ` · ${days} ${t('common.units.days', 'дн.')}`;
+    if (days <= 45) return ` · 1 ${t('common.units.month', 'мес.')}`;
+    if (days <= 100) return ` · 3 ${t('common.units.months', 'мес.')}`;
+    if (days <= 200) return ` · 6 ${t('common.units.months', 'мес.')}`;
+    return ` · 12 ${t('common.units.months', 'мес.')}`;
+  })();
+
   return (
     <button
       onClick={handleClick}
       className="w-full rounded-2xl border p-4 text-left transition-all duration-200 hover:scale-[1.01] active:scale-[0.99]"
       style={{ background: bgColor, borderColor }}
     >
-      {/* Header: tariff name + status badge + chevron */}
+      {/* Header: tariff name + period + status badge + chevron */}
       <div className="flex items-center justify-between gap-2">
         <div className="flex min-w-0 items-center gap-2">
           <span className="truncate text-base font-semibold" style={{ color: g.text }}>
             {subscription.tariff_name || t('subscription.defaultName', 'Подписка')}
+            {periodLabel}
           </span>
           <StatusBadge status={subscription.status} isTrial={isTrial} t={t} />
         </div>
