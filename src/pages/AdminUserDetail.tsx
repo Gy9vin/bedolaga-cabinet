@@ -2060,7 +2060,7 @@ export default function AdminUserDetail() {
                             return;
                           setActionLoading(true);
                           try {
-                            await adminUsersApi.deleteSubscription(userId, activeSubscriptionId);
+                            await adminUsersApi.deleteSubscription(userId, activeSubscriptionId!);
                             notify.success(
                               t('admin.users.detail.subscription.deleted', 'Подписка удалена'),
                             );
