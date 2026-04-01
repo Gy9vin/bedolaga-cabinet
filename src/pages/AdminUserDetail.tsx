@@ -2049,6 +2049,7 @@ export default function AdminUserDetail() {
                       <button
                         onClick={async () => {
                           if (!activeSubscriptionId) return;
+                          const subIdToDelete: number = activeSubscriptionId;
                           if (
                             !confirm(
                               t(
@@ -2060,7 +2061,7 @@ export default function AdminUserDetail() {
                             return;
                           setActionLoading(true);
                           try {
-                            await adminUsersApi.deleteSubscription(userId, activeSubscriptionId!);
+                            await adminUsersApi.deleteSubscription(userId, subIdToDelete);
                             notify.success(
                               t('admin.users.detail.subscription.deleted', 'Подписка удалена'),
                             );
