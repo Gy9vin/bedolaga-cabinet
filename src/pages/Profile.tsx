@@ -67,9 +67,6 @@ export default function Profile() {
   const setUser = useAuthStore((state) => state.setUser);
   const queryClient = useQueryClient();
 
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [confirmPassword, setConfirmPassword] = useState('');
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
   const [copied, setCopied] = useState(false);
@@ -144,37 +141,6 @@ export default function Profile() {
     const telegramUrl = `https://t.me/share/url?url=${encodeURIComponent(referralLink)}&text=${encodeURIComponent(shareText)}`;
     window.open(telegramUrl, '_blank', 'noopener,noreferrer');
   };
-
-  const registerEmailMutation = useMutation({
-    mutationFn: ({ email, password }: { email: string; password: string }) =>
-      authApi.registerEmail(email, password),
-    onSuccess: async (response) => {
-      // Backend returns merge_required when email belongs to another user
-      if (response.merge_required && response.merge_token) {
-        navigate(`/merge/${response.merge_token}`, { replace: true });
-        return;
-      }
-      setSuccess(t('profile.emailSent'));
-      setError(null);
-      setEmail('');
-      setPassword('');
-      setConfirmPassword('');
-      const updatedUser = await authApi.getMe();
-      setUser(updatedUser);
-      queryClient.invalidateQueries({ queryKey: ['user'] });
-    },
-    onError: (err: { response?: { data?: { detail?: string } } }) => {
-      const detail = err.response?.data?.detail;
-      if (detail?.includes('already registered')) {
-        setError(t('profile.emailAlreadyRegistered'));
-      } else if (detail?.includes('already have a verified email')) {
-        setError(t('profile.alreadyHaveEmail'));
-      } else {
-        setError(detail || t('common.error'));
-      }
-      setSuccess(null);
-    },
-  });
 
   const resendVerificationMutation = useMutation({
     mutationFn: authApi.resendVerification,
@@ -337,29 +303,6 @@ export default function Profile() {
   const handleNotificationValue = (key: keyof NotificationSettings, value: number) => {
     const update: NotificationSettingsUpdate = { [key]: value };
     updateNotificationsMutation.mutate(update);
-  };
-
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    setError(null);
-    setSuccess(null);
-
-    if (!email.trim() || !isValidEmail(email.trim())) {
-      setError(t('profile.invalidEmail', 'Please enter a valid email address'));
-      return;
-    }
-
-    if (!password || password.length < 8) {
-      setError(t('profile.passwordMinLength'));
-      return;
-    }
-
-    if (password !== confirmPassword) {
-      setError(t('profile.passwordsMismatch'));
-      return;
-    }
-
-    registerEmailMutation.mutate({ email, password });
   };
 
   return (
@@ -669,60 +612,11 @@ export default function Profile() {
                 </AnimatePresence>
               </div>
             ) : (
-              <div>
-                <p className="mb-6 text-sm text-dark-400">{t('profile.linkEmailDescription')}</p>
-
-                <form onSubmit={handleSubmit} className="space-y-4">
-                  <div>
-                    <label className="label">Email</label>
-                    <input
-                      type="email"
-                      value={email}
-                      onChange={(e) => setEmail(e.target.value)}
-                      placeholder="your@email.com"
-                      className="input"
-                    />
-                  </div>
-
-                  <div>
-                    <label className="label">{t('auth.password')}</label>
-                    <input
-                      type="password"
-                      value={password}
-                      onChange={(e) => setPassword(e.target.value)}
-                      placeholder={t('profile.passwordPlaceholder')}
-                      className="input"
-                    />
-                    <p className="mt-2 text-xs text-dark-500">{t('profile.passwordHint')}</p>
-                  </div>
-
-                  <div>
-                    <label className="label">{t('auth.confirmPassword')}</label>
-                    <input
-                      type="password"
-                      value={confirmPassword}
-                      onChange={(e) => setConfirmPassword(e.target.value)}
-                      placeholder={t('profile.confirmPasswordPlaceholder')}
-                      className="input"
-                    />
-                  </div>
-
-                  {error && (
-                    <div className="rounded-linear border border-error-500/30 bg-error-500/10 p-4 text-sm text-error-400">
-                      {error}
-                    </div>
-                  )}
-
-                  {success && (
-                    <div className="rounded-linear border border-success-500/30 bg-success-500/10 p-4 text-sm text-success-400">
-                      {success}
-                    </div>
-                  )}
-
-                  <Button type="submit" fullWidth loading={registerEmailMutation.isPending}>
-                    {t('profile.linkEmail')}
-                  </Button>
-                </form>
+              <div className="space-y-3">
+                <p className="text-sm text-dark-400">{t('profile.linkEmailDescription')}</p>
+                <Button variant="primary" onClick={() => navigate('/profile/accounts')}>
+                  {t('profile.linkEmail')}
+                </Button>
               </div>
             )}
 

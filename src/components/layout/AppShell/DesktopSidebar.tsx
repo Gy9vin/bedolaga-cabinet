@@ -74,7 +74,8 @@ export function DesktopSidebar({
   const hasCustomLogo = branding?.has_custom_logo || false;
   const logoUrl = branding ? brandingApi.getLogoUrl(branding) : null;
 
-  const isActive = (path: string) => location.pathname === path;
+  const isActive = (path: string) =>
+    path === '/' ? location.pathname === '/' : location.pathname.startsWith(path);
   const isAdminActive = () => location.pathname.startsWith('/admin');
 
   const navItems = [

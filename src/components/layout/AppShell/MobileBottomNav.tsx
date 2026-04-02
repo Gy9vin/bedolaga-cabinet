@@ -23,7 +23,8 @@ export function MobileBottomNav({
   const location = useLocation();
   const { haptic } = usePlatform();
 
-  const isActive = (path: string) => location.pathname === path;
+  const isActive = (path: string) =>
+    path === '/' ? location.pathname === '/' : location.pathname.startsWith(path);
 
   // Core navigation items for bottom bar
   // When wheel is enabled, it replaces Support in the bottom nav (Support is still accessible via hamburger menu)
