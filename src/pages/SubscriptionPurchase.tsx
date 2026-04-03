@@ -37,7 +37,10 @@ export default function SubscriptionPurchase() {
   const { isDark } = useTheme();
   const g = getGlassColors(isDark);
 
-  const formatPrice = (kopeks: number) => `${formatAmount(kopeks / 100)} ${currencySymbol}`;
+  const formatPrice = (kopeks: number) =>
+    kopeks === 0
+      ? t('subscription.free', 'Бесплатно')
+      : `${formatAmount(kopeks / 100)} ${currencySymbol}`;
 
   // Subscription query (shares cache with /subscription page)
   const { data: subscriptionResponse, isLoading } = useQuery({

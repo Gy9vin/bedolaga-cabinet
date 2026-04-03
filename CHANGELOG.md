@@ -1,5 +1,14 @@
 # Changelog
 
+## [1.44.1](https://github.com/BEDOLAGA-DEV/bedolaga-cabinet/compare/v1.44.0...v1.44.1) (2026-04-03)
+
+
+### Bug Fixes
+
+* 100% discount display + Telegram widget fix + sparkles icon ([300cb07](https://github.com/BEDOLAGA-DEV/bedolaga-cabinet/commit/300cb07c58d8f374abde47b861f4757e236d4eb0))
+* complete sparkles icon in trial offer card (was showing only 1 of 3 sparkle paths) ([1cf9526](https://github.com/BEDOLAGA-DEV/bedolaga-cabinet/commit/1cf95267138908e2da79e1da3ebb25c2d0ae03be))
+* support 100% discount display + fix Telegram link widget race condition ([207af81](https://github.com/BEDOLAGA-DEV/bedolaga-cabinet/commit/207af81c953eccb2e474cca47dfe9434e8a58527))
+
 ## [1.44.0](https://github.com/BEDOLAGA-DEV/bedolaga-cabinet/compare/v1.43.1...v1.44.0) (2026-04-02)
 
 

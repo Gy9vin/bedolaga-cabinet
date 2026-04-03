@@ -214,7 +214,10 @@ export default function Subscription() {
   const destructiveConfirm = useDestructiveConfirm();
 
   // Helper to format price from kopeks
-  const formatPrice = (kopeks: number) => `${formatAmount(kopeks / 100)} ${currencySymbol}`;
+  const formatPrice = (kopeks: number) =>
+    kopeks === 0
+      ? t('subscription.free', 'Бесплатно')
+      : `${formatAmount(kopeks / 100)} ${currencySymbol}`;
 
   // Purchase state (classic mode)
   const [currentStep, setCurrentStep] = useState<PurchaseStep>('period');

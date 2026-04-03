@@ -177,7 +177,9 @@ export default function RenewSubscription() {
                   </div>
                   <div className="text-right">
                     <div className="text-base font-semibold" style={{ color: g.text }}>
-                      {formatAmount(option.price_kopeks / 100)} {currencySymbol}
+                      {option.price_kopeks === 0
+                        ? t('subscription.free', 'Бесплатно')
+                        : `${formatAmount(option.price_kopeks / 100)} ${currencySymbol}`}
                     </div>
                     {months > 1 && (
                       <div className="text-[11px]" style={{ color: g.textSecondary }}>

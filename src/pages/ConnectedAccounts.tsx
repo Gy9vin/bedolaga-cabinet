@@ -157,11 +157,34 @@ function TelegramLinkWidget() {
     isOIDC,
     widgetConfig?.oidc_client_id,
     widgetConfig?.request_access,
-    showToast,
-    t,
     scriptLoaded,
     handleScriptFailed,
   ]);
+
+  // Ref-based callback for legacy widget (avoids re-creating iframe on every render)
+  const handleWidgetAuthRef = useRef<(user: Record<string, unknown>) => void>(undefined);
+  handleWidgetAuthRef.current = async (user: Record<string, unknown>) => {
+    if (!mountedRef.current) return;
+    try {
+      const response = await authApi.linkTelegram({
+        id: user.id as number,
+        first_name: user.first_name as string,
+        last_name: (user.last_name as string) || undefined,
+        username: (user.username as string) || undefined,
+        photo_url: (user.photo_url as string) || undefined,
+        auth_date: user.auth_date as number,
+        hash: user.hash as string,
+      });
+      if (mountedRef.current) await handleLinkResult(response);
+    } catch (err: unknown) {
+      if (mountedRef.current) {
+        showToast({
+          type: 'error',
+          message: getErrorDetail(err) || t('profile.accounts.linkError'),
+        });
+      }
+    }
+  };
 
   // Legacy widget effect (only when NOT OIDC) with timeout
   useEffect(() => {
@@ -173,29 +196,10 @@ function TelegramLinkWidget() {
     }
 
     const callbackName = '__onTelegramLinkAuth';
-    (window as unknown as Record<string, unknown>)[callbackName] = async (
+    (window as unknown as Record<string, unknown>)[callbackName] = (
       user: Record<string, unknown>,
     ) => {
-      if (!mountedRef.current) return;
-      try {
-        const response = await authApi.linkTelegram({
-          id: user.id as number,
-          first_name: user.first_name as string,
-          last_name: (user.last_name as string) || undefined,
-          username: (user.username as string) || undefined,
-          photo_url: (user.photo_url as string) || undefined,
-          auth_date: user.auth_date as number,
-          hash: user.hash as string,
-        });
-        if (mountedRef.current) await handleLinkResult(response);
-      } catch (err: unknown) {
-        if (mountedRef.current) {
-          showToast({
-            type: 'error',
-            message: getErrorDetail(err) || t('profile.accounts.linkError'),
-          });
-        }
-      }
+      handleWidgetAuthRef.current?.(user);
     };
 
     const script = document.createElement('script');
@@ -227,16 +231,7 @@ function TelegramLinkWidget() {
         container.removeChild(container.firstChild);
       }
     };
-  }, [
-    isOIDC,
-    botUsername,
-    navigate,
-    showToast,
-    t,
-    queryClient,
-    handleLinkResult,
-    handleScriptFailed,
-  ]);
+  }, [isOIDC, botUsername, handleScriptFailed]);
 
   if (!botUsername && !isOIDC) {
     return null;
