@@ -475,6 +475,7 @@ export default function Subscription() {
   const switchModalRef = useRef<HTMLDivElement>(null);
   const tariffPurchaseRef = useRef<HTMLDivElement>(null);
   const tariffsCardRef = useRef<HTMLDivElement>(null);
+  const additionalOptionsRef = useRef<HTMLDivElement>(null);
 
   // Tariff switch preview
   const [switchTariffId, setSwitchTariffId] = useState<number | null>(null);
@@ -799,6 +800,23 @@ export default function Subscription() {
       return () => clearTimeout(timer);
     }
   }, [location.state, tariffs.length]);
+
+  // Auto-scroll to devices section when coming from Support Helper
+  useEffect(() => {
+    const state = location.state as { scrollToDevices?: 'add' | 'reduce' } | null;
+    if (state?.scrollToDevices && subscription && additionalOptionsRef.current) {
+      const timer = setTimeout(() => {
+        if (state.scrollToDevices === 'add') {
+          setShowDeviceTopup(true);
+        } else if (state.scrollToDevices === 'reduce') {
+          setShowDeviceReduction(true);
+        }
+        additionalOptionsRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        window.history.replaceState({}, document.title);
+      }, 200);
+      return () => clearTimeout(timer);
+    }
+  }, [location.state, subscription]);
 
   const copyUrl = () => {
     if (subscription?.subscription_url) {
@@ -1818,6 +1836,7 @@ export default function Subscription() {
         !subscription.is_trial &&
         subscription.device_limit !== 0 && (
           <div
+            ref={additionalOptionsRef}
             className="relative overflow-hidden rounded-3xl"
             style={{
               background: g.cardBg,

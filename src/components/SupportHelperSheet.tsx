@@ -110,9 +110,9 @@ export default function SupportHelperSheet({
     (s) => s.status === 'active' || s.status === 'expiring',
   );
 
-  const handleNavigate = (path: string) => {
+  const handleNavigate = (path: string, state?: Record<string, unknown>) => {
     onOpenChange(false);
-    navigate(path);
+    navigate(path, state ? { state } : undefined);
   };
 
   const handleOtherQuestion = () => {
@@ -121,6 +121,15 @@ export default function SupportHelperSheet({
   };
 
   const items = [
+    {
+      key: 'topUp',
+      icon: <WalletIcon />,
+      label: t('supportHelper.topUpBalance'),
+      description: t('supportHelper.topUpBalanceDesc'),
+      action: () => handleNavigate('/balance/top-up'),
+      color: 'text-yellow-400',
+      bgColor: 'bg-yellow-500/10',
+    },
     {
       key: 'buy',
       icon: <ShoppingCartIcon />,
@@ -161,34 +170,31 @@ export default function SupportHelperSheet({
         ? t('supportHelper.addDeviceDesc')
         : t('supportHelper.noActiveSubscription'),
       action: activeSubscription
-        ? () => handleNavigate(`/subscriptions/${activeSubscription.id}`)
+        ? () =>
+            handleNavigate(`/subscriptions/${activeSubscription.id}`, {
+              scrollToDevices: 'add',
+            })
         : undefined,
       color: 'text-violet-400',
       bgColor: 'bg-violet-500/10',
       disabled: !activeSubscription,
     },
     {
-      key: 'removeDevice',
+      key: 'reduceDevices',
       icon: <MinusCircleIcon />,
-      label: t('supportHelper.removeDevice'),
+      label: t('supportHelper.reduceDevices'),
       description: activeSubscription
-        ? t('supportHelper.removeDeviceDesc')
+        ? t('supportHelper.reduceDevicesDesc')
         : t('supportHelper.noActiveSubscription'),
       action: activeSubscription
-        ? () => handleNavigate(`/subscriptions/${activeSubscription.id}`)
+        ? () =>
+            handleNavigate(`/subscriptions/${activeSubscription.id}`, {
+              scrollToDevices: 'reduce',
+            })
         : undefined,
       color: 'text-orange-400',
       bgColor: 'bg-orange-500/10',
       disabled: !activeSubscription,
-    },
-    {
-      key: 'topUp',
-      icon: <WalletIcon />,
-      label: t('supportHelper.topUpBalance'),
-      description: t('supportHelper.topUpBalanceDesc'),
-      action: () => handleNavigate('/balance/top-up'),
-      color: 'text-yellow-400',
-      bgColor: 'bg-yellow-500/10',
     },
     {
       key: 'other',
