@@ -389,6 +389,7 @@
       "devicesUnavailable": "设备购买不可用",
       "devicesUnit": "台设备",
       "buy": "购买",
+      "buyDevicesWarning": "设备数量错误不予退款！",
       "buyTraffic": "购买更多流量",
       "currentTrafficLimit": "当前限制：{{limit}} GB（已使用 {{used}} GB）",
       "buyTrafficTitle": "购买更多流量",
@@ -398,7 +399,8 @@
       "buyTrafficGb": "购买 {{gb}} GB",
       "buyUnlimited": "购买无限流量",
       "manageServers": "服务器管理",
-      "manageServersTitle": "服务器管理"
+      "manageServersTitle": "服务器管理",
+      "reduceDevicesWarning": "不退款！已花费的资金不予退还！"
     },
     "serverManagement": {
       "statusLegend": "✅ — 已连接 • ➕ — 将添加（付费）• ➖ — 将断开",

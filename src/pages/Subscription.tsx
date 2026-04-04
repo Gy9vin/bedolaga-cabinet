@@ -2005,6 +2005,10 @@ export default function Subscription() {
                         />
                       )}
 
+                    <div className="rounded-lg border border-error-500/30 bg-error-500/10 p-3 text-center text-xs font-semibold text-error-400">
+                      {t('subscription.additionalOptions.buyDevicesWarning')}
+                    </div>
+
                     <button
                       onClick={() => devicePurchaseMutation.mutate()}
                       disabled={
@@ -2174,6 +2178,10 @@ export default function Subscription() {
                             count: targetDeviceLimit,
                           })}
                         </div>
+                      </div>
+
+                      <div className="rounded-lg border border-error-500/30 bg-error-500/10 p-3 text-center text-xs font-semibold text-error-400">
+                        {t('subscription.additionalOptions.reduceDevicesWarning')}
                       </div>
 
                       <button

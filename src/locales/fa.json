@@ -389,6 +389,7 @@
       "devicesUnavailable": "خرید دستگاه در دسترس نیست",
       "devicesUnit": "دستگاه",
       "buy": "خرید",
+      "buyDevicesWarning": "در صورت اشتباه در تعداد دستگاه‌ها، بازپرداخت انجام نمی‌شود!",
       "buyTraffic": "خرید ترافیک بیشتر",
       "currentTrafficLimit": "محدودیت فعلی: {{limit}} GB (مصرف شده {{used}} GB)",
       "buyTrafficTitle": "خرید ترافیک بیشتر",
@@ -398,7 +399,8 @@
       "buyTrafficGb": "خرید {{gb}} GB",
       "buyUnlimited": "خرید نامحدود",
       "manageServers": "مدیریت سرورها",
-      "manageServersTitle": "مدیریت سرورها"
+      "manageServersTitle": "مدیریت سرورها",
+      "reduceDevicesWarning": "بازپرداخت انجام نمی‌شود! وجوه صرف شده قابل بازگشت نیست!"
     },
     "serverManagement": {
       "statusLegend": "✅ — متصل • ➕ — اضافه خواهد شد (پولی) • ➖ — قطع خواهد شد",
