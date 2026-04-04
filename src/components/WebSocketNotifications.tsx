@@ -198,6 +198,8 @@ export default function WebSocketNotifications() {
           amountKopeks: message.amount_kopeks,
           devicesAdded: message.devices_added,
           newDeviceLimit: message.new_device_limit,
+          subscriptionId: message.subscription_id,
+          subscriptionUrl: message.subscription_url,
         });
         queryClient.invalidateQueries({
           predicate: (query) =>

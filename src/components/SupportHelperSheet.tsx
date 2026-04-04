@@ -1,7 +1,9 @@
+import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router';
 import { useQuery } from '@tanstack/react-query';
 import { motion } from 'framer-motion';
+import { Button } from '@/components/primitives/Button';
 import {
   Sheet,
   SheetContent,
@@ -110,14 +112,27 @@ export default function SupportHelperSheet({
     (s) => s.status === 'active' || s.status === 'expiring',
   );
 
+  const [showMemo, setShowMemo] = useState(false);
+
   const handleNavigate = (path: string, state?: Record<string, unknown>) => {
     onOpenChange(false);
+    setShowMemo(false);
     navigate(path, state ? { state } : undefined);
   };
 
   const handleOtherQuestion = () => {
+    setShowMemo(true);
+  };
+
+  const handleProceedToSupport = () => {
     onOpenChange(false);
+    setShowMemo(false);
     onOtherQuestion();
+  };
+
+  const handleSheetChange = (open: boolean) => {
+    if (!open) setShowMemo(false);
+    onOpenChange(open);
   };
 
   const items = [
@@ -208,52 +223,94 @@ export default function SupportHelperSheet({
   ];
 
   return (
-    <Sheet open={open} onOpenChange={onOpenChange}>
+    <Sheet open={open} onOpenChange={handleSheetChange}>
       <SheetContent>
-        <SheetHeader>
-          <SheetTitle>{t('supportHelper.title')}</SheetTitle>
-          <SheetDescription>{t('supportHelper.subtitle')}</SheetDescription>
-        </SheetHeader>
+        {showMemo ? (
+          <>
+            <SheetHeader>
+              <SheetTitle>{t('supportHelper.memo.title')}</SheetTitle>
+              <SheetDescription>{t('supportHelper.memo.subtitle')}</SheetDescription>
+            </SheetHeader>
 
-        <motion.div
-          className="mt-4 space-y-2 pb-2"
-          variants={staggerContainer}
-          initial="initial"
-          animate="animate"
-        >
-          {items.map((item) => (
-            <motion.button
-              key={item.key}
-              variants={staggerItem}
-              onClick={item.action}
-              disabled={item.disabled}
-              className={`flex w-full items-center gap-3 rounded-xl border border-dark-700/50 p-3 text-left transition-all ${
-                item.disabled
-                  ? 'cursor-not-allowed opacity-50'
-                  : 'hover:border-dark-600 hover:bg-dark-800/50 active:scale-[0.98]'
-              }`}
+            <div className="mt-4 space-y-3 pb-2">
+              <div className="rounded-xl border border-warning-500/20 bg-warning-500/5 p-4">
+                <ul className="space-y-2 text-sm text-dark-300">
+                  <li className="flex gap-2">
+                    <span className="flex-shrink-0 text-warning-400">1.</span>
+                    {t('supportHelper.memo.step1')}
+                  </li>
+                  <li className="flex gap-2">
+                    <span className="flex-shrink-0 text-warning-400">2.</span>
+                    {t('supportHelper.memo.step2')}
+                  </li>
+                  <li className="flex gap-2">
+                    <span className="flex-shrink-0 text-warning-400">3.</span>
+                    {t('supportHelper.memo.step3')}
+                  </li>
+                  <li className="flex gap-2">
+                    <span className="flex-shrink-0 text-warning-400">4.</span>
+                    {t('supportHelper.memo.step4')}
+                  </li>
+                </ul>
+              </div>
+
+              <Button onClick={handleProceedToSupport} fullWidth>
+                {t('supportHelper.memo.proceed')}
+              </Button>
+            </div>
+          </>
+        ) : (
+          <>
+            <SheetHeader>
+              <SheetTitle>{t('supportHelper.title')}</SheetTitle>
+              <SheetDescription>{t('supportHelper.subtitle')}</SheetDescription>
+            </SheetHeader>
+
+            <motion.div
+              className="mt-4 space-y-2 pb-2"
+              variants={staggerContainer}
+              initial="initial"
+              animate="animate"
             >
-              <div
-                className={`flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-xl ${item.bgColor} ${item.color}`}
-              >
-                {item.icon}
-              </div>
-              <div className="min-w-0 flex-1">
-                <div className="text-sm font-medium text-dark-100">{item.label}</div>
-                <div className="truncate text-xs text-dark-400">{item.description}</div>
-              </div>
-              <svg
-                className="h-4 w-4 flex-shrink-0 text-dark-500"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke="currentColor"
-                strokeWidth={2}
-              >
-                <path strokeLinecap="round" strokeLinejoin="round" d="M8.25 4.5l7.5 7.5-7.5 7.5" />
-              </svg>
-            </motion.button>
-          ))}
-        </motion.div>
+              {items.map((item) => (
+                <motion.button
+                  key={item.key}
+                  variants={staggerItem}
+                  onClick={item.action}
+                  disabled={item.disabled}
+                  className={`flex w-full items-center gap-3 rounded-xl border border-dark-700/50 p-3 text-left transition-all ${
+                    item.disabled
+                      ? 'cursor-not-allowed opacity-50'
+                      : 'hover:border-dark-600 hover:bg-dark-800/50 active:scale-[0.98]'
+                  }`}
+                >
+                  <div
+                    className={`flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-xl ${item.bgColor} ${item.color}`}
+                  >
+                    {item.icon}
+                  </div>
+                  <div className="min-w-0 flex-1">
+                    <div className="text-sm font-medium text-dark-100">{item.label}</div>
+                    <div className="truncate text-xs text-dark-400">{item.description}</div>
+                  </div>
+                  <svg
+                    className="h-4 w-4 flex-shrink-0 text-dark-500"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                    strokeWidth={2}
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      d="M8.25 4.5l7.5 7.5-7.5 7.5"
+                    />
+                  </svg>
+                </motion.button>
+              ))}
+            </motion.div>
+          </>
+        )}
       </SheetContent>
     </Sheet>
   );

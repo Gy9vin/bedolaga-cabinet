@@ -27,6 +27,10 @@ export interface SuccessNotificationData {
   devicesAdded?: number;
   /** New total device limit */
   newDeviceLimit?: number;
+  /** Subscription ID for navigation */
+  subscriptionId?: number;
+  /** Subscription URL for sharing */
+  subscriptionUrl?: string;
   /** Traffic GB added */
   trafficGbAdded?: number;
   /** New total traffic limit in GB */

@@ -3,7 +3,7 @@
  * Shows prominent success messages for balance top-ups and subscription purchases.
  */
 
-import { useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { createPortal } from 'react-dom';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router';
@@ -75,6 +75,16 @@ const CloseIcon = () => (
   </svg>
 );
 
+const CopyIcon = () => (
+  <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+    <path
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      d="M15.75 17.25v3.375c0 .621-.504 1.125-1.125 1.125h-9.75a1.125 1.125 0 01-1.125-1.125V7.875c0-.621.504-1.125 1.125-1.125H6.75a9.06 9.06 0 011.5.124m7.5 10.376h3.375c.621 0 1.125-.504 1.125-1.125V11.25c0-4.46-3.243-8.161-7.5-8.876a9.06 9.06 0 00-1.5-.124H9.375c-.621 0-1.125.504-1.125 1.125v3.5m7.5 10.375H9.375a1.125 1.125 0 01-1.125-1.125v-9.25m12 6.625v-1.875a3.375 3.375 0 00-3.375-3.375h-1.5a1.125 1.125 0 01-1.125-1.125v-1.5a3.375 3.375 0 00-3.375-3.375H9.75"
+    />
+  </svg>
+);
+
 export default function SuccessNotificationModal() {
   const { t } = useTranslation();
   const navigate = useNavigate();
@@ -91,7 +101,34 @@ export default function SuccessNotificationModal() {
 
   const handleClose = useCallback(() => {
     hide();
+    setLinkCopied(false);
   }, [hide]);
+
+  const [linkCopied, setLinkCopied] = useState(false);
+
+  const handleCopySubscriptionUrl = useCallback(async () => {
+    if (!data?.subscriptionUrl) return;
+    try {
+      await navigator.clipboard.writeText(data.subscriptionUrl);
+    } catch {
+      const textarea = document.createElement('textarea');
+      textarea.value = data.subscriptionUrl;
+      document.body.appendChild(textarea);
+      textarea.select();
+      document.execCommand('copy');
+      document.body.removeChild(textarea);
+    }
+    setLinkCopied(true);
+    haptic.notification('success');
+    setTimeout(() => setLinkCopied(false), 3000);
+  }, [data?.subscriptionUrl, haptic]);
+
+  const handleGoToConnection = useCallback(() => {
+    hide();
+    setLinkCopied(false);
+    const subId = data?.subscriptionId;
+    navigate(subId ? `/connection?sub=${subId}` : '/connection');
+  }, [hide, navigate, data?.subscriptionId]);
 
   // Escape key to close
   useEffect(() => {
@@ -336,13 +373,75 @@ export default function SuccessNotificationModal() {
             )}
 
             {isDevicesPurchased && (
-              <button
-                onClick={handleGoToSubscription}
-                className="flex w-full items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-blue-500 to-cyan-600 py-3.5 font-bold text-white shadow-lg shadow-blue-500/25 transition-all hover:from-blue-400 hover:to-cyan-500 active:from-blue-600 active:to-cyan-700"
-              >
-                <DevicesIcon />
-                <span>{t('successNotification.goToSubscription', 'Go to Subscription')}</span>
-              </button>
+              <>
+                {/* Share instruction */}
+                <div className="rounded-xl border border-blue-500/20 bg-blue-500/5 p-3">
+                  <p className="mb-2 text-center text-sm font-medium text-blue-300">
+                    {t('successNotification.shareInstruction.title', 'How to connect a new device')}
+                  </p>
+                  <ol className="space-y-1 text-left text-xs text-dark-400">
+                    <li>
+                      1.{' '}
+                      {t(
+                        'successNotification.shareInstruction.step1',
+                        'Copy the link and send it to the new device',
+                      )}
+                    </li>
+                    <li>
+                      2.{' '}
+                      {t(
+                        'successNotification.shareInstruction.step2',
+                        'Open the link on the device',
+                      )}
+                    </li>
+                    <li>
+                      3.{' '}
+                      {t(
+                        'successNotification.shareInstruction.step3',
+                        'Download the recommended app',
+                      )}
+                    </li>
+                    <li>
+                      4.{' '}
+                      {t(
+                        'successNotification.shareInstruction.step4',
+                        'Tap "Add subscription" in the app',
+                      )}
+                    </li>
+                  </ol>
+                </div>
+
+                {data.subscriptionUrl && (
+                  <button
+                    onClick={handleCopySubscriptionUrl}
+                    className={`flex w-full items-center justify-center gap-2 rounded-xl py-3.5 font-bold transition-all ${
+                      linkCopied
+                        ? 'bg-success-500/20 text-success-400'
+                        : 'bg-gradient-to-r from-blue-500 to-cyan-600 text-white shadow-lg shadow-blue-500/25 hover:from-blue-400 hover:to-cyan-500 active:from-blue-600 active:to-cyan-700'
+                    }`}
+                  >
+                    {linkCopied ? (
+                      <>
+                        <CheckCircleIcon />
+                        <span>{t('successNotification.linkCopied', 'Link copied!')}</span>
+                      </>
+                    ) : (
+                      <>
+                        <CopyIcon />
+                        <span>{t('successNotification.copyLink', 'Copy subscription link')}</span>
+                      </>
+                    )}
+                  </button>
+                )}
+
+                <button
+                  onClick={handleGoToConnection}
+                  className="flex w-full items-center justify-center gap-2 rounded-xl bg-dark-700 py-3 font-semibold text-dark-200 transition-colors hover:bg-dark-600 hover:text-dark-100"
+                >
+                  <DevicesIcon />
+                  <span>{t('successNotification.goToConnection', 'Go to setup guide')}</span>
+                </button>
+              </>
             )}
 
             {isTrafficPurchased && (

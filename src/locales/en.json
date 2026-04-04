@@ -148,7 +148,17 @@
     "tariff": "Tariff",
     "validUntil": "Valid until",
     "goToSubscription": "Go to Subscription",
-    "goToBalance": "Go to Balance"
+    "goToBalance": "Go to Balance",
+    "goToConnection": "Go to setup guide",
+    "copyLink": "Copy subscription link",
+    "linkCopied": "Link copied!",
+    "shareInstruction": {
+      "title": "How to connect a new device",
+      "step1": "Copy the link and send it to the new device",
+      "step2": "Open the link on the device",
+      "step3": "Download the recommended app",
+      "step4": "Tap \"Add subscription\" in the app"
+    }
   },
   "auth": {
     "login": "Login",
@@ -950,7 +960,16 @@
     "topUpBalanceDesc": "Choose a payment method",
     "otherQuestion": "Other Question",
     "otherQuestionDesc": "Contact support",
-    "noActiveSubscription": "You have no active subscription"
+    "noActiveSubscription": "You have no active subscription",
+    "memo": {
+      "title": "Before you write",
+      "subtitle": "So we can help you faster",
+      "step1": "Describe the issue in detail — what exactly doesn't work, what you tried to do",
+      "step2": "Specify your device and the app you're using",
+      "step3": "Attach a screenshot of the error if possible",
+      "step4": "Don't just write \"it doesn't work\" — that won't help us figure out the problem",
+      "proceed": "Got it, contact support"
+    }
   },
   "wheel": {
     "title": "Fortune Wheel",
