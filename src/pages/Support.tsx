@@ -189,15 +189,6 @@ export default function Support() {
     [isHelperVisible],
   );
 
-  const handleHelperOtherQuestion = useCallback(() => {
-    if (pendingHelperAction === 'ticket') {
-      setShowCreateForm(true);
-      setSelectedTicket(null);
-    }
-    // For 'contact' action, the original button action will proceed after sheet closes
-    setPendingHelperAction(null);
-  }, [pendingHelperAction]);
-
   // Media attachment states
   const [createAttachment, setCreateAttachment] = useState<MediaAttachment | null>(null);
   const [replyAttachment, setReplyAttachment] = useState<MediaAttachment | null>(null);
@@ -249,6 +240,23 @@ export default function Support() {
     queryFn: () => ticketsApi.getTicket(selectedTicket!.id),
     enabled: !!selectedTicket,
   });
+
+  const openSupportContact = useCallback(() => {
+    const username = supportConfig?.support_username;
+    if (!username) return;
+    const clean = username.startsWith('@') ? username.slice(1) : username;
+    openTelegramLink(`https://t.me/${clean}`);
+  }, [supportConfig?.support_username, openTelegramLink]);
+
+  const handleHelperOtherQuestion = useCallback(() => {
+    if (pendingHelperAction === 'ticket') {
+      setShowCreateForm(true);
+      setSelectedTicket(null);
+    } else if (pendingHelperAction === 'contact') {
+      openSupportContact();
+    }
+    setPendingHelperAction(null);
+  }, [pendingHelperAction, openSupportContact]);
 
   // Handle file selection
   const handleFileSelect = async (
