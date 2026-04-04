@@ -533,6 +533,17 @@
     },
     "purchasedTraffic": "Purchased Traffic",
     "trafficResetAt": "Reset",
+    "deviceSuccess": {
+      "title": "Device added!",
+      "instructionTitle": "How to connect the new device",
+      "step1": "Copy the link below and send it to the new device",
+      "step2": "Open the link on the device",
+      "step3": "Download the recommended app",
+      "step4": "Tap \"Add subscription\" in the app",
+      "copyLink": "Copy subscription link",
+      "copied": "Link copied!",
+      "goToConnection": "Go to setup guide"
+    },
     "additionalOptions": {
       "title": "Additional options",
       "buyDevices": "Buy more devices",

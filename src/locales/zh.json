@@ -381,6 +381,17 @@
       "qrScanHint": "使用相机扫描以连接",
       "qrButton": "二维码"
     },
+    "deviceSuccess": {
+      "title": "设备已添加！",
+      "instructionTitle": "如何连接新设备",
+      "step1": "复制下方链接并发送到新设备",
+      "step2": "在设备上打开链接",
+      "step3": "下载推荐的应用程序",
+      "step4": "在应用中点击「添加订阅」",
+      "copyLink": "复制订阅链接",
+      "copied": "链接已复制！",
+      "goToConnection": "前往连接指南"
+    },
     "additionalOptions": {
       "title": "附加选项",
       "buyDevices": "购买更多设备",

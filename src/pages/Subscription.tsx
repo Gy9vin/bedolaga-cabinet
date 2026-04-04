@@ -239,6 +239,8 @@ export default function Subscription() {
 
   // Device/traffic topup state
   const [showDeviceTopup, setShowDeviceTopup] = useState(false);
+  const [showDeviceSuccess, setShowDeviceSuccess] = useState(false);
+  const [deviceSuccessCopied, setDeviceSuccessCopied] = useState(false);
   const [devicesToAdd, setDevicesToAdd] = useState(1);
   const [showDeviceReduction, setShowDeviceReduction] = useState(false);
   const [targetDeviceLimit, setTargetDeviceLimit] = useState<number>(1);
@@ -580,8 +582,8 @@ export default function Subscription() {
       queryClient.invalidateQueries({ queryKey: ['devices', subscriptionId] });
       queryClient.invalidateQueries({ queryKey: ['device-price'] });
       queryClient.invalidateQueries({ queryKey: ['balance'] });
-      setShowDeviceTopup(false);
       setDevicesToAdd(1);
+      setShowDeviceSuccess(true);
     },
   });
 
@@ -1850,7 +1852,82 @@ export default function Subscription() {
             </h2>
 
             {/* Buy Devices */}
-            {!showDeviceTopup ? (
+            {showDeviceSuccess ? (
+              <div
+                className={`rounded-xl border p-5 ${isDark ? 'border-success-500/30 bg-success-500/5' : 'border-success-400/40 bg-success-50'}`}
+              >
+                <div className="mb-4 flex items-center justify-between">
+                  <h3 className="font-medium text-success-400">
+                    {t('subscription.deviceSuccess.title')}
+                  </h3>
+                  <button
+                    onClick={() => {
+                      setShowDeviceSuccess(false);
+                      setShowDeviceTopup(false);
+                      setDeviceSuccessCopied(false);
+                    }}
+                    className="text-sm text-dark-400 hover:text-dark-200"
+                  >
+                    ✕
+                  </button>
+                </div>
+
+                <div className="space-y-3">
+                  <div
+                    className={`rounded-xl p-4 ${isDark ? 'bg-dark-800/50' : 'bg-champagne-100/50'}`}
+                  >
+                    <p className="mb-2 text-sm font-medium text-dark-200">
+                      {t('subscription.deviceSuccess.instructionTitle')}
+                    </p>
+                    <ol className="space-y-1.5 text-sm text-dark-400">
+                      <li>1. {t('subscription.deviceSuccess.step1')}</li>
+                      <li>2. {t('subscription.deviceSuccess.step2')}</li>
+                      <li>3. {t('subscription.deviceSuccess.step3')}</li>
+                      <li>4. {t('subscription.deviceSuccess.step4')}</li>
+                    </ol>
+                  </div>
+
+                  {subscription.subscription_url && (
+                    <button
+                      onClick={async () => {
+                        try {
+                          await navigator.clipboard.writeText(subscription.subscription_url!);
+                        } catch {
+                          const ta = document.createElement('textarea');
+                          ta.value = subscription.subscription_url!;
+                          document.body.appendChild(ta);
+                          ta.select();
+                          document.execCommand('copy');
+                          document.body.removeChild(ta);
+                        }
+                        setDeviceSuccessCopied(true);
+                        setTimeout(() => setDeviceSuccessCopied(false), 3000);
+                      }}
+                      className={`w-full rounded-xl py-3 text-center font-semibold transition-all ${
+                        deviceSuccessCopied
+                          ? 'bg-success-500/20 text-success-400'
+                          : 'bg-accent-500 text-white hover:bg-accent-400 active:bg-accent-600'
+                      }`}
+                    >
+                      {deviceSuccessCopied
+                        ? t('subscription.deviceSuccess.copied')
+                        : t('subscription.deviceSuccess.copyLink')}
+                    </button>
+                  )}
+
+                  <button
+                    onClick={() => {
+                      navigate(
+                        subscriptionId ? `/connection?sub=${subscriptionId}` : '/connection',
+                      );
+                    }}
+                    className={`w-full rounded-xl py-3 text-center font-semibold ${isDark ? 'bg-dark-700 text-dark-200 hover:bg-dark-600' : 'bg-champagne-200 text-champagne-700 hover:bg-champagne-300'}`}
+                  >
+                    {t('subscription.deviceSuccess.goToConnection')}
+                  </button>
+                </div>
+              </div>
+            ) : !showDeviceTopup ? (
               <button
                 onClick={() => setShowDeviceTopup(true)}
                 className={`w-full rounded-xl border p-4 text-left transition-colors ${isDark ? 'border-dark-700/50 bg-dark-800/50 hover:border-dark-600' : 'border-champagne-300/60 bg-champagne-200/40 hover:border-champagne-400'}`}
