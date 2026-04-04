@@ -157,7 +157,7 @@
       "step1": "Copy the link and send it to the new device",
       "step2": "Open the link on the device",
       "step3": "Download the recommended app",
-      "step4": "Open the link and tap \"Add subscription\""
+      "step4": "After downloading, open the link again and tap \"Add subscription\". Important: tap the button in the section of the app you downloaded"
     }
   },
   "auth": {
@@ -539,7 +539,7 @@
       "step1": "Copy the link below and send it to the new device",
       "step2": "Open the link on the device",
       "step3": "Download the recommended app",
-      "step4": "Open the link and tap \"Add subscription\"",
+      "step4": "After downloading, open the link again and tap \"Add subscription\". Important: tap the button in the section of the app you downloaded",
       "copyLink": "Copy subscription link",
       "copied": "Link copied!",
       "goToConnection": "Go to setup guide"
