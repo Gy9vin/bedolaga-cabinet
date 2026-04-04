@@ -251,6 +251,10 @@ export default function SupportHelperSheet({
                     <span className="flex-shrink-0 text-warning-400">4.</span>
                     {t('supportHelper.memo.step4')}
                   </li>
+                  <li className="flex gap-2">
+                    <span className="flex-shrink-0 text-error-400">5.</span>
+                    <span className="text-error-400">{t('supportHelper.memo.step5')}</span>
+                  </li>
                 </ul>
               </div>
 

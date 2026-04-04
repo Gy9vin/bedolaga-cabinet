@@ -980,7 +980,8 @@
       "step1": "Describe the issue in detail — what exactly doesn't work, what you tried to do",
       "step2": "Specify your device and the app you're using",
       "step3": "Attach a screenshot of the error if possible",
-      "step4": "Don't just write \"it doesn't work\" — that won't help us figure out the problem",
+      "step4": "We can see when you're online, which device and app you're connected from. Claiming VPN doesn't work while being online is strange. Please specify what exactly doesn't work",
+      "step5": "Messages like \"doesn't work\" or \"VPN doesn't work\" without details will be handled last",
       "proceed": "Got it, contact support"
     }
   },
