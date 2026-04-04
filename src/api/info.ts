@@ -1,5 +1,5 @@
 import apiClient from './client';
-import type { SupportConfig } from '../types';
+import type { SupportConfig, SupportHelperConfig } from '../types';
 
 export interface FaqPage {
   id: number;
@@ -97,6 +97,25 @@ export const infoApi = {
   // Get support configuration
   getSupportConfig: async (): Promise<SupportConfig> => {
     const response = await apiClient.get<SupportConfig>('/cabinet/info/support-config');
+    return response.data;
+  },
+
+  // Get support helper configuration
+  getSupportHelperConfig: async (): Promise<SupportHelperConfig> => {
+    const response = await apiClient.get<SupportHelperConfig>(
+      '/cabinet/info/support-helper-config',
+    );
+    return response.data;
+  },
+
+  // Update support helper configuration (admin only)
+  updateSupportHelperConfig: async (
+    data: Partial<SupportHelperConfig>,
+  ): Promise<SupportHelperConfig> => {
+    const response = await apiClient.patch<SupportHelperConfig>(
+      '/cabinet/info/support-helper-config',
+      data,
+    );
     return response.data;
   },
 };

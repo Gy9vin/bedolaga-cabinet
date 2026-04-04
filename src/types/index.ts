@@ -539,6 +539,11 @@ export interface SupportConfig {
   support_username?: string | null;
 }
 
+export interface SupportHelperConfig {
+  enabled: boolean;
+  dev_mode: boolean;
+}
+
 // Paginated response
 export interface PaginatedResponse<T> {
   items: T[];

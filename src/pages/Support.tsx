@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect } from 'react';
+import { useState, useRef, useEffect, useCallback } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useTranslation } from 'react-i18next';
 import { motion } from 'framer-motion';
@@ -12,6 +12,7 @@ import { Card } from '@/components/data-display/Card';
 import { Button } from '@/components/primitives/Button';
 import { staggerContainer, staggerItem } from '@/components/motion/transitions';
 import { usePlatform } from '@/platform';
+import SupportHelperSheet from '@/components/SupportHelperSheet';
 
 const log = logger.createLogger('Support');
 
@@ -161,6 +162,41 @@ export default function Support() {
   const [replyMessage, setReplyMessage] = useState('');
   const [rateLimitError, setRateLimitError] = useState<string | null>(null);
   const [aiSuggesting, setAiSuggesting] = useState(false);
+  const [showHelper, setShowHelper] = useState(false);
+  const [pendingHelperAction, setPendingHelperAction] = useState<'ticket' | 'contact' | null>(null);
+
+  // Support helper config
+  const { data: helperConfig } = useQuery({
+    queryKey: ['support-helper-config'],
+    queryFn: infoApi.getSupportHelperConfig,
+    staleTime: 60000,
+    retry: false,
+  });
+
+  // Helper is visible if enabled AND (not dev_mode OR user is admin)
+  const isHelperVisible = helperConfig?.enabled && (!helperConfig.dev_mode || isAdmin);
+
+  const handleSupportAction = useCallback(
+    (action: 'ticket' | 'contact') => {
+      if (isHelperVisible) {
+        setPendingHelperAction(action);
+        setShowHelper(true);
+      } else if (action === 'ticket') {
+        setShowCreateForm(true);
+        setSelectedTicket(null);
+      }
+    },
+    [isHelperVisible],
+  );
+
+  const handleHelperOtherQuestion = useCallback(() => {
+    if (pendingHelperAction === 'ticket') {
+      setShowCreateForm(true);
+      setSelectedTicket(null);
+    }
+    // For 'contact' action, the original button action will proceed after sheet closes
+    setPendingHelperAction(null);
+  }, [pendingHelperAction]);
 
   // Media attachment states
   const [createAttachment, setCreateAttachment] = useState<MediaAttachment | null>(null);
@@ -433,10 +469,27 @@ export default function Support() {
           </div>
           <h2 className="mb-2 text-xl font-semibold text-dark-100">{supportMessage.title}</h2>
           <p className="mb-6 text-dark-400">{supportMessage.message}</p>
-          <Button onClick={supportMessage.buttonAction} fullWidth>
+          <Button
+            onClick={() => {
+              if (isHelperVisible) {
+                handleSupportAction('contact');
+              } else {
+                supportMessage.buttonAction();
+              }
+            }}
+            fullWidth
+          >
             {supportMessage.buttonText}
           </Button>
         </Card>
+        <SupportHelperSheet
+          open={showHelper}
+          onOpenChange={setShowHelper}
+          onOtherQuestion={() => {
+            setShowHelper(false);
+            supportMessage.buttonAction();
+          }}
+        />
       </div>
     );
   }
@@ -487,15 +540,21 @@ export default function Support() {
         <h1 className="text-2xl font-bold text-dark-50 sm:text-3xl">{t('support.title')}</h1>
         <Button
           onClick={() => {
-            setShowCreateForm(true);
-            setSelectedTicket(null);
             clearCreateAttachment();
+            handleSupportAction('ticket');
           }}
         >
           <PlusIcon />
           <span className="ml-2">{t('support.newTicket')}</span>
         </Button>
       </motion.div>
+
+      {/* Support Helper Sheet */}
+      <SupportHelperSheet
+        open={showHelper}
+        onOpenChange={setShowHelper}
+        onOtherQuestion={handleHelperOtherQuestion}
+      />
 
       {/* Contact support card for "both" mode */}
       {supportConfig?.support_type === 'both' && supportConfig.support_username && (
@@ -525,10 +584,14 @@ export default function Support() {
             <Button
               variant="secondary"
               onClick={() => {
-                const username = supportConfig.support_username!.startsWith('@')
-                  ? supportConfig.support_username!.slice(1)
-                  : supportConfig.support_username!;
-                openTelegramLink(`https://t.me/${username}`);
+                if (isHelperVisible) {
+                  handleSupportAction('contact');
+                } else {
+                  const username = supportConfig.support_username!.startsWith('@')
+                    ? supportConfig.support_username!.slice(1)
+                    : supportConfig.support_username!;
+                  openTelegramLink(`https://t.me/${username}`);
+                }
               }}
             >
               {t('support.contactUs')}

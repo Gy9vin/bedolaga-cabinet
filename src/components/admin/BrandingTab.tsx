@@ -2,6 +2,7 @@ import { useState, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { brandingApi, setCachedBranding } from '../../api/branding';
+import { infoApi } from '../../api/info';
 import { setCachedFullscreenEnabled } from '../../hooks/useTelegramSDK';
 import { UploadIcon, TrashIcon, PencilIcon, CheckIcon, CloseIcon } from './icons';
 import { Toggle } from './Toggle';
@@ -38,6 +39,11 @@ export function BrandingTab({ accentColor = '#3b82f6' }: BrandingTabProps) {
   const { data: giftSettings } = useQuery({
     queryKey: ['gift-enabled'],
     queryFn: brandingApi.getGiftEnabled,
+  });
+
+  const { data: supportHelperSettings } = useQuery({
+    queryKey: ['support-helper-config'],
+    queryFn: infoApi.getSupportHelperConfig,
   });
 
   // Mutations
@@ -85,6 +91,20 @@ export function BrandingTab({ accentColor = '#3b82f6' }: BrandingTabProps) {
     mutationFn: (enabled: boolean) => brandingApi.updateGiftEnabled(enabled),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['gift-enabled'] });
+    },
+  });
+
+  const updateSupportHelperEnabledMutation = useMutation({
+    mutationFn: (enabled: boolean) => infoApi.updateSupportHelperConfig({ enabled }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['support-helper-config'] });
+    },
+  });
+
+  const updateSupportHelperDevModeMutation = useMutation({
+    mutationFn: (dev_mode: boolean) => infoApi.updateSupportHelperConfig({ dev_mode }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['support-helper-config'] });
     },
   });
 
@@ -249,6 +269,48 @@ export function BrandingTab({ accentColor = '#3b82f6' }: BrandingTabProps) {
               disabled={updateGiftMutation.isPending}
             />
           </div>
+
+          <div className="flex items-center justify-between rounded-xl bg-dark-700/30 p-4">
+            <div>
+              <span className="font-medium text-dark-100">
+                {t('admin.settings.supportHelperEnabled')}
+              </span>
+              <p className="text-sm text-dark-400">
+                {t('admin.settings.supportHelperEnabledDesc')}
+              </p>
+            </div>
+            <Toggle
+              checked={supportHelperSettings?.enabled ?? false}
+              onChange={() =>
+                updateSupportHelperEnabledMutation.mutate(
+                  !(supportHelperSettings?.enabled ?? false),
+                )
+              }
+              disabled={updateSupportHelperEnabledMutation.isPending}
+            />
+          </div>
+
+          {supportHelperSettings?.enabled && (
+            <div className="flex items-center justify-between rounded-xl bg-dark-700/30 p-4">
+              <div>
+                <span className="font-medium text-dark-100">
+                  {t('admin.settings.supportHelperDevMode')}
+                </span>
+                <p className="text-sm text-dark-400">
+                  {t('admin.settings.supportHelperDevModeDesc')}
+                </p>
+              </div>
+              <Toggle
+                checked={supportHelperSettings?.dev_mode ?? true}
+                onChange={() =>
+                  updateSupportHelperDevModeMutation.mutate(
+                    !(supportHelperSettings?.dev_mode ?? true),
+                  )
+                }
+                disabled={updateSupportHelperDevModeMutation.isPending}
+              />
+            </div>
+          )}
         </div>
       </div>
     </div>
