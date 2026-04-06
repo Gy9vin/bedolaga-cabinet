@@ -3103,6 +3103,9 @@
           "expired": "expired",
           "daysLeft": "d left",
           "deviceLimitUpdated": "Device limit updated",
+          "modem": "Modem",
+          "modemEnabled": "Modem enabled",
+          "modemDisabled": "Modem disabled",
           "invalidDays": "Please enter a valid number of days (greater than 0)"
         },
         "balance": {

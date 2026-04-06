@@ -18,6 +18,7 @@ export interface UserSubscriptionInfo {
   traffic_limit_gb: number;
   traffic_used_gb: number;
   device_limit: number;
+  modem_enabled: boolean;
   tariff_id: number | null;
   tariff_name: string | null;
   autopay_enabled: boolean;
@@ -299,6 +300,7 @@ export interface UpdateSubscriptionRequest {
     | 'add_traffic'
     | 'remove_traffic'
     | 'set_device_limit'
+    | 'toggle_modem'
     | 'shorten';
   subscription_id?: number;
   days?: number;
@@ -307,6 +309,7 @@ export interface UpdateSubscriptionRequest {
   traffic_limit_gb?: number;
   traffic_used_gb?: number;
   autopay_enabled?: boolean;
+  modem_enabled?: boolean;
   is_trial?: boolean;
   device_limit?: number;
   traffic_gb?: number;

@@ -3616,6 +3616,9 @@
           "expired": "истёк",
           "daysLeft": "дн. осталось",
           "deviceLimitUpdated": "Лимит устройств обновлён",
+          "modem": "Модем",
+          "modemEnabled": "Модем включён",
+          "modemDisabled": "Модем выключен",
           "invalidDays": "Введите корректное количество дней (больше 0)"
         },
         "balance": {

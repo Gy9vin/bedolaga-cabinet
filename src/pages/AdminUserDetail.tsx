@@ -822,6 +822,28 @@ export default function AdminUserDetail() {
     }
   };
 
+  const handleToggleModem = async (enabled: boolean) => {
+    if (!userId) return;
+    setActionLoading(true);
+    try {
+      await adminUsersApi.updateSubscription(userId, {
+        action: 'toggle_modem',
+        modem_enabled: enabled,
+        ...(activeSubscriptionId ? { subscription_id: activeSubscriptionId } : {}),
+      });
+      notify.success(
+        enabled
+          ? t('admin.users.detail.subscription.modemEnabled')
+          : t('admin.users.detail.subscription.modemDisabled'),
+      );
+      await loadUser();
+    } catch {
+      notify.error(t('admin.users.userActions.error'), t('common.error'));
+    } finally {
+      setActionLoading(false);
+    }
+  };
+
   // Multi-subscription: pick active subscription or first from list
   const userSubscriptions = useMemo(() => user?.subscriptions ?? [], [user?.subscriptions]);
   const selectedSub =
@@ -1865,6 +1887,22 @@ export default function AdminUserDetail() {
                           <PlusIcon />
                         </button>
                       </div>
+                    </div>
+                    <div>
+                      <div className="text-xs text-dark-500">
+                        {t('admin.users.detail.subscription.modem')}
+                      </div>
+                      <button
+                        onClick={() => handleToggleModem(!selectedSub.modem_enabled)}
+                        disabled={actionLoading}
+                        className={`rounded-md px-2.5 py-1 text-xs font-medium transition-colors ${
+                          selectedSub.modem_enabled
+                            ? 'bg-success-500/20 text-success-400 hover:bg-success-500/30'
+                            : 'bg-dark-700 text-dark-400 hover:bg-dark-600'
+                        }`}
+                      >
+                        {selectedSub.modem_enabled ? '✅ ON' : '❌ OFF'}
+                      </button>
                     </div>
                   </div>
                 </div>
