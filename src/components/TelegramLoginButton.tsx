@@ -7,7 +7,7 @@ import { brandingApi, type TelegramWidgetConfig } from '../api/branding';
 import { authApi } from '../api/auth';
 import { useAuthStore } from '../store/auth';
 import { useNavigate } from 'react-router';
-import { consumeCampaignSlug } from '../utils/campaign';
+import { getPendingCampaignSlug } from '../utils/campaign';
 import { copyToClipboard } from '../utils/clipboard';
 import { getPendingReferralCode } from '../utils/referral';
 
@@ -253,7 +253,7 @@ export default function TelegramLoginButton({ referralCode }: TelegramLoginButto
       // Referral code is read (not consumed) and embedded in the token request so it
       // survives the Telegram WebApp context switch (different localStorage).
       if (!codesConsumedRef.current) {
-        capturedCampaignRef.current = consumeCampaignSlug();
+        capturedCampaignRef.current = getPendingCampaignSlug();
         codesConsumedRef.current = true;
       }
       const capturedCampaign = capturedCampaignRef.current;
