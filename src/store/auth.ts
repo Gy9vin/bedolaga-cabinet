@@ -3,7 +3,7 @@ import { persist } from 'zustand/middleware';
 import type { CampaignBonusInfo, RegisterResponse, User } from '../types';
 import { authApi } from '../api/auth';
 import { apiClient } from '../api/client';
-import { captureCampaignFromUrl, consumeCampaignSlug } from '../utils/campaign';
+import { captureCampaignFromUrl, consumeCampaignSlug, getPendingCampaignSlug } from '../utils/campaign';
 import {
   captureReferralFromUrl,
   consumeReferralCode,
