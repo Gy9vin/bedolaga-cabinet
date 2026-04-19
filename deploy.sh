@@ -4,12 +4,13 @@
 # Почему так:
 #   remnawave-nginx раздаёт кабинет как статику из /srv/cabinet.
 #   Контейнер cabinet_frontend собирает dist, но к /srv/cabinet не подключён,
-#   поэтому docker compose build у локального форка не влияет на выдачу.
-#   Этот скрипт собирает dist из нашего main и заменяет содержимое /srv/cabinet.
+#   поэтому сборка сама по себе ничего не меняет. Скрипт собирает фронт через
+#   docker compose build и перекладывает статику из контейнера в /srv/cabinet.
 #
 # Использование:
-#   ./deploy.sh            # собрать из текущего кода
-#   ./deploy.sh --pull     # сначала git pull, потом собрать
+#   ./deploy.sh                 # пересобрать контейнер и задеплоить
+#   ./deploy.sh --pull          # git pull + пересобрать + задеплоить
+#   ./deploy.sh --no-build      # только перелить статику из уже собранного контейнера
 
 set -euo pipefail
 
@@ -18,26 +19,38 @@ cd "$SCRIPT_DIR"
 
 TARGET_DIR="${TARGET_DIR:-/srv/cabinet}"
 NGINX_CONTAINER="${NGINX_CONTAINER:-remnawave-nginx}"
+CABINET_CONTAINER="${CABINET_CONTAINER:-cabinet_frontend}"
 
-if [[ "${1:-}" == "--pull" ]]; then
+DO_PULL=0
+DO_BUILD=1
+for arg in "$@"; do
+  case "$arg" in
+    --pull)     DO_PULL=1 ;;
+    --no-build) DO_BUILD=0 ;;
+    *) echo "неизвестный флаг: $arg" >&2; exit 1 ;;
+  esac
+done
+
+if [[ "$DO_PULL" -eq 1 ]]; then
   echo "→ git pull"
   git pull --ff-only
 fi
 
-echo "→ npm ci"
-npm ci
+if [[ "$DO_BUILD" -eq 1 ]]; then
+  echo "→ docker compose build --no-cache"
+  docker compose build --no-cache
+  echo "→ docker compose up -d"
+  docker compose up -d
+fi
 
-echo "→ npm run build"
-npm run build
-
-if [[ ! -d dist ]]; then
-  echo "✗ dist/ не создан, прерываю" >&2
+if ! docker ps --format '{{.Names}}' | grep -q "^${CABINET_CONTAINER}$"; then
+  echo "✗ контейнер $CABINET_CONTAINER не запущен" >&2
   exit 1
 fi
 
 echo "→ deploying to $TARGET_DIR"
-sudo rm -rf "${TARGET_DIR:?}"/*
-sudo cp -r dist/. "$TARGET_DIR/"
+rm -rf "${TARGET_DIR:?}"/*
+docker cp "${CABINET_CONTAINER}:/usr/share/nginx/html/." "$TARGET_DIR/"
 
 echo "→ reloading nginx ($NGINX_CONTAINER)"
 if docker ps --format '{{.Names}}' | grep -q "^${NGINX_CONTAINER}$"; then
