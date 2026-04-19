@@ -1,5 +1,38 @@
 # Changelog
 
+## [1.47.0](https://github.com/BEDOLAGA-DEV/bedolaga-cabinet/compare/v1.46.0...v1.47.0) (2026-04-18)
+
+
+### Features
+
+* add AuraPay payment provider to cabinet frontend ([48827e4](https://github.com/BEDOLAGA-DEV/bedolaga-cabinet/commit/48827e430dfc4b499714b7183c9eeeba86456df5))
+
+
+### Bug Fixes
+
+* change aurapay icon to pink gradient to avoid kassa_ai color collision ([996840f](https://github.com/BEDOLAGA-DEV/bedolaga-cabinet/commit/996840f62754a3871194841966c44a3c2f810a41))
+
+## [1.46.0](https://github.com/BEDOLAGA-DEV/bedolaga-cabinet/compare/v1.45.1...v1.46.0) (2026-04-16)
+
+
+### Features
+
+* add PayPear payment provider to cabinet frontend ([31ac511](https://github.com/BEDOLAGA-DEV/bedolaga-cabinet/commit/31ac511a09fa5f4f62f76b1147f71cae55b438de))
+* add RollyPay payment provider to cabinet frontend ([770a580](https://github.com/BEDOLAGA-DEV/bedolaga-cabinet/commit/770a5803d6490199d5ee0dbc22863f8212245a4f))
+
+
+### Bug Fixes
+
+* add paypear payment method description to ru/en locales ([5cbf29a](https://github.com/BEDOLAGA-DEV/bedolaga-cabinet/commit/5cbf29a1e89cf32dec2a4c5f1742be19573d5490))
+* differentiate rollypay icon from riopay (teal gradient, RY text) ([4eed0f3](https://github.com/BEDOLAGA-DEV/bedolaga-cabinet/commit/4eed0f358ed6f9c094602793ddfdb861a56da369))
+
+## [1.45.1](https://github.com/BEDOLAGA-DEV/bedolaga-cabinet/compare/v1.45.0...v1.45.1) (2026-04-15)
+
+
+### Bug Fixes
+
+* period discounts clearing, SBP default, happ cryptolink flow ([e6cf3af](https://github.com/BEDOLAGA-DEV/bedolaga-cabinet/commit/e6cf3af846090c0425a059d73a431eaa5f67ae0b))
+
 ## [1.45.0](https://github.com/BEDOLAGA-DEV/bedolaga-cabinet/compare/v1.44.2...v1.45.0) (2026-04-13)
 
 
