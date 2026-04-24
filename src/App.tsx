@@ -130,6 +130,9 @@ const AdminBroadcastDetail = lazyWithRetry(() => import('./pages/AdminBroadcastD
 const AdminPinnedMessages = lazyWithRetry(() => import('./pages/AdminPinnedMessages'));
 const AdminPinnedMessageCreate = lazyWithRetry(() => import('./pages/AdminPinnedMessageCreate'));
 const AdminChannelSubscriptions = lazyWithRetry(() => import('./pages/AdminChannelSubscriptions'));
+const AdminChannelMembershipReport = lazyWithRetry(
+  () => import('./pages/AdminChannelMembershipReport'),
+);
 const AdminEmailTemplatePreview = lazyWithRetry(() => import('./pages/AdminEmailTemplatePreview'));
 const AdminRoles = lazyWithRetry(() => import('./pages/AdminRoles'));
 const AdminRoleEdit = lazyWithRetry(() => import('./pages/AdminRoleEdit'));
@@ -1153,6 +1156,16 @@ function App() {
             <PermissionRoute permission="channels:read">
               <LazyPage>
                 <AdminChannelSubscriptions />
+              </LazyPage>
+            </PermissionRoute>
+          }
+        />
+        <Route
+          path="/admin/channel-subscriptions/:id/report"
+          element={
+            <PermissionRoute permission="channels:read">
+              <LazyPage>
+                <AdminChannelMembershipReport />
               </LazyPage>
             </PermissionRoute>
           }

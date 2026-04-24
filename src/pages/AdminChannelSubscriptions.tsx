@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { Link } from 'react-router';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useTranslation } from 'react-i18next';
 import { useHaptic, useNotify } from '../platform';
@@ -321,6 +322,13 @@ function ChannelCard({
 
       {/* Action buttons */}
       <div className="mt-3 flex flex-wrap gap-2 border-t border-dark-700/50 pt-3">
+        <Link
+          to={`/admin/channel-subscriptions/${channel.id}/report`}
+          className="flex items-center gap-1.5 rounded-lg bg-accent-500/20 px-3 py-1.5 text-xs text-accent-400 transition-colors hover:bg-accent-500/30"
+          title="Показать активных подписчиков, которых нет в канале"
+        >
+          📊 Отчёт
+        </Link>
         <button
           onClick={() => onEdit(channel)}
           className="flex items-center gap-1.5 rounded-lg bg-accent-500/20 px-3 py-1.5 text-xs text-accent-400 transition-colors hover:bg-accent-500/30"
