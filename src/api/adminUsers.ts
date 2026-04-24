@@ -34,6 +34,18 @@ export interface UserPromoGroupInfo {
   is_default: boolean;
 }
 
+export interface UserListItemSubscription {
+  id: number;
+  tariff_id: number | null;
+  tariff_name: string | null;
+  status: string;
+  end_date: string | null;
+  days_remaining: number;
+  traffic_used_gb: number;
+  traffic_limit_gb: number;
+  device_limit: number;
+}
+
 export interface UserListItem {
   id: number;
   telegram_id: number;
@@ -50,6 +62,12 @@ export interface UserListItem {
   subscription_status: string | null;
   subscription_is_trial: boolean;
   subscription_end_date: string | null;
+  tariff_id: number | null;
+  tariff_name: string | null;
+  traffic_used_gb: number;
+  traffic_limit_gb: number;
+  device_limit: number;
+  days_remaining: number;
   promo_group_id: number | null;
   promo_group_name: string | null;
   total_spent_kopeks: number;
@@ -57,6 +75,7 @@ export interface UserListItem {
   has_restrictions: boolean;
   restriction_topup: boolean;
   restriction_subscription: boolean;
+  subscriptions?: UserListItemSubscription[];
 }
 
 export interface UsersListResponse {
@@ -396,6 +415,11 @@ export const adminUsersApi = {
       search?: string;
       email?: string;
       status?: 'active' | 'blocked' | 'deleted';
+      subscription_status?: string;
+      tariff_id?: string;
+      promo_group_id?: number;
+      campaign_id?: number;
+      partner_id?: number;
       sort_by?:
         | 'created_at'
         | 'balance'
