@@ -282,7 +282,8 @@
       "tariffs": "Tariffs",
       "traffic": "Traffic",
       "devices": "Devices",
-      "expiredDate": "Expired"
+      "expiredDate": "Expired",
+      "activeUntil": "Active until"
     },
     "suspended": {
       "title": "Subscription Suspended",
@@ -578,8 +579,8 @@
       "unlimited": "Unlimited",
       "buyTrafficGb": "Buy {{gb}} GB",
       "buyUnlimited": "Buy Unlimited",
-      "manageServers": "Server management",
-      "manageServersTitle": "Server management"
+      "manageServers": "Squad management",
+      "manageServersTitle": "Squad management"
     },
     "serverManagement": {
       "statusLegend": "✅ — connected • ➕ — will be added (paid) • ➖ — will be disconnected",
@@ -1155,7 +1156,7 @@
       "apps": "Apps",
       "wheel": "Wheel",
       "tariffs": "Tariffs",
-      "servers": "Servers",
+      "servers": "Squads",
       "banSystem": "Ban Monitoring",
       "broadcasts": "Broadcasts",
       "users": "Users",
@@ -2412,8 +2413,8 @@
       }
     },
     "servers": {
-      "title": "Server Management",
-      "subtitle": "Configure VPN servers",
+      "title": "Squad Management",
+      "subtitle": "Configure squads",
       "sync": "Sync",
       "syncing": "Syncing...",
       "syncNow": "Sync now",

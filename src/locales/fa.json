@@ -409,8 +409,8 @@
       "unlimited": "نامحدود",
       "buyTrafficGb": "خرید {{gb}} GB",
       "buyUnlimited": "خرید نامحدود",
-      "manageServers": "مدیریت سرورها",
-      "manageServersTitle": "مدیریت سرورها",
+      "manageServers": "مدیریت اسکوادها",
+      "manageServersTitle": "مدیریت اسکوادها",
       "reduceDevicesWarning": "با کاهش دستگاه‌ها، هزینه‌های صرف شده برای خرید و تمدید قابل بازگشت نیست — حتی اگر اشتباه کرده یا نظرتان عوض شده باشد."
     },
     "serverManagement": {
@@ -979,7 +979,7 @@
       "apps": "برنامه‌ها",
       "wheel": "چرخ",
       "tariffs": "تعرفه‌ها",
-      "servers": "سرورها",
+      "servers": "اسکوادها",
       "broadcasts": "پیام‌رسانی",
       "emailTemplates": "قالب‌های ایمیل",
       "paymentMethods": "روش‌های پرداخت",
@@ -2047,8 +2047,8 @@
       }
     },
     "servers": {
-      "title": "مدیریت سرورها",
-      "subtitle": "پیکربندی سرورهای VPN",
+      "title": "مدیریت اسکوادها",
+      "subtitle": "پیکربندی اسکوادها",
       "sync": "همگام‌سازی",
       "syncing": "در حال همگام‌سازی...",
       "syncNow": "همگام‌سازی الان",

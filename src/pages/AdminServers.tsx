@@ -4,6 +4,7 @@ import { useTranslation } from 'react-i18next';
 import { serversApi, ServerListItem } from '../api/servers';
 import { SyncIcon, EditIcon, CheckIcon, XIcon, UsersIcon, GiftIcon } from '../components/icons';
 import { usePlatform } from '../platform/hooks/usePlatform';
+import Twemoji from 'react-twemoji';
 
 // BackIcon
 const BackIcon = () => (
@@ -145,7 +146,11 @@ export default function AdminServers() {
                 <div className="min-w-0 flex-1">
                   <div className="mb-1 flex items-center gap-2">
                     <span className="text-lg">{getCountryFlag(server.country_code)}</span>
-                    <h3 className="truncate font-medium text-dark-100">{server.display_name}</h3>
+                    <h3 className="truncate font-medium text-dark-100">
+                      <Twemoji options={{ className: 'twemoji', folder: 'svg', ext: '.svg' }}>
+                        {server.display_name}
+                      </Twemoji>
+                    </h3>
                     {server.is_trial_eligible && (
                       <span className="rounded bg-success-500/20 px-2 py-0.5 text-xs text-success-400">
                         {t('admin.servers.trial')}
@@ -181,14 +186,14 @@ export default function AdminServers() {
                     onClick={() => toggleMutation.mutate(server.id)}
                     className={`rounded-lg p-2 transition-colors ${
                       server.is_available
-                        ? 'bg-success-500/20 text-success-400 hover:bg-success-500/30'
-                        : 'bg-dark-700 text-dark-400 hover:bg-dark-600'
+                        ? 'bg-error-500/20 text-error-400 hover:bg-error-500/30'
+                        : 'bg-success-500/20 text-success-400 hover:bg-success-500/30'
                     }`}
                     title={
                       server.is_available ? t('admin.servers.disable') : t('admin.servers.enable')
                     }
                   >
-                    {server.is_available ? <CheckIcon /> : <XIcon />}
+                    {server.is_available ? <XIcon /> : <CheckIcon />}
                   </button>
 
                   {/* Toggle Trial */}
@@ -196,7 +201,7 @@ export default function AdminServers() {
                     onClick={() => toggleTrialMutation.mutate(server.id)}
                     className={`rounded-lg p-2 transition-colors ${
                       server.is_trial_eligible
-                        ? 'bg-accent-500/20 text-accent-400 hover:bg-accent-500/30'
+                        ? 'bg-warning-500/20 text-warning-400 hover:bg-warning-500/30'
                         : 'bg-dark-700 text-dark-400 hover:bg-dark-600'
                     }`}
                     title={t('admin.servers.toggleTrial')}
