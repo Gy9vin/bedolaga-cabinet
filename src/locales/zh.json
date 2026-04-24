@@ -3371,6 +3371,7 @@
       "title": "信息页面",
       "subtitle": "管理静态信息页面",
       "create": "创建页面",
+      "createFaq": "创建FAQ",
       "edit": "编辑",
       "save": "保存",
       "saving": "保存中...",
@@ -3382,6 +3383,7 @@
       "notFound": "页面未找到",
       "active": "已激活",
       "inactive": "未激活",
+      "typePage": "页面",
       "localeLabel": "内容语言",
       "fields": {
         "slug": "URL标识",
@@ -3389,7 +3391,34 @@
         "content": "内容",
         "isActive": "已激活",
         "sortOrder": "排序",
-        "icon": "图标（表情）"
+        "icon": "图标（表情）",
+        "pageType": "页面类型"
+      },
+      "filter": {
+        "all": "全部",
+        "page": "页面",
+        "faq": "FAQ"
+      },
+      "pageTypes": {
+        "page": "页面",
+        "faq": "FAQ"
+      },
+      "faq": {
+        "questions": "问答",
+        "questionsCount": "个问题",
+        "noQuestions": "暂无问题。点击下方按钮添加。",
+        "questionNumber": "问题 #{{n}}",
+        "question": "问题",
+        "answer": "答案",
+        "questionPlaceholder": "输入问题...",
+        "answerPlaceholder": "输入答案（支持HTML）...",
+        "htmlHint": "支持HTML标记",
+        "addQuestion": "添加问题",
+        "removeQuestion": "删除问题",
+        "moveUp": "上移",
+        "moveDown": "下移",
+        "searchPlaceholder": "搜索问题...",
+        "noResults": "未找到结果"
       },
       "locales": {
         "ru": "俄语",

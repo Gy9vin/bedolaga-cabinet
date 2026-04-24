@@ -1,10 +1,11 @@
-import { useEffect, useMemo, useRef } from 'react';
+import { useEffect, useMemo, useRef, useState, useCallback } from 'react';
 import { useParams, useNavigate } from 'react-router';
 import { useTranslation } from 'react-i18next';
 import { useQuery } from '@tanstack/react-query';
 import DOMPurify from 'dompurify';
 import { infoPagesApi } from '../api/infoPages';
 import { usePlatform } from '../platform/hooks/usePlatform';
+import type { FaqItem } from '../api/infoPages';
 
 // Icons
 const BackIcon = () => (
@@ -168,6 +169,141 @@ function sanitizeHtml(html: string): string {
   return infoPagePurify.sanitize(html, SANITIZE_CONFIG);
 }
 
+// --- FAQ Accordion ---
+const ChevronIcon = ({ open }: { open: boolean }) => (
+  <svg
+    className={`h-5 w-5 text-dark-400 transition-transform duration-300 ${open ? 'rotate-180' : ''}`}
+    fill="none"
+    viewBox="0 0 24 24"
+    stroke="currentColor"
+    strokeWidth={2}
+  >
+    <path strokeLinecap="round" strokeLinejoin="round" d="M19.5 8.25l-7.5 7.5-7.5-7.5" />
+  </svg>
+);
+
+const SearchIcon = () => (
+  <svg
+    className="h-4 w-4 text-dark-500"
+    fill="none"
+    viewBox="0 0 24 24"
+    stroke="currentColor"
+    strokeWidth={2}
+  >
+    <path
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z"
+    />
+  </svg>
+);
+
+function FaqAccordionItem({
+  item,
+  isOpen,
+  onToggle,
+}: {
+  item: FaqItem;
+  isOpen: boolean;
+  onToggle: () => void;
+}) {
+  const contentRef = useRef<HTMLDivElement>(null);
+  const [height, setHeight] = useState(0);
+
+  useEffect(() => {
+    if (contentRef.current) {
+      setHeight(isOpen ? contentRef.current.scrollHeight : 0);
+    }
+  }, [isOpen]);
+
+  const sanitizedAnswer = useMemo(() => sanitizeHtml(item.a), [item.a]);
+
+  return (
+    <div className="overflow-hidden rounded-xl border border-dark-700 bg-dark-800/50 transition-all hover:border-dark-600">
+      <button
+        type="button"
+        onClick={onToggle}
+        className="flex min-h-[52px] w-full items-center justify-between gap-3 px-5 py-4 text-left"
+        aria-expanded={isOpen}
+      >
+        <span className="text-sm font-medium text-dark-100 sm:text-base">{item.q}</span>
+        <ChevronIcon open={isOpen} />
+      </button>
+      <div
+        style={{ height }}
+        className="overflow-hidden transition-[height] duration-300 ease-in-out"
+      >
+        <div ref={contentRef} className="border-t border-dark-700/50 px-5 pb-4 pt-3">
+          <div
+            className="prose prose-sm max-w-none text-dark-300"
+            dangerouslySetInnerHTML={{ __html: sanitizedAnswer }}
+          />
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function FaqView({ items }: { items: FaqItem[] }) {
+  const { t } = useTranslation();
+  const [openIndex, setOpenIndex] = useState<number | null>(null);
+  const [search, setSearch] = useState('');
+
+  const handleToggle = useCallback(
+    (index: number) => {
+      setOpenIndex(openIndex === index ? null : index);
+    },
+    [openIndex],
+  );
+
+  const filteredItems = useMemo(() => {
+    if (!search.trim()) return items;
+    const lower = search.toLowerCase();
+    return items.filter((item) => item.q.toLowerCase().includes(lower));
+  }, [items, search]);
+
+  return (
+    <div className="space-y-4">
+      {/* Search */}
+      {items.length > 3 && (
+        <div className="relative">
+          <div className="pointer-events-none absolute inset-y-0 left-3 flex items-center">
+            <SearchIcon />
+          </div>
+          <input
+            type="text"
+            value={search}
+            onChange={(e) => {
+              setSearch(e.target.value);
+              setOpenIndex(null);
+            }}
+            placeholder={t('admin.infoPages.faq.searchPlaceholder')}
+            className="input pl-9 text-sm"
+          />
+        </div>
+      )}
+
+      {/* Accordion items */}
+      {filteredItems.length === 0 ? (
+        <div className="rounded-xl border border-dark-700 bg-dark-800/50 p-6 text-center text-sm text-dark-400">
+          {search ? t('admin.infoPages.faq.noResults') : t('admin.infoPages.faq.noQuestions')}
+        </div>
+      ) : (
+        <div className="space-y-2">
+          {filteredItems.map((item, index) => (
+            <FaqAccordionItem
+              key={index}
+              item={item}
+              isOpen={openIndex === index}
+              onToggle={() => handleToggle(index)}
+            />
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
+
 export default function InfoPageView() {
   const { slug } = useParams<{ slug: string }>();
   const { t, i18n } = useTranslation();
@@ -206,12 +342,26 @@ export default function InfoPageView() {
     return page.title[locale] || page.title['ru'] || page.title['en'] || '';
   }, [page, locale]);
 
+  const isFaq = page?.page_type === 'faq';
+
+  // Parse FAQ items from content
+  const faqItems = useMemo((): FaqItem[] => {
+    if (!page || !isFaq) return [];
+    const raw = page.content[locale] || page.content['ru'] || page.content['en'] || '[]';
+    try {
+      const parsed = typeof raw === 'string' ? JSON.parse(raw) : raw;
+      return Array.isArray(parsed) ? parsed : [];
+    } catch {
+      return [];
+    }
+  }, [page, locale, isFaq]);
+
   // Content is sanitized with DOMPurify before rendering
   const sanitizedContent = useMemo(() => {
-    if (!page) return '';
+    if (!page || isFaq) return '';
     const rawContent = page.content[locale] || page.content['ru'] || page.content['en'] || '';
     return sanitizeHtml(rawContent);
-  }, [page, locale]);
+  }, [page, locale, isFaq]);
 
   if (isLoading) {
     return (
@@ -269,11 +419,16 @@ export default function InfoPageView() {
         </h1>
       </div>
 
-      {/* Page content - sanitized with DOMPurify (strict allowlist) */}
-      <div
-        className="prose max-w-none overflow-x-auto lg:max-w-3xl"
-        dangerouslySetInnerHTML={{ __html: sanitizedContent }}
-      />
+      {/* Page content */}
+      {isFaq ? (
+        <FaqView items={faqItems} />
+      ) : (
+        /* Regular page content - sanitized with DOMPurify (strict allowlist) */
+        <div
+          className="prose max-w-none overflow-x-auto lg:max-w-3xl"
+          dangerouslySetInnerHTML={{ __html: sanitizedContent }}
+        />
+      )}
     </div>
   );
 }

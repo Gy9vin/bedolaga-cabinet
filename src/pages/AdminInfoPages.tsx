@@ -1,4 +1,4 @@
-import { useCallback, memo } from 'react';
+import { useCallback, useState, memo } from 'react';
 import { useNavigate } from 'react-router';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useTranslation } from 'react-i18next';
@@ -7,7 +7,10 @@ import { AdminBackButton } from '../components/admin';
 import { Toggle } from '../components/admin/Toggle';
 import { useHapticFeedback } from '../platform/hooks/useHaptic';
 import { useDestructiveConfirm } from '../platform/hooks/useNativeDialog';
-import type { InfoPageListItem } from '../api/infoPages';
+import { cn } from '../lib/utils';
+import type { InfoPageListItem, InfoPageType } from '../api/infoPages';
+
+type FilterTab = 'all' | 'page' | 'faq';
 
 // Icons
 const PlusIcon = () => (
@@ -120,6 +123,15 @@ const PageRow = memo(function PageRow({
             </span>
             <span
               className={`rounded-full px-2 py-0.5 text-[10px] font-medium ${
+                page.page_type === 'faq'
+                  ? 'bg-warning-500/20 text-warning-400'
+                  : 'bg-accent-500/20 text-accent-400'
+              }`}
+            >
+              {page.page_type === 'faq' ? 'FAQ' : t('admin.infoPages.typePage')}
+            </span>
+            <span
+              className={`rounded-full px-2 py-0.5 text-[10px] font-medium ${
                 page.is_active
                   ? 'bg-success-500/20 text-success-400'
                   : 'bg-dark-500/20 text-dark-400'
@@ -212,14 +224,17 @@ export default function AdminInfoPages() {
   const haptic = useHapticFeedback();
   const confirm = useDestructiveConfirm();
   const currentLocale = i18n.language.split('-')[0];
+  const [activeFilter, setActiveFilter] = useState<FilterTab>('all');
+
+  const filterParam: InfoPageType | undefined = activeFilter === 'all' ? undefined : activeFilter;
 
   const {
     data: pages,
     isLoading,
     refetch,
   } = useQuery({
-    queryKey: ['admin', 'info-pages', 'list'],
-    queryFn: () => infoPagesApi.getAdminPages(),
+    queryKey: ['admin', 'info-pages', 'list', activeFilter],
+    queryFn: () => infoPagesApi.getAdminPages(filterParam),
     staleTime: 30_000,
   });
 
@@ -286,6 +301,17 @@ export default function AdminInfoPages() {
           <button
             onClick={() => {
               haptic.buttonPress();
+              navigate('/admin/info-pages/create?type=faq');
+            }}
+            className="flex min-h-[44px] items-center gap-2 rounded-lg bg-warning-500/80 px-4 py-2.5 text-white transition-colors hover:bg-warning-500"
+            aria-label={t('admin.infoPages.createFaq')}
+          >
+            <PlusIcon />
+            <span className="hidden sm:inline">{t('admin.infoPages.createFaq')}</span>
+          </button>
+          <button
+            onClick={() => {
+              haptic.buttonPress();
               navigate('/admin/info-pages/create');
             }}
             className="flex min-h-[44px] items-center gap-2 rounded-lg bg-accent-500 px-4 py-2.5 text-white transition-colors hover:bg-accent-600"
@@ -295,6 +321,25 @@ export default function AdminInfoPages() {
             <span className="hidden sm:inline">{t('admin.infoPages.create')}</span>
           </button>
         </div>
+      </div>
+
+      {/* Filter tabs */}
+      <div className="flex gap-1">
+        {(['all', 'page', 'faq'] as const).map((tab) => (
+          <button
+            key={tab}
+            type="button"
+            onClick={() => setActiveFilter(tab)}
+            className={cn(
+              'min-h-[44px] rounded-lg px-4 py-2.5 text-sm font-medium transition-colors',
+              activeFilter === tab
+                ? 'bg-accent-500 text-white'
+                : 'bg-dark-700 text-dark-300 hover:bg-dark-600 hover:text-dark-100',
+            )}
+          >
+            {t(`admin.infoPages.filter.${tab}`)}
+          </button>
+        ))}
       </div>
 
       {/* Pages list */}

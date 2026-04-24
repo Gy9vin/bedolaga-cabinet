@@ -1,5 +1,5 @@
 import { useState, useEffect, useMemo, useRef, useCallback } from 'react';
-import { useNavigate, useParams } from 'react-router';
+import { useNavigate, useParams, useSearchParams } from 'react-router';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useTranslation } from 'react-i18next';
 import { useEditor, EditorContent } from '@tiptap/react';
@@ -17,6 +17,7 @@ import { AdminBackButton } from '../components/admin';
 import { Toggle } from '../components/admin/Toggle';
 import { useHapticFeedback } from '../platform/hooks/useHaptic';
 import { cn } from '../lib/utils';
+import type { InfoPageType, FaqItem } from '../api/infoPages';
 
 const AVAILABLE_LOCALES = ['ru', 'en', 'zh', 'fa'] as const;
 type LocaleCode = (typeof AVAILABLE_LOCALES)[number];
@@ -204,14 +205,203 @@ function generateSlug(title: string): string {
     .substring(0, 100);
 }
 
+// --- FAQ Q&A Item Icons ---
+const ChevronUpIcon = () => (
+  <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+    <path strokeLinecap="round" strokeLinejoin="round" d="M4.5 15.75l7.5-7.5 7.5 7.5" />
+  </svg>
+);
+
+const ChevronDownIcon = () => (
+  <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+    <path strokeLinecap="round" strokeLinejoin="round" d="M19.5 8.25l-7.5 7.5-7.5-7.5" />
+  </svg>
+);
+
+const TrashSmallIcon = () => (
+  <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+    <path
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      d="M14.74 9l-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 01-2.244 2.077H8.084a2.25 2.25 0 01-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 00-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 013.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 00-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 00-7.5 0"
+    />
+  </svg>
+);
+
+const PlusSmallIcon = () => (
+  <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+    <path strokeLinecap="round" strokeLinejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
+  </svg>
+);
+
+// --- FAQ Q&A Builder ---
+interface FaqBuilderProps {
+  items: FaqItem[];
+  onChange: (items: FaqItem[]) => void;
+  locale: string;
+  localeLabel: string;
+}
+
+function FaqBuilder({ items, onChange, locale, localeLabel }: FaqBuilderProps) {
+  const { t } = useTranslation();
+
+  const handleQuestionChange = useCallback(
+    (index: number, value: string) => {
+      const updated = items.map((item, i) => (i === index ? { ...item, q: value } : item));
+      onChange(updated);
+    },
+    [items, onChange],
+  );
+
+  const handleAnswerChange = useCallback(
+    (index: number, value: string) => {
+      const updated = items.map((item, i) => (i === index ? { ...item, a: value } : item));
+      onChange(updated);
+    },
+    [items, onChange],
+  );
+
+  const handleRemove = useCallback(
+    (index: number) => {
+      onChange(items.filter((_, i) => i !== index));
+    },
+    [items, onChange],
+  );
+
+  const handleAdd = useCallback(() => {
+    onChange([...items, { q: '', a: '' }]);
+  }, [items, onChange]);
+
+  const handleMoveUp = useCallback(
+    (index: number) => {
+      if (index === 0) return;
+      const updated = [...items];
+      [updated[index - 1], updated[index]] = [updated[index], updated[index - 1]];
+      onChange(updated);
+    },
+    [items, onChange],
+  );
+
+  const handleMoveDown = useCallback(
+    (index: number) => {
+      if (index >= items.length - 1) return;
+      const updated = [...items];
+      [updated[index], updated[index + 1]] = [updated[index + 1], updated[index]];
+      onChange(updated);
+    },
+    [items, onChange],
+  );
+
+  void locale;
+
+  return (
+    <div className="space-y-4">
+      <div className="flex items-center justify-between">
+        <label className="label">
+          {t('admin.infoPages.faq.questions')} ({localeLabel})
+        </label>
+        <span className="text-xs text-dark-500">
+          {items.length} {t('admin.infoPages.faq.questionsCount')}
+        </span>
+      </div>
+
+      {items.length === 0 && (
+        <div className="rounded-xl border border-dashed border-dark-700 bg-dark-800/30 p-6 text-center text-sm text-dark-500">
+          {t('admin.infoPages.faq.noQuestions')}
+        </div>
+      )}
+
+      {items.map((item, index) => (
+        <div
+          key={index}
+          className="rounded-xl border border-dark-700 bg-dark-800/50 p-4 transition-all hover:border-dark-600"
+        >
+          <div className="mb-3 flex items-center justify-between">
+            <span className="text-xs font-medium text-dark-400">
+              {t('admin.infoPages.faq.questionNumber', { n: index + 1 })}
+            </span>
+            <div className="flex items-center gap-1">
+              <button
+                type="button"
+                onClick={() => handleMoveUp(index)}
+                disabled={index === 0}
+                className="min-h-[36px] min-w-[36px] rounded-lg p-2 text-dark-400 transition-colors hover:bg-dark-700 hover:text-dark-200 disabled:cursor-not-allowed disabled:opacity-30"
+                title={t('admin.infoPages.faq.moveUp')}
+              >
+                <ChevronUpIcon />
+              </button>
+              <button
+                type="button"
+                onClick={() => handleMoveDown(index)}
+                disabled={index >= items.length - 1}
+                className="min-h-[36px] min-w-[36px] rounded-lg p-2 text-dark-400 transition-colors hover:bg-dark-700 hover:text-dark-200 disabled:cursor-not-allowed disabled:opacity-30"
+                title={t('admin.infoPages.faq.moveDown')}
+              >
+                <ChevronDownIcon />
+              </button>
+              <button
+                type="button"
+                onClick={() => handleRemove(index)}
+                className="min-h-[36px] min-w-[36px] rounded-lg p-2 text-dark-400 transition-colors hover:bg-error-500/10 hover:text-error-400"
+                title={t('admin.infoPages.faq.removeQuestion')}
+              >
+                <TrashSmallIcon />
+              </button>
+            </div>
+          </div>
+
+          <div className="space-y-3">
+            <div>
+              <label className="mb-1 block text-xs font-medium text-dark-400">
+                {t('admin.infoPages.faq.question')}
+              </label>
+              <input
+                type="text"
+                value={item.q}
+                onChange={(e) => handleQuestionChange(index, e.target.value)}
+                className="input text-sm"
+                placeholder={t('admin.infoPages.faq.questionPlaceholder')}
+              />
+            </div>
+            <div>
+              <label className="mb-1 block text-xs font-medium text-dark-400">
+                {t('admin.infoPages.faq.answer')}
+              </label>
+              <textarea
+                value={item.a}
+                onChange={(e) => handleAnswerChange(index, e.target.value)}
+                className="input min-h-[80px] text-sm"
+                placeholder={t('admin.infoPages.faq.answerPlaceholder')}
+                rows={3}
+              />
+              <p className="mt-1 text-[10px] text-dark-500">{t('admin.infoPages.faq.htmlHint')}</p>
+            </div>
+          </div>
+        </div>
+      ))}
+
+      <button
+        type="button"
+        onClick={handleAdd}
+        className="flex min-h-[44px] w-full items-center justify-center gap-2 rounded-xl border border-dashed border-dark-600 bg-dark-800/30 py-3 text-sm font-medium text-dark-300 transition-colors hover:border-dark-500 hover:bg-dark-800/50 hover:text-dark-100"
+      >
+        <PlusSmallIcon />
+        {t('admin.infoPages.faq.addQuestion')}
+      </button>
+    </div>
+  );
+}
+
 export default function AdminInfoPageEditor() {
   const { t } = useTranslation();
   const navigate = useNavigate();
   const { id: rawId } = useParams<{ id: string }>();
+  const [searchParams] = useSearchParams();
   const queryClient = useQueryClient();
   const haptic = useHapticFeedback();
   const pageId = rawId != null ? Number(rawId) : undefined;
   const isEdit = pageId != null && !Number.isNaN(pageId);
+  const initialPageType = (searchParams.get('type') === 'faq' ? 'faq' : 'page') as InfoPageType;
 
   // Form state
   const [slug, setSlug] = useState('');
@@ -219,7 +409,11 @@ export default function AdminInfoPageEditor() {
   const [icon, setIcon] = useState('');
   const [isActive, setIsActive] = useState(true);
   const [sortOrder, setSortOrder] = useState(0);
+  const [pageType, setPageType] = useState<InfoPageType>(initialPageType);
   const [saveError, setSaveError] = useState<string | null>(null);
+
+  // FAQ Q&A state per locale
+  const [faqItems, setFaqItems] = useState<Record<string, FaqItem[]>>({});
 
   // Multi-locale state
   const [activeLocale, setActiveLocale] = useState<LocaleCode>('ru');
@@ -411,7 +605,7 @@ export default function AdminInfoPageEditor() {
     refetchOnWindowFocus: false,
   });
 
-  // Populate form when page data loads (once only — not on locale switch)
+  // Populate form when page data loads (once only -- not on locale switch)
   const editorPopulated = useRef(false);
   const formPopulated = useRef(false);
   useEffect(() => {
@@ -421,8 +615,26 @@ export default function AdminInfoPageEditor() {
     setIcon(pageData.icon ?? '');
     setIsActive(pageData.is_active);
     setSortOrder(pageData.sort_order);
+    setPageType(pageData.page_type ?? 'page');
     setTitles(pageData.title);
-    setContents(pageData.content);
+
+    if (pageData.page_type === 'faq') {
+      // For FAQ pages, content stores Q&A arrays per locale
+      const parsed: Record<string, FaqItem[]> = {};
+      for (const [loc, val] of Object.entries(pageData.content)) {
+        try {
+          const arr = typeof val === 'string' ? JSON.parse(val) : val;
+          parsed[loc] = Array.isArray(arr) ? arr : [];
+        } catch {
+          parsed[loc] = [];
+        }
+      }
+      setFaqItems(parsed);
+      setContents({});
+    } else {
+      setContents(pageData.content);
+    }
+
     formPopulated.current = true;
   }, [pageData]);
 
@@ -466,6 +678,7 @@ export default function AdminInfoPageEditor() {
       slug: string;
       title: Record<string, string>;
       content: Record<string, string>;
+      page_type: InfoPageType;
       is_active: boolean;
       sort_order: number;
       icon: string | null;
@@ -491,18 +704,29 @@ export default function AdminInfoPageEditor() {
     setSaveError(null);
     if (!slug.trim()) return;
 
-    // Capture current editor content for the active locale
-    const currentHtml = editor?.getHTML() ?? '';
-    const isEmpty = currentHtml === '<p></p>' || currentHtml === '';
-    const finalContents = {
-      ...contents,
-      [activeLocale]: isEmpty ? '' : currentHtml,
-    };
+    let finalContents: Record<string, string>;
+
+    if (pageType === 'faq') {
+      // Serialize FAQ items as JSON strings per locale
+      finalContents = {};
+      for (const [loc, items] of Object.entries(faqItems)) {
+        finalContents[loc] = JSON.stringify(items);
+      }
+    } else {
+      // Capture current editor content for the active locale
+      const currentHtml = editor?.getHTML() ?? '';
+      const isEmpty = currentHtml === '<p></p>' || currentHtml === '';
+      finalContents = {
+        ...contents,
+        [activeLocale]: isEmpty ? '' : currentHtml,
+      };
+    }
 
     const data = {
       slug: slug.trim(),
       title: titles,
       content: finalContents,
+      page_type: pageType,
       is_active: isActive,
       sort_order: sortOrder,
       icon: icon.trim() || null,
@@ -606,6 +830,30 @@ export default function AdminInfoPageEditor() {
           <span className="text-sm text-dark-300">{t('admin.infoPages.fields.isActive')}</span>
         </div>
 
+        {/* Page type selector */}
+        <div>
+          <label className="label">{t('admin.infoPages.fields.pageType')}</label>
+          <div className="flex gap-1">
+            {(['page', 'faq'] as const).map((pt) => (
+              <button
+                key={pt}
+                type="button"
+                onClick={() => setPageType(pt)}
+                className={cn(
+                  'min-h-[44px] rounded-lg px-4 py-2.5 text-sm font-medium transition-colors',
+                  pageType === pt
+                    ? pt === 'faq'
+                      ? 'bg-warning-500 text-white'
+                      : 'bg-accent-500 text-white'
+                    : 'bg-dark-700 text-dark-300 hover:bg-dark-600 hover:text-dark-100',
+                )}
+              >
+                {t(`admin.infoPages.pageTypes.${pt}`)}
+              </button>
+            ))}
+          </div>
+        </div>
+
         {/* Locale tabs */}
         <div>
           <label className="label">{t('admin.infoPages.localeLabel')}</label>
@@ -641,182 +889,191 @@ export default function AdminInfoPageEditor() {
           />
         </div>
 
-        {/* Content editor */}
-        <div>
-          <label className="label">
-            {t('admin.infoPages.fields.content')} ({t(`admin.infoPages.locales.${activeLocale}`)})
-          </label>
-          <div
-            className="relative overflow-hidden rounded-xl border border-dark-700 bg-dark-800/50"
-            onDragOver={handleEditorDragOver}
-            onDragLeave={handleEditorDragLeave}
-            onDrop={handleEditorDrop}
-          >
-            {/* Upload progress overlay */}
-            {isUploading && (
-              <div className="absolute inset-0 z-10 flex items-center justify-center rounded-xl bg-dark-900/60 backdrop-blur-sm">
-                <div className="flex flex-col items-center gap-3">
-                  <div className="h-8 w-8 animate-spin rounded-full border-2 border-accent-400 border-t-transparent" />
-                  <span className="text-sm font-medium text-dark-200">
-                    {t('news.admin.uploading')}
+        {/* Content: TipTap editor for pages, FAQ builder for FAQ */}
+        {pageType === 'faq' ? (
+          <FaqBuilder
+            items={faqItems[activeLocale] ?? []}
+            onChange={(items) => setFaqItems((prev) => ({ ...prev, [activeLocale]: items }))}
+            locale={activeLocale}
+            localeLabel={t(`admin.infoPages.locales.${activeLocale}`)}
+          />
+        ) : (
+          <div>
+            <label className="label">
+              {t('admin.infoPages.fields.content')} ({t(`admin.infoPages.locales.${activeLocale}`)})
+            </label>
+            <div
+              className="relative overflow-hidden rounded-xl border border-dark-700 bg-dark-800/50"
+              onDragOver={handleEditorDragOver}
+              onDragLeave={handleEditorDragLeave}
+              onDrop={handleEditorDrop}
+            >
+              {/* Upload progress overlay */}
+              {isUploading && (
+                <div className="absolute inset-0 z-10 flex items-center justify-center rounded-xl bg-dark-900/60 backdrop-blur-sm">
+                  <div className="flex flex-col items-center gap-3">
+                    <div className="h-8 w-8 animate-spin rounded-full border-2 border-accent-400 border-t-transparent" />
+                    <span className="text-sm font-medium text-dark-200">
+                      {t('news.admin.uploading')}
+                    </span>
+                  </div>
+                </div>
+              )}
+
+              {/* Drag overlay */}
+              {isDragging && !isUploading && (
+                <div className="absolute inset-0 z-10 flex items-center justify-center rounded-xl border-2 border-dashed border-accent-400 bg-accent-400/10">
+                  <span className="text-sm font-semibold text-accent-400">
+                    {t('news.admin.dropMedia')}
                   </span>
                 </div>
-              </div>
-            )}
+              )}
 
-            {/* Drag overlay */}
-            {isDragging && !isUploading && (
-              <div className="absolute inset-0 z-10 flex items-center justify-center rounded-xl border-2 border-dashed border-accent-400 bg-accent-400/10">
-                <span className="text-sm font-semibold text-accent-400">
-                  {t('news.admin.dropMedia')}
-                </span>
-              </div>
-            )}
+              {/* Toolbar */}
+              {editor && (
+                <div className="flex flex-wrap items-center gap-0.5 border-b border-dark-700 bg-dark-800 p-2">
+                  <ToolbarButton
+                    onClick={() => editor.chain().focus().toggleBold().run()}
+                    isActive={editor.isActive('bold')}
+                    title={t('news.admin.toolbar.bold')}
+                  >
+                    <BoldIcon />
+                  </ToolbarButton>
+                  <ToolbarButton
+                    onClick={() => editor.chain().focus().toggleItalic().run()}
+                    isActive={editor.isActive('italic')}
+                    title={t('news.admin.toolbar.italic')}
+                  >
+                    <ItalicIcon />
+                  </ToolbarButton>
+                  <ToolbarButton
+                    onClick={() => editor.chain().focus().toggleUnderline().run()}
+                    isActive={editor.isActive('underline')}
+                    title={t('news.admin.toolbar.underline')}
+                  >
+                    <UnderlineIcon />
+                  </ToolbarButton>
+                  <ToolbarButton
+                    onClick={() => editor.chain().focus().toggleStrike().run()}
+                    isActive={editor.isActive('strike')}
+                    title={t('news.admin.toolbar.strikethrough')}
+                  >
+                    <StrikeIcon />
+                  </ToolbarButton>
 
-            {/* Toolbar */}
-            {editor && (
-              <div className="flex flex-wrap items-center gap-0.5 border-b border-dark-700 bg-dark-800 p-2">
-                <ToolbarButton
-                  onClick={() => editor.chain().focus().toggleBold().run()}
-                  isActive={editor.isActive('bold')}
-                  title={t('news.admin.toolbar.bold')}
-                >
-                  <BoldIcon />
-                </ToolbarButton>
-                <ToolbarButton
-                  onClick={() => editor.chain().focus().toggleItalic().run()}
-                  isActive={editor.isActive('italic')}
-                  title={t('news.admin.toolbar.italic')}
-                >
-                  <ItalicIcon />
-                </ToolbarButton>
-                <ToolbarButton
-                  onClick={() => editor.chain().focus().toggleUnderline().run()}
-                  isActive={editor.isActive('underline')}
-                  title={t('news.admin.toolbar.underline')}
-                >
-                  <UnderlineIcon />
-                </ToolbarButton>
-                <ToolbarButton
-                  onClick={() => editor.chain().focus().toggleStrike().run()}
-                  isActive={editor.isActive('strike')}
-                  title={t('news.admin.toolbar.strikethrough')}
-                >
-                  <StrikeIcon />
-                </ToolbarButton>
+                  <div className="mx-1 h-5 w-px bg-dark-700" />
 
-                <div className="mx-1 h-5 w-px bg-dark-700" />
+                  <ToolbarButton
+                    onClick={() => editor.chain().focus().toggleHeading({ level: 1 }).run()}
+                    isActive={editor.isActive('heading', { level: 1 })}
+                    title={t('news.admin.toolbar.heading1')}
+                  >
+                    <H1Icon />
+                  </ToolbarButton>
+                  <ToolbarButton
+                    onClick={() => editor.chain().focus().toggleHeading({ level: 2 }).run()}
+                    isActive={editor.isActive('heading', { level: 2 })}
+                    title={t('news.admin.toolbar.heading2')}
+                  >
+                    <H2Icon />
+                  </ToolbarButton>
+                  <ToolbarButton
+                    onClick={() => editor.chain().focus().toggleHeading({ level: 3 }).run()}
+                    isActive={editor.isActive('heading', { level: 3 })}
+                    title={t('news.admin.toolbar.heading3')}
+                  >
+                    <H3Icon />
+                  </ToolbarButton>
 
-                <ToolbarButton
-                  onClick={() => editor.chain().focus().toggleHeading({ level: 1 }).run()}
-                  isActive={editor.isActive('heading', { level: 1 })}
-                  title={t('news.admin.toolbar.heading1')}
-                >
-                  <H1Icon />
-                </ToolbarButton>
-                <ToolbarButton
-                  onClick={() => editor.chain().focus().toggleHeading({ level: 2 }).run()}
-                  isActive={editor.isActive('heading', { level: 2 })}
-                  title={t('news.admin.toolbar.heading2')}
-                >
-                  <H2Icon />
-                </ToolbarButton>
-                <ToolbarButton
-                  onClick={() => editor.chain().focus().toggleHeading({ level: 3 }).run()}
-                  isActive={editor.isActive('heading', { level: 3 })}
-                  title={t('news.admin.toolbar.heading3')}
-                >
-                  <H3Icon />
-                </ToolbarButton>
+                  <div className="mx-1 h-5 w-px bg-dark-700" />
 
-                <div className="mx-1 h-5 w-px bg-dark-700" />
+                  <ToolbarButton
+                    onClick={() => editor.chain().focus().toggleBulletList().run()}
+                    isActive={editor.isActive('bulletList')}
+                    title={t('news.admin.toolbar.bulletList')}
+                  >
+                    <ListBulletIcon />
+                  </ToolbarButton>
+                  <ToolbarButton
+                    onClick={() => editor.chain().focus().toggleOrderedList().run()}
+                    isActive={editor.isActive('orderedList')}
+                    title={t('news.admin.toolbar.orderedList')}
+                  >
+                    <ListOrderedIcon />
+                  </ToolbarButton>
+                  <ToolbarButton
+                    onClick={() => editor.chain().focus().toggleBlockquote().run()}
+                    isActive={editor.isActive('blockquote')}
+                    title={t('news.admin.toolbar.blockquote')}
+                  >
+                    <QuoteIcon />
+                  </ToolbarButton>
+                  <ToolbarButton
+                    onClick={() => editor.chain().focus().toggleCodeBlock().run()}
+                    isActive={editor.isActive('codeBlock')}
+                    title={t('news.admin.toolbar.codeBlock')}
+                  >
+                    <CodeBlockIcon />
+                  </ToolbarButton>
 
-                <ToolbarButton
-                  onClick={() => editor.chain().focus().toggleBulletList().run()}
-                  isActive={editor.isActive('bulletList')}
-                  title={t('news.admin.toolbar.bulletList')}
-                >
-                  <ListBulletIcon />
-                </ToolbarButton>
-                <ToolbarButton
-                  onClick={() => editor.chain().focus().toggleOrderedList().run()}
-                  isActive={editor.isActive('orderedList')}
-                  title={t('news.admin.toolbar.orderedList')}
-                >
-                  <ListOrderedIcon />
-                </ToolbarButton>
-                <ToolbarButton
-                  onClick={() => editor.chain().focus().toggleBlockquote().run()}
-                  isActive={editor.isActive('blockquote')}
-                  title={t('news.admin.toolbar.blockquote')}
-                >
-                  <QuoteIcon />
-                </ToolbarButton>
-                <ToolbarButton
-                  onClick={() => editor.chain().focus().toggleCodeBlock().run()}
-                  isActive={editor.isActive('codeBlock')}
-                  title={t('news.admin.toolbar.codeBlock')}
-                >
-                  <CodeBlockIcon />
-                </ToolbarButton>
+                  <div className="mx-1 h-5 w-px bg-dark-700" />
 
-                <div className="mx-1 h-5 w-px bg-dark-700" />
+                  <ToolbarButton
+                    onClick={() => editor.chain().focus().setTextAlign('left').run()}
+                    isActive={editor.isActive({ textAlign: 'left' })}
+                    title={t('news.admin.toolbar.alignLeft')}
+                  >
+                    <AlignLeftIcon />
+                  </ToolbarButton>
+                  <ToolbarButton
+                    onClick={() => editor.chain().focus().setTextAlign('center').run()}
+                    isActive={editor.isActive({ textAlign: 'center' })}
+                    title={t('news.admin.toolbar.alignCenter')}
+                  >
+                    <AlignCenterIcon />
+                  </ToolbarButton>
 
-                <ToolbarButton
-                  onClick={() => editor.chain().focus().setTextAlign('left').run()}
-                  isActive={editor.isActive({ textAlign: 'left' })}
-                  title={t('news.admin.toolbar.alignLeft')}
-                >
-                  <AlignLeftIcon />
-                </ToolbarButton>
-                <ToolbarButton
-                  onClick={() => editor.chain().focus().setTextAlign('center').run()}
-                  isActive={editor.isActive({ textAlign: 'center' })}
-                  title={t('news.admin.toolbar.alignCenter')}
-                >
-                  <AlignCenterIcon />
-                </ToolbarButton>
+                  <div className="mx-1 h-5 w-px bg-dark-700" />
 
-                <div className="mx-1 h-5 w-px bg-dark-700" />
+                  <ToolbarButton
+                    onClick={() => editor.chain().focus().toggleHighlight().run()}
+                    isActive={editor.isActive('highlight')}
+                    title={t('news.admin.toolbar.highlight')}
+                  >
+                    <HighlightIcon />
+                  </ToolbarButton>
+                  <ToolbarButton onClick={addLink} title={t('news.admin.toolbar.link')}>
+                    <LinkIcon />
+                  </ToolbarButton>
+                  <ToolbarButton
+                    onClick={() => mediaInputRef.current?.click()}
+                    disabled={isUploading}
+                    title={t('news.admin.toolbar.image')}
+                  >
+                    {isUploading ? (
+                      <div className="h-4 w-4 animate-spin rounded-full border-2 border-accent-400 border-t-transparent" />
+                    ) : (
+                      <ImageIcon />
+                    )}
+                  </ToolbarButton>
+                </div>
+              )}
 
-                <ToolbarButton
-                  onClick={() => editor.chain().focus().toggleHighlight().run()}
-                  isActive={editor.isActive('highlight')}
-                  title={t('news.admin.toolbar.highlight')}
-                >
-                  <HighlightIcon />
-                </ToolbarButton>
-                <ToolbarButton onClick={addLink} title={t('news.admin.toolbar.link')}>
-                  <LinkIcon />
-                </ToolbarButton>
-                <ToolbarButton
-                  onClick={() => mediaInputRef.current?.click()}
-                  disabled={isUploading}
-                  title={t('news.admin.toolbar.image')}
-                >
-                  {isUploading ? (
-                    <div className="h-4 w-4 animate-spin rounded-full border-2 border-accent-400 border-t-transparent" />
-                  ) : (
-                    <ImageIcon />
-                  )}
-                </ToolbarButton>
-              </div>
-            )}
+              {/* Editor content */}
+              <EditorContent editor={editor} />
+            </div>
 
-            {/* Editor content */}
-            <EditorContent editor={editor} />
+            {/* Hidden file inputs */}
+            <input
+              ref={mediaInputRef}
+              type="file"
+              accept="image/jpeg,image/png,image/webp,video/mp4,video/webm"
+              onChange={handleFileInputChange}
+              className="hidden"
+              aria-hidden="true"
+            />
           </div>
-
-          {/* Hidden file inputs */}
-          <input
-            ref={mediaInputRef}
-            type="file"
-            accept="image/jpeg,image/png,image/webp,video/mp4,video/webm"
-            onChange={handleFileInputChange}
-            className="hidden"
-            aria-hidden="true"
-          />
-        </div>
+        )}
 
         {/* Error feedback */}
         {saveError && (

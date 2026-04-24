@@ -1,10 +1,13 @@
 import apiClient from './client';
 
+export type InfoPageType = 'page' | 'faq';
+
 export interface InfoPage {
   id: number;
   slug: string;
   title: Record<string, string>;
   content: Record<string, string>;
+  page_type: InfoPageType;
   is_active: boolean;
   sort_order: number;
   icon: string | null;
@@ -16,6 +19,7 @@ export interface InfoPageListItem {
   id: number;
   slug: string;
   title: Record<string, string>;
+  page_type: InfoPageType;
   is_active: boolean;
   sort_order: number;
   icon: string | null;
@@ -26,6 +30,7 @@ export interface InfoPageCreateRequest {
   slug: string;
   title: Record<string, string>;
   content: Record<string, string>;
+  page_type: InfoPageType;
   is_active: boolean;
   sort_order: number;
   icon: string | null;
@@ -35,9 +40,16 @@ export interface InfoPageUpdateRequest {
   slug?: string;
   title?: Record<string, string>;
   content?: Record<string, string>;
+  page_type?: InfoPageType;
   is_active?: boolean;
   sort_order?: number;
   icon?: string | null;
+}
+
+/** Single FAQ Q&A item stored in content JSONB. */
+export interface FaqItem {
+  q: string;
+  a: string;
 }
 
 export interface InfoPageReorderRequest {
@@ -46,8 +58,9 @@ export interface InfoPageReorderRequest {
 
 export const infoPagesApi = {
   // Public endpoints
-  getPages: async (): Promise<InfoPageListItem[]> => {
-    const response = await apiClient.get<InfoPageListItem[]>('/cabinet/info-pages');
+  getPages: async (pageType?: InfoPageType): Promise<InfoPageListItem[]> => {
+    const params = pageType ? { page_type: pageType } : undefined;
+    const response = await apiClient.get<InfoPageListItem[]>('/cabinet/info-pages', { params });
     return response.data;
   },
 
@@ -59,8 +72,11 @@ export const infoPagesApi = {
   },
 
   // Admin endpoints
-  getAdminPages: async (): Promise<InfoPageListItem[]> => {
-    const response = await apiClient.get<InfoPageListItem[]>('/cabinet/admin/info-pages');
+  getAdminPages: async (pageType?: InfoPageType): Promise<InfoPageListItem[]> => {
+    const params = pageType ? { page_type: pageType } : undefined;
+    const response = await apiClient.get<InfoPageListItem[]>('/cabinet/admin/info-pages', {
+      params,
+    });
     return response.data;
   },
 

@@ -3372,6 +3372,7 @@
       "title": "صفحات اطلاعات",
       "subtitle": "مدیریت صفحات اطلاعات ثابت",
       "create": "ایجاد صفحه",
+      "createFaq": "ایجاد FAQ",
       "edit": "ویرایش",
       "save": "ذخیره",
       "saving": "در حال ذخیره...",
@@ -3383,6 +3384,7 @@
       "notFound": "صفحه پیدا نشد",
       "active": "فعال",
       "inactive": "غیرفعال",
+      "typePage": "صفحه",
       "localeLabel": "زبان محتوا",
       "fields": {
         "slug": "شناسه URL",
@@ -3390,7 +3392,34 @@
         "content": "محتوا",
         "isActive": "فعال",
         "sortOrder": "ترتیب",
-        "icon": "آیکون (ایموجی)"
+        "icon": "آیکون (ایموجی)",
+        "pageType": "نوع صفحه"
+      },
+      "filter": {
+        "all": "همه",
+        "page": "صفحات",
+        "faq": "FAQ"
+      },
+      "pageTypes": {
+        "page": "صفحه",
+        "faq": "FAQ"
+      },
+      "faq": {
+        "questions": "سوالات و پاسخ‌ها",
+        "questionsCount": "سوال",
+        "noQuestions": "هنوز سوالی وجود ندارد. روی دکمه زیر کلیک کنید.",
+        "questionNumber": "سوال #{{n}}",
+        "question": "سوال",
+        "answer": "پاسخ",
+        "questionPlaceholder": "سوال را وارد کنید...",
+        "answerPlaceholder": "پاسخ را وارد کنید (HTML پشتیبانی می‌شود)...",
+        "htmlHint": "نشانه‌گذاری HTML پشتیبانی می‌شود",
+        "addQuestion": "افزودن سوال",
+        "removeQuestion": "حذف سوال",
+        "moveUp": "انتقال به بالا",
+        "moveDown": "انتقال به پایین",
+        "searchPlaceholder": "جستجو در سوالات...",
+        "noResults": "نتیجه‌ای یافت نشد"
       },
       "locales": {
         "ru": "روسی",
