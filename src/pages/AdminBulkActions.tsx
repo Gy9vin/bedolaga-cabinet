@@ -12,6 +12,8 @@ import {
 import { adminUsersApi, type UserListItem, type UserListItemSubscription } from '../api/adminUsers';
 import { tariffsApi, type TariffListItem } from '../api/tariffs';
 import { promocodesApi, type PromoGroup } from '../api/promocodes';
+import { campaignsApi, type CampaignListItem } from '../api/campaigns';
+import { partnerApi, type AdminPartnerItem } from '../api/partners';
 import {
   adminBulkActionsApi,
   type BulkActionType,
@@ -760,6 +762,7 @@ function ActionModal({
   const [grantTariffId, setGrantTariffId] = useState<number>(tariffs[0]?.id ?? 0);
   const [grantDays, setGrantDays] = useState(30);
   const [deviceLimit, setDeviceLimit] = useState(1);
+  const [deleteFromPanel, setDeleteFromPanel] = useState(true);
 
   useEffect(() => {
     if (tariffs.length > 0 && tariffId === 0) {
@@ -802,6 +805,7 @@ function ActionModal({
     grant_subscription: 'admin.bulkActions.actions.grantSubscription',
     set_devices: 'admin.bulkActions.actions.setDevices',
     delete_subscription: 'admin.bulkActions.actions.deleteSubscription',
+    delete_user: 'admin.bulkActions.actions.deleteUser',
   };
 
   const handleSubmit = () => {
@@ -828,6 +832,9 @@ function ActionModal({
         break;
       case 'set_devices':
         params.device_limit = deviceLimit;
+        break;
+      case 'delete_user':
+        params.delete_from_panel = deleteFromPanel;
         break;
     }
     onExecute(params);
@@ -979,14 +986,55 @@ function ActionModal({
             </p>
           </div>
         );
+      case 'delete_user':
+        return (
+          <div className="space-y-4">
+            <div className="rounded-xl border border-error-500/20 bg-error-500/5 px-3 py-2.5">
+              <p className="text-sm font-medium text-error-400">
+                {t('admin.bulkActions.deleteUser.warning')}
+              </p>
+              <p className="mt-1 text-xs text-error-300/70">
+                {t('admin.bulkActions.deleteUser.hint')}
+              </p>
+            </div>
+            <label className="inline-flex cursor-pointer items-center gap-2">
+              <button
+                onClick={() => setDeleteFromPanel((prev) => !prev)}
+                className={cn(
+                  'flex h-5 w-5 items-center justify-center rounded-md border-2 transition-all duration-150',
+                  deleteFromPanel
+                    ? 'border-error-500 bg-error-500 shadow-[0_0_8px_rgba(239,68,68,0.4)]'
+                    : 'border-dark-500 bg-dark-700/60 hover:border-error-500/50 hover:bg-dark-600/60',
+                )}
+                aria-pressed={deleteFromPanel}
+              >
+                {deleteFromPanel && <CheckIcon />}
+              </button>
+              <span
+                className={cn(
+                  'text-sm',
+                  deleteFromPanel ? 'font-medium text-error-400' : 'text-dark-400',
+                )}
+              >
+                {t('admin.bulkActions.deleteUser.deleteFromPanel')}
+              </span>
+            </label>
+          </div>
+        );
       default:
         return null;
     }
   };
 
-  return (
+  return createPortal(
     <div
-      className="fixed inset-0 z-50 flex items-center justify-center p-4"
+      className="fixed inset-0 z-[9999] flex items-center justify-center"
+      style={{
+        paddingTop: 'max(1rem, env(safe-area-inset-top))',
+        paddingBottom: 'max(1rem, env(safe-area-inset-bottom))',
+        paddingLeft: 'max(1rem, env(safe-area-inset-left))',
+        paddingRight: 'max(1rem, env(safe-area-inset-right))',
+      }}
       role="dialog"
       aria-modal="true"
     >
@@ -997,7 +1045,7 @@ function ActionModal({
       />
 
       {/* Modal */}
-      <div className="relative w-full max-w-md rounded-2xl border border-dark-700 bg-dark-900 p-6 shadow-2xl">
+      <div className="relative max-h-[calc(100dvh-2rem)] w-full max-w-md overflow-y-auto rounded-2xl border border-dark-700 bg-dark-900 p-6 shadow-2xl">
         {/* Header */}
         <div className="mb-5 flex items-center justify-between">
           <h3 className="text-lg font-bold text-dark-100">{t(actionLabelKeys[modal.action])}</h3>
@@ -1112,7 +1160,8 @@ function ActionModal({
           </>
         )}
       </div>
-    </div>
+    </div>,
+    document.body,
   );
 }
 
@@ -1240,6 +1289,26 @@ function FloatingActionBar({
       labelKey: 'admin.bulkActions.actions.assignPromoGroup',
       icon: <span aria-hidden="true">%</span>,
       colorClass: 'text-accent-300 hover:bg-accent-300/10',
+    },
+    {
+      type: 'delete_user',
+      labelKey: 'admin.bulkActions.actions.deleteUser',
+      icon: (
+        <svg
+          className="h-3.5 w-3.5"
+          fill="none"
+          viewBox="0 0 24 24"
+          stroke="currentColor"
+          strokeWidth={2}
+        >
+          <path
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            d="M22 10.5h-6m-8.25-4.5a3.75 3.75 0 117.5 0 3.75 3.75 0 01-7.5 0zM1.5 21a8.25 8.25 0 0115 0"
+          />
+        </svg>
+      ),
+      colorClass: 'text-error-400 hover:bg-error-500/10',
     },
   ];
 
@@ -1397,6 +1466,8 @@ export default function AdminBulkActions() {
   const [total, setTotal] = useState(0);
   const [tariffs, setTariffs] = useState<TariffListItem[]>([]);
   const [promoGroups, setPromoGroups] = useState<PromoGroup[]>([]);
+  const [campaigns, setCampaigns] = useState<CampaignListItem[]>([]);
+  const [partners, setPartners] = useState<AdminPartnerItem[]>([]);
   const [loading, setLoading] = useState(true);
 
   // Filters
@@ -1406,6 +1477,8 @@ export default function AdminBulkActions() {
   const [trialOnly, setTrialOnly] = useState(false);
   const [tariffFilter, setTariffFilter] = useState<number[]>([]);
   const [promoGroupFilter, setPromoGroupFilter] = useState('');
+  const [campaignFilter, setCampaignFilter] = useState('');
+  const [partnerFilter, setPartnerFilter] = useState('');
 
   // Pagination
   const [offset, setOffset] = useState(0);
@@ -1447,6 +1520,8 @@ export default function AdminBulkActions() {
       if (statusFilter) params.subscription_status = statusFilter;
       if (tariffFilter.length > 0) params.tariff_id = tariffFilter.join(',');
       if (promoGroupFilter) params.promo_group_id = Number(promoGroupFilter);
+      if (campaignFilter) params.campaign_id = Number(campaignFilter);
+      if (partnerFilter) params.partner_id = Number(partnerFilter);
 
       const data = await adminUsersApi.getUsers(
         params as Parameters<typeof adminUsersApi.getUsers>[0],
@@ -1466,22 +1541,35 @@ export default function AdminBulkActions() {
     } finally {
       setLoading(false);
     }
-  }, [offset, limit, committedSearch, statusFilter, tariffFilter, promoGroupFilter]);
+  }, [
+    offset,
+    limit,
+    committedSearch,
+    statusFilter,
+    tariffFilter,
+    promoGroupFilter,
+    campaignFilter,
+    partnerFilter,
+  ]);
 
   useEffect(() => {
     loadUsers();
   }, [loadUsers]);
 
-  // Load tariffs and promo groups once
+  // Load tariffs, promo groups, campaigns, and partners once
   useEffect(() => {
     const load = async () => {
       try {
-        const [tariffData, pgData] = await Promise.all([
+        const [tariffData, pgData, campaignData, partnerData] = await Promise.all([
           tariffsApi.getTariffs(true),
           promocodesApi.getPromoGroups({ limit: 200 }),
+          campaignsApi.getCampaigns(true, 0, 200),
+          partnerApi.getPartners({ limit: 200 }),
         ]);
         setTariffs(tariffData.tariffs);
         setPromoGroups(pgData.items);
+        setCampaigns(campaignData.campaigns);
+        setPartners(partnerData.items);
       } catch {
         // silently fail
       }
@@ -1530,6 +1618,16 @@ export default function AdminBulkActions() {
 
   const handlePromoGroupFilterChange = (v: string) => {
     setPromoGroupFilter(v);
+    setOffset(0);
+  };
+
+  const handleCampaignFilterChange = (v: string) => {
+    setCampaignFilter(v);
+    setOffset(0);
+  };
+
+  const handlePartnerFilterChange = (v: string) => {
+    setPartnerFilter(v);
     setOffset(0);
   };
 
@@ -2017,6 +2115,19 @@ export default function AdminBulkActions() {
     ...promoGroups.map((pg) => ({ value: String(pg.id), label: pg.name })),
   ];
 
+  const campaignOptions: DropdownOption[] = [
+    { value: '', label: t('admin.bulkActions.filters.allCampaigns') },
+    ...campaigns.map((c) => ({ value: String(c.id), label: c.name })),
+  ];
+
+  const partnerOptions: DropdownOption[] = [
+    { value: '', label: t('admin.bulkActions.filters.allPartners') },
+    ...partners.map((p) => ({
+      value: String(p.user_id),
+      label: p.username ? `@${p.username}` : p.first_name || String(p.telegram_id),
+    })),
+  ];
+
   return (
     <div className="relative animate-fade-in">
       <ProgressBar loading={loading} />
@@ -2088,6 +2199,20 @@ export default function AdminBulkActions() {
             value={promoGroupFilter}
             options={promoGroupOptions}
             onChange={handlePromoGroupFilterChange}
+          />
+        </div>
+
+        {/* Campaign & Partner filters */}
+        <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+          <DropdownSelect
+            value={campaignFilter}
+            options={campaignOptions}
+            onChange={handleCampaignFilterChange}
+          />
+          <DropdownSelect
+            value={partnerFilter}
+            options={partnerOptions}
+            onChange={handlePartnerFilterChange}
           />
         </div>
 

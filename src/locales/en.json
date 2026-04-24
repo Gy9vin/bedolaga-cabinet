@@ -2043,11 +2043,17 @@
         "assignPromoGroup": "Assign promo group",
         "grantSubscription": "Grant subscription",
         "setDevices": "Set devices",
-        "deleteSubscription": "Delete subscriptions"
+        "deleteSubscription": "Delete subscriptions",
+        "deleteUser": "Delete users"
       },
       "deleteSubscription": {
         "warning": "Selected subscriptions will be permanently deleted from the bot and RemnaWave panel!",
         "hint": "Users will lose VPN access for deleted subscriptions. This action cannot be undone."
+      },
+      "deleteUser": {
+        "warning": "Selected users will be permanently deleted from the bot! All their subscriptions, balance, and data will be lost!",
+        "hint": "This action cannot be undone. Users will need to restart the bot to create a new account.",
+        "deleteFromPanel": "Also delete from RemnaWave panel"
       },
       "params": {
         "days": "Number of days",
@@ -2088,6 +2094,8 @@
         "allStatuses": "All statuses",
         "allTariffs": "All tariffs",
         "allGroups": "All groups",
+        "allCampaigns": "All campaigns",
+        "allPartners": "All partners",
         "trialOnly": "Trial only",
         "tariffsSelected": "{{count}} tariffs",
         "selectAll": "Select all",

@@ -411,6 +411,11 @@ export const adminUsersApi = {
       search?: string;
       email?: string;
       status?: 'active' | 'blocked' | 'deleted';
+      subscription_status?: string;
+      tariff_id?: string;
+      promo_group_id?: number;
+      campaign_id?: number;
+      partner_id?: number;
       sort_by?:
         | 'created_at'
         | 'balance'

@@ -3437,6 +3437,113 @@
         "zh": "چینی",
         "fa": "فارسی"
       }
+    },
+    "bulkActions": {
+      "title": "عملیات دسته‌ای",
+      "subtitle": "مدیریت کاربران",
+      "selectedCount": "انتخاب شده: {{count}}",
+      "selectAll": "انتخاب همه",
+      "deselectAll": "لغو انتخاب همه",
+      "selectUser": "انتخاب کاربر {{name}}",
+      "deselectUser": "لغو انتخاب کاربر {{name}}",
+      "noResults": "کاربری یافت نشد",
+      "perPage": "در هر صفحه",
+      "actions": {
+        "extend": "تمدید اشتراک",
+        "cancel": "غیرفعال‌سازی اشتراک‌ها",
+        "activate": "فعال‌سازی اشتراک‌ها",
+        "changeTariff": "تغییر تعرفه",
+        "addTraffic": "افزودن ترافیک",
+        "addBalance": "افزودن موجودی",
+        "assignPromoGroup": "اختصاص گروه تبلیغاتی",
+        "grantSubscription": "اعطای اشتراک",
+        "setDevices": "تنظیم دستگاه‌ها",
+        "deleteSubscription": "حذف اشتراک‌ها",
+        "deleteUser": "حذف کاربران"
+      },
+      "deleteSubscription": {
+        "warning": "اشتراک‌های انتخاب شده برای همیشه از ربات و پنل RemnaWave حذف خواهند شد!",
+        "hint": "کاربران دسترسی VPN اشتراک‌های حذف شده را از دست خواهند داد. این عملیات قابل بازگشت نیست."
+      },
+      "deleteUser": {
+        "warning": "کاربران انتخاب شده برای همیشه از ربات حذف خواهند شد! تمام اشتراک‌ها، موجودی و داده‌های آن‌ها از بین خواهد رفت!",
+        "hint": "این عملیات قابل بازگشت نیست. کاربران باید ربات را دوباره راه‌اندازی کنند تا حساب جدید بسازند.",
+        "deleteFromPanel": "همچنین از پنل RemnaWave حذف شود"
+      },
+      "params": {
+        "days": "تعداد روز",
+        "tariff": "انتخاب تعرفه",
+        "trafficGb": "حجم ترافیک (GB)",
+        "balanceRub": "مبلغ (روبل)",
+        "promoGroup": "گروه تبلیغاتی",
+        "removePromoGroup": "حذف گروه تبلیغاتی",
+        "deviceLimit": "تعداد دستگاه"
+      },
+      "grantSubscription": {
+        "warning": "کاربرانی که قبلا اشتراک تعرفه انتخاب شده را دارند رد خواهند شد"
+      },
+      "confirm": "اعمال",
+      "cancel": "انصراف",
+      "executing": "در حال اجرا...",
+      "complete": "انجام شد",
+      "successCount": "موفق: {{count}}",
+      "errorCount": "خطا: {{count}}",
+      "progress": {
+        "processed": "پردازش شده: {{current}} / {{total}}",
+        "succeeded": "موفق",
+        "failed": "ناموفق",
+        "ok": "OK",
+        "errorGeneric": "خطا",
+        "doNotClose": "لطفا تا پایان عملیات این پنجره را نبندید",
+        "summarySuccess": "{{count}} موفق",
+        "summaryErrors": "{{count}} خطا"
+      },
+      "errors": {
+        "title": "{{count}} خطا — نمایش جزئیات"
+      },
+      "filters": {
+        "search": "جستجو بر اساس شناسه، نام کاربری، ایمیل",
+        "status": "وضعیت اشتراک",
+        "tariff": "تعرفه",
+        "promoGroup": "گروه تبلیغاتی",
+        "allStatuses": "همه وضعیت‌ها",
+        "allTariffs": "همه تعرفه‌ها",
+        "allGroups": "همه گروه‌ها",
+        "allCampaigns": "همه کمپین‌ها",
+        "allPartners": "همه شرکا",
+        "trialOnly": "فقط آزمایشی",
+        "tariffsSelected": "{{count}} تعرفه",
+        "selectAll": "انتخاب همه",
+        "deselectAll": "لغو انتخاب همه"
+      },
+      "statuses": {
+        "active": "فعال",
+        "expired": "منقضی",
+        "trial": "آزمایشی",
+        "limited": "محدود",
+        "disabled": "غیرفعال"
+      },
+      "columns": {
+        "user": "کاربر",
+        "status": "وضعیت",
+        "tariff": "تعرفه",
+        "balance": "موجودی",
+        "daysRemaining": "روز",
+        "promoGroup": "گروه",
+        "spent": "خرج شده"
+      },
+      "subscriptionsSelected": "{{count}} اشتراک انتخاب شده",
+      "usersSelected": "{{count}} کاربر انتخاب شده",
+      "expandSubscriptions": "نمایش اشتراک‌ها",
+      "collapseSubscriptions": "پنهان کردن اشتراک‌ها",
+      "noSubscriptions": "بدون اشتراک",
+      "subscriptionTarget": "هدف: اشتراک‌ها",
+      "userTarget": "هدف: کاربران",
+      "daysUnit": "روز",
+      "trafficOf": "از",
+      "trafficGbUnit": "GB",
+      "selectAllSubs": "انتخاب همه اشتراک‌ها",
+      "deselectAllSubs": "لغو انتخاب همه اشتراک‌ها"
     }
   },
   "adminUpdates": {

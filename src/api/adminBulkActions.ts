@@ -12,7 +12,8 @@ export type BulkActionType =
   | 'assign_promo_group'
   | 'grant_subscription'
   | 'set_devices'
-  | 'delete_subscription';
+  | 'delete_subscription'
+  | 'delete_user';
 
 export interface BulkActionRequest {
   action: BulkActionType;
@@ -30,6 +31,7 @@ export interface BulkActionParams {
   balance_description?: string;
   promo_group_id?: number | null;
   device_limit?: number;
+  delete_from_panel?: boolean;
 }
 
 export interface BulkActionErrorItem {
