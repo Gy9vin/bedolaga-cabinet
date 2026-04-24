@@ -1977,8 +1977,18 @@ export default function AdminBulkActions() {
     [t, formatWithCurrency, expandedRows, toggleExpandRow, getFilteredSubs],
   );
 
+  // When multiple tariffs are selected, filter users client-side
+  // (server only supports single tariff_id filter)
+  const filteredUsers = useMemo(() => {
+    if (tariffFilter.length <= 1) return users;
+    return users.filter((u) => {
+      const subs = u.subscriptions ?? [];
+      return subs.some((s) => s.tariff_id !== null && tariffFilter.includes(s.tariff_id));
+    });
+  }, [users, tariffFilter]);
+
   const table = useReactTable({
-    data: users,
+    data: filteredUsers,
     columns,
     state: { rowSelection },
     onRowSelectionChange: setRowSelection,
