@@ -324,7 +324,7 @@ export default function AdminInfoPages() {
       </div>
 
       {/* Filter tabs */}
-      <div className="flex gap-1">
+      <div className="flex flex-wrap gap-1">
         {(['all', 'page', 'faq'] as const).map((tab) => (
           <button
             key={tab}

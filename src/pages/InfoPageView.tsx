@@ -216,6 +216,16 @@ function FaqAccordionItem({
     }
   }, [isOpen]);
 
+  // Update height when content resizes (images loading, viewport rotation)
+  useEffect(() => {
+    if (!isOpen || !contentRef.current) return;
+    const observer = new ResizeObserver(() => {
+      if (contentRef.current) setHeight(contentRef.current.scrollHeight);
+    });
+    observer.observe(contentRef.current);
+    return () => observer.disconnect();
+  }, [isOpen]);
+
   const sanitizedAnswer = useMemo(() => sanitizeHtml(item.a), [item.a]);
 
   return (
@@ -246,15 +256,12 @@ function FaqAccordionItem({
 
 function FaqView({ items }: { items: FaqItem[] }) {
   const { t } = useTranslation();
-  const [openIndex, setOpenIndex] = useState<number | null>(null);
+  const [openKey, setOpenKey] = useState<string | null>(null);
   const [search, setSearch] = useState('');
 
-  const handleToggle = useCallback(
-    (index: number) => {
-      setOpenIndex(openIndex === index ? null : index);
-    },
-    [openIndex],
-  );
+  const handleToggle = useCallback((key: string) => {
+    setOpenKey((prev) => (prev === key ? null : key));
+  }, []);
 
   const filteredItems = useMemo(() => {
     if (!search.trim()) return items;
@@ -275,7 +282,7 @@ function FaqView({ items }: { items: FaqItem[] }) {
             value={search}
             onChange={(e) => {
               setSearch(e.target.value);
-              setOpenIndex(null);
+              setOpenKey(null);
             }}
             placeholder={t('admin.infoPages.faq.searchPlaceholder')}
             className="input pl-9 text-sm"
@@ -290,14 +297,17 @@ function FaqView({ items }: { items: FaqItem[] }) {
         </div>
       ) : (
         <div className="space-y-2">
-          {filteredItems.map((item, index) => (
-            <FaqAccordionItem
-              key={index}
-              item={item}
-              isOpen={openIndex === index}
-              onToggle={() => handleToggle(index)}
-            />
-          ))}
+          {filteredItems.map((item, index) => {
+            const key = `${index}-${item.q.slice(0, 50)}`;
+            return (
+              <FaqAccordionItem
+                key={key}
+                item={item}
+                isOpen={openKey === key}
+                onToggle={() => handleToggle(key)}
+              />
+            );
+          })}
         </div>
       )}
     </div>

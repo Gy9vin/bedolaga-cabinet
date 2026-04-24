@@ -325,7 +325,7 @@ function FaqBuilder({ items, onChange, locale, localeLabel }: FaqBuilderProps) {
                 type="button"
                 onClick={() => handleMoveUp(index)}
                 disabled={index === 0}
-                className="min-h-[36px] min-w-[36px] rounded-lg p-2 text-dark-400 transition-colors hover:bg-dark-700 hover:text-dark-200 disabled:cursor-not-allowed disabled:opacity-30"
+                className="min-h-[44px] min-w-[44px] rounded-lg p-2 text-dark-400 transition-colors hover:bg-dark-700 hover:text-dark-200 disabled:cursor-not-allowed disabled:opacity-30"
                 title={t('admin.infoPages.faq.moveUp')}
               >
                 <ChevronUpIcon />
@@ -334,7 +334,7 @@ function FaqBuilder({ items, onChange, locale, localeLabel }: FaqBuilderProps) {
                 type="button"
                 onClick={() => handleMoveDown(index)}
                 disabled={index >= items.length - 1}
-                className="min-h-[36px] min-w-[36px] rounded-lg p-2 text-dark-400 transition-colors hover:bg-dark-700 hover:text-dark-200 disabled:cursor-not-allowed disabled:opacity-30"
+                className="min-h-[44px] min-w-[44px] rounded-lg p-2 text-dark-400 transition-colors hover:bg-dark-700 hover:text-dark-200 disabled:cursor-not-allowed disabled:opacity-30"
                 title={t('admin.infoPages.faq.moveDown')}
               >
                 <ChevronDownIcon />
@@ -342,7 +342,7 @@ function FaqBuilder({ items, onChange, locale, localeLabel }: FaqBuilderProps) {
               <button
                 type="button"
                 onClick={() => handleRemove(index)}
-                className="min-h-[36px] min-w-[36px] rounded-lg p-2 text-dark-400 transition-colors hover:bg-error-500/10 hover:text-error-400"
+                className="min-h-[44px] min-w-[44px] rounded-lg p-2 text-dark-400 transition-colors hover:bg-error-500/10 hover:text-error-400"
                 title={t('admin.infoPages.faq.removeQuestion')}
               >
                 <TrashSmallIcon />
