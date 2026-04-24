@@ -4,272 +4,133 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-Bedolaga Cabinet - современный веб-интерфейс личного кабинета для VPN бота [Remnawave Bedolaga Telegram Bot](https://github.com/BEDOLAGA-DEV/remnawave-bedolaga-telegram-bot). React + Vite + TypeScript приложение, работающее как в Telegram Mini App, так и в обычном браузере.
+Bedolaga Cabinet — веб-интерфейс личного кабинета для VPN бота [Remnawave Bedolaga Telegram Bot](https://github.com/BEDOLAGA-DEV/remnawave-bedolaga-telegram-bot). React 19 + Vite 7 + TypeScript SPA, работающее одновременно как Telegram Mini App и как обычное веб-приложение. Backend API бота проксируется через `/api/*`.
+
+Релизы ведутся через release-please (см. `CHANGELOG.md`). Актуальная версия берётся из `package.json` и прокидывается в bundle как глобальный `__APP_VERSION__`.
 
 ## Commands
 
-### Development
 ```bash
-npm run dev              # Start dev server on port 5173 with API proxy
-npm run build            # Type check + production build
-npm run preview          # Preview production build
-npm run type-check       # Run TypeScript type checking
+npm run dev          # Vite dev server, port 5173, проксирует /api → localhost:8080
+npm run build        # tsc (полный type-check) + vite build в dist/
+npm run type-check   # tsc --noEmit, без сборки
+npm run preview      # Предпросмотр собранного dist/
+npm run lint         # eslint .
+npm run lint:fix     # eslint . --fix
+npm run format       # prettier --write для src/**
+npm run format:check # prettier --check
 ```
 
-### Code Quality
+Тестов в репозитории нет — нет фреймворка тестирования, нет `npm test`. Проверка кода = type-check + lint + ручной прогон фичи в браузере и в Telegram Mini App.
+
+Husky + lint-staged запускают `eslint --fix` и `prettier --write` на staged `.ts/.tsx` при каждом коммите (`.husky/pre-commit`). Не обходите хук без явного запроса пользователя.
+
+Docker:
 ```bash
-npm run lint             # Run ESLint
-npm run lint:fix         # Fix ESLint errors automatically
-npm run format           # Format code with Prettier
-npm run format:check     # Check formatting without changes
+docker compose up -d --build    # multi-stage build (Node → Nginx), раздаёт dist на 80
 ```
 
-### Docker
-```bash
-docker compose up -d --build    # Build and run in Docker
-docker compose down             # Stop containers
-```
+## Path alias
+
+`@/*` → `src/*` (см. `vite.config.ts` и `tsconfig.json`). Используйте `@/...` для кросс-модульных импортов вместо длинных относительных путей.
 
 ## Architecture
 
-### Platform Abstraction Layer (`src/platform/`)
+### Platform abstraction (`src/platform/`)
+Ключевая особенность: одна и та же сборка работает в Telegram WebApp и в обычном браузере. `PlatformProvider` детектит окружение и подставляет `TelegramAdapter` (на `@telegram-apps/sdk-react`) или `WebAdapter` (fallback через `alert`/`toast`). Всегда используйте хуки отсюда вместо прямого обращения к `window.Telegram` или `alert()`:
+- `useBackButton()` — Telegram back button (в веб-режиме no-op / кастомный `WebBackButton`)
+- `useHaptic()` — тактильная отдача
+- `useNativeDialog()` — `showPopup` / `showAlert` / `showConfirm`
+- `useNotify()` — уведомления
+- `usePlatform()` — `{ platform: 'telegram' | 'web', capabilities }`
 
-**Ключевая архитектурная особенность**: приложение работает в двух окружениях - Telegram Mini App и обычный браузер. Слой абстракции платформы унифицирует API:
+### Auth & tokens
+Две схемы логина: Telegram (`initData` или Login Widget) и email/password. После логина используется одна и та же JWT-пара.
 
-- **`PlatformProvider`**: Определяет окружение и предоставляет правильный адаптер
-- **`TelegramAdapter`**: Использует `@telegram-apps/sdk-react` для Telegram-специфичных функций
-- **`WebAdapter`**: Fallback реализация для браузера (alerts, console warnings)
+Хранение токенов — `src/utils/token.ts`. **Только `sessionStorage`** (access, refresh, Telegram `initData`). Не добавляйте токены в `localStorage` и не оборачивайте auth store в Zustand `persist` — это осознанное решение для безопасности.
 
-**Основные возможности**:
-- `useBackButton()` - управление кнопкой "Назад" в Telegram
-- `useHaptic()` - тактильная обратная связь (вибрация)
-- `useNativeDialog()` - нативные диалоги (Telegram popup vs browser alert)
-- `useNotify()` - уведомления (Telegram showAlert vs toast)
+Refresh централизован через `tokenRefreshManager` (в том же файле) — он сериализует параллельные refresh'ы, чтобы при 401 не возникало гонок между несколькими одновременными запросами. `useAuthStore.initialize()` вызывается один раз на старте и восстанавливает сессию.
 
-**Всегда используйте** эти хуки вместо прямого обращения к `window.Telegram` или `alert()`.
+### API client (`src/api/client.ts`)
+Axios instance с двумя interceptor'ами:
+- **Request**: `Authorization: Bearer`, `X-Telegram-Init-Data` (если есть), CSRF-токен на мутирующих методах (POST/PUT/PATCH/DELETE).
+- **Response**: 401 → refresh и повтор; 503 + особый признак → `isMaintenanceError`; 403 + признак подписки → `isChannelSubscriptionError`.
 
-### Authentication & Token Management
+Оба «блокирующих» состояния поднимают флаги в `useBlockingStore`, и App.tsx рендерит вместо приложения `MaintenanceScreen` / `ChannelSubscriptionScreen` / `BlacklistedScreen` (см. `src/components/blocking/`). Это глобальная блокировка UI, не модалка.
 
-**Двойная система аутентификации**:
-1. **Telegram** (основной способ): через `initData` или Telegram Login Widget
-2. **Email/Password** (автономный): для доступа вне Telegram
-
-**Token Storage** (`src/utils/token.ts`):
-- Access tokens: `sessionStorage` (безопасность)
-- Refresh tokens: `sessionStorage`
-- Telegram initData: `sessionStorage` (для повторной аутентификации)
-- **Никогда не храните токены в localStorage или Zustand persist**
-
-**Auth Flow**:
-1. `useAuthStore.initialize()` вызывается при старте приложения
-2. Проверяет токены в `tokenStorage`
-3. Если access token истёк → автоматический refresh через `tokenRefreshManager`
-4. При 401 → повторный refresh или редирект на `/login`
-
-**Token Refresh**: централизован в `tokenRefreshManager` для предотвращения race conditions при множественных параллельных запросах.
-
-### API Client (`src/api/client.ts`)
-
-**Axios instance** с interceptors:
-- **Request**: добавляет `Authorization`, `X-Telegram-Init-Data`, `X-CSRF-Token`
-- **Response**: обрабатывает 401 (refresh), 503 (maintenance), 403 (channel subscription)
-
-**Special Error Handling**:
-- `isMaintenanceError()` → показывает `MaintenanceScreen`
-- `isChannelSubscriptionError()` → показывает `ChannelSubscriptionScreen`
-- Эти экраны блокируют всё приложение через `useBlockingStore`
-
-**CSRF Protection**: автоматически генерируется и добавляется в POST/PUT/DELETE/PATCH запросы.
+Модульные API-клиенты в `src/api/*.ts` сгруппированы по фиче (`admin*.ts` для админки, `auth.ts`, `subscription.ts`, `tickets.ts` и т. д.). Добавляя новый endpoint, кладите его в соответствующий файл, а не в один общий.
 
 ### WebSocket (`src/providers/WebSocketProvider.tsx`)
+Подключается после аутентификации. Exponential backoff, максимум 5 попыток, ping/pong keep-alive. Глобальные обработчики уже есть для subscription updates, balance changes, ticket notifications.
 
-**Real-time коммуникация** с backend:
-- Автоматическое подключение при аутентификации
-- Reconnection logic с exponential backoff (max 5 попыток)
-- Ping/pong для keep-alive соединения
-- Глобальные обработчики: subscription updates, balance changes, ticket notifications
-
-**Usage**:
-```typescript
+Для подписки на свои события:
+```ts
 const { subscribe } = useWebSocketContext();
-
-useEffect(() => {
-  const unsubscribe = subscribe((message) => {
-    if (message.type === 'your_event') {
-      // Handle event
-    }
-  });
-  return unsubscribe;
-}, []);
+useEffect(() => subscribe((msg) => { /* ... */ }), []);
 ```
 
-### Layout System
+### State management
+Zustand stores в `src/store/`:
+- `auth` — пользователь, токены, `isAdmin`
+- `blocking` — maintenance / channel subscription / blacklisted блокировки
+- `permissions` — RBAC: набор permission-кодов, используется `PermissionRoute` и компонентами админки
+- `successNotification` — глобальные success-модалки
+- `referralNetwork` — состояние страницы реф-сети
 
-**Modern AppShell** (`src/components/layout/AppShell/`):
-- **Desktop**: Sidebar + Header с Aurora gradient фоном
-- **Mobile**: Bottom Navigation + Header
-- **Responsive**: автоматическое переключение на breakpoint `md` (768px)
-- **AppHeader**: уведомления, профиль, command palette (Cmd+K)
-- **Command Palette**: глобальный поиск по страницам и действиям
+Серверные данные — `@tanstack/react-query`. Всегда ставьте `enabled: isAuthenticated` на защищённых запросах, иначе query будет улетать до готовности токенов.
 
-**Admin Layout** (`src/components/admin/AdminLayout.tsx`):
-- Отдельная навигация для админ-панели
-- Breadcrumbs и back button для навигации
-- Mobile tabs для настроек
+### Routing
+`react-router@7`, полностью описано в `src/App.tsx`. Страницы лениво грузятся через `lazyWithRetry` — это обёртка над `React.lazy`, которая после деплоя с новыми chunk-хешами один раз перезагружает страницу (guard 30 сек через `sessionStorage`), чтобы пользователь не застрял с устаревшими чанками. Используйте её для новых страниц.
 
-### State Management
+Защита маршрутов:
+- `AdminRoute` — проверяет `isAdmin` из `useAuthStore`
+- `PermissionRoute` (`src/components/auth/PermissionRoute.tsx`) — проверяет конкретные permission-коды из `usePermissionsStore`; используется в админ-подразделах с fine-grained RBAC
 
-**Zustand stores** (`src/store/`):
-- `useAuthStore`: пользователь, токены, admin статус
-- `useBlockingStore`: maintenance/channel subscription блокировки
-- `useSuccessNotificationStore`: глобальные success уведомления
-- `useThemeColorsStore`: динамическая кастомизация цветов
+### Layout
+`src/components/layout/AppShell/` — основной shell: Sidebar + Header на desktop, bottom nav на mobile (breakpoint `md`, 768px). `AppHeader` содержит command palette (Cmd+K), нотификации, профиль. Админка — отдельный `AdminLayout` (`src/components/admin/AdminLayout.tsx`) с breadcrumbs и своей навигацией.
 
-**React Query** (`@tanstack/react-query`): для кеширования API данных.
+### i18n
+`i18next` + `react-i18next`. Четыре языка: `en`, `ru`, `fa`, `zh` — файлы в `src/locales/`. Детекция: Telegram `user.language` → browser → `ru`. При добавлении текста — ключ должен существовать во **всех четырёх** файлах (иначе получите fallback-строку в проде). Никаких hardcoded русских/английских строк в компонентах.
 
-### Routing Structure
+### Theme
+Двойной режим (auto по Telegram/ОС + manual override). Динамические бренд-цвета через `useThemeColorsStore` / `ThemeColorsProvider`. Цвета — CSS-переменные в `src/styles/globals.css`; в коде используйте Tailwind utilities (`bg-primary`, `text-foreground`), а не хардкод цветов.
 
-**User routes** (`/`):
-- `/login` - авторизация (Telegram/Email)
-- `/dashboard` - главная страница
-- `/subscription` - управление подпиской и ключами
-- `/balance` - баланс и история платежей
-- `/profile` - настройки профиля
-- `/support` - тикеты поддержки
-- `/referral` - реферальная программа
-- `/wheel` - колесо фортуны
+### UI stack
+- Radix UI primitives (Dialog, Popover, Select, Tabs, ...) — не заменяйте самописными.
+- `src/components/primitives/` — стилизованные обёртки над Radix + CVA.
+- `framer-motion` для анимаций.
+- Иконки — собственный набор в `src/components/icons/`, импорт `from '@/components/icons'`.
+- Таблицы — `@tanstack/react-table`.
+- Редактор — `@tiptap/*`.
+- DnD — `@dnd-kit/*`.
 
-**Top-up flow** (новый, разделён на шаги):
-- `/topup/method` - выбор способа оплаты
-- `/topup/amount` - ввод суммы пополнения
+### Build
+Manual chunks в `vite.config.ts` разделяют vendor-код на именованные chunks (`vendor-react`, `vendor-radix`, `vendor-telegram`, `vendor-query`, и т. д.) — chunk size warning лимит 550KB. Если добавляете тяжёлую библиотеку и попадаете в warning — либо добавьте её в `manualChunks`, либо переведите на dynamic import.
 
-**Admin routes** (`/admin/*`):
-- Защищены `AdminRoute` (проверка `isAdmin`)
-- Ленивая загрузка всех админ-страниц
-- Подробные страницы: `/admin/users/:id`, `/admin/tariffs/create`, etc.
+`base: '/'` в `vite.config.ts` — если разворачивать кабинет на sub-path (`/cabinet/`), меняется **здесь**.
 
-### Internationalization
+## Environment variables
 
-**i18next** с react-i18next:
-- Поддержка языков: EN, RU, FA, ZH
-- Детекция языка: Telegram user language → browser language → 'ru'
-- Файлы переводов: `src/locales/*.json`
+Build-time (вшиваются в bundle, требуют пересборки):
+- `VITE_API_URL` — обычно `/api` (прокси Caddy/Nginx на backend:8080); для удалённого backend — полный URL
+- `VITE_TELEGRAM_BOT_USERNAME` — без `@`
+- `VITE_APP_NAME`, `VITE_APP_LOGO` — брендинг в шапке и title
 
-**При добавлении текста**:
-1. Добавить ключ во ВСЕ файлы `locales/*.json`
-2. Использовать `useTranslation()` hook
-3. Избегать hardcoded строк в компонентах
+Runtime (только для Docker-образа): `CABINET_PORT` (host-порт, дефолт 3020).
 
-### Component Libraries
+Backend бота (в его `.env`, не здесь): `CABINET_ENABLED=true`, `CABINET_JWT_SECRET`, `CABINET_ALLOWED_ORIGINS` — без них кабинет не заработает. Отсутствие домена кабинета в `CABINET_ALLOWED_ORIGINS` даёт CORS-ошибку.
 
-**UI Primitives**:
-- **Radix UI**: headless компоненты (Dialog, Select, Popover, etc.)
-- **Custom wrappers**: `src/components/primitives/` - стилизованные версии
-- **Framer Motion**: анимации и transitions
-- **TailwindCSS + CVA**: стилизация с class-variance-authority
+## Conventions
 
-**Icon System** (`src/components/icons/`):
-- SVG иконки как React компоненты
-- Единообразное использование: `import { IconName } from '@/components/icons'`
+- TypeScript strict mode, избегайте `any` (`@typescript-eslint/no-explicit-any` = warn).
+- Functional components + hooks. Классовых компонентов в кодбазе нет.
+- Unused vars игнорируются только если начинаются с `_` (`_arg`, `_unused`).
+- Добавляя новую страницу: `lazyWithRetry` в `App.tsx`, маршрут, перевод во **все** `locales/*.json`, проверка и в Telegram, и в браузере, и в light/dark темах.
 
-### Theme System
+## Debugging checklist
 
-**Dual theme support**:
-- Automatic: следует Telegram theme или browser preference
-- Manual: пользователь может переключать в настройках
-- Dynamic brand colors: кастомизация через `useThemeColorsStore`
-
-**CSS Variables** (`src/styles/globals.css`):
-- `--primary-*`: основные цвета бренда
-- `--background`, `--foreground`: адаптируются под тему
-- Используйте Tailwind utilities (`bg-primary`, `text-foreground`)
-
-### Build & Deployment
-
-**Environment Variables**:
-- `VITE_API_URL`: путь к backend API (по умолчанию `/api`)
-- `VITE_TELEGRAM_BOT_USERNAME`: имя бота (без @)
-- `VITE_APP_NAME`: название приложения
-- `VITE_APP_LOGO`: короткий логотип
-
-**Vite Config**:
-- Dev proxy: `/api/*` → `http://localhost:8080` (backend)
-- Code splitting: vendor chunks для оптимизации загрузки
-- Base path: `/` (изменить на `/cabinet/` для sub-path deployment)
-
-**Docker**:
-- Multi-stage build: Node builder → Nginx serving
-- Internal nginx слушает на порту 80
-- Proxyировать `/api/*` на backend через Caddy/Nginx
-
-### Performance Optimizations
-
-**Code Splitting**:
-- Lazy loading всех page components
-- Vendor chunks: react, radix-ui, telegram, motion, etc.
-- Route-based splitting автоматически через React.lazy()
-
-**Bundle Size**:
-- Chunk size warning limit: 550KB
-- Используйте dynamic imports для тяжёлых библиотек
-- Проверяйте bundle analyzer при добавлении зависимостей
-
-### Common Patterns
-
-**Protected Data Fetching**:
-```typescript
-const { data, isLoading } = useQuery({
-  queryKey: ['resource', id],
-  queryFn: () => api.getResource(id),
-  enabled: isAuthenticated, // Don't fetch if not logged in
-});
-```
-
-**Platform-Specific Behavior**:
-```typescript
-const { platform, capabilities } = usePlatform();
-const { showPopup } = useNativeDialog();
-
-if (capabilities.nativeDialogs) {
-  await showPopup({ message: 'Telegram popup' });
-} else {
-  toast.success('Browser toast');
-}
-```
-
-**Admin-Only Features**:
-```typescript
-const { isAdmin } = useAuthStore();
-
-{isAdmin && <AdminButton />}
-```
-
-### Debugging
-
-**Common Issues**:
-
-1. **CORS errors**: проверить `CABINET_ALLOWED_ORIGINS` в backend .env
-2. **401 Unauthorized**: токены могли истечь, проверить network tab для refresh запросов
-3. **WebSocket не подключается**: проверить что backend поддерживает WS на `/cabinet/ws`
-4. **Telegram features не работают**: убедиться что `window.Telegram.WebApp` доступен
-
-**Dev Tools**:
-- React DevTools для компонентов и state
-- Network tab для API/WS запросов
-- Console для platform detection: `platform = telegram | web`
-
-### Testing Approach
-
-При разработке новых фич:
-1. Тестировать в обоих окружениях (Telegram + Browser)
-2. Проверить responsive layout (mobile + desktop)
-3. Проверить обе темы (light + dark)
-4. Проверить все языки (хотя бы EN + RU)
-
-### Code Style
-
-- TypeScript strict mode
-- ESLint + Prettier configured with lint-staged
-- Commits run pre-commit hooks: lint + format
-- Prefer functional components with hooks
-- Use explicit types, avoid `any`
+- CORS → `CABINET_ALLOWED_ORIGINS` на backend
+- 401 в цикле → смотрите, срабатывает ли `tokenRefreshManager`; истёкший refresh → `/login`
+- WebSocket не коннектится → backend должен держать WS на `/cabinet/ws`
+- Telegram-специфичные функции не работают в браузере → это норма, используйте `usePlatform()` для fallback
+- Белый экран после деплоя → скорее всего старая вкладка с устаревшими chunk-хешами; `lazyWithRetry` должен сам перезагрузить, guard — 30 сек
