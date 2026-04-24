@@ -1244,7 +1244,7 @@ function FloatingActionBar({
   ];
 
   return (
-    <div className="fixed inset-x-0 bottom-0 z-40 flex justify-center px-4 pb-[max(1rem,env(safe-area-inset-bottom))]">
+    <div className="fixed inset-x-0 bottom-0 z-[9999] flex justify-center px-4 pb-[max(5rem,calc(4.5rem+env(safe-area-inset-bottom)))]">
       <div
         ref={menuRef}
         className="relative flex w-full max-w-2xl items-center gap-3 rounded-2xl border border-dark-700/60 bg-dark-800/80 px-5 py-3 shadow-2xl backdrop-blur-xl"
