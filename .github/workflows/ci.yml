@@ -30,9 +30,9 @@ jobs:
         run: npm run build
         env:
           VITE_API_URL: /api
-          VITE_TELEGRAM_BOT_USERNAME: test_bot
-          VITE_APP_NAME: Cabinet
-          VITE_APP_LOGO: V
+          VITE_TELEGRAM_BOT_USERNAME: ${{ secrets.VITE_TELEGRAM_BOT_USERNAME || 'test_bot' }}
+          VITE_APP_NAME: ${{ secrets.VITE_APP_NAME || 'Cabinet' }}
+          VITE_APP_LOGO: ${{ secrets.VITE_APP_LOGO || 'V' }}
 
       - name: Upload build artifacts
         uses: actions/upload-artifact@v4
@@ -40,3 +40,27 @@ jobs:
           name: dist
           path: dist/
           retention-days: 7
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+
+    steps:
+      - name: Download build artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: dist
+          path: dist/
+
+      - name: Setup SSH agent
+        uses: webfactory/ssh-agent@v0.9.0
+        with:
+          ssh-private-key: ${{ secrets.DEPLOY_SSH_KEY }}
+
+      - name: Deploy to server
+        run: |
+          rsync -rlDzvc --delete \
+            -e "ssh -o StrictHostKeyChecking=no" \
+            dist/ \
+            ${{ secrets.DEPLOY_USER }}@${{ secrets.DEPLOY_HOST }}:/srv/cabinet/
