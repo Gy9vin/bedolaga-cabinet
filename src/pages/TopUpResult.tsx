@@ -84,9 +84,10 @@ function SuccessState({ amountKopeks }: { amountKopeks: number | null }) {
   }, [navigate, targetSubscription]);
 
   const handleBuyDevices = useCallback(() => {
-    navigate(targetSubscription ? `/subscriptions/${targetSubscription.id}` : '/subscriptions', {
-      replace: true,
-    });
+    navigate(
+      targetSubscription ? `/subscriptions/${targetSubscription.id}` : '/subscriptions',
+      targetSubscription ? { replace: true, state: { scrollToDevices: 'add' } } : { replace: true },
+    );
   }, [navigate, targetSubscription]);
 
   const handleGoToBalance = useCallback(() => {

@@ -257,7 +257,10 @@ export default function SuccessNotificationModal() {
 
   const handleBuyDevices = () => {
     hide();
-    navigate(targetSubscription ? `/subscriptions/${targetSubscription.id}` : '/subscriptions');
+    navigate(
+      targetSubscription ? `/subscriptions/${targetSubscription.id}` : '/subscriptions',
+      targetSubscription ? { state: { scrollToDevices: 'add' } } : undefined,
+    );
   };
 
   const handleGoToBalance = () => {
