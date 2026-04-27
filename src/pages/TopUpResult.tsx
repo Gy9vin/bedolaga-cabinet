@@ -5,6 +5,7 @@ import { useTranslation } from 'react-i18next';
 import { motion } from 'framer-motion';
 
 import { balanceApi } from '../api/balance';
+import { subscriptionApi } from '../api/subscription';
 import { useAuthStore } from '../store/auth';
 import { useCurrency } from '../hooks/useCurrency';
 import { useHaptic } from '@/platform';
@@ -61,6 +62,33 @@ function SuccessState({ amountKopeks }: { amountKopeks: number | null }) {
   const { t } = useTranslation();
   const navigate = useNavigate();
 
+  const { data: subsData } = useQuery({
+    queryKey: ['subscriptions-list'],
+    queryFn: () => subscriptionApi.getSubscriptions(),
+    staleTime: 30_000,
+  });
+
+  const subscriptions = subsData?.subscriptions ?? [];
+  const targetSubscription = subscriptions.find((s) => s.status === 'active') ?? subscriptions[0];
+  const hasAnySubscription = subscriptions.length > 0;
+
+  const handleBuySubscription = useCallback(() => {
+    navigate('/subscriptions', { replace: true });
+  }, [navigate]);
+
+  const handleRenewSubscription = useCallback(() => {
+    navigate(
+      targetSubscription ? `/subscriptions/${targetSubscription.id}/renew` : '/subscriptions',
+      { replace: true },
+    );
+  }, [navigate, targetSubscription]);
+
+  const handleBuyDevices = useCallback(() => {
+    navigate(targetSubscription ? `/subscriptions/${targetSubscription.id}` : '/subscriptions', {
+      replace: true,
+    });
+  }, [navigate, targetSubscription]);
+
   const handleGoToBalance = useCallback(() => {
     navigate('/balance', { replace: true });
   }, [navigate]);
@@ -82,13 +110,41 @@ function SuccessState({ amountKopeks }: { amountKopeks: number | null }) {
         <AmountDisplay amountKopeks={amountKopeks} label={t('balance.topUpResult.topUpAmount')} />
       )}
 
-      <button
-        type="button"
-        onClick={handleGoToBalance}
-        className="flex w-full items-center justify-center gap-2 rounded-xl bg-accent-500 px-6 py-3 text-sm font-medium text-white transition-colors hover:bg-accent-400"
-      >
-        {t('balance.topUpResult.goToBalance')}
-      </button>
+      <div className="flex w-full flex-col gap-3">
+        {!hasAnySubscription ? (
+          <button
+            type="button"
+            onClick={handleBuySubscription}
+            className="flex w-full items-center justify-center gap-2 rounded-xl bg-accent-500 px-6 py-3 text-sm font-medium text-white transition-colors hover:bg-accent-400"
+          >
+            {t('balance.topUpResult.buySubscription')}
+          </button>
+        ) : (
+          <>
+            <button
+              type="button"
+              onClick={handleRenewSubscription}
+              className="flex w-full items-center justify-center gap-2 rounded-xl bg-accent-500 px-6 py-3 text-sm font-medium text-white transition-colors hover:bg-accent-400"
+            >
+              {t('balance.topUpResult.renewSubscription')}
+            </button>
+            <button
+              type="button"
+              onClick={handleBuyDevices}
+              className="flex w-full items-center justify-center gap-2 rounded-xl bg-blue-500 px-6 py-3 text-sm font-medium text-white transition-colors hover:bg-blue-400"
+            >
+              {t('balance.topUpResult.buyDevices')}
+            </button>
+          </>
+        )}
+        <button
+          type="button"
+          onClick={handleGoToBalance}
+          className="flex w-full items-center justify-center gap-2 rounded-xl bg-dark-800/50 px-6 py-3 text-sm font-medium text-dark-300 transition-colors hover:bg-dark-700/50"
+        >
+          {t('balance.topUpResult.goToBalance')}
+        </button>
+      </div>
     </motion.div>
   );
 }

@@ -7,10 +7,12 @@ import { useState, useEffect, useCallback } from 'react';
 import { createPortal } from 'react-dom';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router';
+import { useQuery } from '@tanstack/react-query';
 import { useSuccessNotification } from '../store/successNotification';
 import { useCurrency } from '../hooks/useCurrency';
 import { useTelegramSDK } from '../hooks/useTelegramSDK';
 import { useHaptic } from '@/platform';
+import { subscriptionApi } from '../api/subscription';
 
 // Icons
 const CheckCircleIcon = () => (
@@ -161,9 +163,20 @@ export default function SuccessNotificationModal() {
     };
   }, [isOpen]);
 
-  if (!isOpen || !data) return null;
+  const isBalanceTopup = data?.type === 'balance_topup';
 
-  const isBalanceTopup = data.type === 'balance_topup';
+  const { data: subsData } = useQuery({
+    queryKey: ['subscriptions-list'],
+    queryFn: () => subscriptionApi.getSubscriptions(),
+    enabled: isOpen && isBalanceTopup,
+    staleTime: 30_000,
+  });
+
+  const subscriptions = subsData?.subscriptions ?? [];
+  const targetSubscription = subscriptions.find((s) => s.status === 'active') ?? subscriptions[0];
+  const hasAnySubscription = subscriptions.length > 0;
+
+  if (!isOpen || !data) return null;
   const isSubscription =
     data.type === 'subscription_activated' ||
     data.type === 'subscription_renewed' ||
@@ -228,6 +241,23 @@ export default function SuccessNotificationModal() {
   const handleGoToSubscription = () => {
     hide();
     navigate('/subscriptions');
+  };
+
+  const handleBuySubscription = () => {
+    hide();
+    navigate('/subscriptions');
+  };
+
+  const handleRenewSubscription = () => {
+    hide();
+    navigate(
+      targetSubscription ? `/subscriptions/${targetSubscription.id}/renew` : '/subscriptions',
+    );
+  };
+
+  const handleBuyDevices = () => {
+    hide();
+    navigate(targetSubscription ? `/subscriptions/${targetSubscription.id}` : '/subscriptions');
   };
 
   const handleGoToBalance = () => {
@@ -363,13 +393,43 @@ export default function SuccessNotificationModal() {
             )}
 
             {isBalanceTopup && (
-              <button
-                onClick={handleGoToBalance}
-                className="flex w-full items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-success-500 to-success-600 py-3.5 font-bold text-white shadow-lg shadow-success-500/25 transition-all hover:from-success-400 hover:to-success-500 active:from-success-600 active:to-success-700"
-              >
-                <WalletIcon />
-                <span>{t('successNotification.goToBalance', 'Go to Balance')}</span>
-              </button>
+              <>
+                {!hasAnySubscription ? (
+                  <button
+                    onClick={handleBuySubscription}
+                    className="flex w-full items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-accent-500 to-accent-600 py-3.5 font-bold text-white shadow-lg shadow-accent-500/25 transition-all hover:from-accent-400 hover:to-accent-500 active:from-accent-600 active:to-accent-700"
+                  >
+                    <RocketIcon />
+                    <span>{t('successNotification.buySubscription', 'Buy Subscription')}</span>
+                  </button>
+                ) : (
+                  <>
+                    <button
+                      onClick={handleRenewSubscription}
+                      className="flex w-full items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-accent-500 to-accent-600 py-3.5 font-bold text-white shadow-lg shadow-accent-500/25 transition-all hover:from-accent-400 hover:to-accent-500 active:from-accent-600 active:to-accent-700"
+                    >
+                      <RocketIcon />
+                      <span>
+                        {t('successNotification.renewSubscription', 'Renew Subscription')}
+                      </span>
+                    </button>
+                    <button
+                      onClick={handleBuyDevices}
+                      className="flex w-full items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-blue-500 to-cyan-600 py-3.5 font-bold text-white shadow-lg shadow-blue-500/25 transition-all hover:from-blue-400 hover:to-cyan-500 active:from-blue-600 active:to-cyan-700"
+                    >
+                      <DevicesIcon />
+                      <span>{t('successNotification.buyDevices', 'Buy Devices')}</span>
+                    </button>
+                  </>
+                )}
+                <button
+                  onClick={handleGoToBalance}
+                  className="flex w-full items-center justify-center gap-2 rounded-xl bg-dark-700 py-3 font-semibold text-dark-200 transition-colors hover:bg-dark-600 hover:text-dark-100"
+                >
+                  <WalletIcon />
+                  <span>{t('successNotification.goToBalance', 'Go to Balance')}</span>
+                </button>
+              </>
             )}
 
             {isDevicesPurchased && (

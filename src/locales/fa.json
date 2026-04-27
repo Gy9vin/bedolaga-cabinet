@@ -141,7 +141,10 @@
     "newBalance": "موجودی جدید",
     "tariff": "تعرفه",
     "validUntil": "معتبر تا",
-    "goToSubscription": "رفتن به اشتراک",
+    "goToSubscription": "رفتن به اشتراک‌ها",
+    "buySubscription": "خرید اشتراک",
+    "renewSubscription": "تمدید اشتراک",
+    "buyDevices": "خرید دستگاه بیشتر",
     "goToBalance": "رفتن به موجودی",
     "goToConnection": "رفتن به راهنمای اتصال",
     "copyLink": "کپی لینک اشتراک",
@@ -610,6 +613,9 @@
       "failedDesc": "متأسفانه پرداخت تکمیل نشد. لطفاً دوباره تلاش کنید یا روش پرداخت دیگری انتخاب کنید.",
       "timeout": "بیشتر از حد معمول طول کشید",
       "timeoutDesc": "پردازش پرداخت بیشتر از حد معمول طول می‌کشد. می‌توانید دوباره وضعیت را بررسی کنید.",
+      "buySubscription": "خرید اشتراک",
+      "renewSubscription": "تمدید اشتراک",
+      "buyDevices": "خرید دستگاه بیشتر",
       "goToBalance": "مشاهده موجودی",
       "tryAgain": "تلاش مجدد"
     }

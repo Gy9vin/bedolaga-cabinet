@@ -141,7 +141,10 @@
     "newBalance": "新余额",
     "tariff": "套餐",
     "validUntil": "有效期至",
-    "goToSubscription": "查看订阅",
+    "goToSubscription": "前往订阅",
+    "buySubscription": "购买订阅",
+    "renewSubscription": "续订",
+    "buyDevices": "购买更多设备",
     "goToBalance": "查看余额",
     "goToConnection": "前往连接指南",
     "copyLink": "复制订阅链接",
@@ -610,6 +613,9 @@
       "failedDesc": "很遗憾，付款未完成。请重试或选择其他付款方式。",
       "timeout": "处理时间较长",
       "timeoutDesc": "付款处理时间比平时长。您可以再次检查状态。",
+      "buySubscription": "购买订阅",
+      "renewSubscription": "续订",
+      "buyDevices": "购买更多设备",
       "goToBalance": "查看余额",
       "tryAgain": "重试"
     }

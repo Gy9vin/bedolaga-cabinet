@@ -147,7 +147,10 @@
     "newBalance": "New balance",
     "tariff": "Tariff",
     "validUntil": "Valid until",
-    "goToSubscription": "Go to Subscription",
+    "goToSubscription": "Go to Subscriptions",
+    "buySubscription": "Buy Subscription",
+    "renewSubscription": "Renew Subscription",
+    "buyDevices": "Buy More Devices",
     "goToBalance": "Go to Balance",
     "goToConnection": "Go to setup guide",
     "copyLink": "Copy subscription link",
@@ -775,6 +778,9 @@
       "failedDesc": "Unfortunately, the payment was not completed. Please try again or choose a different payment method.",
       "timeout": "Taking Longer Than Expected",
       "timeoutDesc": "Payment processing is taking longer than usual. You can try checking the status again.",
+      "buySubscription": "Buy Subscription",
+      "renewSubscription": "Renew Subscription",
+      "buyDevices": "Buy More Devices",
       "goToBalance": "Go to Balance",
       "tryAgain": "Try Again"
     }
