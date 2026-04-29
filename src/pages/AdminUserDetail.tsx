@@ -1376,83 +1376,108 @@ export default function AdminUserDetail() {
             </div>
 
             {/* VPN Connection Info */}
-            {panelInfo && panelInfo.found && (
+            {(panelInfo || userSubscriptions.length > 0) && (
               <div className="rounded-xl border border-dark-700/30 bg-dark-800/50 p-4">
-                <div className="mb-3 text-sm font-medium text-dark-200">
-                  {t('admin.users.detail.vpnConnection')}
-                </div>
-                <div className="grid grid-cols-2 gap-3">
-                  <div className="rounded-lg bg-dark-700/30 p-3">
-                    <div className="mb-1 text-xs text-dark-500">
-                      {t('admin.users.detail.lastConnection')}
-                    </div>
-                    <div className="flex items-center gap-2">
-                      {panelInfo.online_at &&
-                        (() => {
-                          const onlineDate = new Date(panelInfo.online_at);
-                          const isRecent = Date.now() - onlineDate.getTime() < 5 * 60 * 1000;
-                          return (
-                            <>
-                              <span
-                                className={`inline-block h-2 w-2 shrink-0 rounded-full ${isRecent ? 'bg-success-400 shadow-[0_0_6px_rgba(74,222,128,0.5)]' : 'bg-dark-500'}`}
-                                title={isRecent ? t('admin.users.detail.online') : ''}
-                              />
-                              <span
-                                className={`text-sm ${isRecent ? 'font-medium text-success-400' : 'text-dark-100'}`}
-                              >
-                                {isRecent
-                                  ? t('admin.users.detail.online')
-                                  : formatDate(panelInfo.online_at)}
-                              </span>
-                            </>
-                          );
-                        })()}
-                      {!panelInfo.online_at && <span className="text-sm text-dark-100">-</span>}
-                    </div>
-                  </div>
-                  <div className="rounded-lg bg-dark-700/30 p-3">
-                    <div className="mb-1 text-xs text-dark-500">
-                      {t('admin.users.detail.firstConnection')}
-                    </div>
-                    <div className="text-sm text-dark-100">
-                      {panelInfo.first_connected_at
-                        ? new Date(panelInfo.first_connected_at).toLocaleDateString(locale, {
-                            day: '2-digit',
-                            month: '2-digit',
-                            year: 'numeric',
-                          })
-                        : '-'}
-                    </div>
-                  </div>
-                  {panelInfo.last_connected_node_name && (
-                    <div className="col-span-2 rounded-lg bg-dark-700/30 p-3">
-                      <div className="mb-1 text-xs text-dark-500">
-                        {t('admin.users.detail.lastNode')}
-                      </div>
-                      <div className="flex items-center gap-2 text-sm text-dark-100">
-                        <svg
-                          className="h-4 w-4 shrink-0 text-dark-400"
-                          fill="none"
-                          viewBox="0 0 24 24"
-                          stroke="currentColor"
-                          strokeWidth={2}
-                        >
-                          <path
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                            d="M5.25 14.25h13.5m-13.5 0a3 3 0 01-3-3m3 3a3 3 0 100 6h13.5a3 3 0 100-6m-16.5-3a3 3 0 013-3h13.5a3 3 0 013 3m-19.5 0a4.5 4.5 0 01.9-2.7L5.737 5.1a3.375 3.375 0 012.7-1.35h7.126c1.062 0 2.062.5 2.7 1.35l2.587 3.45a4.5 4.5 0 01.9 2.7m0 0a3 3 0 01-3 3m0 3h.008v.008h-.008v-.008zm0-6h.008v.008h-.008v-.008zm-3 6h.008v.008h-.008v-.008zm0-6h.008v.008h-.008v-.008z"
-                          />
-                        </svg>
-                        {panelInfo.last_connected_node_name}
-                      </div>
-                    </div>
+                <div className="mb-3 flex items-center justify-between">
+                  <span className="text-sm font-medium text-dark-200">
+                    {t('admin.users.detail.vpnConnection')}
+                  </span>
+                  {userSubscriptions.length > 1 && (
+                    <select
+                      value={activeSubscriptionId ?? ''}
+                      onChange={(e) => {
+                        const subId = Number(e.target.value);
+                        setActiveSubscriptionId(subId);
+                      }}
+                      className="rounded-lg border border-dark-600 bg-dark-700 px-3 py-1.5 text-xs text-dark-200"
+                    >
+                      {userSubscriptions.map((s) => (
+                        <option key={s.id} value={s.id}>
+                          {s.tariff_name || `#${s.id}`} — {s.status}
+                        </option>
+                      ))}
+                    </select>
                   )}
                 </div>
-              </div>
-            )}
-            {panelInfoLoading && !panelInfo && (
-              <div className="flex justify-center rounded-xl bg-dark-800/50 py-4">
-                <div className="h-5 w-5 animate-spin rounded-full border-2 border-accent-500 border-t-transparent" />
+                {panelInfoLoading && !panelInfo?.found && (
+                  <div className="flex items-center justify-center py-4">
+                    <div className="h-5 w-5 animate-spin rounded-full border-2 border-accent-500 border-t-transparent" />
+                  </div>
+                )}
+                {panelInfo?.found && (
+                  <div className="grid grid-cols-2 gap-3">
+                    <div className="rounded-lg bg-dark-700/30 p-3">
+                      <div className="mb-1 text-xs text-dark-500">
+                        {t('admin.users.detail.lastConnection')}
+                      </div>
+                      <div className="flex items-center gap-2">
+                        {panelInfo.online_at &&
+                          (() => {
+                            const onlineDate = new Date(panelInfo.online_at);
+                            const isRecent = Date.now() - onlineDate.getTime() < 5 * 60 * 1000;
+                            return (
+                              <>
+                                <span
+                                  className={`inline-block h-2 w-2 shrink-0 rounded-full ${isRecent ? 'bg-success-400 shadow-[0_0_6px_rgba(74,222,128,0.5)]' : 'bg-dark-500'}`}
+                                  title={isRecent ? t('admin.users.detail.online') : ''}
+                                />
+                                <span
+                                  className={`text-sm ${isRecent ? 'font-medium text-success-400' : 'text-dark-100'}`}
+                                >
+                                  {isRecent
+                                    ? t('admin.users.detail.online')
+                                    : formatDate(panelInfo.online_at)}
+                                </span>
+                              </>
+                            );
+                          })()}
+                        {!panelInfo.online_at && <span className="text-sm text-dark-100">-</span>}
+                      </div>
+                    </div>
+                    <div className="rounded-lg bg-dark-700/30 p-3">
+                      <div className="mb-1 text-xs text-dark-500">
+                        {t('admin.users.detail.firstConnection')}
+                      </div>
+                      <div className="text-sm text-dark-100">
+                        {panelInfo.first_connected_at
+                          ? new Date(panelInfo.first_connected_at).toLocaleDateString(locale, {
+                              day: '2-digit',
+                              month: '2-digit',
+                              year: 'numeric',
+                            })
+                          : '-'}
+                      </div>
+                    </div>
+                    {panelInfo.last_connected_node_name && (
+                      <div className="col-span-2 rounded-lg bg-dark-700/30 p-3">
+                        <div className="mb-1 text-xs text-dark-500">
+                          {t('admin.users.detail.lastNode')}
+                        </div>
+                        <div className="flex items-center gap-2 text-sm text-dark-100">
+                          <svg
+                            className="h-4 w-4 shrink-0 text-dark-400"
+                            fill="none"
+                            viewBox="0 0 24 24"
+                            stroke="currentColor"
+                            strokeWidth={2}
+                          >
+                            <path
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                              d="M5.25 14.25h13.5m-13.5 0a3 3 0 01-3-3m3 3a3 3 0 100 6h13.5a3 3 0 100-6m-16.5-3a3 3 0 013-3h13.5a3 3 0 013 3m-19.5 0a4.5 4.5 0 01.9-2.7L5.737 5.1a3.375 3.375 0 012.7-1.35h7.126c1.062 0 2.062.5 2.7 1.35l2.587 3.45a4.5 4.5 0 01.9 2.7m0 0a3 3 0 01-3 3m0 3h.008v.008h-.008v-.008zm0-6h.008v.008h-.008v-.008zm-3 6h.008v.008h-.008v-.008zm0-6h.008v.008h-.008v-.008z"
+                            />
+                          </svg>
+                          {panelInfo.last_connected_node_name}
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                )}
+                {!panelInfoLoading && !panelInfo?.found && userSubscriptions.length > 0 && (
+                  <div className="py-2 text-center text-xs text-dark-500">
+                    {t('admin.users.detail.noVpnData')}
+                  </div>
+                )}
               </div>
             )}
 

@@ -3081,6 +3081,7 @@
         "lastConnection": "Last connection",
         "firstConnection": "First connection",
         "online": "Online",
+        "noVpnData": "No connection data available",
         "requestHistory": "Subscription request history",
         "requestHistoryTotal": "Total requests",
         "requestAt": "Date",
