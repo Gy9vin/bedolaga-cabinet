@@ -853,10 +853,11 @@ export default function Wheel() {
                           </div>
                         </div>
                         <div className="whitespace-nowrap text-sm text-dark-400">
-                          -
-                          {item.payment_type === 'telegram_stars'
-                            ? `${item.payment_amount} ⭐`
-                            : `${item.payment_amount}${t('wheel.days').charAt(0)}`}
+                          {item.payment_type === 'free'
+                            ? t('wheel.free', 'Бесплатно')
+                            : item.payment_type === 'telegram_stars'
+                              ? `-${item.payment_amount} ⭐`
+                              : `-${item.payment_amount}${t('wheel.days').charAt(0)}`}
                         </div>
                       </motion.div>
                     ))}
