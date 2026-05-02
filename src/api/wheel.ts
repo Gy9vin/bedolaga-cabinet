@@ -32,6 +32,11 @@ export interface WheelConfig {
   required_balance_kopeks: number;
   has_subscription: boolean;
   eligible_subscriptions: EligibleSubscription[] | null;
+  free_spin_enabled: boolean;
+  free_spin_available: boolean;
+  free_spin_next_at: string | null;
+  free_spins_per_period: number;
+  free_spin_period_days: number;
 }
 
 export interface SpinAvailability {
@@ -40,8 +45,21 @@ export interface SpinAvailability {
   spins_remaining_today: number;
   can_pay_stars: boolean;
   can_pay_days: boolean;
+  can_spin_free: boolean;
+  free_spin_next_at: string | null;
+  free_spins_remaining_in_period: number;
   min_subscription_days: number;
   user_subscription_days: number;
+}
+
+export interface FreeSpinStatus {
+  enabled: boolean;
+  available: boolean;
+  reason: string | null;
+  spent_in_period: number;
+  per_period: number;
+  period_days: number;
+  next_at: string | null;
 }
 
 export interface SpinResult {
@@ -129,6 +147,11 @@ export interface AdminWheelConfig {
   rtp_percent: number;
   daily_spin_limit: number;
   min_subscription_days_for_day_payment: number;
+  free_spin_enabled: boolean;
+  free_spins_per_period: number;
+  free_spin_period_days: number;
+  free_spin_requires_active_subscription: boolean;
+  probability_mode: 'manual' | 'rtp';
   promo_prefix: string;
   promo_validity_days: number;
   prizes: WheelPrizeAdmin[];
@@ -195,13 +218,18 @@ export const wheelApi = {
   },
 
   spin: async (
-    paymentType: 'telegram_stars' | 'subscription_days',
+    paymentType: 'telegram_stars' | 'subscription_days' | 'free',
     subscriptionId?: number,
   ): Promise<SpinResult> => {
     const response = await apiClient.post<SpinResult>('/cabinet/wheel/spin', {
       payment_type: paymentType,
       ...(subscriptionId != null && { subscription_id: subscriptionId }),
     });
+    return response.data;
+  },
+
+  getFreeSpinStatus: async (): Promise<FreeSpinStatus> => {
+    const response = await apiClient.get<FreeSpinStatus>('/cabinet/wheel/free-status');
     return response.data;
   },
 

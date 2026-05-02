@@ -101,7 +101,7 @@ export default function Wheel() {
   const [isSpinning, setIsSpinning] = useState(false);
   const [targetRotation, setTargetRotation] = useState<number | null>(null);
   const [spinResult, setSpinResult] = useState<SpinResult | null>(null);
-  const [paymentType, setPaymentType] = useState<'telegram_stars' | 'subscription_days'>(
+  const [paymentType, setPaymentType] = useState<'telegram_stars' | 'subscription_days' | 'free'>(
     'telegram_stars',
   );
   const [isPayingStars, setIsPayingStars] = useState(false);
@@ -132,7 +132,9 @@ export default function Wheel() {
     const starsEnabled = config.spin_cost_stars_enabled && config.spin_cost_stars;
     const daysEnabled = config.spin_cost_days_enabled && config.spin_cost_days;
 
-    if (starsEnabled) {
+    if (config.free_spin_available) {
+      setPaymentType('free');
+    } else if (starsEnabled) {
       setPaymentType('telegram_stars');
     } else if (daysEnabled) {
       setPaymentType('subscription_days');
@@ -409,6 +411,10 @@ export default function Wheel() {
   };
 
   const handleUnifiedSpin = () => {
+    if (paymentType === 'free') {
+      handleSpin();
+      return;
+    }
     if (noSubscription) return;
     if (paymentType === 'telegram_stars') {
       if (!config?.spin_cost_stars_enabled || !config?.spin_cost_stars) {
@@ -521,10 +527,13 @@ export default function Wheel() {
   const spinDisabled =
     isSpinning ||
     isPayingStars ||
-    dailyLimitReached ||
-    noSubscription ||
+    (paymentType !== 'free' && noSubscription) ||
     needsSubscriptionPick ||
-    (paymentType === 'telegram_stars' ? !starsEnabled : !config.can_spin);
+    (paymentType === 'free'
+      ? !config.free_spin_available
+      : paymentType === 'telegram_stars'
+        ? dailyLimitReached || !starsEnabled
+        : dailyLimitReached || !config.can_spin);
 
   return (
     <div className="animate-fade-in space-y-6 pb-8">
@@ -556,6 +565,33 @@ export default function Wheel() {
 
             {/* Spin Controls */}
             <div className="mt-8 space-y-4">
+              {/* Free spin badge */}
+              {config.free_spin_enabled && config.free_spin_available && (
+                <button
+                  onClick={() => setPaymentType('free')}
+                  disabled={isSpinning}
+                  className={`w-full rounded-xl border p-3 text-center transition-all ${
+                    paymentType === 'free'
+                      ? 'border-success-500/50 bg-success-500/10'
+                      : 'border-dark-700/30 bg-dark-800/30 hover:border-success-500/30'
+                  }`}
+                >
+                  <div className="text-sm font-semibold text-success-400">
+                    🎁 {t('wheel.freeSpinAvailable', 'Бесплатный спин доступен')}
+                  </div>
+                </button>
+              )}
+              {config.free_spin_enabled &&
+                !config.free_spin_available &&
+                config.free_spin_next_at && (
+                  <div className="rounded-xl border border-dark-700/30 bg-dark-800/30 p-3 text-center text-sm text-dark-400">
+                    {t('wheel.freeSpinNextAt', 'Следующий бесплатный:')}{' '}
+                    <span className="font-medium text-dark-200">
+                      {new Date(config.free_spin_next_at).toLocaleString()}
+                    </span>
+                  </div>
+                )}
+
               {/* Payment type selector */}
               {(starsEnabled || daysEnabled) && (
                 <div className="rounded-xl border border-dark-700/30 bg-dark-800/30 px-1 pb-1 pt-2">
@@ -628,7 +664,10 @@ export default function Wheel() {
                 )}
 
               {/* Stars confirmation panel */}
-              {showStarsConfirm && !isSpinning && !isPayingStars ? (
+              {paymentType === 'telegram_stars' &&
+              showStarsConfirm &&
+              !isSpinning &&
+              !isPayingStars ? (
                 <div className="space-y-3 rounded-xl border border-accent-500/30 bg-accent-500/5 p-4">
                   <p className="text-center text-sm text-dark-300">
                     {t('wheel.confirmStarsPayment')}
@@ -658,12 +697,16 @@ export default function Wheel() {
                   disabled={spinDisabled}
                   loading={isSpinning || isPayingStars}
                 >
-                  {isSpinning ? t('wheel.spinning') : t('wheel.spin')}
+                  {isSpinning
+                    ? t('wheel.spinning')
+                    : paymentType === 'free'
+                      ? `🎁 ${t('wheel.spinFree', 'Крутить бесплатно')}`
+                      : t('wheel.spin')}
                 </Button>
               )}
 
               {/* No subscription hint */}
-              {!isSpinning && noSubscription && (
+              {!isSpinning && noSubscription && paymentType !== 'free' && (
                 <div className="rounded-linear border border-warning-500/30 bg-warning-500/5 p-4 text-center">
                   <p className="text-warning-400">{t('wheel.errors.noSubscription')}</p>
                 </div>

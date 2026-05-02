@@ -307,6 +307,11 @@ export default function AdminWheel() {
     rtp_percent: number;
     daily_spin_limit: number | '';
     min_subscription_days_for_day_payment: number | '';
+    free_spin_enabled: boolean;
+    free_spins_per_period: number | '';
+    free_spin_period_days: number | '';
+    free_spin_requires_active_subscription: boolean;
+    probability_mode: 'manual' | 'rtp';
     promo_prefix: string;
   } | null>(null);
 
@@ -337,6 +342,12 @@ export default function AdminWheel() {
           rtp_percent: config.rtp_percent,
           daily_spin_limit: config.daily_spin_limit,
           min_subscription_days_for_day_payment: config.min_subscription_days_for_day_payment,
+          free_spin_enabled: config.free_spin_enabled ?? false,
+          free_spins_per_period: config.free_spins_per_period ?? 1,
+          free_spin_period_days: config.free_spin_period_days ?? 2,
+          free_spin_requires_active_subscription:
+            config.free_spin_requires_active_subscription ?? true,
+          probability_mode: config.probability_mode ?? 'manual',
           promo_prefix: config.promo_prefix,
         };
       });
@@ -356,6 +367,12 @@ export default function AdminWheel() {
       settingsForm.daily_spin_limit !== config.daily_spin_limit ||
       settingsForm.min_subscription_days_for_day_payment !==
         config.min_subscription_days_for_day_payment ||
+      settingsForm.free_spin_enabled !== (config.free_spin_enabled ?? false) ||
+      settingsForm.free_spins_per_period !== (config.free_spins_per_period ?? 1) ||
+      settingsForm.free_spin_period_days !== (config.free_spin_period_days ?? 2) ||
+      settingsForm.free_spin_requires_active_subscription !==
+        (config.free_spin_requires_active_subscription ?? true) ||
+      settingsForm.probability_mode !== (config.probability_mode ?? 'manual') ||
       settingsForm.promo_prefix !== config.promo_prefix);
 
   // Update config mutation
@@ -683,6 +700,150 @@ export default function AdminWheel() {
 
           <hr className="border-dark-700" />
 
+          {/* Free spins section */}
+          <div className="space-y-4">
+            <h3 className="flex items-center gap-2 text-sm font-medium text-dark-400">
+              🎁 Бесплатные спины
+            </h3>
+            <div className="rounded-xl border border-dark-700/30 bg-dark-800/30 p-4">
+              <label className="flex cursor-pointer items-center gap-3">
+                <input
+                  type="checkbox"
+                  checked={settingsForm?.free_spin_enabled ?? config.free_spin_enabled ?? false}
+                  onChange={(e) =>
+                    setSettingsForm((prev) =>
+                      prev ? { ...prev, free_spin_enabled: e.target.checked } : null,
+                    )
+                  }
+                  className="h-5 w-5 rounded border-dark-600 bg-dark-800 text-accent-500"
+                />
+                <span className="text-sm text-dark-200">Включить бесплатные спины</span>
+              </label>
+            </div>
+            <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+              <div>
+                <label className="mb-2 block text-sm font-medium text-dark-300">
+                  Спинов за период
+                </label>
+                <input
+                  type="number"
+                  min={1}
+                  max={100}
+                  value={settingsForm?.free_spins_per_period ?? config.free_spins_per_period ?? 1}
+                  onChange={(e) => {
+                    const val = e.target.value;
+                    if (val === '')
+                      return setSettingsForm((prev) =>
+                        prev ? { ...prev, free_spins_per_period: '' } : null,
+                      );
+                    const num = parseInt(val);
+                    if (!isNaN(num))
+                      setSettingsForm((prev) =>
+                        prev ? { ...prev, free_spins_per_period: num } : null,
+                      );
+                  }}
+                  className="input w-full"
+                />
+              </div>
+              <div>
+                <label className="mb-2 block text-sm font-medium text-dark-300">
+                  Период (дней)
+                </label>
+                <input
+                  type="number"
+                  min={1}
+                  max={365}
+                  value={settingsForm?.free_spin_period_days ?? config.free_spin_period_days ?? 2}
+                  onChange={(e) => {
+                    const val = e.target.value;
+                    if (val === '')
+                      return setSettingsForm((prev) =>
+                        prev ? { ...prev, free_spin_period_days: '' } : null,
+                      );
+                    const num = parseInt(val);
+                    if (!isNaN(num))
+                      setSettingsForm((prev) =>
+                        prev ? { ...prev, free_spin_period_days: num } : null,
+                      );
+                  }}
+                  className="input w-full"
+                />
+              </div>
+            </div>
+            <p className="text-xs text-dark-400">
+              Например «1 спин раз в 2 дня» = 1 / 2. «3 спина в день» = 3 / 1.
+            </p>
+            <div className="rounded-xl border border-dark-700/30 bg-dark-800/30 p-4">
+              <label className="flex cursor-pointer items-center gap-3">
+                <input
+                  type="checkbox"
+                  checked={
+                    settingsForm?.free_spin_requires_active_subscription ??
+                    config.free_spin_requires_active_subscription ??
+                    true
+                  }
+                  onChange={(e) =>
+                    setSettingsForm((prev) =>
+                      prev
+                        ? { ...prev, free_spin_requires_active_subscription: e.target.checked }
+                        : null,
+                    )
+                  }
+                  className="h-5 w-5 rounded border-dark-600 bg-dark-800 text-accent-500"
+                />
+                <span className="text-sm text-dark-200">
+                  Только для активных платных подписок (триал не считается)
+                </span>
+              </label>
+            </div>
+          </div>
+
+          <hr className="border-dark-700" />
+
+          {/* Probability mode */}
+          <div className="space-y-4">
+            <h3 className="flex items-center gap-2 text-sm font-medium text-dark-400">
+              🎯 Режим вероятностей
+            </h3>
+            <div className="grid grid-cols-2 gap-3">
+              <button
+                type="button"
+                onClick={() =>
+                  setSettingsForm((prev) => (prev ? { ...prev, probability_mode: 'manual' } : null))
+                }
+                className={`rounded-xl border p-4 text-left transition-all ${
+                  (settingsForm?.probability_mode ?? config.probability_mode ?? 'manual') ===
+                  'manual'
+                    ? 'border-accent-500/50 bg-accent-500/10'
+                    : 'border-dark-700/30 bg-dark-800/30 hover:border-dark-600'
+                }`}
+              >
+                <div className="text-sm font-medium text-dark-100">Ручной (рекомендуется)</div>
+                <div className="mt-1 text-xs text-dark-400">
+                  Указываете шанс каждого приза в процентах. Сумма должна быть = 100%.
+                </div>
+              </button>
+              <button
+                type="button"
+                onClick={() =>
+                  setSettingsForm((prev) => (prev ? { ...prev, probability_mode: 'rtp' } : null))
+                }
+                className={`rounded-xl border p-4 text-left transition-all ${
+                  (settingsForm?.probability_mode ?? config.probability_mode ?? 'manual') === 'rtp'
+                    ? 'border-accent-500/50 bg-accent-500/10'
+                    : 'border-dark-700/30 bg-dark-800/30 hover:border-dark-600'
+                }`}
+              >
+                <div className="text-sm font-medium text-dark-100">По RTP</div>
+                <div className="mt-1 text-xs text-dark-400">
+                  Авто-расчёт вероятностей под целевой % возврата.
+                </div>
+              </button>
+            </div>
+          </div>
+
+          <hr className="border-dark-700" />
+
           {/* Limits & RTP Section */}
           <div className="space-y-4">
             <h3 className="flex items-center gap-2 text-sm font-medium text-dark-400">
@@ -826,6 +987,14 @@ export default function AdminWheel() {
                       settingsForm.min_subscription_days_for_day_payment,
                       config.min_subscription_days_for_day_payment,
                     ),
+                    free_spins_per_period: toNumber(
+                      settingsForm.free_spins_per_period,
+                      config.free_spins_per_period ?? 1,
+                    ),
+                    free_spin_period_days: toNumber(
+                      settingsForm.free_spin_period_days,
+                      config.free_spin_period_days ?? 2,
+                    ),
                   });
                 }}
                 disabled={updateConfigMutation.isPending}
@@ -890,6 +1059,55 @@ export default function AdminWheel() {
                 </div>
               </div>
             )}
+
+            {/* Probability sum indicator + normalize (manual mode) */}
+            {(settingsForm?.probability_mode ?? config.probability_mode ?? 'manual') === 'manual' &&
+              config.prizes.length > 0 && (
+                <div className="rounded-xl border border-dark-700/30 bg-dark-800/30 p-3">
+                  {(() => {
+                    const sumPct = config.prizes.reduce(
+                      (acc, p) => acc + (p.manual_probability ?? 0) * 100,
+                      0,
+                    );
+                    const ok = Math.abs(sumPct - 100) < 0.5;
+                    return (
+                      <div className="flex flex-wrap items-center justify-between gap-2">
+                        <div className="text-sm">
+                          <span className="text-dark-300">Сумма шансов: </span>
+                          <span
+                            className={`font-semibold ${
+                              ok ? 'text-success-400' : 'text-warning-400'
+                            }`}
+                          >
+                            {sumPct.toFixed(2)}%
+                          </span>
+                          <span className="text-dark-500"> / 100%</span>
+                        </div>
+                        {!ok && (
+                          <button
+                            type="button"
+                            onClick={async () => {
+                              const total = sumPct;
+                              if (total <= 0) return;
+                              await Promise.all(
+                                config.prizes.map((p) =>
+                                  adminWheelApi.updatePrize(p.id, {
+                                    manual_probability: ((p.manual_probability ?? 0) * 100) / total,
+                                  }),
+                                ),
+                              );
+                              queryClient.invalidateQueries({ queryKey: ['admin-wheel-config'] });
+                            }}
+                            className="rounded-lg border border-accent-500/40 px-3 py-1.5 text-xs font-medium text-accent-400 transition-colors hover:bg-accent-500/10"
+                          >
+                            Авто-нормализовать
+                          </button>
+                        )}
+                      </div>
+                    );
+                  })()}
+                </div>
+              )}
 
             {/* Create new prize inline form */}
             {isCreating && (
@@ -1182,6 +1400,34 @@ function InlinePrizeForm({
           />
           <p className="mt-1 text-xs text-dark-500">
             = {(toNumber(formData.prize_value_kopeks) / 100).toFixed(2)} RUB
+          </p>
+        </div>
+
+        {/* Probability percent (manual mode) */}
+        <div>
+          <label className="mb-2 block text-sm font-medium text-dark-300">Шанс, %</label>
+          <input
+            type="number"
+            value={
+              formData.manual_probability != null
+                ? Math.round(formData.manual_probability * 10000) / 100
+                : ''
+            }
+            onChange={(e) => {
+              const val = e.target.value;
+              if (val === '') return setFormData({ ...formData, manual_probability: null });
+              const num = parseFloat(val);
+              if (!isNaN(num) && num >= 0 && num <= 100)
+                setFormData({ ...formData, manual_probability: num / 100 });
+            }}
+            min={0}
+            max={100}
+            step={0.01}
+            placeholder="0–100"
+            className="input w-full"
+          />
+          <p className="mt-1 text-xs text-dark-500">
+            Шанс выпадения. Сумма по всем призам должна быть = 100%.
           </p>
         </div>
 
