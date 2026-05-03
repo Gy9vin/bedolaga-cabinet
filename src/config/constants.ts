@@ -23,7 +23,9 @@ export const UI = {
 
 // API
 export const API = {
-  TIMEOUT_MS: 30000,
+  // 90s — длинные цепочки покупок (Remnawave PATCH + синхронизация + уведомления)
+  // легко уходят за 30s. 90s даёт запас.
+  TIMEOUT_MS: 90000,
   BALANCE_STALE_TIME_MS: 30000,
   TRAFFIC_CACHE_MS: 30000,
   TRAFFIC_WARN_PERCENT: 70,
