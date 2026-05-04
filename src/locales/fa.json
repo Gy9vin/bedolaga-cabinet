@@ -496,6 +496,9 @@
       },
       "severpay": {
         "description": "پرداخت از طریق SeverPay"
+      },
+      "apple_iap": {
+        "description": "پرداخت از طریق Apple In-App Purchase"
       }
     },
     "transactionHistory": "تاریخچه تراکنش‌ها",
@@ -1621,6 +1624,7 @@
         "payments_paypear": "PayPear",
         "payments_rollypay": "RollyPay",
         "payments_aurapay": "AuraPay",
+        "payments_apple_iap": "Apple IAP",
         "subs_core": "هسته",
         "subs_trial": "آزمایشی",
         "subs_pricing": "قیمت‌گذاری",

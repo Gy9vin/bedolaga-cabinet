@@ -659,6 +659,9 @@
       },
       "aurapay": {
         "description": "Pay via AuraPay"
+      },
+      "apple_iap": {
+        "description": "Pay via Apple In-App Purchase"
       }
     },
     "transactionHistory": "Transaction History",
@@ -1971,6 +1974,7 @@
         "payments_paypear": "PayPear",
         "payments_rollypay": "RollyPay",
         "payments_aurapay": "AuraPay",
+        "payments_apple_iap": "Apple IAP",
         "subs_core": "Core",
         "subs_trial": "Trial",
         "subs_pricing": "Pricing",

@@ -18,5 +18,6 @@ export const METHOD_LABELS: Record<string, string> = {
   paypear: 'PayPear',
   rollypay: 'RollyPay',
   aurapay: 'AuraPay',
+  apple_iap: 'Apple In-App Purchase',
   manual: 'Ручное пополнение',
 };

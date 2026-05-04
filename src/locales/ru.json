@@ -687,6 +687,9 @@
       },
       "aurapay": {
         "description": "Оплата через AuraPay"
+      },
+      "apple_iap": {
+        "description": "Оплата через Apple In-App Purchase"
       }
     },
     "transactionHistory": "История операций",
@@ -1987,6 +1990,7 @@
         "payments_paypear": "PayPear",
         "payments_rollypay": "RollyPay",
         "payments_aurapay": "AuraPay",
+        "payments_apple_iap": "Apple IAP",
         "subs_core": "Основные",
         "subs_trial": "Пробный период",
         "subs_pricing": "Цены",
