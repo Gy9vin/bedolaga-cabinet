@@ -722,6 +722,9 @@
       "donut": {
         "description": "Оплата картой и СБП через Donut P2P"
       },
+      "lava": {
+        "description": "Оплата картой и СБП через Lava Business"
+      },
       "apple_iap": {
         "description": "Оплата через Apple In-App Purchase"
       }
@@ -2038,6 +2041,7 @@
         "payments_antilopay": "Antilopay",
         "payments_jupiter": "Jupiter",
         "payments_donut": "Donut",
+        "payments_lava": "Lava",
         "payments_apple_iap": "Apple IAP",
         "subs_core": "Основные",
         "subs_trial": "Пробный период",

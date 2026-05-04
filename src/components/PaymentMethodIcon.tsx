@@ -424,6 +424,35 @@ export default function PaymentMethodIcon({
       );
     }
 
+    case 'lava': {
+      const lavaBgGradId = `${uid}-lava-bg`;
+      const lavaFlowGradId = `${uid}-lava-flow`;
+      return (
+        <svg className={className} viewBox="0 0 40 40">
+          <defs>
+            <linearGradient id={lavaBgGradId} x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stopColor="#1f2937" />
+              <stop offset="100%" stopColor="#0b0b0f" />
+            </linearGradient>
+            <linearGradient id={lavaFlowGradId} x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stopColor="#fde047" />
+              <stop offset="35%" stopColor="#fb923c" />
+              <stop offset="75%" stopColor="#ef4444" />
+              <stop offset="100%" stopColor="#7f1d1d" />
+            </linearGradient>
+          </defs>
+          <circle cx="20" cy="20" r="20" fill={`url(#${lavaBgGradId})`} />
+          <path
+            d="M7 27c2.2-1.6 4-3.5 5.4-5.7 1-1.6 1.6-3.4 2-5.2.4-1.7.7-3.5 1.7-4.9 1-1.4 2.6-2.3 4.3-2 1.6.3 2.8 1.6 3.4 3.1.6 1.5.8 3.2 1.6 4.7.9 1.7 2.5 3 4.3 3.6 1.5.5 3.1.5 4.6.6V33H7Z"
+            fill={`url(#${lavaFlowGradId})`}
+          />
+          <circle cx="14" cy="14" r="1.6" fill="#fde047" opacity="0.85" />
+          <circle cx="22" cy="10" r="1.1" fill="#fb923c" opacity="0.8" />
+          <circle cx="29" cy="16" r="1.3" fill="#fde047" opacity="0.7" />
+        </svg>
+      );
+    }
+
     case 'apple_iap':
       return (
         <svg className={className} viewBox="0 0 40 40">

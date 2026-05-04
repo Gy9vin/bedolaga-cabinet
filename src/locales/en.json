@@ -694,6 +694,9 @@
       "donut": {
         "description": "Pay by card or SBP through Donut P2P"
       },
+      "lava": {
+        "description": "Pay by card or SBP through Lava Business"
+      },
       "apple_iap": {
         "description": "Pay via Apple In-App Purchase"
       }
@@ -2022,6 +2025,7 @@
         "payments_antilopay": "Antilopay",
         "payments_jupiter": "Jupiter",
         "payments_donut": "Donut",
+        "payments_lava": "Lava",
         "payments_apple_iap": "Apple IAP",
         "subs_core": "Core",
         "subs_trial": "Trial",

@@ -531,6 +531,9 @@
       "donut": {
         "description": "پرداخت با کارت یا SBP از طریق Donut P2P"
       },
+      "lava": {
+        "description": "پرداخت با کارت یا SBP از طریق Lava Business"
+      },
       "apple_iap": {
         "description": "پرداخت از طریق Apple In-App Purchase"
       }
@@ -1662,6 +1665,7 @@
         "payments_antilopay": "Antilopay",
         "payments_jupiter": "Jupiter",
         "payments_donut": "Donut",
+        "payments_lava": "Lava",
         "payments_apple_iap": "Apple IAP",
         "subs_core": "هسته",
         "subs_trial": "آزمایشی",
