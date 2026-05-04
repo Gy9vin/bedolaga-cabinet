@@ -525,6 +525,12 @@
       "antilopay": {
         "description": "通过Antilopay支付"
       },
+      "jupiter": {
+        "description": "通过 Jupiter (FPGate P2P) 使用 SBP 支付"
+      },
+      "donut": {
+        "description": "通过 Donut P2P 使用银行卡或 SBP 支付"
+      },
       "apple_iap": {
         "description": "通过Apple应用内购买支付"
       }
@@ -1692,6 +1698,8 @@
         "payments_aurapay": "AuraPay",
         "payments_etoplatezhi": "Etoplatezhi",
         "payments_antilopay": "Antilopay",
+        "payments_jupiter": "Jupiter",
+        "payments_donut": "Donut",
         "payments_apple_iap": "Apple IAP",
         "subs_core": "核心",
         "subs_trial": "试用",

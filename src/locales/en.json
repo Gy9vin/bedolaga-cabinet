@@ -688,6 +688,12 @@
       "antilopay": {
         "description": "Pay via Antilopay"
       },
+      "jupiter": {
+        "description": "Pay via SBP through Jupiter (FPGate P2P)"
+      },
+      "donut": {
+        "description": "Pay by card or SBP through Donut P2P"
+      },
       "apple_iap": {
         "description": "Pay via Apple In-App Purchase"
       }
@@ -2014,6 +2020,8 @@
         "payments_aurapay": "AuraPay",
         "payments_etoplatezhi": "Etoplatezhi",
         "payments_antilopay": "Antilopay",
+        "payments_jupiter": "Jupiter",
+        "payments_donut": "Donut",
         "payments_apple_iap": "Apple IAP",
         "subs_core": "Core",
         "subs_trial": "Trial",

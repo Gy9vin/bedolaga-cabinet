@@ -335,6 +335,95 @@ export default function PaymentMethodIcon({
       );
     }
 
+    case 'jupiter': {
+      const jupiterGradId = `${uid}-jupiter`;
+      const jupiterRingId = `${uid}-jupiter-ring`;
+      return (
+        <svg className={className} viewBox="0 0 40 40">
+          <defs>
+            <linearGradient id={jupiterGradId} x1="0" y1="0" x2="1" y2="1">
+              <stop offset="0%" stopColor="#7c3aed" />
+              <stop offset="55%" stopColor="#6366f1" />
+              <stop offset="100%" stopColor="#0ea5e9" />
+            </linearGradient>
+            <linearGradient id={jupiterRingId} x1="0" y1="0" x2="1" y2="0">
+              <stop offset="0%" stopColor="#fde68a" stopOpacity="0.9" />
+              <stop offset="100%" stopColor="#fde68a" stopOpacity="0.45" />
+            </linearGradient>
+          </defs>
+          <circle cx="20" cy="20" r="20" fill={`url(#${jupiterGradId})`} />
+          <ellipse
+            cx="20"
+            cy="22"
+            rx="15"
+            ry="3.4"
+            fill="none"
+            stroke={`url(#${jupiterRingId})`}
+            strokeWidth="2"
+            transform="rotate(-18 20 22)"
+          />
+          <circle cx="20" cy="20" r="6.5" fill="#fde68a" opacity="0.95" />
+        </svg>
+      );
+    }
+
+    case 'donut': {
+      const donutBgGradId = `${uid}-donut-bg`;
+      const donutGlazeGradId = `${uid}-donut-glaze`;
+      return (
+        <svg className={className} viewBox="0 0 40 40">
+          <defs>
+            <linearGradient id={donutBgGradId} x1="0" y1="0" x2="1" y2="1">
+              <stop offset="0%" stopColor="#fdf2f8" />
+              <stop offset="100%" stopColor="#fbcfe8" />
+            </linearGradient>
+            <radialGradient id={donutGlazeGradId} cx="50%" cy="40%" r="60%">
+              <stop offset="0%" stopColor="#fb7185" />
+              <stop offset="60%" stopColor="#ec4899" />
+              <stop offset="100%" stopColor="#be185d" />
+            </radialGradient>
+          </defs>
+          <circle cx="20" cy="20" r="20" fill={`url(#${donutBgGradId})`} />
+          <circle cx="20" cy="20" r="13" fill={`url(#${donutGlazeGradId})`} />
+          <circle cx="20" cy="20" r="4.5" fill="#fdf2f8" />
+          <g fill="#fde68a">
+            <rect
+              x="13.5"
+              y="11"
+              width="2.5"
+              height="1"
+              rx="0.5"
+              transform="rotate(-30 14.75 11.5)"
+            />
+            <rect x="22" y="13" width="2.5" height="1" rx="0.5" transform="rotate(20 23.25 13.5)" />
+            <rect
+              x="26"
+              y="20"
+              width="2.5"
+              height="1"
+              rx="0.5"
+              transform="rotate(-15 27.25 20.5)"
+            />
+          </g>
+          <g fill="#a7f3d0">
+            <rect x="11" y="22" width="2.5" height="1" rx="0.5" transform="rotate(40 12.25 22.5)" />
+            <rect
+              x="20"
+              y="26"
+              width="2.5"
+              height="1"
+              rx="0.5"
+              transform="rotate(-30 21.25 26.5)"
+            />
+          </g>
+          <g fill="#bfdbfe">
+            <rect x="16" y="27" width="2.5" height="1" rx="0.5" transform="rotate(15 17.25 27.5)" />
+            <rect x="24" y="9" width="2.5" height="1" rx="0.5" transform="rotate(-25 25.25 9.5)" />
+          </g>
+        </svg>
+      );
+    }
+
     case 'apple_iap':
       return (
         <svg className={className} viewBox="0 0 40 40">

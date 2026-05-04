@@ -716,6 +716,12 @@
       "antilopay": {
         "description": "Оплата через Antilopay"
       },
+      "jupiter": {
+        "description": "Оплата СБП через Jupiter (FPGate P2P)"
+      },
+      "donut": {
+        "description": "Оплата картой и СБП через Donut P2P"
+      },
       "apple_iap": {
         "description": "Оплата через Apple In-App Purchase"
       }
@@ -2030,6 +2036,8 @@
         "payments_aurapay": "AuraPay",
         "payments_etoplatezhi": "Etoplatezhi",
         "payments_antilopay": "Antilopay",
+        "payments_jupiter": "Jupiter",
+        "payments_donut": "Donut",
         "payments_apple_iap": "Apple IAP",
         "subs_core": "Основные",
         "subs_trial": "Пробный период",
