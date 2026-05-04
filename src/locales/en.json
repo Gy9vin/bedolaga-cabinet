@@ -571,6 +571,14 @@
       "selectServersHint": "Select servers to connect or disconnect",
       "noServersAvailable": "No servers available to manage"
     },
+    "revoke": {
+      "title": "Reissue Subscription",
+      "button": "Reissue Subscription",
+      "description": "New link, device reset",
+      "warning": "This will generate a new connection link, reset all connected devices, and invalidate the old link. Continue?",
+      "confirmBtn": "Reissue",
+      "cooldown": "Available in {{minutes}} min {{seconds}} sec"
+    },
     "legacy": {
       "selectTariffTitle": "Select a tariff to renew",
       "selectTariffDescription": "Your current subscription was created before tariffs were introduced. To renew, please select one of the available tariffs.",
