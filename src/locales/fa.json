@@ -514,6 +514,9 @@
       "etoplatezhi": {
         "description": "پرداخت از طریق Etoplatezhi"
       },
+      "antilopay": {
+        "description": "پرداخت از طریق Antilopay"
+      },
       "apple_iap": {
         "description": "پرداخت از طریق Apple In-App Purchase"
       }
@@ -1642,6 +1645,7 @@
         "payments_rollypay": "RollyPay",
         "payments_aurapay": "AuraPay",
         "payments_etoplatezhi": "Etoplatezhi",
+        "payments_antilopay": "Antilopay",
         "payments_apple_iap": "Apple IAP",
         "subs_core": "هسته",
         "subs_trial": "آزمایشی",

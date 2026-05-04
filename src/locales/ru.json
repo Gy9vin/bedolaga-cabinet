@@ -705,6 +705,9 @@
       "etoplatezhi": {
         "description": "Оплата через Etoplatezhi"
       },
+      "antilopay": {
+        "description": "Оплата через Antilopay"
+      },
       "apple_iap": {
         "description": "Оплата через Apple In-App Purchase"
       }
@@ -2018,6 +2021,7 @@
         "payments_rollypay": "RollyPay",
         "payments_aurapay": "AuraPay",
         "payments_etoplatezhi": "Etoplatezhi",
+        "payments_antilopay": "Antilopay",
         "payments_apple_iap": "Apple IAP",
         "subs_core": "Основные",
         "subs_trial": "Пробный период",

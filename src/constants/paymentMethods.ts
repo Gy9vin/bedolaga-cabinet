@@ -19,6 +19,7 @@ export const METHOD_LABELS: Record<string, string> = {
   rollypay: 'RollyPay',
   aurapay: 'AuraPay',
   etoplatezhi: 'Etoplatezhi',
+  antilopay: 'Antilopay',
   apple_iap: 'Apple In-App Purchase',
   manual: 'Ручное пополнение',
 };
