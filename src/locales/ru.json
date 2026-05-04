@@ -702,6 +702,9 @@
       "aurapay": {
         "description": "Оплата через AuraPay"
       },
+      "etoplatezhi": {
+        "description": "Оплата через Etoplatezhi"
+      },
       "apple_iap": {
         "description": "Оплата через Apple In-App Purchase"
       }
@@ -2014,6 +2017,7 @@
         "payments_paypear": "PayPear",
         "payments_rollypay": "RollyPay",
         "payments_aurapay": "AuraPay",
+        "payments_etoplatezhi": "Etoplatezhi",
         "payments_apple_iap": "Apple IAP",
         "subs_core": "Основные",
         "subs_trial": "Пробный период",

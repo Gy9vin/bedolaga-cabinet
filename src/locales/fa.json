@@ -511,6 +511,9 @@
       "severpay": {
         "description": "پرداخت از طریق SeverPay"
       },
+      "etoplatezhi": {
+        "description": "پرداخت از طریق Etoplatezhi"
+      },
       "apple_iap": {
         "description": "پرداخت از طریق Apple In-App Purchase"
       }
@@ -1638,6 +1641,7 @@
         "payments_paypear": "PayPear",
         "payments_rollypay": "RollyPay",
         "payments_aurapay": "AuraPay",
+        "payments_etoplatezhi": "Etoplatezhi",
         "payments_apple_iap": "Apple IAP",
         "subs_core": "هسته",
         "subs_trial": "آزمایشی",
