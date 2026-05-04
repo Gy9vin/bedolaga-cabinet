@@ -1780,7 +1780,17 @@
       "customButtonTypeCallback": "Callback",
       "customButtonTypeUrl": "URL",
       "customButtonCallbackPlaceholder": "callback_data (e.g. back_to_menu)",
-      "customButtonUrlPlaceholder": "https://example.com"
+      "customButtonUrlPlaceholder": "https://example.com",
+      "preview": "Preview",
+      "previewEmpty": "— empty —",
+      "emailSubjectLabel": "Subject",
+      "btnBalance": "Top up balance",
+      "btnPartners": "Referral program",
+      "btnPromocode": "Promo code",
+      "btnConnect": "Connect",
+      "btnSubscription": "Subscription",
+      "btnSupport": "Support",
+      "btnHome": "Home"
     },
     "pinnedMessages": {
       "title": "Pinned Messages",
