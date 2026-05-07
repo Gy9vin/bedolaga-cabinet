@@ -513,6 +513,12 @@ const sections: AdminSection[] = [
       },
       { name: 'admin.nav.wheel', icon: 'circle-dot', to: '/admin/wheel', permission: 'wheel:read' },
       {
+        name: 'admin.nav.expiryFallback',
+        icon: 'shield',
+        to: '/admin/expiry-fallback',
+        permission: 'users:read',
+      },
+      {
         name: 'admin.nav.partners',
         icon: 'handshake',
         to: '/admin/partners',

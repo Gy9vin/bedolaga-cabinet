@@ -1161,6 +1161,7 @@
       "settings": "Settings",
       "apps": "Apps",
       "wheel": "Wheel",
+      "expiryFallback": "Fallback Squad",
       "tariffs": "Tariffs",
       "servers": "Squads",
       "banSystem": "Ban Monitoring",

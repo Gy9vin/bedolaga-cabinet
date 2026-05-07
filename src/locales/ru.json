@@ -1182,6 +1182,7 @@
       "settings": "Настройки",
       "apps": "Приложения",
       "wheel": "Колесо",
+      "expiryFallback": "Fallback-сквад",
       "tariffs": "Тарифы",
       "servers": "Сквады",
       "banSystem": "Мониторинг банов",

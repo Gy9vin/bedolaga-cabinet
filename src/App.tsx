@@ -79,6 +79,7 @@ const AdminTicketSettings = lazyWithRetry(() => import('./pages/AdminTicketSetti
 const AdminSettings = lazyWithRetry(() => import('./pages/AdminSettings'));
 const AdminApps = lazyWithRetry(() => import('./pages/AdminApps'));
 const AdminWheel = lazyWithRetry(() => import('./pages/AdminWheel'));
+const AdminExpiryFallback = lazyWithRetry(() => import('./pages/AdminExpiryFallback'));
 const AdminTariffs = lazyWithRetry(() => import('./pages/AdminTariffs'));
 const AdminTariffCreate = lazyWithRetry(() => import('./pages/AdminTariffCreate'));
 const AdminServers = lazyWithRetry(() => import('./pages/AdminServers'));
@@ -632,6 +633,16 @@ function App() {
             <PermissionRoute permission="wheel:read">
               <LazyPage>
                 <AdminWheel />
+              </LazyPage>
+            </PermissionRoute>
+          }
+        />
+        <Route
+          path="/admin/expiry-fallback"
+          element={
+            <PermissionRoute permission="users:read">
+              <LazyPage>
+                <AdminExpiryFallback />
               </LazyPage>
             </PermissionRoute>
           }
