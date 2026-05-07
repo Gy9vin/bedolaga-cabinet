@@ -87,6 +87,18 @@ export default function AdminExpiryFallback() {
     onError: () => notify.error('Не удалось вернуть всех'),
   });
 
+  const cleanupMutation = useMutation({
+    mutationFn: adminExpiryFallbackApi.cleanupOldExpired,
+    onSuccess: (res) => {
+      queryClient.invalidateQueries({ queryKey: ['admin-expiry-fallback-stats'] });
+      const parts = [`Удалено: ${res.deleted} из ${res.total_candidates}`];
+      if (res.skipped_with_balance) parts.push(`пропущено с балансом: ${res.skipped_with_balance}`);
+      if (res.skipped_pending_purchase) parts.push(`pending: ${res.skipped_pending_purchase}`);
+      notify.success(parts.join(', '));
+    },
+    onError: () => notify.error('Не удалось выполнить очистку'),
+  });
+
   const handleReconcile = async () => {
     const ok = await confirmDestructive(
       'Принудительно прогнать reconcile прямо сейчас? Не ждать 15 мин.',
@@ -94,6 +106,17 @@ export default function AdminExpiryFallback() {
       'Reconcile fallback',
     );
     if (ok) reconcileMutation.mutate();
+  };
+
+  const handleCleanup = async () => {
+    const ok = await confirmDestructive(
+      'Удалить юзеров со status=EXPIRED старше INACTIVE_USER_DELETE_MONTHS месяцев ' +
+        '(только с нулевым балансом и без pending покупок). Период задаётся в .env. ' +
+        'Удаление необратимо!',
+      'Удалить',
+      'Очистка старых EXPIRED',
+    );
+    if (ok) cleanupMutation.mutate();
   };
 
   const handleRestoreAll = async () => {
@@ -208,7 +231,7 @@ export default function AdminExpiryFallback() {
       {/* Actions */}
       <div className="rounded-xl border border-dark-700 bg-dark-800/50 p-5">
         <h2 className="mb-3 text-sm font-semibold text-dark-100">Действия</h2>
-        <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+        <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
           <button
             type="button"
             onClick={handleReconcile}
@@ -242,6 +265,22 @@ export default function AdminExpiryFallback() {
             </div>
             {restoreAllMutation.isPending && (
               <div className="mt-2 text-xs text-error-400">Возвращаю…</div>
+            )}
+          </button>
+
+          <button
+            type="button"
+            onClick={handleCleanup}
+            disabled={cleanupMutation.isPending}
+            className="flex flex-col items-start rounded-xl border border-error-500/30 bg-error-500/5 p-4 text-left transition-all hover:border-error-500/50 hover:bg-error-500/10 disabled:cursor-not-allowed disabled:opacity-50"
+          >
+            <div className="text-sm font-semibold text-error-300">🗑 Удалить старых EXPIRED</div>
+            <div className="mt-1 text-xs text-dark-400">
+              Удаляет юзеров с истечённой давно подпиской и нулевым балансом. Период через
+              INACTIVE_USER_DELETE_MONTHS в .env.
+            </div>
+            {cleanupMutation.isPending && (
+              <div className="mt-2 text-xs text-error-400">Удаляю…</div>
             )}
           </button>
         </div>

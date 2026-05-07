@@ -22,6 +22,15 @@ export interface FallbackReconcileResponse {
   stats: Record<string, number | boolean>;
 }
 
+export interface CleanupOldExpiredResponse {
+  success: boolean;
+  deleted: number;
+  skipped_with_balance: number;
+  skipped_pending_purchase: number;
+  total_candidates: number;
+  months_threshold: number;
+}
+
 export const adminExpiryFallbackApi = {
   getStats: async (): Promise<FallbackStats> => {
     const response = await apiClient.get<FallbackStats>('/cabinet/admin/expiry-fallback/stats');
@@ -38,6 +47,13 @@ export const adminExpiryFallbackApi = {
   reconcile: async (): Promise<FallbackReconcileResponse> => {
     const response = await apiClient.post<FallbackReconcileResponse>(
       '/cabinet/admin/expiry-fallback/reconcile',
+    );
+    return response.data;
+  },
+
+  cleanupOldExpired: async (): Promise<CleanupOldExpiredResponse> => {
+    const response = await apiClient.post<CleanupOldExpiredResponse>(
+      '/cabinet/admin/expiry-fallback/cleanup-old-expired',
     );
     return response.data;
   },
