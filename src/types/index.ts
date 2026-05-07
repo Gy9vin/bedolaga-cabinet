@@ -103,6 +103,10 @@ export interface Subscription {
   tariff_name?: string;
   modem_enabled?: boolean;
   traffic_reset_mode?: string;
+  // Fallback-сквад при истечении/исчерпании трафика — VPN работает с урезанным доступом
+  expiry_fallback_active?: boolean;
+  traffic_fallback_active?: boolean;
+  fallback_reason?: 'expired' | 'traffic' | null;
 }
 
 // Response wrapper for subscription status endpoint

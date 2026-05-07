@@ -1077,6 +1077,41 @@ export default function Subscription() {
                 </span>
               </div>
 
+              {/* ─── Fallback Squad Banner (истечение/трафик) ─── */}
+              {(subscription.expiry_fallback_active || subscription.traffic_fallback_active) && (
+                <div
+                  className="mb-6 rounded-[14px] p-4"
+                  style={{
+                    background:
+                      'linear-gradient(135deg, rgba(255,184,0,0.10), rgba(255,184,0,0.04))',
+                    border: '1px solid rgba(255,184,0,0.30)',
+                  }}
+                >
+                  <div className="flex items-start gap-3">
+                    <div
+                      className="flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-[10px]"
+                      style={{ background: 'rgba(255,184,0,0.16)' }}
+                    >
+                      <span style={{ fontSize: '18px' }}>⚠️</span>
+                    </div>
+                    <div className="min-w-0 flex-1">
+                      <div className="text-sm font-semibold" style={{ color: '#FFB800' }}>
+                        {subscription.expiry_fallback_active
+                          ? t('subscription.fallback.expiredTitle', 'Подписка истекла')
+                          : t('subscription.fallback.trafficTitle', 'Трафик закончился')}
+                      </div>
+                      <div className="mt-1 text-xs leading-relaxed text-dark-300">
+                        {t(
+                          'subscription.fallback.body',
+                          'VPN сейчас работает только для Telegram, банков и кабинета. ' +
+                            'Чтобы вернуть полный доступ — продли подписку или докупи трафик.',
+                        )}
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              )}
+
               {/* ─── Traffic Limited Banner ─── */}
               {subscription.is_limited && (
                 <div
