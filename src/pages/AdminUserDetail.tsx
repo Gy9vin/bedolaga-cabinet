@@ -1307,9 +1307,10 @@ export default function AdminUserDetail() {
           </div>
           <div>
             <div className="font-semibold text-dark-100">{user.full_name}</div>
-            <div className="flex items-center gap-2 text-sm text-dark-400">
+            <div className="flex flex-wrap items-center gap-2 text-sm text-dark-400">
               <TelegramIcon />
               {user.telegram_id}
+              <span className="font-mono text-xs text-dark-500">DB ID: {user.id}</span>
               {user.username && <span>@{user.username}</span>}
             </div>
           </div>
