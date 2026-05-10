@@ -31,6 +31,18 @@ export interface CleanupOldExpiredResponse {
   months_threshold: number;
 }
 
+export interface FallbackScanMoveResponse {
+  success: boolean;
+  scanned: number;
+  moved: number;
+  skipped_dev_mode: number;
+  skipped_no_remnawave_uuid: number;
+  failed: number;
+  dev_mode_active: boolean;
+  dev_mode_user_count: number;
+  error?: string | null;
+}
+
 export const adminExpiryFallbackApi = {
   getStats: async (): Promise<FallbackStats> => {
     const response = await apiClient.get<FallbackStats>('/cabinet/admin/expiry-fallback/stats');
@@ -54,6 +66,13 @@ export const adminExpiryFallbackApi = {
   cleanupOldExpired: async (): Promise<CleanupOldExpiredResponse> => {
     const response = await apiClient.post<CleanupOldExpiredResponse>(
       '/cabinet/admin/expiry-fallback/cleanup-old-expired',
+    );
+    return response.data;
+  },
+
+  scanAndMove: async (): Promise<FallbackScanMoveResponse> => {
+    const response = await apiClient.post<FallbackScanMoveResponse>(
+      '/cabinet/admin/expiry-fallback/scan-and-move',
     );
     return response.data;
   },

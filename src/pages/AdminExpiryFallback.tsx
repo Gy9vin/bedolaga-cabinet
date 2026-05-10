@@ -99,6 +99,23 @@ export default function AdminExpiryFallback() {
     onError: () => notify.error('Не удалось выполнить очистку'),
   });
 
+  const scanAndMoveMutation = useMutation({
+    mutationFn: adminExpiryFallbackApi.scanAndMove,
+    onSuccess: (res) => {
+      queryClient.invalidateQueries({ queryKey: ['admin-expiry-fallback-stats'] });
+      if (!res.success) {
+        notify.error(res.error || 'Не удалось запустить scan-and-move');
+        return;
+      }
+      const parts = [`Просканировано: ${res.scanned}`, `переведено: ${res.moved}`];
+      if (res.skipped_dev_mode) parts.push(`DEV-skip: ${res.skipped_dev_mode}`);
+      if (res.skipped_no_remnawave_uuid) parts.push(`без UUID: ${res.skipped_no_remnawave_uuid}`);
+      if (res.failed) parts.push(`ошибок: ${res.failed}`);
+      notify.success(parts.join(', '));
+    },
+    onError: () => notify.error('Не удалось выполнить scan-and-move'),
+  });
+
   const handleReconcile = async () => {
     const ok = await confirmDestructive(
       'Принудительно прогнать reconcile прямо сейчас? Не ждать 15 мин.',
@@ -137,6 +154,23 @@ export default function AdminExpiryFallback() {
       'Подтверждение',
     );
     if (second) restoreAllMutation.mutate();
+  };
+
+  const handleScanAndMove = async () => {
+    if (!stats?.enabled) {
+      notify.warning('Система fallback выключена (EXPIRY_FALLBACK_ENABLED=false)');
+      return;
+    }
+    if (!stats.fallback_squad_uuid) {
+      notify.warning('Не задан EXPIRY_FALLBACK_SQUAD_UUID');
+      return;
+    }
+    const message =
+      'Пройти по базе и перевести в fallback-сквад все подписки с end_date в прошлом.\n\n' +
+      'Если включён DEV_MODE — переведёт ТОЛЬКО юзеров из EXPIRY_FALLBACK_DEV_USER_IDS.\n' +
+      'Если DEV_MODE выключен — переведёт ВСЕХ с истёкшим сроком (массовая операция!).';
+    const ok = await confirmDestructive(message, 'Запустить', 'Прогнать expired в fallback');
+    if (ok) scanAndMoveMutation.mutate();
   };
 
   if (isLoading) {
@@ -231,7 +265,25 @@ export default function AdminExpiryFallback() {
       {/* Actions */}
       <div className="rounded-xl border border-dark-700 bg-dark-800/50 p-5">
         <h2 className="mb-3 text-sm font-semibold text-dark-100">Действия</h2>
-        <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
+        <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4">
+          <button
+            type="button"
+            onClick={handleScanAndMove}
+            disabled={scanAndMoveMutation.isPending || !stats.enabled}
+            className="flex flex-col items-start rounded-xl border border-warning-500/40 bg-warning-500/5 p-4 text-left transition-all hover:border-warning-500/60 hover:bg-warning-500/10 disabled:cursor-not-allowed disabled:opacity-50"
+          >
+            <div className="text-sm font-semibold text-warning-300">
+              🚀 Прогнать expired в fallback
+            </div>
+            <div className="mt-1 text-xs text-dark-400">
+              Сканирует БД и переводит в fallback все подписки с истёкшим сроком. В DEV_MODE —
+              только юзеров из whitelist.
+            </div>
+            {scanAndMoveMutation.isPending && (
+              <div className="mt-2 text-xs text-warning-400">Сканирую…</div>
+            )}
+          </button>
+
           <button
             type="button"
             onClick={handleReconcile}
