@@ -385,7 +385,7 @@
     "devicesFree": "devices free",
     "devicesFree_one": "{{count}} device free",
     "devicesFree_other": "{{count}} devices free",
-    "perExtraDevice": "/ extra device",
+    "perExtraDevice": "/ extra device per month",
     "extraDevices": "Extra devices",
     "extraDevicesIncluded": "Incl. {{count}} extra dev.",
     "extraDevicesIncluded_one": "Incl. {{count}} extra dev.",

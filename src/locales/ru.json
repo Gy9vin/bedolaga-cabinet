@@ -405,7 +405,7 @@
     "devicesFree_one": "{{count}} устройство бесплатно",
     "devicesFree_few": "{{count}} устройства бесплатно",
     "devicesFree_many": "{{count}} устройств бесплатно",
-    "perExtraDevice": "/ доп. устройство",
+    "perExtraDevice": "/ доп. устройство в мес.",
     "extraDevices": "Доп. устройства",
     "extraDevicesIncluded": "Вкл. {{count}} доп. устр.",
     "extraDevicesIncluded_one": "Вкл. {{count}} доп. устр.",
