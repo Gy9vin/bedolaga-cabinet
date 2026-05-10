@@ -2075,6 +2075,7 @@
         "users_localization": "Локализация",
         "users_moderation": "Модерация",
         "users_penalty_squad": "Штрафной сквад",
+        "users_expiry_fallback": "Fallback при истечении",
         "notif_user": "Уведомления пользователей",
         "notif_admin": "Уведомления админов",
         "notif_reports": "Отчёты",

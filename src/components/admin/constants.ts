@@ -98,6 +98,7 @@ export const SETTINGS_TREE: SettingsTreeConfig = {
         { id: 'users_localization', categories: ['LOCALIZATION', 'TIMEZONE'] },
         { id: 'users_moderation', categories: ['MODERATION', 'BAN_NOTIFICATIONS'] },
         { id: 'users_penalty_squad', categories: ['SQUAD_PENALTY'] },
+        { id: 'users_expiry_fallback', categories: ['EXPIRY_FALLBACK'] },
       ],
     },
     {

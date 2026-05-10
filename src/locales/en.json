@@ -2059,6 +2059,7 @@
         "users_localization": "Localization",
         "users_moderation": "Moderation",
         "users_penalty_squad": "Penalty Squad",
+        "users_expiry_fallback": "Expiry Fallback",
         "notif_user": "User notifications",
         "notif_admin": "Admin notifications",
         "notif_reports": "Reports",
