@@ -170,7 +170,8 @@ export default function TopUpAmount() {
       : converted.toFixed(2);
   };
 
-  const [amount, setAmount] = useState(getInitialAmount);
+  const initialDisplayAmount = getInitialAmount();
+  const [amount, setAmount] = useState(initialDisplayAmount);
   const [error, setError] = useState<string | null>(null);
   const [selectedOption, setSelectedOption] = useState<string | null>(
     getPreferredOptionId(method?.options),
@@ -334,7 +335,22 @@ export default function TopUpAmount() {
       return;
     }
 
-    const amountKopeks = Math.round(amountRubles * 100);
+    // Сохраняем canonical RUB amount если юзер НЕ редактировал префилл.
+    // Display-rounding в `.toFixed(2)` теряет точность: 150₽ при rate=90.66 → "1.65" USD
+    // (округление вниз с 1.6545), back-конвертация даёт 1.65 × 90.66 = 149.589₽ < 150₽
+    // → юзер не может купить подписку 150₽. С canonical RUB обходим FX round-trip.
+    //
+    // Math.ceil для не-RUB локалей покрывает остаточные sub-копеечные ошибки
+    // floating-point, когда юзер реально вводит свой amount.
+    const userEditedAmount = amount.trim() !== initialDisplayAmount.trim();
+    let amountKopeks: number;
+    if (!userEditedAmount && initialAmountRubles && initialAmountRubles > 0) {
+      amountKopeks = Math.round(initialAmountRubles * 100);
+    } else if (targetCurrency === 'RUB') {
+      amountKopeks = Math.round(amountRubles * 100);
+    } else {
+      amountKopeks = Math.ceil(amountRubles * 100);
+    }
     if (isStarsMethod) {
       starsPaymentMutation.mutate(amountKopeks);
     } else {
