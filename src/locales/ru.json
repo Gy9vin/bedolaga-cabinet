@@ -285,6 +285,7 @@
       "traffic": "Трафик",
       "devices": "Устройства",
       "expiredDate": "Истекла",
+      "expiredDate_trial": "Истёк",
       "activeUntil": "Активна до"
     },
     "suspended": {
