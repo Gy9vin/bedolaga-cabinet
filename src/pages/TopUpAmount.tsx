@@ -255,9 +255,8 @@ export default function TopUpAmount() {
     onSuccess: (data) => {
       const redirectUrl = data.payment_url || data.invoice_url;
       if (redirectUrl) {
-        setPaymentUrl(redirectUrl);
-
-        // Save payment info for the result page
+        // Save payment info for the result page (do BEFORE possible redirect,
+        // иначе после window.location.href этот код не выполнится).
         if (method && data.payment_id) {
           const methodKey = method.id.toLowerCase().replace(/-/g, '_');
           const displayName =
@@ -270,6 +269,22 @@ export default function TopUpAmount() {
             created_at: Date.now(),
           });
         }
+
+        // open_url_direct: seamless флоу как при покупке подарка.
+        // window.location.href внутри Telegram MiniApp WebView навигирует
+        // в том же контейнере без открытия внешнего браузера. После
+        // оплаты return_url возвращает на /balance/top-up/result.
+        //
+        // t.me/ URL (Telegram Stars, CryptoBot) — всегда через нативный
+        // handler (openInvoice / openTelegramLink в setPaymentUrl-ветке).
+        // Stars уже отбит раньше через starsPaymentMutation, здесь — защита
+        // на случай CryptoBot и других Telegram-deep-link провайдеров.
+        if (method?.open_url_direct && !redirectUrl.startsWith('https://t.me/')) {
+          window.location.href = redirectUrl;
+          return;
+        }
+
+        setPaymentUrl(redirectUrl);
       }
     },
     onError: (err: unknown) => {
