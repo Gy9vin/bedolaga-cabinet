@@ -80,7 +80,8 @@ export default function AdminPaymentMethodEdit() {
       setFirstTopupFilter(config.first_topup_filter);
       setPromoGroupFilterMode(config.promo_group_filter_mode);
       setSelectedPromoGroupIds(config.allowed_promo_group_ids);
-      setOpenUrlDirect(config.open_url_direct);
+      // ?? false — защита от stale-config (backend ещё не пришёл с миграцией)
+      setOpenUrlDirect(config.open_url_direct ?? false);
     }
   }, [config]);
 
@@ -236,7 +237,7 @@ export default function AdminPaymentMethodEdit() {
             className={`relative h-6 w-11 shrink-0 rounded-full transition-colors ${
               openUrlDirect ? 'bg-accent-500' : 'bg-dark-600'
             }`}
-            aria-label="Toggle open URL directly"
+            aria-label={t('admin.paymentMethods.openUrlDirect', 'Open payment page directly')}
           >
             <span
               className={`absolute top-1 h-4 w-4 rounded-full bg-white transition-transform ${

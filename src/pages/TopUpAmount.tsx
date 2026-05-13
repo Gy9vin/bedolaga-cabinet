@@ -279,7 +279,14 @@ export default function TopUpAmount() {
         // handler (openInvoice / openTelegramLink в setPaymentUrl-ветке).
         // Stars уже отбит раньше через starsPaymentMutation, здесь — защита
         // на случай CryptoBot и других Telegram-deep-link провайдеров.
-        if (method?.open_url_direct && !redirectUrl.startsWith('https://t.me/')) {
+        // toLowerCase для устойчивости к редким провайдерам, которые могут вернуть
+        // URL в нестандартном регистре. Также покрываем tg:// scheme на всякий случай.
+        const lowerUrl = redirectUrl.toLowerCase();
+        const isTelegramDeepLink =
+          lowerUrl.startsWith('https://t.me/') ||
+          lowerUrl.startsWith('http://t.me/') ||
+          lowerUrl.startsWith('tg://');
+        if (method?.open_url_direct && !isTelegramDeepLink) {
           window.location.href = redirectUrl;
           return;
         }
