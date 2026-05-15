@@ -115,7 +115,7 @@ export default function Subscriptions() {
     <div className="space-y-6">
       {/* Header */}
       <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-bold" style={{ color: g.text }}>
+        <h1 className="text-xl font-bold" style={{ color: g.text }}>
           {t('subscriptions.title', 'Мои подписки')}
         </h1>
         {!isLoading && subscriptions.length > 0 && (

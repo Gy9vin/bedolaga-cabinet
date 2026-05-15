@@ -77,24 +77,24 @@ export default function TrialOfferCard({
       />
 
       {/* Title */}
-      <h2 className="mb-1.5 text-[22px] font-bold tracking-tight text-dark-50">
+      <h2 className="mb-1 text-[20px] font-bold tracking-tight text-dark-50">
         {isFree ? t('dashboard.trialOffer.freeTitle') : t('dashboard.trialOffer.paidTitle')}
       </h2>
-      <p className="mb-5 text-sm text-dark-50/40">
+      <p className="mb-3 text-sm text-dark-50/40">
         {isFree ? t('dashboard.trialOffer.freeDesc') : t('dashboard.trialOffer.paidDesc')}
       </p>
 
       {/* Price tag for paid trial */}
       {!isFree && trialInfo.price_rubles > 0 && (
         <div
-          className="mb-5 inline-flex items-baseline gap-1 rounded-xl px-5 py-2"
+          className="mb-3 inline-flex items-baseline gap-1 rounded-xl px-5 py-2"
           style={{
             background: 'rgba(255,184,0,0.08)',
             border: '1px solid rgba(255,184,0,0.15)',
           }}
         >
           <span
-            className="text-[32px] font-extrabold leading-none tracking-tight"
+            className="text-[28px] font-extrabold leading-none tracking-tight"
             style={{ color: '#FFB800' }}
           >
             {trialInfo.price_rubles.toFixed(0)}
