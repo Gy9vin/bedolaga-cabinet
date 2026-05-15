@@ -423,7 +423,9 @@
       "payAndActivate": "Pay & Activate",
       "topUpToActivate": "Top Up Balance",
       "insufficientBalance": "Top up your balance to activate",
-      "unavailable": "Trial is not available"
+      "unavailable": "Trial is not available",
+      "orDivider": "or",
+      "skipTrialBuy": "Buy subscription instead"
     },
     "trialBanner": {
       "title": "Trial period active",

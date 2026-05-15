@@ -447,7 +447,9 @@
       "payAndActivate": "Оплатить с баланса",
       "topUpToActivate": "Пополнить баланс",
       "insufficientBalance": "Пополните баланс для активации",
-      "unavailable": "Пробный период недоступен"
+      "unavailable": "Пробный период недоступен",
+      "orDivider": "или",
+      "skipTrialBuy": "Сразу купить подписку"
     },
     "trialBanner": {
       "title": "Пробный период активен",
