@@ -274,29 +274,27 @@ export default function TrialOfferCard({
       )}
 
       {/* Secondary CTA — пропустить триал и сразу купить полноценную подписку.
-          Особенно важно для платного триала: даём юзеру выбор. */}
-      {!isFree && trialInfo.price_kopeks > 0 && (
-        <div className="mt-4 flex items-center gap-3">
-          <div className="h-px flex-1 bg-white/10" />
-          <span className="text-xs uppercase tracking-wide text-dark-50/40">
-            {t('subscription.trial.orDivider')}
-          </span>
-          <div className="h-px flex-1 bg-white/10" />
-        </div>
-      )}
-      {!isFree && trialInfo.price_kopeks > 0 && (
-        <Link
-          to="/subscription/purchase"
-          className="mt-4 block w-full rounded-[14px] py-3.5 text-center text-sm font-semibold tracking-tight transition-all duration-300"
-          style={{
-            background: isDark ? 'rgba(255,255,255,0.04)' : 'rgba(0,0,0,0.04)',
-            border: `1px solid ${g.innerBorder}`,
-            color: isDark ? '#fff' : '#1a1200',
-          }}
-        >
-          {t('subscription.trial.skipTrialBuy')}
-        </Link>
-      )}
+          Показываем ВСЕГДА, даже для бесплатного триала — юзер мог удалить
+          аккаунт, заново зайти, и хочет сразу купить платную подписку,
+          а не активировать триал. */}
+      <div className="mt-4 flex items-center gap-3">
+        <div className="h-px flex-1 bg-white/10" />
+        <span className="text-xs uppercase tracking-wide text-dark-50/40">
+          {t('subscription.trial.orDivider')}
+        </span>
+        <div className="h-px flex-1 bg-white/10" />
+      </div>
+      <Link
+        to="/subscription/purchase"
+        className="mt-4 block w-full rounded-[14px] py-3.5 text-center text-sm font-semibold tracking-tight transition-all duration-300"
+        style={{
+          background: isDark ? 'rgba(255,255,255,0.04)' : 'rgba(0,0,0,0.04)',
+          border: `1px solid ${g.innerBorder}`,
+          color: isDark ? '#fff' : '#1a1200',
+        }}
+      >
+        {t('subscription.trial.skipTrialBuy')}
+      </Link>
     </div>
   );
 }
