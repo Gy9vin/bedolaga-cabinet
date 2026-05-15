@@ -87,26 +87,26 @@ export default function TrialOfferCard({
       {/* Price tag for paid trial */}
       {!isFree && trialInfo.price_rubles > 0 && (
         <div
-          className="mb-3 inline-flex items-baseline gap-1 rounded-xl px-5 py-2"
+          className="mb-3 inline-flex items-baseline gap-1 rounded-lg px-3 py-1"
           style={{
             background: 'rgba(255,184,0,0.08)',
             border: '1px solid rgba(255,184,0,0.15)',
           }}
         >
           <span
-            className="text-[28px] font-extrabold leading-none tracking-tight"
+            className="text-[14px] font-extrabold leading-none tracking-tight"
             style={{ color: '#FFB800' }}
           >
             {trialInfo.price_rubles.toFixed(0)}
           </span>
-          <span className="text-base font-semibold opacity-70" style={{ color: '#FFB800' }}>
+          <span className="text-xs font-semibold opacity-70" style={{ color: '#FFB800' }}>
             {currencySymbol}
           </span>
         </div>
       )}
 
       {/* Trial stats */}
-      <div className="mb-7 flex justify-center gap-8">
+      <div className="mb-5 flex justify-center gap-6">
         {[
           { value: String(trialInfo.duration_days), label: t('subscription.trial.days') },
           {
@@ -119,10 +119,10 @@ export default function TrialOfferCard({
           },
         ].map((stat, i) => (
           <div key={i} className="text-center">
-            <div className="text-4xl font-extrabold leading-none tracking-tight text-dark-50">
+            <div className="text-lg font-extrabold leading-none tracking-tight text-dark-50">
               {stat.value}
             </div>
-            <div className="mt-1 text-xs font-medium text-dark-50/30">{stat.label}</div>
+            <div className="mt-0.5 text-[11px] font-medium text-dark-50/30">{stat.label}</div>
           </div>
         ))}
       </div>
