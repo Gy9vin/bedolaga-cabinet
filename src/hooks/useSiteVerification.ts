@@ -39,6 +39,12 @@ export function useSiteVerification(): void {
 }
 
 function upsertMetaTag(name: string, content: string): void {
+  // Security note: `setAttribute('content', value)` stores `value` as a plain
+  // string attribute — the browser does NOT parse it as HTML. Even if a
+  // compromised backend returned `</meta><script>alert(1)</script>`, it would
+  // be stored literally inside `content="..."` and never executed. DO NOT
+  // switch to `innerHTML` / string concatenation into <head> — that would
+  // make this an XSS sink.
   let tag = document.head.querySelector<HTMLMetaElement>(`meta[name="${name}"]`);
   if (!tag) {
     tag = document.createElement('meta');
