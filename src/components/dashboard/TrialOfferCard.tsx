@@ -76,68 +76,6 @@ export default function TrialOfferCard({
         aria-hidden="true"
       />
 
-      {/* Icon */}
-      <div
-        className="relative mx-auto mb-5 flex h-14 w-14 items-center justify-center rounded-2xl"
-        style={{
-          background: isDark
-            ? isFree
-              ? 'linear-gradient(135deg, rgba(var(--color-accent-900), 0.5), rgba(var(--color-accent-950), 0.6))'
-              : 'linear-gradient(135deg, #3a3020, #282418)'
-            : isFree
-              ? 'linear-gradient(135deg, rgba(var(--color-accent-400), 0.15), rgba(var(--color-accent-400), 0.08))'
-              : 'linear-gradient(135deg, rgba(255,184,0,0.15), rgba(255,184,0,0.08))',
-          border: isFree
-            ? '1px solid rgba(var(--color-accent-400), 0.25)'
-            : '1px solid rgba(255,184,0,0.25)',
-          transition: 'all 0.5s ease',
-        }}
-      >
-        {isFree ? (
-          <svg
-            width="26"
-            height="26"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="rgb(var(--color-accent-400))"
-            strokeWidth="1.5"
-            aria-hidden="true"
-          >
-            <path
-              d="M9.813 15.904L9 18.75l-.813-2.846a4.5 4.5 0 00-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 003.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 003.09 3.09L15.75 12l-2.846.813a4.5 4.5 0 00-3.09 3.09zM18.259 8.715L18 9.75l-.259-1.035a3.375 3.375 0 00-2.455-2.456L14.25 6l1.036-.259a3.375 3.375 0 002.455-2.456L18 2.25l.259 1.035a3.375 3.375 0 002.455 2.456L21.75 6l-1.036.259a3.375 3.375 0 00-2.455 2.456zM16.894 20.567L16.5 21.75l-.394-1.183a2.25 2.25 0 00-1.423-1.423L13.5 18.75l1.183-.394a2.25 2.25 0 001.423-1.423l.394-1.183.394 1.183a2.25 2.25 0 001.423 1.423l1.183.394-1.183.394a2.25 2.25 0 00-1.423 1.423z"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-            />
-          </svg>
-        ) : (
-          <svg
-            width="26"
-            height="26"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="#FFB800"
-            strokeWidth="1.5"
-            aria-hidden="true"
-          >
-            <path
-              d="M3.75 13.5l10.5-11.25L12 10.5h8.25L9.75 21.75 12 13.5H3.75z"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-            />
-          </svg>
-        )}
-        {/* Glow effect */}
-        <div
-          className="absolute inset-[-1px] animate-trial-glow rounded-2xl"
-          style={{
-            boxShadow: isFree
-              ? '0 0 20px rgba(var(--color-accent-400), 0.15)'
-              : '0 0 20px rgba(255,184,0,0.12)',
-          }}
-          aria-hidden="true"
-        />
-      </div>
-
       {/* Title */}
       <h2 className="mb-1.5 text-[22px] font-bold tracking-tight text-dark-50">
         {isFree ? t('dashboard.trialOffer.freeTitle') : t('dashboard.trialOffer.paidTitle')}
@@ -286,11 +224,12 @@ export default function TrialOfferCard({
       </div>
       <Link
         to="/subscription/purchase"
-        className="mt-4 block w-full rounded-[14px] py-3.5 text-center text-sm font-semibold tracking-tight transition-all duration-300"
+        className="mt-4 block w-full rounded-[14px] py-3.5 text-center text-base font-bold tracking-tight transition-all duration-300"
         style={{
-          background: isDark ? 'rgba(255,255,255,0.04)' : 'rgba(0,0,0,0.04)',
-          border: `1px solid ${g.innerBorder}`,
-          color: isDark ? '#fff' : '#1a1200',
+          background:
+            'linear-gradient(135deg, rgb(var(--color-success-500)), rgb(var(--color-success-600)))',
+          color: '#fff',
+          boxShadow: '0 4px 20px rgba(var(--color-success-500), 0.25)',
         }}
       >
         {t('subscription.trial.skipTrialBuy')}
