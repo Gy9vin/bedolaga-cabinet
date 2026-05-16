@@ -1,4 +1,5 @@
 import { useTranslation } from 'react-i18next';
+import { usePlatform } from '@/platform';
 import { useBlockingStore } from '../../store/blocking';
 
 /**
@@ -18,12 +19,18 @@ import { useBlockingStore } from '../../store/blocking';
  */
 export default function AccountDeletedScreen() {
   const { t } = useTranslation();
+  const { openTelegramLink } = usePlatform();
   const info = useBlockingStore((state) => state.accountDeletedInfo);
 
   const deepLink = info?.telegram_deep_link?.trim() || null;
+  // Route through the platform adapter, not raw window.open. Inside the
+  // Telegram WebView, window.open is intercepted by the client and the
+  // new-tab fallback is blocked on most platforms (Android, iOS). The
+  // TelegramAdapter dispatches to the WebApp SDK's openTelegramLink in
+  // Telegram and falls back to window.open in the standalone web build.
   const handleOpenBot = () => {
     if (deepLink) {
-      window.open(deepLink, '_blank', 'noopener,noreferrer');
+      openTelegramLink(deepLink);
     }
   };
 
