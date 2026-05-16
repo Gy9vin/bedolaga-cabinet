@@ -27,6 +27,7 @@ import {
   MaintenanceScreen,
   ChannelSubscriptionScreen,
   BlacklistedScreen,
+  AccountDeletedScreen,
 } from './components/blocking';
 import { ErrorBoundary } from './components/ErrorBoundary';
 import { PermissionRoute } from '@/components/auth/PermissionRoute';
@@ -217,6 +218,10 @@ function BlockingOverlay() {
 
   if (blockingType === 'blacklisted') {
     return <BlacklistedScreen />;
+  }
+
+  if (blockingType === 'account_deleted') {
+    return <AccountDeletedScreen />;
   }
 
   return null;
