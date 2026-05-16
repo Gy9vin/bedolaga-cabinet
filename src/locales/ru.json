@@ -492,6 +492,11 @@
     "confirmDeleteAllDevices": "Удалить все устройства?",
     "deviceDeleted": "Устройство удалено",
     "allDevicesDeleted": "Все устройства удалены",
+    "renameDevice": "Переименовать",
+    "renameDeviceSave": "Сохранить",
+    "renameDeviceCancel": "Отмена",
+    "renameDevicePlaceholder": "Имя устройства",
+    "deviceRenamed": "Имя устройства обновлено",
     "platform": "Платформа",
     "model": "Модель",
     "connectedAt": "Подключено",
@@ -3581,7 +3586,10 @@
           "none": "Нет подключённых устройств",
           "resetAll": "Сбросить все",
           "deleted": "Устройство удалено",
-          "allDeleted": "Все устройства сброшены"
+          "allDeleted": "Все устройства сброшены",
+          "rename": "Переименовать",
+          "renameSave": "Сохранить",
+          "renamed": "Имя устройства обновлено"
         },
         "referral": {
           "title": "Реферальная программа",

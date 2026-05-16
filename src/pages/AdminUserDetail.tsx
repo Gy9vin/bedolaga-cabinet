@@ -338,11 +338,20 @@ export default function AdminUserDetail() {
 
   // Devices
   const [devices, setDevices] = useState<
-    { hwid: string; platform: string; device_model: string; created_at: string | null }[]
+    {
+      hwid: string;
+      platform: string;
+      device_model: string;
+      created_at: string | null;
+      local_name?: string | null;
+    }[]
   >([]);
   const [devicesTotal, setDevicesTotal] = useState(0);
   const [deviceLimit, setDeviceLimit] = useState(0);
   const [devicesLoading, setDevicesLoading] = useState(false);
+  const [editingDeviceHwid, setEditingDeviceHwid] = useState<string | null>(null);
+  const [editingDeviceName, setEditingDeviceName] = useState('');
+  const [renameSaving, setRenameSaving] = useState(false);
 
   // Gifts
   const [giftsData, setGiftsData] = useState<AdminUserGiftsResponse | null>(null);
@@ -757,6 +766,25 @@ export default function AdminUserDetail() {
       notify.error(t('admin.users.userActions.error'), t('common.error'));
     } finally {
       setActionLoading(false);
+    }
+  };
+
+  // Admin renames a device on behalf of the user. Empty/whitespace input
+  // clears the alias and falls back to the platform/model default.
+  const handleRenameDevice = async (hwid: string) => {
+    if (!userId) return;
+    setRenameSaving(true);
+    try {
+      const trimmed = editingDeviceName.trim();
+      await adminUsersApi.renameUserDevice(userId, hwid, trimmed || null);
+      notify.success(t('admin.users.detail.devices.renamed', 'Имя устройства обновлено'));
+      setEditingDeviceHwid(null);
+      setEditingDeviceName('');
+      await loadDevices();
+    } catch {
+      notify.error(t('admin.users.userActions.error'), t('common.error'));
+    } finally {
+      setRenameSaving(false);
     }
   };
 
@@ -2427,44 +2455,135 @@ export default function AdminUserDetail() {
                     </div>
                   ) : devices.length > 0 ? (
                     <div className="space-y-2">
-                      {devices.map((device) => (
-                        <div
-                          key={device.hwid}
-                          className="flex items-center justify-between rounded-lg bg-dark-700/50 px-3 py-2"
-                        >
-                          <div className="min-w-0 flex-1">
-                            <div className="truncate text-xs font-medium text-dark-200">
-                              {device.platform || device.device_model || device.hwid.slice(0, 12)}
-                            </div>
-                            <div className="flex items-center gap-2 text-[10px] text-dark-500">
-                              {device.device_model && device.platform && (
-                                <span>{device.device_model}</span>
+                      {devices.map((device) => {
+                        const isEditing = editingDeviceHwid === device.hwid;
+                        // Display priority: alias \u2192 model \u2192 platform \u2192 hwid prefix.
+                        const displayName =
+                          (device.local_name && device.local_name.trim()) ||
+                          device.platform ||
+                          device.device_model ||
+                          device.hwid.slice(0, 12);
+
+                        return (
+                          <div
+                            key={device.hwid}
+                            className="flex items-center justify-between rounded-lg bg-dark-700/50 px-3 py-2"
+                          >
+                            <div className="min-w-0 flex-1">
+                              {isEditing ? (
+                                <input
+                                  type="text"
+                                  autoFocus
+                                  value={editingDeviceName}
+                                  maxLength={64}
+                                  placeholder={
+                                    device.platform ||
+                                    device.device_model ||
+                                    device.hwid.slice(0, 12)
+                                  }
+                                  onChange={(e) => setEditingDeviceName(e.target.value)}
+                                  onKeyDown={(e) => {
+                                    if (e.key === 'Enter') {
+                                      e.preventDefault();
+                                      handleRenameDevice(device.hwid);
+                                    } else if (e.key === 'Escape') {
+                                      e.preventDefault();
+                                      setEditingDeviceHwid(null);
+                                      setEditingDeviceName('');
+                                    }
+                                  }}
+                                  className="w-full rounded-md bg-dark-900/70 px-2 py-1 text-xs font-medium text-dark-50 outline-none ring-1 ring-dark-600/60 focus:ring-accent-500/50"
+                                />
+                              ) : (
+                                <div className="truncate text-xs font-medium text-dark-200">
+                                  {displayName}
+                                </div>
                               )}
-                              <span className="font-mono">{device.hwid.slice(0, 8)}...</span>
-                              {device.created_at && (
-                                <span>
-                                  {new Date(device.created_at).toLocaleDateString(locale)}
-                                </span>
+                              <div className="mt-0.5 flex items-center gap-2 text-[10px] text-dark-500">
+                                {device.device_model && device.platform && (
+                                  <span>{device.device_model}</span>
+                                )}
+                                <span className="font-mono">{device.hwid.slice(0, 8)}...</span>
+                                {device.created_at && (
+                                  <span>
+                                    {new Date(device.created_at).toLocaleDateString(locale)}
+                                  </span>
+                                )}
+                              </div>
+                            </div>
+                            <div className="ml-2 flex shrink-0 items-center gap-1">
+                              {isEditing ? (
+                                <>
+                                  <button
+                                    type="button"
+                                    onClick={() => handleRenameDevice(device.hwid)}
+                                    disabled={renameSaving}
+                                    className="rounded-lg px-2 py-1 text-xs text-success-400 transition-all hover:bg-success-500/15 disabled:opacity-50"
+                                    title={t(
+                                      'admin.users.detail.devices.renameSave',
+                                      t(
+                                        'common.save',
+                                        '\u0421\u043E\u0445\u0440\u0430\u043D\u0438\u0442\u044C',
+                                      ),
+                                    )}
+                                  >
+                                    \u2713
+                                  </button>
+                                  <button
+                                    type="button"
+                                    onClick={() => {
+                                      setEditingDeviceHwid(null);
+                                      setEditingDeviceName('');
+                                    }}
+                                    disabled={renameSaving}
+                                    className="rounded-lg px-2 py-1 text-xs text-dark-500 transition-all hover:bg-dark-700 disabled:opacity-50"
+                                    title={t(
+                                      'common.cancel',
+                                      '\u041E\u0442\u043C\u0435\u043D\u0430',
+                                    )}
+                                  >
+                                    \u2715
+                                  </button>
+                                </>
+                              ) : (
+                                <>
+                                  <button
+                                    type="button"
+                                    onClick={() => {
+                                      setEditingDeviceHwid(device.hwid);
+                                      setEditingDeviceName(device.local_name || '');
+                                    }}
+                                    className="rounded-lg px-2 py-1 text-xs text-dark-500 transition-all hover:bg-accent-500/15 hover:text-accent-400"
+                                    title={t(
+                                      'admin.users.detail.devices.rename',
+                                      '\u041F\u0435\u0440\u0435\u0438\u043C\u0435\u043D\u043E\u0432\u0430\u0442\u044C',
+                                    )}
+                                  >
+                                    \u270F\uFE0F
+                                  </button>
+                                  <button
+                                    onClick={() =>
+                                      handleInlineConfirm(`deleteDevice_${device.hwid}`, () =>
+                                        handleDeleteDevice(device.hwid),
+                                      )
+                                    }
+                                    disabled={actionLoading}
+                                    className={`rounded-lg px-2 py-1 text-xs transition-all disabled:opacity-50 ${
+                                      confirmingAction === `deleteDevice_${device.hwid}`
+                                        ? 'bg-error-500 text-white'
+                                        : 'text-dark-500 hover:bg-error-500/15 hover:text-error-400'
+                                    }`}
+                                  >
+                                    {confirmingAction === `deleteDevice_${device.hwid}`
+                                      ? '?'
+                                      : '\u00D7'}
+                                  </button>
+                                </>
                               )}
                             </div>
                           </div>
-                          <button
-                            onClick={() =>
-                              handleInlineConfirm(`deleteDevice_${device.hwid}`, () =>
-                                handleDeleteDevice(device.hwid),
-                              )
-                            }
-                            disabled={actionLoading}
-                            className={`ml-2 shrink-0 rounded-lg px-2 py-1 text-xs transition-all disabled:opacity-50 ${
-                              confirmingAction === `deleteDevice_${device.hwid}`
-                                ? 'bg-error-500 text-white'
-                                : 'text-dark-500 hover:bg-error-500/15 hover:text-error-400'
-                            }`}
-                          >
-                            {confirmingAction === `deleteDevice_${device.hwid}` ? '?' : '\u00D7'}
-                          </button>
-                        </div>
-                      ))}
+                        );
+                      })}
                     </div>
                   ) : (
                     <div className="py-2 text-center text-xs text-dark-500">
