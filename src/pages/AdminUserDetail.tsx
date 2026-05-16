@@ -774,15 +774,19 @@ export default function AdminUserDetail() {
   const handleRenameDevice = async (hwid: string) => {
     if (!userId) return;
     setRenameSaving(true);
+    // Snapshot inputs BEFORE the await so a fast click on another device
+    // mid-flight doesn't smuggle a different alias into this hwid's request.
+    const snapshotName = editingDeviceName.trim();
     try {
-      const trimmed = editingDeviceName.trim();
-      await adminUsersApi.renameUserDevice(userId, hwid, trimmed || null);
+      await adminUsersApi.renameUserDevice(userId, hwid, snapshotName || null);
       notify.success(t('admin.users.detail.devices.renamed', 'Имя устройства обновлено'));
-      setEditingDeviceHwid(null);
-      setEditingDeviceName('');
+      // Reset edit state only if user is still on the saved row.
+      setEditingDeviceHwid((current) => (current === hwid ? null : current));
       await loadDevices();
-    } catch {
-      notify.error(t('admin.users.userActions.error'), t('common.error'));
+    } catch (err) {
+      const apiMessage = (err as { response?: { data?: { detail?: string } } })?.response?.data
+        ?.detail;
+      notify.error(apiMessage || t('admin.users.userActions.error'), t('common.error'));
     } finally {
       setRenameSaving(false);
     }
@@ -2527,7 +2531,7 @@ export default function AdminUserDetail() {
                                       ),
                                     )}
                                   >
-                                    \u2713
+                                    {'\u2713'}
                                   </button>
                                   <button
                                     type="button"
@@ -2542,7 +2546,7 @@ export default function AdminUserDetail() {
                                       '\u041E\u0442\u043C\u0435\u043D\u0430',
                                     )}
                                   >
-                                    \u2715
+                                    {'\u2715'}
                                   </button>
                                 </>
                               ) : (
@@ -2559,7 +2563,7 @@ export default function AdminUserDetail() {
                                       '\u041F\u0435\u0440\u0435\u0438\u043C\u0435\u043D\u043E\u0432\u0430\u0442\u044C',
                                     )}
                                   >
-                                    \u270F\uFE0F
+                                    {'\u270F\uFE0F'}
                                   </button>
                                   <button
                                     onClick={() =>

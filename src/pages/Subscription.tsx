@@ -318,10 +318,13 @@ export default function Subscription() {
   const renameDeviceMutation = useMutation({
     mutationFn: ({ hwid, name }: { hwid: string; name: string | null }) =>
       subscriptionApi.renameDevice(hwid, name, subscriptionId),
-    onSuccess: () => {
+    onSuccess: (_data, variables) => {
       queryClient.invalidateQueries({ queryKey: ['devices', subscriptionId] });
-      setEditingDeviceHwid(null);
-      setEditingDeviceName('');
+      // Не сбрасываем edit-state, если пользователь уже перешёл на другой
+      // девайс пока шёл запрос — иначе теряем его новый input. Имя не чистим
+      // безусловно: оно либо принадлежит уже другому девайсу (нужно сохранить),
+      // либо инпут уже закрылся (значение не отображается).
+      setEditingDeviceHwid((current) => (current === variables.hwid ? null : current));
     },
   });
 
