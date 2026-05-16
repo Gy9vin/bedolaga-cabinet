@@ -3,6 +3,7 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useTranslation } from 'react-i18next';
 import { Navigate, useNavigate, useParams } from 'react-router';
 import { subscriptionApi } from '../api/subscription';
+import { DEVICE_ALIAS_MAX_LENGTH } from '../constants/devices';
 import { WebBackButton } from '../components/WebBackButton';
 import { useDestructiveConfirm } from '../platform/hooks/useNativeDialog';
 import { usePlatform } from '../platform';
@@ -313,18 +314,22 @@ export default function Subscription() {
   // identifier of the row being edited.
   const [editingDeviceHwid, setEditingDeviceHwid] = useState<string | null>(null);
   const [editingDeviceName, setEditingDeviceName] = useState('');
-  const DEVICE_ALIAS_MAX_LENGTH = 64;
 
   const renameDeviceMutation = useMutation({
     mutationFn: ({ hwid, name }: { hwid: string; name: string | null }) =>
       subscriptionApi.renameDevice(hwid, name, subscriptionId),
     onSuccess: (_data, variables) => {
       queryClient.invalidateQueries({ queryKey: ['devices', subscriptionId] });
+      // Soft success-tap, like other mutations on this page.
+      haptic.notification('success');
       // Не сбрасываем edit-state, если пользователь уже перешёл на другой
       // девайс пока шёл запрос — иначе теряем его новый input. Имя не чистим
       // безусловно: оно либо принадлежит уже другому девайсу (нужно сохранить),
       // либо инпут уже закрылся (значение не отображается).
       setEditingDeviceHwid((current) => (current === variables.hwid ? null : current));
+    },
+    onError: () => {
+      haptic.notification('error');
     },
   });
 

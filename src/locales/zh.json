@@ -454,6 +454,11 @@
     "month": "月",
     "myDevices": "我的设备",
     "noDevices": "没有已连接的设备",
+    "renameDevice": "重命名",
+    "renameDeviceSave": "保存",
+    "renameDeviceCancel": "取消",
+    "renameDevicePlaceholder": "设备名称",
+    "deviceRenamed": "设备名称已更新",
     "perExtraDevice": "/ 额外设备",
     "perMonth": "/月",
     "purchasedTraffic": "已购流量",
@@ -2666,7 +2671,10 @@
           "none": "没有已连接的设备",
           "resetAll": "重置全部",
           "deleted": "设备已删除",
-          "allDeleted": "所有设备已重置"
+          "allDeleted": "所有设备已重置",
+          "rename": "重命名",
+          "renameSave": "保存",
+          "renamed": "设备名称已更新"
         },
         "referral": {
           "title": "推荐计划",

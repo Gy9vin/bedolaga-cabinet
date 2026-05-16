@@ -2,6 +2,7 @@ import { useState, useEffect, useCallback, useRef, useMemo } from 'react';
 import { useParams, useNavigate } from 'react-router';
 import { useTranslation } from 'react-i18next';
 import i18n from '../i18n';
+import { DEVICE_ALIAS_MAX_LENGTH } from '../constants/devices';
 import { useCurrency } from '../hooks/useCurrency';
 import { useNotify } from '../platform/hooks/useNotify';
 import {
@@ -2479,7 +2480,7 @@ export default function AdminUserDetail() {
                                   type="text"
                                   autoFocus
                                   value={editingDeviceName}
-                                  maxLength={64}
+                                  maxLength={DEVICE_ALIAS_MAX_LENGTH}
                                   placeholder={
                                     device.platform ||
                                     device.device_model ||
@@ -2522,7 +2523,7 @@ export default function AdminUserDetail() {
                                     type="button"
                                     onClick={() => handleRenameDevice(device.hwid)}
                                     disabled={renameSaving}
-                                    className="rounded-lg px-2 py-1 text-xs text-success-400 transition-all hover:bg-success-500/15 disabled:opacity-50"
+                                    className="rounded-lg px-2 py-1 text-success-400 transition-all hover:bg-success-500/15 disabled:opacity-50"
                                     title={t(
                                       'admin.users.detail.devices.renameSave',
                                       t(
@@ -2530,8 +2531,24 @@ export default function AdminUserDetail() {
                                         '\u0421\u043E\u0445\u0440\u0430\u043D\u0438\u0442\u044C',
                                       ),
                                     )}
+                                    aria-label={t(
+                                      'admin.users.detail.devices.renameSave',
+                                      '\u0421\u043E\u0445\u0440\u0430\u043D\u0438\u0442\u044C',
+                                    )}
                                   >
-                                    {'\u2713'}
+                                    <svg
+                                      width="14"
+                                      height="14"
+                                      viewBox="0 0 24 24"
+                                      fill="none"
+                                      stroke="currentColor"
+                                      strokeWidth="2"
+                                      strokeLinecap="round"
+                                      strokeLinejoin="round"
+                                      aria-hidden="true"
+                                    >
+                                      <path d="M5 13l4 4L19 7" />
+                                    </svg>
                                   </button>
                                   <button
                                     type="button"
@@ -2540,13 +2557,29 @@ export default function AdminUserDetail() {
                                       setEditingDeviceName('');
                                     }}
                                     disabled={renameSaving}
-                                    className="rounded-lg px-2 py-1 text-xs text-dark-500 transition-all hover:bg-dark-700 disabled:opacity-50"
+                                    className="rounded-lg px-2 py-1 text-dark-500 transition-all hover:bg-dark-700 disabled:opacity-50"
                                     title={t(
                                       'common.cancel',
                                       '\u041E\u0442\u043C\u0435\u043D\u0430',
                                     )}
+                                    aria-label={t(
+                                      'common.cancel',
+                                      '\u041E\u0442\u043C\u0435\u043D\u0430',
+                                    )}
                                   >
-                                    {'\u2715'}
+                                    <svg
+                                      width="14"
+                                      height="14"
+                                      viewBox="0 0 24 24"
+                                      fill="none"
+                                      stroke="currentColor"
+                                      strokeWidth="2"
+                                      strokeLinecap="round"
+                                      strokeLinejoin="round"
+                                      aria-hidden="true"
+                                    >
+                                      <path d="M6 18L18 6M6 6l12 12" />
+                                    </svg>
                                   </button>
                                 </>
                               ) : (
@@ -2557,13 +2590,29 @@ export default function AdminUserDetail() {
                                       setEditingDeviceHwid(device.hwid);
                                       setEditingDeviceName(device.local_name || '');
                                     }}
-                                    className="rounded-lg px-2 py-1 text-xs text-dark-500 transition-all hover:bg-accent-500/15 hover:text-accent-400"
+                                    className="rounded-lg px-2 py-1 text-dark-500 transition-all hover:bg-accent-500/15 hover:text-accent-400"
                                     title={t(
                                       'admin.users.detail.devices.rename',
                                       '\u041F\u0435\u0440\u0435\u0438\u043C\u0435\u043D\u043E\u0432\u0430\u0442\u044C',
                                     )}
+                                    aria-label={t(
+                                      'admin.users.detail.devices.rename',
+                                      '\u041F\u0435\u0440\u0435\u0438\u043C\u0435\u043D\u043E\u0432\u0430\u0442\u044C',
+                                    )}
                                   >
-                                    {'\u270F\uFE0F'}
+                                    <svg
+                                      width="14"
+                                      height="14"
+                                      viewBox="0 0 24 24"
+                                      fill="none"
+                                      stroke="currentColor"
+                                      strokeWidth="1.5"
+                                      strokeLinecap="round"
+                                      strokeLinejoin="round"
+                                      aria-hidden="true"
+                                    >
+                                      <path d="M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L6.832 19.82a4.5 4.5 0 01-1.897 1.13l-2.685.8.8-2.685a4.5 4.5 0 011.13-1.897L16.863 4.487zm0 0L19.5 7.125" />
+                                    </svg>
                                   </button>
                                   <button
                                     onClick={() =>
