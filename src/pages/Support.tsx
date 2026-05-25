@@ -511,8 +511,11 @@ export default function Support() {
                 className="space-y-4"
               >
                 <div>
-                  <label className="label">{t('support.subject')}</label>
+                  <label htmlFor="support-subject" className="label">
+                    {t('support.subject')}
+                  </label>
                   <input
+                    id="support-subject"
                     type="text"
                     className="input"
                     placeholder={t('support.subjectPlaceholder')}
@@ -524,8 +527,11 @@ export default function Support() {
                   />
                 </div>
                 <div>
-                  <label className="label">{t('support.message')}</label>
+                  <label htmlFor="support-message" className="label">
+                    {t('support.message')}
+                  </label>
                   <textarea
+                    id="support-message"
                     className="input min-h-[150px]"
                     placeholder={t('support.messagePlaceholder')}
                     value={newMessage}
