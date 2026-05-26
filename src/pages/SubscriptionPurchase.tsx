@@ -2,7 +2,6 @@ import { useState, useEffect, useMemo, useRef, useCallback } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useTranslation } from 'react-i18next';
 import { useNavigate, useSearchParams } from 'react-router';
-import { AxiosError } from 'axios';
 import { subscriptionApi } from '../api/subscription';
 import { usePromoDiscount } from '../hooks/usePromoDiscount';
 import { WebBackButton } from '../components/WebBackButton';
@@ -20,6 +19,7 @@ import { useCurrency } from '../hooks/useCurrency';
 import { useCloseOnSuccessNotification } from '../store/successNotification';
 import { CheckIcon } from '../components/icons';
 import Twemoji from 'react-twemoji';
+import { SwitchTariffSheet } from '../components/subscription/sheets/SwitchTariffSheet';
 import {
   getErrorMessage,
   getInsufficientBalanceError,
@@ -102,8 +102,7 @@ export default function SubscriptionPurchase() {
   const [useCustomDays, setUseCustomDays] = useState(false);
   const [useCustomTraffic, setUseCustomTraffic] = useState(false);
 
-  // Refs for auto-scroll
-  const switchModalRef = useRef<HTMLDivElement>(null);
+  // Refs for auto-scroll (switch-modal ref moved into <SwitchTariffSheet>)
   const tariffPurchaseRef = useRef<HTMLDivElement>(null);
 
   // Tariff switch
@@ -206,44 +205,7 @@ export default function SubscriptionPurchase() {
     },
   });
 
-  // Switch preview query
-  const { data: switchPreview, isLoading: switchPreviewLoading } = useQuery({
-    queryKey: ['tariff-switch-preview', switchTariffId],
-    queryFn: () => subscriptionApi.previewTariffSwitch(switchTariffId!, subscriptionId),
-    enabled: !!switchTariffId,
-  });
-
-  // Tariff switch mutation
-  const switchTariffMutation = useMutation({
-    mutationFn: (tariffId: number) => subscriptionApi.switchTariff(tariffId, subscriptionId),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['subscription', subscriptionId] });
-      queryClient.invalidateQueries({ queryKey: ['purchase-options', subscriptionId] });
-      setSwitchTariffId(null);
-
-      navigate('/subscriptions', { replace: true });
-    },
-    onError: (error: unknown) => {
-      if (error instanceof AxiosError) {
-        const detail = error.response?.data?.detail;
-        if (
-          typeof detail === 'object' &&
-          detail?.error_code === 'subscription_expired' &&
-          detail?.use_purchase_flow === true
-        ) {
-          const targetTariff = tariffs.find((tariff) => tariff.id === switchTariffId);
-          if (targetTariff) {
-            setSwitchTariffId(null);
-
-            setSelectedTariff(targetTariff);
-            setSelectedTariffPeriod(targetTariff.periods[0] || null);
-            setShowTariffPurchase(true);
-            queryClient.invalidateQueries({ queryKey: ['purchase-options', subscriptionId] });
-          }
-        }
-      }
-    },
-  });
+  // (switch preview query + switchTariffMutation moved into <SwitchTariffSheet>)
 
   // Tariff purchase mutation
   const tariffPurchaseMutation = useMutation({
@@ -281,16 +243,7 @@ export default function SubscriptionPurchase() {
     },
   });
 
-  // Auto-scroll effects
-  useEffect(() => {
-    if (switchTariffId && switchModalRef.current) {
-      const timer = setTimeout(() => {
-        switchModalRef.current?.scrollIntoView({ behavior: 'smooth', block: 'center' });
-      }, 100);
-      return () => clearTimeout(timer);
-    }
-  }, [switchTariffId]);
-
+  // Auto-scroll effects (switch-tariff scroll moved into the sheet)
   useEffect(() => {
     if (showTariffPurchase && tariffPurchaseRef.current) {
       const timer = setTimeout(() => {
@@ -523,143 +476,18 @@ export default function SubscriptionPurchase() {
           )}
 
           {/* Switch Tariff Preview Modal */}
-          {switchTariffId && (
-            <div ref={switchModalRef} className="mb-6 space-y-4 rounded-xl bg-dark-800/50 p-5">
-              <div className="flex items-center justify-between">
-                <h3 className="font-medium text-dark-100">
-                  {t('subscription.switchTariff.title')}
-                </h3>
-                <button
-                  onClick={() => setSwitchTariffId(null)}
-                  className="text-sm text-dark-400 hover:text-dark-200"
-                >
-                  ✕
-                </button>
-              </div>
-
-              {switchPreviewLoading ? (
-                <div className="flex items-center justify-center py-4">
-                  <div className="h-6 w-6 animate-spin rounded-full border-2 border-accent-500 border-t-transparent" />
-                </div>
-              ) : (
-                switchPreview &&
-                (() => {
-                  const targetTariff = tariffs.find((tariff) => tariff.id === switchTariffId);
-                  const dailyPrice =
-                    targetTariff?.daily_price_kopeks ?? targetTariff?.price_per_day_kopeks ?? 0;
-                  const isDailyTariff = dailyPrice > 0;
-
-                  return (
-                    <>
-                      <div className="space-y-2 text-sm">
-                        <div className="flex justify-between text-dark-300">
-                          <span>{t('subscription.switchTariff.currentTariff')}</span>
-                          <span className="font-medium text-dark-100">
-                            {switchPreview.current_tariff_name || '-'}
-                          </span>
-                        </div>
-                        <div className="flex justify-between text-dark-300">
-                          <span>{t('subscription.switchTariff.newTariff')}</span>
-                          <span className="font-medium text-accent-400">
-                            {switchPreview.new_tariff_name}
-                          </span>
-                        </div>
-                        <div className="flex justify-between text-dark-300">
-                          <span>{t('subscription.switchTariff.remainingDays')}</span>
-                          <span>{switchPreview.remaining_days}</span>
-                        </div>
-                      </div>
-
-                      {isDailyTariff && (
-                        <div className="rounded-lg border border-accent-500/30 bg-accent-500/10 p-3 text-center">
-                          <div className="text-sm text-dark-300">
-                            {t('subscription.switchTariff.dailyPayment')}
-                          </div>
-                          <div className="text-lg font-bold text-accent-400">
-                            {formatPrice(dailyPrice)}
-                          </div>
-                          <div className="mt-1 text-xs text-dark-400">
-                            {t('subscription.switchTariff.dailyChargeDescription')}
-                          </div>
-                        </div>
-                      )}
-
-                      <div className="flex items-center justify-between border-t border-dark-700/50 pt-3">
-                        <div>
-                          <span className="font-medium text-dark-100">
-                            {t('subscription.switchTariff.upgradeCost')}
-                          </span>
-                          {switchPreview.discount_percent && switchPreview.discount_percent > 0 && (
-                            <span className="ml-2 inline-block rounded-full bg-success-500/20 px-2 py-0.5 text-xs font-medium text-success-400">
-                              -{switchPreview.discount_percent}%
-                            </span>
-                          )}
-                        </div>
-                        <div className="text-right">
-                          {switchPreview.discount_percent &&
-                            switchPreview.discount_percent > 0 &&
-                            switchPreview.base_upgrade_cost_kopeks &&
-                            switchPreview.base_upgrade_cost_kopeks > 0 && (
-                              <span className="mr-2 text-sm text-dark-500 line-through">
-                                {formatPrice(switchPreview.base_upgrade_cost_kopeks)}
-                              </span>
-                            )}
-                          <span
-                            className={`text-lg font-bold ${switchPreview.upgrade_cost_kopeks === 0 ? 'text-success-400' : 'text-accent-400'}`}
-                          >
-                            {switchPreview.upgrade_cost_kopeks > 0
-                              ? switchPreview.upgrade_cost_label
-                              : t('subscription.switchTariff.free')}
-                          </span>
-                        </div>
-                      </div>
-
-                      {!switchPreview.has_enough_balance &&
-                        switchPreview.upgrade_cost_kopeks > 0 && (
-                          <InsufficientBalancePrompt
-                            missingAmountKopeks={switchPreview.missing_amount_kopeks}
-                            compact
-                          />
-                        )}
-
-                      <button
-                        onClick={() => switchTariffMutation.mutate(switchTariffId)}
-                        disabled={switchTariffMutation.isPending || !switchPreview.can_switch}
-                        className="btn-primary w-full py-2.5"
-                      >
-                        {switchTariffMutation.isPending ? (
-                          <span className="flex items-center justify-center gap-2">
-                            <span className="h-4 w-4 animate-spin rounded-full border-2 border-white/30 border-t-white" />
-                          </span>
-                        ) : (
-                          t('subscription.switchTariff.switch')
-                        )}
-                      </button>
-
-                      {switchTariffMutation.isError &&
-                        (() => {
-                          const detail =
-                            switchTariffMutation.error instanceof AxiosError
-                              ? switchTariffMutation.error.response?.data?.detail
-                              : null;
-                          if (
-                            typeof detail === 'object' &&
-                            detail?.error_code === 'subscription_expired'
-                          ) {
-                            return null;
-                          }
-                          return (
-                            <div className="mt-3 text-center text-sm text-error-400">
-                              {getErrorMessage(switchTariffMutation.error)}
-                            </div>
-                          );
-                        })()}
-                    </>
-                  );
-                })()
-              )}
-            </div>
-          )}
+          <SwitchTariffSheet
+            open={switchTariffId !== null}
+            tariffId={switchTariffId}
+            subscriptionId={subscriptionId}
+            tariffs={tariffs}
+            onClose={() => setSwitchTariffId(null)}
+            onExpiredFallback={(tariff) => {
+              setSelectedTariff(tariff);
+              setSelectedTariffPeriod(tariff.periods[0] || null);
+              setShowTariffPurchase(true);
+            }}
+          />
 
           {!showTariffPurchase ? (
             <>
