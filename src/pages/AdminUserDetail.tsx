@@ -1691,8 +1691,8 @@ export default function AdminUserDetail() {
                   disabled={actionLoading}
                   className={`rounded-lg px-3 py-2 text-sm font-medium transition-all disabled:opacity-50 ${
                     confirmingAction === 'resetTrial'
-                      ? 'bg-blue-500 text-white'
-                      : 'bg-blue-500/15 text-blue-400 hover:bg-blue-500/25'
+                      ? 'bg-accent-500 text-white'
+                      : 'bg-accent-500/15 text-accent-400 hover:bg-accent-500/25'
                   }`}
                 >
                   {confirmingAction === 'resetTrial'
@@ -3174,7 +3174,7 @@ export default function AdminUserDetail() {
                         <span
                           className={`rounded-full border px-1.5 py-0.5 ${
                             {
-                              open: 'border-blue-500/30 bg-blue-500/20 text-blue-400',
+                              open: 'border-accent-500/30 bg-accent-500/20 text-accent-400',
                               pending: 'border-warning-500/30 bg-warning-500/20 text-warning-400',
                               answered: 'border-success-500/30 bg-success-500/20 text-success-400',
                               closed: 'border-dark-500 bg-dark-600 text-dark-400',
@@ -3313,7 +3313,7 @@ export default function AdminUserDetail() {
                 <div className="space-y-2">
                   {tickets.map((ticket) => {
                     const statusStyles: Record<string, string> = {
-                      open: 'bg-blue-500/20 text-blue-400 border-blue-500/30',
+                      open: 'bg-accent-500/20 text-accent-400 border-accent-500/30',
                       pending: 'bg-warning-500/20 text-warning-400 border-warning-500/30',
                       answered: 'bg-success-500/20 text-success-400 border-success-500/30',
                       closed: 'bg-dark-600 text-dark-400 border-dark-500',

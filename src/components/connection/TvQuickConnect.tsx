@@ -256,9 +256,9 @@ export default function TvQuickConnect({ subscriptionUrl, isLight }: Props) {
       {/* QR Scanner */}
       <div className={cardClass}>
         <div className="flex items-start gap-3">
-          <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-blue-500/20 to-blue-600/10">
+          <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-accent-500/20 to-accent-600/10">
             <svg
-              className="h-5 w-5 text-blue-500"
+              className="h-5 w-5 text-accent-500"
               fill="none"
               viewBox="0 0 24 24"
               stroke="currentColor"

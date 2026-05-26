@@ -208,7 +208,7 @@ interface MethodBadgeProps {
 
 function MethodBadge({ method }: MethodBadgeProps) {
   const colorMap: Record<string, string> = {
-    GET: 'bg-blue-500/20 text-blue-400',
+    GET: 'bg-accent-500/20 text-accent-400',
     POST: 'bg-success-500/20 text-success-400',
     PUT: 'bg-warning-500/20 text-warning-400',
     PATCH: 'bg-warning-500/20 text-warning-400',
