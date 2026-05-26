@@ -3,6 +3,7 @@ import { useTranslation } from 'react-i18next';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { subscriptionApi } from '../../../api/subscription';
 import { getErrorMessage } from '../../../utils/subscriptionHelpers';
+import { ChevronRightIcon } from '../../icons';
 
 // ──────────────────────────────────────────────────────────────────
 // Reduce-devices sheet. Self-owns the reduction-info query + mutation;
@@ -83,15 +84,7 @@ export function DeviceReductionSheet({
               {t('subscription.additionalOptions.reduceDevicesDescription')}
             </div>
           </div>
-          <svg
-            className="h-5 w-5 text-dark-400"
-            fill="none"
-            viewBox="0 0 24 24"
-            stroke="currentColor"
-            strokeWidth={2}
-          >
-            <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
-          </svg>
+          <ChevronRightIcon className="text-dark-400" />
         </div>
       </button>
     );
