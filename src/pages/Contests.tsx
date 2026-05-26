@@ -98,7 +98,7 @@ export default function Contests() {
 
       {/* Game Modal */}
       {selectedContest && (
-        <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/70 p-4 backdrop-blur-sm">
+        <div className="fixed inset-0 z-[60] flex items-center justify-center bg-dark-950/70 p-4 backdrop-blur-sm">
           <div
             className="bento-card max-h-[80vh] w-full max-w-lg overflow-y-auto"
             onClick={(e) => e.stopPropagation()}

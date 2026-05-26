@@ -346,7 +346,7 @@ export default function Support() {
               </div>
             )}
             {att.uploading && (
-              <div className="absolute inset-0 flex items-center justify-center rounded-lg bg-black/50">
+              <div className="absolute inset-0 flex items-center justify-center rounded-lg bg-dark-950/50">
                 <span className="h-4 w-4 animate-spin rounded-full border-2 border-accent-500 border-t-transparent" />
               </div>
             )}

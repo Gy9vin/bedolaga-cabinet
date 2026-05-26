@@ -186,7 +186,7 @@ export function SyncTab({
           disabled={actionLoading}
           className="flex flex-col items-center justify-center gap-2 rounded-xl border border-accent-500/30 bg-accent-500/10 p-4 text-accent-400 transition-all hover:bg-accent-500/20 disabled:opacity-50"
         >
-          <ArrowDownIcon className={`h-6 w-6 ${actionLoading ? 'animate-bounce' : ''}`} />
+          <ArrowDownIcon className={`h-6 w-6 ${actionLoading ? 'animate-pulse' : ''}`} />
           <span className="text-center text-xs font-medium">
             {t('admin.users.detail.sync.fromPanel')}
           </span>
@@ -196,7 +196,7 @@ export function SyncTab({
           disabled={actionLoading}
           className="flex flex-col items-center justify-center gap-2 rounded-xl border border-accent-500/30 bg-accent-500/10 p-4 text-accent-400 transition-all hover:bg-accent-500/20 disabled:opacity-50"
         >
-          <ArrowUpIcon className={`h-6 w-6 ${actionLoading ? 'animate-bounce' : ''}`} />
+          <ArrowUpIcon className={`h-6 w-6 ${actionLoading ? 'animate-pulse' : ''}`} />
           <span className="text-center text-xs font-medium">
             {t('admin.users.detail.sync.toPanel')}
           </span>

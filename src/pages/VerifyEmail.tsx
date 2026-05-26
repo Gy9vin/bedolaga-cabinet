@@ -75,7 +75,7 @@ export default function VerifyEmail() {
       <div className="w-full max-w-md text-center">
         {status === 'loading' && (
           <div>
-            <div className="mx-auto mb-4 h-12 w-12 animate-spin rounded-full border-b-2 border-accent-500"></div>
+            <div className="mx-auto mb-4 h-12 w-12 animate-spin rounded-full border-2 border-accent-500 border-t-transparent"></div>
             <h2 className="text-lg font-semibold text-dark-50 sm:text-xl">
               {t('emailVerification.verifying')}
             </h2>
@@ -95,7 +95,7 @@ export default function VerifyEmail() {
               {t('emailVerification.redirecting', 'Redirecting to dashboard...')}
             </p>
             <div className="mt-4">
-              <div className="mx-auto h-6 w-6 animate-spin rounded-full border-b-2 border-accent-500"></div>
+              <div className="mx-auto h-6 w-6 animate-spin rounded-full border-2 border-accent-500 border-t-transparent"></div>
             </div>
           </div>
         )}

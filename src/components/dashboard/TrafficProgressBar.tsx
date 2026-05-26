@@ -113,13 +113,14 @@ export default function TrafficProgressBar({
           <div style={{ flex: '10 0 0', background: 'rgba(var(--color-error-400), 0.05)' }} />
         </div>
 
-        {/* Fill bar */}
+        {/* Fill bar — scaleX (compositor) instead of width (layout reflow).
+            Use top-left origin so fill grows left→right same as width. */}
         <div
-          className="absolute bottom-0 left-0 top-0 overflow-hidden"
+          className="absolute bottom-0 left-0 top-0 w-full origin-left overflow-hidden"
           style={{
-            width: `${clampedPercent}%`,
+            transform: `scaleX(${clampedPercent / 100})`,
             borderRadius: 10,
-            transition: 'width 1.2s cubic-bezier(0.16, 1, 0.3, 1)',
+            transition: 'transform 1.2s cubic-bezier(0.16, 1, 0.3, 1)',
           }}
         >
           {/* Gradient fill */}

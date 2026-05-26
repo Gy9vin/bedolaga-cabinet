@@ -205,7 +205,7 @@ export default function SuccessNotificationModal() {
   const modalContent = (
     <div className="fixed inset-0 z-[100] flex items-center justify-center">
       {/* Backdrop */}
-      <div className="absolute inset-0 bg-black/80 backdrop-blur-sm" onClick={handleClose} />
+      <div className="absolute inset-0 bg-dark-950/80 backdrop-blur-sm" onClick={handleClose} />
 
       {/* Modal */}
       <div
@@ -233,7 +233,9 @@ export default function SuccessNotificationModal() {
         <div
           className={`flex flex-col items-center bg-gradient-to-br ${gradientClass} px-6 pb-8 pt-10`}
         >
-          <div className="mb-4 animate-bounce text-white">{icon}</div>
+          {/* Use animate-pulse for celebration; bounce easing reads dated and
+              the lift is the moment, not the bounce. */}
+          <div className="mb-4 animate-pulse text-white">{icon}</div>
           <h2 id="success-modal-title" className="text-center text-2xl font-bold text-white">
             {title}
           </h2>
