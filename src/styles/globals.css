@@ -646,18 +646,6 @@ img.twemoji {
     @apply badge border border-dark-600/50 bg-dark-700/50 text-dark-300;
   }
 
-  /* Progress bar - Dark */
-  .progress-bar {
-    @apply h-2 w-full overflow-hidden rounded-full bg-dark-800;
-  }
-
-  .progress-fill {
-    /* GPU-composited progress fill — consumer sets transform: scaleX(0..1)
-       with transform-origin: left. Avoids width-triggered reflow per frame. */
-    @apply h-full w-full origin-left rounded-full duration-500 ease-smooth;
-    transition-property: transform, background-color;
-  }
-
   /* Stat card - Dark */
   .stat-value {
     @apply text-2xl font-bold text-dark-50 sm:text-3xl;
@@ -822,11 +810,6 @@ img.twemoji {
 
   .light .badge-neutral {
     @apply border border-champagne-300 bg-champagne-200/50 text-champagne-700;
-  }
-
-  /* Progress bar - Light */
-  .light .progress-bar {
-    @apply bg-champagne-200;
   }
 
   /* Stat card - Light */
