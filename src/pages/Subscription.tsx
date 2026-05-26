@@ -547,7 +547,7 @@ export default function Subscription() {
 
           return (
             <div
-              className="relative overflow-hidden rounded-3xl backdrop-blur-xl"
+              className="relative overflow-hidden rounded-3xl lg:backdrop-blur-xl"
               style={{
                 background: g.cardBg,
                 border: subscription.is_trial
@@ -561,28 +561,13 @@ export default function Subscription() {
                 padding: '28px 28px 24px',
               }}
             >
-              {/* Trial shimmer border */}
-              {subscription.is_trial && (
-                <div
-                  className="pointer-events-none absolute inset-[-1px] animate-trial-glow rounded-3xl"
-                  aria-hidden="true"
-                />
-              )}
-
-              {/* Background glow */}
-              <div
-                className="pointer-events-none absolute"
-                style={{
-                  top: -60,
-                  right: -60,
-                  width: 200,
-                  height: 200,
-                  borderRadius: '50%',
-                  background: `radial-gradient(circle, ${zone.mainHex}${g.glowAlpha} 0%, transparent 70%)`,
-                  transition: 'background 0.8s ease',
-                }}
-                aria-hidden="true"
-              />
+              {/* Decorative ambient radial + trial shimmer border were
+                  removed: they carried no information, leaked zone/accent
+                  hue into pure decoration (violates DESIGN.md
+                  Tunable-but-Scarce + Status-Hue Lockout rules), and the
+                  same chrome was distilled out of SubscriptionCardActive
+                  earlier in this branch. Trial state is conveyed by the
+                  header badge. */}
 
               {/* ─── Header ─── */}
               <div className="mb-6 flex items-start justify-between">
@@ -1509,10 +1494,17 @@ export default function Subscription() {
             </h2>
             {devicesData && devicesData.devices.length > 0 && (
               <button
-                onClick={() => {
-                  if (confirm(t('subscription.confirmDeleteAllDevices'))) {
-                    deleteAllDevicesMutation.mutate();
-                  }
+                onClick={async () => {
+                  // Platform-aware destructive confirm: Telegram native popup
+                  // in Mini App, inline panel on web. Replaces the bare
+                  // browser confirm() which broke premium frame + lost
+                  // haptic / theming inside Telegram.
+                  const confirmed = await destructiveConfirm(
+                    t('subscription.confirmDeleteAllDevices'),
+                    t('subscription.deleteAllDevices'),
+                    t('subscription.deleteAllDevices'),
+                  );
+                  if (confirmed) deleteAllDevicesMutation.mutate();
                 }}
                 disabled={deleteAllDevicesMutation.isPending}
                 className="text-[11px] font-medium transition-colors"
@@ -1706,10 +1698,13 @@ export default function Subscription() {
                           </button>
                           <button
                             type="button"
-                            onClick={() => {
-                              if (confirm(t('subscription.confirmDeleteDevice'))) {
-                                deleteDeviceMutation.mutate(device.hwid);
-                              }
+                            onClick={async () => {
+                              const confirmed = await destructiveConfirm(
+                                t('subscription.confirmDeleteDevice'),
+                                t('subscription.deleteDevice'),
+                                t('subscription.deleteDevice'),
+                              );
+                              if (confirmed) deleteDeviceMutation.mutate(device.hwid);
                             }}
                             disabled={deleteDeviceMutation.isPending}
                             className="p-2 transition-colors"

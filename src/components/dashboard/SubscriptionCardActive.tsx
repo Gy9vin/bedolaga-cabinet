@@ -72,7 +72,7 @@ export default function SubscriptionCardActive({
 
   return (
     <div
-      className="relative overflow-hidden rounded-3xl backdrop-blur-xl"
+      className="relative overflow-hidden rounded-3xl lg:backdrop-blur-xl"
       style={{
         background: g.cardBg,
         border: subscription.is_trial
