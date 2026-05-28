@@ -74,7 +74,7 @@ export function TariffPickerGrid({
           </div>
           <div>
             <div className="text-sm font-medium text-success-400">
-              {t('subscription.promoGroup.title', {
+              {t('subscription.promoGroup.yourGroup', {
                 name: tariffs.find((tariff) => tariff.promo_group_name)?.promo_group_name,
               })}
             </div>

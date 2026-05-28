@@ -1086,7 +1086,7 @@ export default function Subscription() {
                     disabled={autopayMutation.isPending}
                     role="switch"
                     aria-checked={subscription.autopay_enabled}
-                    aria-label={t('subscription.autopay.title', 'Auto-payment')}
+                    aria-label={t('subscription.autopay', 'Auto-payment')}
                     className="relative h-7 w-[52px] rounded-full transition-colors duration-300"
                     style={{
                       background: subscription.autopay_enabled ? zone.mainHex : g.textGhost,
