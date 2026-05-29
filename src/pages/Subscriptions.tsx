@@ -9,6 +9,7 @@ import { getGlassColors } from '../utils/glassTheme';
 import { useAuthStore } from '../store/auth';
 import SubscriptionListCard from '../components/subscription/SubscriptionListCard';
 import TrialOfferCard from '../components/dashboard/TrialOfferCard';
+import { hasInAppHistory } from '../utils/navigation';
 
 function EmptyState({ onBuy }: { onBuy: () => void }) {
   const { t } = useTranslation();
@@ -106,8 +107,11 @@ export default function Subscriptions() {
     },
   });
 
-  // Single-tariff mode with one subscription: skip list, go directly to detail
-  if (data && !isMultiTariff && subscriptions.length === 1) {
+  // Single-tariff mode with one subscription: skip list, go directly to detail.
+  // Skip the redirect when the user just hit the Telegram BackButton from
+  // /subscriptions/:id — that lands us here with idx=0, and redirecting back
+  // to the detail page creates a Back-button loop the user can't escape (#599679).
+  if (data && !isMultiTariff && subscriptions.length === 1 && hasInAppHistory()) {
     return <Navigate to={`/subscriptions/${subscriptions[0].id}`} replace />;
   }
 
