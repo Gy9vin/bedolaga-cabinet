@@ -8,6 +8,7 @@ import { useTranslation } from 'react-i18next';
 import { adminApi, AdminTicket, AdminTicketDetail } from '../api/admin';
 import { ticketsApi } from '../api/tickets';
 import { usePlatform } from '../platform/hooks/usePlatform';
+import { copyToClipboard as copyToClipboardUtil } from '@/utils/clipboard';
 
 interface MediaAttachment {
   id: string;
@@ -99,7 +100,11 @@ export default function AdminTickets() {
     queryKey: ['admin-ticket', selectedTicketId],
     queryFn: () => adminApi.getTicket(selectedTicketId!),
     enabled: !!selectedTicketId,
-    refetchInterval: 5000, // poling while WebSocket is broken
+    // Polling-fallback пока WebSocket нестабилен. Останавливаем когда вкладка
+    // в фоне — иначе каждый открытый тикет шлёт запрос каждые 5 сек постоянно,
+    // включая свёрнутый браузер / фон Telegram WebApp.
+    refetchInterval: 5000,
+    refetchIntervalInBackground: false,
   });
 
   const statusMutation = useMutation({
@@ -325,13 +330,8 @@ export default function AdminTickets() {
   };
 
   const copyToClipboard = (text: string) => {
-    navigator.clipboard.writeText(text).catch(() => {
-      const textarea = document.createElement('textarea');
-      textarea.value = text;
-      document.body.appendChild(textarea);
-      textarea.select();
-      document.execCommand('copy');
-      document.body.removeChild(textarea);
+    copyToClipboardUtil(text).catch(() => {
+      /* swallow: utility already has fallbacks */
     });
   };
 

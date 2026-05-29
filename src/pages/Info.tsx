@@ -256,10 +256,17 @@ const formatContent = (content: string): string => {
       const trimmed = paragraph.trim();
       if (!trimmed) return '';
 
+      // SECURITY: экранируем user-controlled текст ДО интерполяции в HTML,
+      // чтобы незакрытые теги внутри ${text}/${line} не переструктурировали
+      // DOM до того, как DOMPurify почистит результат (XSS вектор второй
+      // ступени). DOMPurify с пустым ALLOWED_TAGS возвращает только textContent.
+      const escapeText = (raw: string): string =>
+        DOMPurify.sanitize(raw, { ALLOWED_TAGS: [], ALLOWED_ATTR: [] });
+
       // Check if it's a markdown header
       if (/^#{1,4}\s/.test(trimmed)) {
         const level = trimmed.match(/^(#{1,4})/)?.[1].length || 1;
-        const text = trimmed.replace(/^#{1,4}\s*/, '');
+        const text = escapeText(trimmed.replace(/^#{1,4}\s*/, ''));
         return `<h${level}>${text}</h${level}>`;
       }
 
@@ -271,13 +278,13 @@ const formatContent = (content: string): string => {
         const listItems = lines
           .map((line) => line.replace(/^[-•]\s*/, '').replace(/^\d+[.)]\s*/, ''))
           .filter((line) => line.trim())
-          .map((line) => `<li>${line}</li>`)
+          .map((line) => `<li>${escapeText(line)}</li>`)
           .join('');
         return isOrdered ? `<ol start="${startNum}">${listItems}</ol>` : `<ul>${listItems}</ul>`;
       }
 
       // Regular paragraph — single newlines become <br/>
-      const formatted = trimmed.split('\n').join('<br/>');
+      const formatted = escapeText(trimmed).split('\n').join('<br/>');
       return `<p>${formatted}</p>`;
     })
     .filter(Boolean)
@@ -441,44 +448,44 @@ export default function Info() {
     return sanitizeRichHtml(rawContent);
   }, [infoPage, locale]);
 
+  // Контент статический (правила, оферта, политика, FAQ, тиры лояльности) —
+  // меняется редко. Кэшируем 5 минут, чтобы при каждом переходе на /info
+  // не делать до 5 параллельных запросов.
+  const STATIC_CONTENT_STALE_TIME = 5 * 60 * 1000;
+
   const { data: faqPages, isLoading: faqLoading } = useQuery({
     queryKey: ['faq-pages'],
     queryFn: infoApi.getFaqPages,
     enabled: activeTab === 'faq' && !currentTabSlug && replacementsLoaded,
-    staleTime: 0,
-    refetchOnMount: 'always',
+    staleTime: STATIC_CONTENT_STALE_TIME,
   });
 
   const { data: rules, isLoading: rulesLoading } = useQuery({
     queryKey: ['rules'],
     queryFn: infoApi.getRules,
     enabled: activeTab === 'rules' && !currentTabSlug && replacementsLoaded,
-    staleTime: 0,
-    refetchOnMount: 'always',
+    staleTime: STATIC_CONTENT_STALE_TIME,
   });
 
   const { data: privacy, isLoading: privacyLoading } = useQuery({
     queryKey: ['privacy-policy'],
     queryFn: infoApi.getPrivacyPolicy,
     enabled: activeTab === 'privacy' && !currentTabSlug && replacementsLoaded,
-    staleTime: 0,
-    refetchOnMount: 'always',
+    staleTime: STATIC_CONTENT_STALE_TIME,
   });
 
   const { data: offer, isLoading: offerLoading } = useQuery({
     queryKey: ['public-offer'],
     queryFn: infoApi.getPublicOffer,
     enabled: activeTab === 'offer' && !currentTabSlug && replacementsLoaded,
-    staleTime: 0,
-    refetchOnMount: 'always',
+    staleTime: STATIC_CONTENT_STALE_TIME,
   });
 
   const { data: loyaltyData, isLoading: loyaltyLoading } = useQuery({
     queryKey: ['loyalty-tiers'],
     queryFn: promoApi.getLoyaltyTiers,
     enabled: activeTab === 'loyalty',
-    staleTime: 0,
-    refetchOnMount: 'always',
+    staleTime: STATIC_CONTENT_STALE_TIME,
   });
 
   const builtinTabs: Array<{ id: string; label: string; icon: React.FC; emoji?: string }> = [

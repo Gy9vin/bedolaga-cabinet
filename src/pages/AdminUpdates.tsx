@@ -110,6 +110,23 @@ function stripVPrefix(tag: string): string {
 }
 
 function renderMarkdown(md: string): string {
+  // SECURITY: контент приходит из внешнего источника (GitHub Release body).
+  // Сначала разрешаем только URL с явно безопасной схемой; всё остальное —
+  // плейсхолдер, чтобы javascript:/data: URI не могли пройти через DOMPurify
+  // на стадии до санитизации.
+  const safeHref = (raw: string): string => {
+    try {
+      const u = new URL(raw, 'https://example.invalid');
+      const scheme = u.protocol.toLowerCase();
+      if (scheme === 'https:' || scheme === 'http:' || scheme === 'mailto:') {
+        return raw;
+      }
+    } catch {
+      // not a valid URL — fall through
+    }
+    return '#';
+  };
+
   const html = md
     // Headers: ### Title -> <h3>Title</h3>
     .replace(/^#### (.+)$/gm, '<h4>$1</h4>')
@@ -123,7 +140,8 @@ function renderMarkdown(md: string): string {
     // Links: [text](url) -> <a>text</a>
     .replace(
       /\[([^\]]+)\]\(([^)]+)\)/g,
-      '<a href="$2" target="_blank" rel="noopener noreferrer">$1</a>',
+      (_match, text, url) =>
+        `<a href="${safeHref(String(url))}" target="_blank" rel="noopener noreferrer">${String(text)}</a>`,
     );
 
   // Process lines into blocks
