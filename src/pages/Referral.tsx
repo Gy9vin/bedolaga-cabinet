@@ -4,6 +4,7 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useTranslation } from 'react-i18next';
 import QRCode from 'qrcode';
 import { referralApi } from '../api/referral';
+import { usePlatform } from '../platform';
 import { copyToClipboard } from '../utils/clipboard';
 import { brandingApi } from '../api/branding';
 import { partnerApi } from '../api/partners';
@@ -254,6 +255,8 @@ export default function Referral() {
     }
   };
 
+  const { openTelegramLink } = usePlatform();
+
   const shareLink = () => {
     if (!referralLink) return;
     const shareText = t('referral.shareMessage', {
@@ -275,7 +278,7 @@ export default function Referral() {
     const telegramUrl = `https://t.me/share/url?url=${encodeURIComponent(
       referralLink,
     )}&text=${encodeURIComponent(shareText)}`;
-    window.open(telegramUrl, '_blank', 'noopener,noreferrer');
+    openTelegramLink(telegramUrl);
   };
 
   const openQr = async () => {

@@ -49,3 +49,8 @@ miniapp/
 CLAUDE.md
 **/CLAUDE.md
 docker-compose.yml
+
+# Impeccable design context (local only, not for shared repo)
+PRODUCT.md
+DESIGN.md
+DESIGN.json
