@@ -1,4 +1,4 @@
-import { PiCaretRightDuotone } from 'react-icons/pi';
+import { PiCaretRight } from 'react-icons/pi';
 import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router';
 import { useCurrency } from '../../hooks/useCurrency';
@@ -13,7 +13,7 @@ interface StatsGridProps {
 }
 
 const ChevronIcon = ({ color }: { color: string }) => (
-  <PiCaretRightDuotone width={16} height={16} style={{ flexShrink: 0, color }} aria-hidden="true" />
+  <PiCaretRight width={16} height={16} style={{ flexShrink: 0, color }} aria-hidden="true" />
 );
 
 export default function StatsGrid({

@@ -10,13 +10,13 @@ import { Card } from '@/components/data-display/Card/Card';
 import { Button } from '@/components/primitives/Button/Button';
 import { motion, AnimatePresence } from 'framer-motion';
 import { staggerContainer, staggerItem } from '@/components/motion/transitions';
-import { PiCaretDownDuotone } from 'react-icons/pi';
+import { PiCaretDown } from 'react-icons/pi';
 import { StarIcon, CalendarIcon, HistoryIcon, CloseIcon } from '@/components/icons';
 import { cn } from '@/lib/utils';
 
 // Icons
 const ChevronIcon = ({ expanded }: { expanded: boolean }) => (
-  <PiCaretDownDuotone
+  <PiCaretDown
     className={cn('h-5 w-5 transition-transform duration-200', expanded && 'rotate-180')}
   />
 );

@@ -1,5 +1,5 @@
 import { useState, useCallback, useEffect, useRef, useMemo } from 'react';
-import { PiCaretDownDuotone } from 'react-icons/pi';
+import { PiCaretDown } from 'react-icons/pi';
 import { useNavigate, useParams } from 'react-router';
 import { useQuery, useQueries, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useTranslation } from 'react-i18next';
@@ -53,7 +53,7 @@ function isoToDatetimeLocal(iso: string): string {
 }
 
 const ChevronDownIcon = ({ open }: { open: boolean }) => (
-  <PiCaretDownDuotone className={cn('h-5 w-5 transition-transform', open && 'rotate-180')} />
+  <PiCaretDown className={cn('h-5 w-5 transition-transform', open && 'rotate-180')} />
 );
 
 // ============ Collapsible Section ============

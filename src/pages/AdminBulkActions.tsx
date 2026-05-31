@@ -20,7 +20,7 @@ import {
   type BulkActionType,
   type BulkActionParams,
 } from '../api/adminBulkActions';
-import { PiCaretDownDuotone } from 'react-icons/pi';
+import { PiCaretDown } from 'react-icons/pi';
 import { usePlatform } from '../platform/hooks/usePlatform';
 import { useCurrency } from '../hooks/useCurrency';
 import { cn } from '@/lib/utils';
@@ -56,7 +56,7 @@ type SubscriptionStatusFilter = '' | 'active' | 'expired' | 'trial' | 'limited' 
 // className-only API), so it stays local as a thin wrapper over the panel's
 // Phosphor caret, preserving the rotate-on-expand behavior.
 const ChevronExpandIcon = ({ expanded }: { expanded: boolean }) => (
-  <PiCaretDownDuotone
+  <PiCaretDown
     className={cn('h-4 w-4 text-white transition-transform duration-200', expanded && 'rotate-180')}
   />
 );

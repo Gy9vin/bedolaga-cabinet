@@ -6,7 +6,7 @@
 // thin local wrapper over the panel's Phosphor caret icons.
 // ──────────────────────────────────────────────────────────────────
 
-import { PiCaretDownDuotone, PiCaretUpDownDuotone, PiCaretUpDuotone } from 'react-icons/pi';
+import { PiCaretDown, PiCaretUpDown, PiCaretUp } from 'react-icons/pi';
 
 export {
   CalendarIcon,
@@ -27,9 +27,9 @@ export {
 
 export const SortIcon = ({ direction }: { direction: false | 'asc' | 'desc' }) =>
   direction === 'asc' ? (
-    <PiCaretUpDuotone className="ml-1 inline h-3 w-3" />
+    <PiCaretUp className="ml-1 inline h-3 w-3" />
   ) : direction === 'desc' ? (
-    <PiCaretDownDuotone className="ml-1 inline h-3 w-3" />
+    <PiCaretDown className="ml-1 inline h-3 w-3" />
   ) : (
-    <PiCaretUpDownDuotone className="ml-1 inline h-3 w-3" />
+    <PiCaretUpDown className="ml-1 inline h-3 w-3" />
   );

@@ -3,7 +3,7 @@ import { useParams, useNavigate } from 'react-router';
 import { useTranslation } from 'react-i18next';
 import { useQuery } from '@tanstack/react-query';
 import DOMPurify from 'dompurify';
-import { PiCaretDownDuotone } from 'react-icons/pi';
+import { PiCaretDown } from 'react-icons/pi';
 import { BackIcon, SearchIcon } from '@/components/icons';
 import { infoPagesApi } from '../api/infoPages';
 import { usePlatform } from '../platform/hooks/usePlatform';
@@ -160,7 +160,7 @@ function sanitizeHtml(html: string): string {
 
 // --- FAQ Accordion ---
 const ChevronIcon = ({ open }: { open: boolean }) => (
-  <PiCaretDownDuotone
+  <PiCaretDown
     className={`h-5 w-5 text-dark-400 transition-transform duration-300 ${open ? 'rotate-180' : ''}`}
   />
 );

@@ -1,7 +1,7 @@
 import { useState, useMemo, useCallback, useRef, useEffect } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { useTranslation } from 'react-i18next';
-import { PiCaretDownDuotone } from 'react-icons/pi';
+import { PiCaretDown } from 'react-icons/pi';
 import DOMPurify from 'dompurify';
 import { infoApi, FaqPage } from '../api/info';
 import { infoPagesApi } from '../api/infoPages';
@@ -10,7 +10,7 @@ import type { FaqItem, ReplacesTab } from '../api/infoPages';
 import { DocumentIcon, InfoIcon, QuestionIcon, ShieldIcon, StarIcon } from '@/components/icons';
 
 const ChevronIcon = ({ expanded }: { expanded: boolean }) => (
-  <PiCaretDownDuotone className={`h-5 w-5 transition-transform ${expanded ? 'rotate-180' : ''}`} />
+  <PiCaretDown className={`h-5 w-5 transition-transform ${expanded ? 'rotate-180' : ''}`} />
 );
 
 const BUILTIN_TABS = new Set<string>(['faq', 'rules', 'privacy', 'offer', 'loyalty']);
