@@ -73,6 +73,17 @@ import {
   PiVideoCamera,
   PiXCircle,
   PiX,
+  PiKey,
+  PiTray,
+  PiExport,
+  PiWarningCircle,
+  PiCalendarBlank,
+  PiCalendarStar,
+  PiChartPie,
+  PiChartDonut,
+  PiCpu,
+  PiMemory,
+  PiPulse,
 } from 'react-icons/pi';
 
 import { cn } from '@/lib/utils';
@@ -118,6 +129,50 @@ export const ArrowUpIcon = ({ className }: IconProps) => (
 
 export const BanIcon = ({ className }: IconProps) => (
   <PiProhibit className={cn('h-5 w-5', className)} />
+);
+
+export const KeyIcon = ({ className }: IconProps) => <PiKey className={cn('h-5 w-5', className)} />;
+
+export const InboxIcon = ({ className }: IconProps) => (
+  <PiTray className={cn('h-5 w-5', className)} />
+);
+
+export const ExportIcon = ({ className }: IconProps) => (
+  <PiExport className={cn('h-5 w-5', className)} />
+);
+
+export const WarningCircleIcon = ({ className }: IconProps) => (
+  <PiWarningCircle className={cn('h-5 w-5', className)} />
+);
+
+export const HeartbeatIcon = ({ className }: IconProps) => (
+  <PiHeartbeat className={cn('h-5 w-5', className)} />
+);
+
+export const CalendarBlankIcon = ({ className }: IconProps) => (
+  <PiCalendarBlank className={cn('h-5 w-5', className)} />
+);
+
+export const CalendarStarIcon = ({ className }: IconProps) => (
+  <PiCalendarStar className={cn('h-5 w-5', className)} />
+);
+
+export const ChartPieIcon = ({ className }: IconProps) => (
+  <PiChartPie className={cn('h-5 w-5', className)} />
+);
+
+export const ChartDonutIcon = ({ className }: IconProps) => (
+  <PiChartDonut className={cn('h-5 w-5', className)} />
+);
+
+export const CpuIcon = ({ className }: IconProps) => <PiCpu className={cn('h-5 w-5', className)} />;
+
+export const MemoryIcon = ({ className }: IconProps) => (
+  <PiMemory className={cn('h-5 w-5', className)} />
+);
+
+export const PulseIcon = ({ className }: IconProps) => (
+  <PiPulse className={cn('h-5 w-5', className)} />
 );
 
 export const BanknotesIcon = ({ className }: IconProps) => (
