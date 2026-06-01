@@ -215,6 +215,15 @@ function NodeCard({ node, providerName, realtime, onAction, isLoading }: NodeCar
   const outbounds = realtime?.outbounds ?? [];
   const hasBreakdown = inbounds.length + outbounds.length > 0;
 
+  const ramColorClass =
+    ramPct === null
+      ? ''
+      : ramPct > 85
+        ? 'text-error-400'
+        : ramPct > 65
+          ? 'text-warning-400'
+          : 'text-dark-400';
+
   return (
     <div
       className={`rounded-xl border border-dark-700 bg-dark-800/50 p-3.5 transition-colors hover:border-dark-600 ${
@@ -325,77 +334,112 @@ function NodeCard({ node, providerName, realtime, onAction, isLoading }: NodeCar
         )}
       </div>
 
-      {/* Live metrics in 3 fixed rows (processor · traffic · versions) so the
-          changing speed/value widths never reflow or jump between lines. */}
+      {/* Live metrics — mobile: 3 fixed rows so wrapping speeds don't reflow;
+          desktop (sm+): the original single wrap row, wide enough not to jump. */}
       {(ramPct !== null || loadAvg || rx > 0 || tx > 0 || node.versions) && (
-        <div className="mt-2 space-y-1 border-t border-dark-700/60 pt-2 font-mono text-[10.5px] tabular-nums text-dark-500">
-          {/* Row 1 — Processor: CPU load + RAM */}
-          {(loadAvg || ramPct !== null) && (
-            <div className="flex items-center gap-3">
-              {loadAvg && (
-                <span className="flex items-center gap-1" title="load average 1 / 5 / 15 min">
-                  <CpuIcon className="h-3 w-3 shrink-0 text-dark-500" />
-                  {loadAvg}
-                </span>
-              )}
-              {ramPct !== null && (
-                <span className="flex items-center gap-1.5" title="RAM">
-                  <MemoryIcon className="h-3 w-3 shrink-0 text-dark-500" />
-                  <span
-                    className={
-                      ramPct > 85
-                        ? 'text-error-400'
-                        : ramPct > 65
-                          ? 'text-warning-400'
-                          : 'text-dark-400'
-                    }
-                  >
-                    {ramPct}%
+        <>
+          {/* Mobile: processor · traffic · versions */}
+          <div className="mt-2 space-y-1 border-t border-dark-700/60 pt-2 font-mono text-[10.5px] tabular-nums text-dark-500 sm:hidden">
+            {(loadAvg || ramPct !== null) && (
+              <div className="flex items-center gap-3">
+                {loadAvg && (
+                  <span className="flex items-center gap-1" title="load average 1 / 5 / 15 min">
+                    <CpuIcon className="h-3 w-3 shrink-0 text-dark-500" />
+                    {loadAvg}
                   </span>
-                  <span className="h-1 w-10 overflow-hidden rounded-full bg-dark-700">
-                    <span
-                      className="block h-full rounded-full bg-dark-400"
-                      style={{ width: `${ramPct}%` }}
-                    />
+                )}
+                {ramPct !== null && (
+                  <span className="flex items-center gap-1.5" title="RAM">
+                    <MemoryIcon className="h-3 w-3 shrink-0 text-dark-500" />
+                    <span className={ramColorClass}>{ramPct}%</span>
+                    <span className="h-1 w-10 overflow-hidden rounded-full bg-dark-700">
+                      <span
+                        className="block h-full rounded-full bg-dark-400"
+                        style={{ width: `${ramPct}%` }}
+                      />
+                    </span>
                   </span>
+                )}
+              </div>
+            )}
+            {(rx > 0 || tx > 0) && (
+              <div className="flex items-center gap-4">
+                <span className="flex items-center gap-1">
+                  <DownloadIcon className="h-3 w-3 shrink-0 text-success-400/70" />
+                  {formatSpeed(rx)}
                 </span>
-              )}
-            </div>
-          )}
+                <span className="flex items-center gap-1">
+                  <UploadIcon className="h-3 w-3 shrink-0 text-accent-400/70" />
+                  {formatSpeed(tx)}
+                </span>
+              </div>
+            )}
+            {(node.versions?.node || node.versions?.xray) && (
+              <div className="flex items-center gap-3 text-dark-600">
+                {node.versions?.node && (
+                  <span className="flex items-center gap-1" title="remnanode">
+                    <RemnawaveIcon className="h-3 w-3 shrink-0" />
+                    {node.versions.node}
+                  </span>
+                )}
+                {node.versions?.xray && (
+                  <span className="flex items-center gap-1" title="xray core">
+                    <XrayIcon className="h-3 w-3 shrink-0" />
+                    {node.versions.xray}
+                  </span>
+                )}
+              </div>
+            )}
+          </div>
 
-          {/* Row 2 — Traffic: down / up speeds (2 fixed columns so a wide value
-              never pushes the other) */}
-          {(rx > 0 || tx > 0) && (
-            <div className="grid grid-cols-2 gap-3">
-              <span className="flex items-center gap-1">
-                <DownloadIcon className="h-3 w-3 shrink-0 text-success-400/70" />
+          {/* Desktop: single wrap row (original) */}
+          <div className="mt-2 hidden flex-wrap items-center gap-x-3 gap-y-1 border-t border-dark-700/60 pt-2 font-mono text-[10.5px] tabular-nums text-dark-500 sm:flex">
+            {ramPct !== null && (
+              <span className="flex items-center gap-1.5" title="RAM">
+                <MemoryIcon className="h-3 w-3 text-dark-500" />
+                <span className={ramColorClass}>{ramPct}%</span>
+                <span className="h-1 w-10 overflow-hidden rounded-full bg-dark-700">
+                  <span
+                    className="block h-full rounded-full bg-dark-400"
+                    style={{ width: `${ramPct}%` }}
+                  />
+                </span>
+              </span>
+            )}
+            {loadAvg && (
+              <span className="flex items-center gap-1" title="load average 1 / 5 / 15 min">
+                <CpuIcon className="h-3 w-3 text-dark-500" />
+                {loadAvg}
+              </span>
+            )}
+            <span className="flex items-center gap-2">
+              <span className="flex items-center gap-0.5">
+                <DownloadIcon className="h-3 w-3 text-success-400/70" />
                 {formatSpeed(rx)}
               </span>
-              <span className="flex items-center gap-1">
-                <UploadIcon className="h-3 w-3 shrink-0 text-accent-400/70" />
+              <span className="flex items-center gap-0.5">
+                <UploadIcon className="h-3 w-3 text-accent-400/70" />
                 {formatSpeed(tx)}
               </span>
-            </div>
-          )}
-
-          {/* Row 3 — Versions: remnanode + xray core */}
-          {(node.versions?.node || node.versions?.xray) && (
-            <div className="flex items-center gap-3 text-dark-600">
-              {node.versions?.node && (
-                <span className="flex items-center gap-1" title="remnanode">
-                  <RemnawaveIcon className="h-3 w-3 shrink-0" />
-                  {node.versions.node}
-                </span>
-              )}
-              {node.versions?.xray && (
-                <span className="flex items-center gap-1" title="xray core">
-                  <XrayIcon className="h-3 w-3 shrink-0" />
-                  {node.versions.xray}
-                </span>
-              )}
-            </div>
-          )}
-        </div>
+            </span>
+            {(node.versions?.node || node.versions?.xray) && (
+              <span className="ml-auto flex items-center gap-2.5 text-dark-600">
+                {node.versions?.node && (
+                  <span className="flex items-center gap-1" title="remnanode">
+                    <RemnawaveIcon className="h-3 w-3" />
+                    {node.versions.node}
+                  </span>
+                )}
+                {node.versions?.xray && (
+                  <span className="flex items-center gap-1" title="xray core">
+                    <XrayIcon className="h-3 w-3" />
+                    {node.versions.xray}
+                  </span>
+                )}
+              </span>
+            )}
+          </div>
+        </>
       )}
 
       {/* Per-node traffic accordion (merged from the former Traffic tab) */}
