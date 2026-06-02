@@ -67,7 +67,7 @@ export function AddonsTab({ params }: AddonsTabProps) {
 
   return (
     <div className="space-y-4">
-      <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-5">
+      <div className="grid grid-cols-2 gap-3 sm:grid-cols-5 [&>*:last-child:nth-child(odd)]:col-span-2 sm:[&>*:last-child]:col-span-1">
         <StatCard
           label={t('admin.salesStats.addons.totalPurchases')}
           value={data.total_purchases}
