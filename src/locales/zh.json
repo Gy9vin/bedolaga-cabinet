@@ -1169,7 +1169,8 @@
         "sales": "销售",
         "renewals": "续订",
         "addons": "附加服务",
-        "deposits": "充值"
+        "deposits": "充值",
+        "payment": "支付"
       },
       "summary": {
         "revenue": "收入",
@@ -1232,6 +1233,12 @@
         "dailyChart": "每日充值",
         "dailyByMethod": "每日按支付方式充值",
         "revenue": "收入"
+      },
+      "payments": {
+        "successRate": "支付成功率",
+        "attempts": "支付尝试",
+        "failedPurchases": "失败购买",
+        "byGateway": "各网关成功率"
       },
       "loadError": "加载统计失败"
     },

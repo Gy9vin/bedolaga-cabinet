@@ -22,13 +22,14 @@ import { StatCard } from '../components/stats';
 import {
   AddonsTab,
   DepositsTab,
+  PaymentHealthTab,
   PeriodSelector,
   RenewalsTab,
   SalesTab,
   TrialsTab,
 } from '../components/sales-stats';
 
-type TabId = 'trials' | 'sales' | 'renewals' | 'addons' | 'deposits';
+type TabId = 'trials' | 'sales' | 'renewals' | 'addons' | 'deposits' | 'payment';
 
 type Delta = { percent: number; trend: 'up' | 'down' | 'stable' };
 
@@ -124,6 +125,7 @@ export default function AdminSalesStats() {
     { id: 'renewals', label: t('admin.salesStats.tabs.renewals') },
     { id: 'addons', label: t('admin.salesStats.tabs.addons') },
     { id: 'deposits', label: t('admin.salesStats.tabs.deposits') },
+    { id: 'payment', label: t('admin.salesStats.tabs.payment') },
   ];
 
   return (
@@ -258,6 +260,7 @@ export default function AdminSalesStats() {
           {activeTab === 'renewals' && <RenewalsTab params={params} />}
           {activeTab === 'addons' && <AddonsTab params={params} />}
           {activeTab === 'deposits' && <DepositsTab params={params} />}
+          {activeTab === 'payment' && <PaymentHealthTab params={params} />}
         </div>
       )}
     </div>

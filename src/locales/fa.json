@@ -1169,7 +1169,8 @@
         "sales": "فروش",
         "renewals": "تمدید",
         "addons": "خدمات اضافی",
-        "deposits": "شارژ"
+        "deposits": "شارژ",
+        "payment": "پرداخت‌ها"
       },
       "summary": {
         "revenue": "درآمد",
@@ -1232,6 +1233,12 @@
         "dailyChart": "شارژ روزانه",
         "dailyByMethod": "شارژ روزانه بر اساس روش پرداخت",
         "revenue": "درآمد"
+      },
+      "payments": {
+        "successRate": "نرخ موفقیت پرداخت",
+        "attempts": "تلاش‌های پرداخت",
+        "failedPurchases": "خریدهای ناموفق",
+        "byGateway": "نرخ موفقیت بر اساس درگاه"
       },
       "loadError": "بارگذاری آمار ناموفق بود"
     },

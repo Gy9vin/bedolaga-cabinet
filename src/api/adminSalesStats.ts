@@ -165,6 +165,21 @@ export interface DepositsStats {
   daily_by_method: DailyDepositByMethodItem[];
 }
 
+export interface GatewaySuccessItem {
+  method: string;
+  total: number;
+  paid: number;
+  success_rate: number;
+}
+
+export interface PaymentHealth {
+  total_attempts: number;
+  total_paid: number;
+  success_rate: number;
+  failed_purchases: number;
+  by_gateway: GatewaySuccessItem[];
+}
+
 // ============ API ============
 
 export const salesStatsApi = {
@@ -195,6 +210,11 @@ export const salesStatsApi = {
 
   getDeposits: async (params: SalesStatsParams = {}): Promise<DepositsStats> => {
     const response = await apiClient.get('/cabinet/admin/stats/sales/deposits', { params });
+    return response.data;
+  },
+
+  getPaymentHealth: async (params: SalesStatsParams = {}): Promise<PaymentHealth> => {
+    const response = await apiClient.get('/cabinet/admin/stats/sales/payment-health', { params });
     return response.data;
   },
 };

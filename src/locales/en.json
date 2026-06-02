@@ -1296,7 +1296,8 @@
         "sales": "Sales",
         "renewals": "Renewals",
         "addons": "Add-ons",
-        "deposits": "Deposits"
+        "deposits": "Deposits",
+        "payment": "Payments"
       },
       "summary": {
         "revenue": "Revenue",
@@ -1359,6 +1360,12 @@
         "dailyChart": "Daily Deposits",
         "dailyByMethod": "Daily Deposits by Payment Method",
         "revenue": "Revenue"
+      },
+      "payments": {
+        "successRate": "Payment success rate",
+        "attempts": "Payment attempts",
+        "failedPurchases": "Failed purchases",
+        "byGateway": "Success rate by gateway"
       },
       "loadError": "Failed to load statistics"
     },
