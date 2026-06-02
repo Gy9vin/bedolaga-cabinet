@@ -19,8 +19,6 @@ export interface SalesSummary {
   trial_to_paid_conversion: number;
   renewals_count: number;
   addon_revenue_kopeks: number;
-  refunds_count: number;
-  refunds_kopeks: number;
 }
 
 // ============ Trials ============
