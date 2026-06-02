@@ -1304,6 +1304,7 @@
         "activeSubs": "Active Subs",
         "activeTrials": "Active Trials",
         "newTrials": "New Trials",
+        "newPaid": "New Paid Subscriptions",
         "conversion": "Conversion",
         "renewals": "Renewals",
         "addonRevenue": "Add-on Revenue",
@@ -1314,7 +1315,6 @@
         "totalRegistrations": "Registrations",
         "trialsIssued": "Trials Issued",
         "conversion": "Conversion Rate",
-        "avgDuration": "Avg Duration",
         "byProvider": "By Registration Source",
         "dailyChart": "Daily Registrations & Trials",
         "registrations": "Registrations"

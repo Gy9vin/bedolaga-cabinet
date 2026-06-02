@@ -1177,6 +1177,7 @@
         "activeSubs": "活跃订阅",
         "activeTrials": "活跃试用",
         "newTrials": "新试用",
+        "newPaid": "新增付费订阅",
         "conversion": "转化率",
         "renewals": "续订",
         "addonRevenue": "附加服务收入",
@@ -1187,7 +1188,6 @@
         "totalRegistrations": "注册数",
         "trialsIssued": "已发放试用",
         "conversion": "转化率",
-        "avgDuration": "平均时长",
         "byProvider": "按注册来源",
         "dailyChart": "每日注册与试用",
         "registrations": "注册"

@@ -12,6 +12,7 @@ import {
   BanknotesIcon,
   GiftIcon,
   PercentIcon,
+  PlusIcon,
   RepeatIcon,
   RocketIcon,
   SparklesIcon,
@@ -113,11 +114,25 @@ export default function AdminSalesStats() {
     return {
       revenue: computeDelta(summary.total_revenue_kopeks, prevSummary.total_revenue_kopeks),
       newTrials: computeDelta(summary.new_trials, prevSummary.new_trials),
+      newPaid: computeDelta(summary.new_paid_subscriptions, prevSummary.new_paid_subscriptions),
       renewals: computeDelta(summary.renewals_count, prevSummary.renewals_count),
       addonRevenue: computeDelta(summary.addon_revenue_kopeks, prevSummary.addon_revenue_kopeks),
       manualTopup: computeDelta(summary.manual_topup_kopeks, prevSummary.manual_topup_kopeks),
     };
   }, [summary, prevSummary]);
+
+  // Active-subscriptions trend = net change over the period (new paid − expired),
+  // shown relative to the count at the start of the period. The active count
+  // itself is a "right now" snapshot, so a plain period-over-period delta would
+  // always be zero — this shows real growth/shrinkage instead.
+  const activeDelta = useMemo<Delta | null>(() => {
+    if (!summary) return null;
+    const net = summary.new_paid_subscriptions - summary.expired_subscriptions;
+    if (net === 0) return null;
+    const base = summary.active_subscriptions - net;
+    const percent = base > 0 ? Math.round((Math.abs(net) / base) * 1000) / 10 : 100;
+    return { percent, trend: net > 0 ? 'up' : 'down' };
+  }, [summary]);
 
   const tabs: { id: TabId; label: string }[] = [
     { id: 'trials', label: t('admin.salesStats.tabs.trials') },
@@ -150,7 +165,7 @@ export default function AdminSalesStats() {
           {t('admin.salesStats.loadError')}
         </div>
       )}
-      <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
+      <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 max-sm:[&>*:last-child:nth-child(odd)]:col-span-2">
         <StatCard
           label={t('admin.salesStats.summary.revenue')}
           value={
@@ -170,6 +185,14 @@ export default function AdminSalesStats() {
           value={summaryLoading ? '...' : (summary?.active_subscriptions ?? 0)}
           icon={<TicketIcon className="h-5 w-5" />}
           tone="accent"
+          delta={activeDelta}
+        />
+        <StatCard
+          label={t('admin.salesStats.summary.newPaid')}
+          value={summaryLoading ? '...' : (summary?.new_paid_subscriptions ?? 0)}
+          icon={<RocketIcon className="h-5 w-5" />}
+          tone="success"
+          delta={deltas?.newPaid}
         />
         <StatCard
           label={t('admin.salesStats.summary.activeTrials')}
@@ -207,7 +230,7 @@ export default function AdminSalesStats() {
                   0,
                 )
           }
-          icon={<RocketIcon className="h-5 w-5" />}
+          icon={<PlusIcon className="h-5 w-5" />}
           tone="accent"
           delta={deltas?.addonRevenue}
         />

@@ -1326,6 +1326,7 @@
         "activeSubs": "Активные подписки",
         "activeTrials": "Активные триалы",
         "newTrials": "Новые триалы",
+        "newPaid": "Новые платные подписки",
         "conversion": "Конверсия",
         "renewals": "Продления",
         "addonRevenue": "Доп. услуги",
@@ -1336,7 +1337,6 @@
         "totalRegistrations": "Регистрации",
         "trialsIssued": "Выданные триалы",
         "conversion": "Конверсия",
-        "avgDuration": "Средняя длит.",
         "byProvider": "По источнику регистрации",
         "dailyChart": "Регистрации и триалы по дням",
         "registrations": "Регистрации"

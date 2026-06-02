@@ -16,6 +16,8 @@ export interface SalesSummary {
   active_subscriptions: number;
   active_trials: number;
   new_trials: number;
+  new_paid_subscriptions: number;
+  expired_subscriptions: number;
   trial_to_paid_conversion: number;
   renewals_count: number;
   addon_revenue_kopeks: number;
