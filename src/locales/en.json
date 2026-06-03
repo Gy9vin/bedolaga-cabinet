@@ -4850,7 +4850,9 @@
       "activateTelegram": "Activate in Telegram",
       "activateWeb": "Activate by email",
       "emailLabel": "Your email",
-      "claimNow": "Get my gift"
+      "claimNow": "Get my gift",
+      "failedTitle": "Gift unavailable",
+      "failedDesc": "The payment for this gift did not go through, so it cannot be activated."
     },
     "giftLink": {
       "shareText": "I have a gift for you! Activate it here:",

@@ -4509,7 +4509,9 @@
       "activateTelegram": "在 Telegram 中激活",
       "activateWeb": "通过邮箱激活",
       "emailLabel": "您的邮箱",
-      "claimNow": "领取礼物"
+      "claimNow": "领取礼物",
+      "failedTitle": "礼物不可用",
+      "failedDesc": "此礼物的付款未成功，无法激活。"
     },
     "giftLink": {
       "shareText": "我送您一份订阅！在此激活：",

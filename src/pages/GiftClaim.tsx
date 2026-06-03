@@ -142,6 +142,25 @@ export default function GiftClaim() {
     );
   }
 
+  // Payment failed/expired → tell the recipient instead of spinning forever
+  if (gift.status === 'failed' || gift.status === 'expired') {
+    return (
+      <Shell>
+        <div className="flex flex-col items-center gap-3 py-6 text-center">
+          <h1 className="text-lg font-semibold text-dark-50">
+            {t('landing.giftClaim.failedTitle', 'Gift unavailable')}
+          </h1>
+          <p className="text-sm text-dark-400">
+            {t(
+              'landing.giftClaim.failedDesc',
+              'The payment for this gift did not go through, so it cannot be activated.',
+            )}
+          </p>
+        </div>
+      </Shell>
+    );
+  }
+
   // Successful web claim → show connection link
   if (result) {
     return (

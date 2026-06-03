@@ -695,10 +695,10 @@ export default function PurchaseSuccess() {
     refetchInterval: (query) => {
       const data = query.state.data;
       const currentStatus = data?.status;
-      // A gift that reached PAID is claimable and terminal for the BUYER (it
-      // stays PAID until the recipient claims) — stop polling and show the
-      // share link instead of spinning forever.
-      if (currentStatus === 'paid' && data?.is_gift && data?.is_claimable) return false;
+      // A gift that reached PAID is terminal for the BUYER (it stays PAID until
+      // the recipient claims) — stop polling and show the share link instead of
+      // spinning. A paid gift is always claimable, so don't gate on is_claimable.
+      if (currentStatus === 'paid' && data?.is_gift) return false;
       if (currentStatus === 'pending' || currentStatus === 'paid') {
         if (Date.now() - pollStart.current > MAX_POLL_MS) {
           setPollTimedOut(true);
@@ -766,10 +766,7 @@ export default function PurchaseSuccess() {
 
   // Deferred gift the buyer just paid for → show the transferable claim link to
   // forward (it stays PAID until the recipient claims it).
-  const isBuyerGiftLink =
-    purchaseStatus?.status === 'paid' &&
-    !!purchaseStatus?.is_gift &&
-    !!purchaseStatus?.is_claimable;
+  const isBuyerGiftLink = purchaseStatus?.status === 'paid' && !!purchaseStatus?.is_gift;
 
   // Gift pending activation → buyer sees "gift sent" message, not the activate button.
   // Recipient arrives via email link with ?activate=1 and sees the activate button instead.

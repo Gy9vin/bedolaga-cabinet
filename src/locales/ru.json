@@ -5405,7 +5405,9 @@
       "activateTelegram": "Активировать в Telegram",
       "activateWeb": "Активировать по почте",
       "emailLabel": "Ваш email",
-      "claimNow": "Получить подарок"
+      "claimNow": "Получить подарок",
+      "failedTitle": "Подарок недоступен",
+      "failedDesc": "Оплата подарка не прошла, поэтому активировать его нельзя."
     },
     "giftLink": {
       "shareText": "Дарю вам подписку! Активируйте здесь:",
