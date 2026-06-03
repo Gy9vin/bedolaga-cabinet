@@ -266,7 +266,12 @@ export default function InstallationGuide({
                 setActivePlatformKey(newPlatform);
                 const data = appConfig.platforms[newPlatform] as RemnawavePlatformData | undefined;
                 if (data?.apps?.length) {
-                  const app = data.apps.find((a) => a.featured) || data.apps[0];
+                  // Keep the user's current app (by name) if it also exists on the
+                  // new platform; only fall back to featured/first otherwise.
+                  const app =
+                    data.apps.find((a) => a.name === selectedApp?.name) ||
+                    data.apps.find((a) => a.featured) ||
+                    data.apps[0];
                   if (app) setSelectedApp(app);
                 }
               }}
