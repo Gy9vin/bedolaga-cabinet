@@ -777,28 +777,22 @@ export default function AdminWheel() {
               <div className="flex items-center gap-3 rounded-xl border border-warning-500/30 bg-warning-500/10 p-4">
                 <div className="flex-1">
                   <p className="text-sm font-medium text-warning-400">
-                    {t('admin.wheel.prizes.unsavedOrder') || 'Есть несохраненные изменения порядка'}
+                    {t('admin.wheel.prizes.unsavedOrder')}
                   </p>
                   <p className="text-xs text-warning-400/70">
-                    {t('admin.wheel.prizes.unsavedOrderHint') ||
-                      'Сохраните изменения или отмените их'}
+                    {t('admin.wheel.prizes.unsavedOrderHint')}
                   </p>
                 </div>
                 <div className="flex gap-2">
-                  <button
-                    onClick={handleDiscardOrderChanges}
-                    className="rounded-lg border border-dark-600 bg-dark-700 px-4 py-2 text-sm text-dark-200 transition-colors hover:bg-dark-600"
-                  >
-                    {t('common.cancel') || 'Отменить'}
+                  <button onClick={handleDiscardOrderChanges} className="btn-secondary">
+                    {t('common.cancel')}
                   </button>
                   <button
                     onClick={handleSavePrizeOrder}
                     disabled={reorderPrizesMutation.isPending}
-                    className="rounded-lg bg-warning-500 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-warning-600 disabled:opacity-50"
+                    className="btn-primary"
                   >
-                    {reorderPrizesMutation.isPending
-                      ? t('common.saving') || 'Сохранение...'
-                      : t('common.save') || 'Сохранить'}
+                    {reorderPrizesMutation.isPending ? t('common.saving') : t('common.save')}
                   </button>
                 </div>
               </div>
