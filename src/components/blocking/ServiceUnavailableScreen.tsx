@@ -4,8 +4,7 @@ import { useQueryClient } from '@tanstack/react-query';
 import { useBlockingStore } from '../../store/blocking';
 import { useFocusTrap } from '../../hooks/useFocusTrap';
 import { pingBackend, hasEverReachedBackend } from '../../api/health';
-import { isInTelegramWebApp, closeTelegramApp } from '../../hooks/useTelegramSDK';
-import { CloudWarningIcon, RestartIcon, CloseIcon } from '@/components/icons';
+import { CloudWarningIcon, RestartIcon } from '@/components/icons';
 import { Button } from '@/components/primitives';
 import { cn } from '@/lib/utils';
 import BlockingShell from './BlockingShell';
@@ -25,7 +24,6 @@ export default function ServiceUnavailableScreen() {
   const queryClient = useQueryClient();
   const [isChecking, setIsChecking] = useState(false);
   const isCheckingRef = useRef(false);
-  const inTelegram = isInTelegramWebApp();
 
   const recover = useCallback(() => {
     clearBlocking();
@@ -87,33 +85,18 @@ export default function ServiceUnavailableScreen() {
       pulse
       footer={t('blocking.serviceUnavailable.hint')}
       actions={
-        <>
-          <Button
-            variant="secondary"
-            size="lg"
-            fullWidth
-            onClick={handleRetry}
-            disabled={isChecking}
-            leftIcon={<RestartIcon className={cn('h-5 w-5', isChecking && 'animate-spin')} />}
-          >
-            {isChecking
-              ? t('blocking.serviceUnavailable.checking')
-              : t('blocking.serviceUnavailable.retry')}
-          </Button>
-          {/* Telegram Mini App only — a browser tab can't be closed by script.
-              Reliably exits the Mini App instead of routing back. */}
-          {inTelegram && (
-            <Button
-              variant="outline"
-              size="lg"
-              fullWidth
-              onClick={closeTelegramApp}
-              leftIcon={<CloseIcon className="h-5 w-5" />}
-            >
-              {t('blocking.serviceUnavailable.close')}
-            </Button>
-          )}
-        </>
+        <Button
+          variant="secondary"
+          size="lg"
+          fullWidth
+          onClick={handleRetry}
+          disabled={isChecking}
+          leftIcon={<RestartIcon className={cn('h-5 w-5', isChecking && 'animate-spin')} />}
+        >
+          {isChecking
+            ? t('blocking.serviceUnavailable.checking')
+            : t('blocking.serviceUnavailable.retry')}
+        </Button>
       }
     />
   );
