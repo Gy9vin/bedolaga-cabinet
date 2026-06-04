@@ -429,7 +429,7 @@
       "buyTraffic": "购买更多流量",
       "currentTrafficLimit": "当前限制：{{limit}} GB（已使用 {{used}} GB）",
       "buyTrafficTitle": "购买更多流量",
-      "trafficWarning": "购买的流量将添加到当前限制，不会延续到下一个周期",
+      "trafficWarning": "购买的流量将添加到当前限制，自购买之日起30天内有效",
       "trafficUnavailable": "您的套餐不支持购买流量",
       "unlimited": "无限制",
       "buyTrafficGb": "购买 {{gb}} GB",
