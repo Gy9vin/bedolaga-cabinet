@@ -147,22 +147,25 @@ export function AppShell({ children }: AppShellProps) {
         onClick={handleNavClick}
         aria-label={label}
         className={cn(
-          'relative flex shrink-0 items-center gap-1.5 rounded-lg px-2.5 py-1.5 text-[13px] font-medium transition-colors duration-200',
+          'relative flex shrink-0 items-center gap-1.5 rounded-full px-3 py-1.5 text-[13px] font-medium transition-colors duration-200',
           active
             ? admin
-              ? 'text-warning-400'
+              ? 'text-warning-300'
               : 'text-dark-50'
             : admin
-              ? 'text-warning-500/70 hover:bg-warning-500/10 hover:text-warning-400'
-              : 'text-dark-400 hover:bg-dark-800/50 hover:text-dark-100',
+              ? 'text-warning-500/70 hover:bg-warning-500/10 hover:text-warning-300'
+              : 'text-dark-400 hover:bg-dark-800/60 hover:text-dark-100',
         )}
       >
         {active && (
           <motion.span
             layoutId="desktop-nav-active"
             className={cn(
-              'absolute inset-0 rounded-lg',
-              admin ? 'bg-warning-500/10' : 'bg-dark-800',
+              // Подсветка-пилюля активного пункта — «приподнята» над треком капсулы
+              'absolute inset-0 rounded-full shadow-sm',
+              admin
+                ? 'bg-warning-500/15 ring-1 ring-warning-500/20'
+                : 'bg-dark-700/80 ring-1 ring-dark-600/40',
             )}
             transition={{ type: 'spring', stiffness: 500, damping: 35 }}
           />
@@ -214,19 +217,21 @@ export function AppShell({ children }: AppShellProps) {
             <span className="text-base font-semibold text-dark-100">{appName}</span>
           </Link>
 
-          {/* Navigation — labels always visible, all items shown, no scroll/shrink */}
-          <nav className="flex items-center gap-0.5">
+          {/* Navigation — единая «капсула» (segmented control): все пункты видны
+              всегда, без скролла/сжатия/сворачивания. Капсула центрируется в
+              свободном пространстве между логотипом и кнопками (mx-auto). */}
+          <nav className="mx-auto flex items-center gap-0.5 rounded-full border border-dark-800/70 bg-dark-900/50 p-1 shadow-sm backdrop-blur-sm">
             {desktopNav.map((item) => renderNavLink(item.path, item.label, item.icon))}
             {isAdmin && (
               <>
-                <div className="mx-1.5 h-5 w-px shrink-0 bg-dark-700/70" />
+                <div className="mx-1 h-5 w-px shrink-0 bg-dark-700/60" />
                 {renderNavLink('/admin', t('admin.nav.title'), ShieldIcon, true)}
               </>
             )}
           </nav>
 
-          {/* Right side actions — pinned right, never shrink */}
-          <div className="ml-auto flex shrink-0 items-center gap-2">
+          {/* Right side actions — pinned right (nav centers via mx-auto), never shrink */}
+          <div className="flex shrink-0 items-center gap-2">
             <button
               onClick={() => {
                 haptic.impact('light');
