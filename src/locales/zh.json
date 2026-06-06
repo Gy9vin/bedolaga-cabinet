@@ -429,7 +429,7 @@
       "buyTraffic": "购买更多流量",
       "currentTrafficLimit": "当前限制：{{limit}} GB（已使用 {{used}} GB）",
       "buyTrafficTitle": "购买更多流量",
-      "trafficWarning": "购买的流量将添加到当前限制，不会延续到下一个周期",
+      "trafficWarning": "购买的流量将添加到当前限制，自购买之日起30天内有效",
       "trafficUnavailable": "您的套餐不支持购买流量",
       "unlimited": "无限制",
       "buyTrafficGb": "购买 {{gb}} GB",
@@ -1086,7 +1086,7 @@
       "promoOffers": "促销优惠",
       "promocodes": "促销码",
       "promoGroups": "折扣组",
-      "remnawave": "RemnaWave",
+      "remnawave": "Remnawave",
       "users": "用户",
       "trafficUsage": "流量使用",
       "updates": "更新",
@@ -1155,6 +1155,9 @@
       "title": "销售统计",
       "subtitle": "收入、试用、订阅和续订",
       "period": {
+        "thisMonth": "本月",
+        "from": "从",
+        "to": "到",
         "week": "7天",
         "month": "30天",
         "quarter": "90天",
@@ -1166,13 +1169,15 @@
         "sales": "销售",
         "renewals": "续订",
         "addons": "附加服务",
-        "deposits": "充值"
+        "deposits": "充值",
+        "payment": "支付"
       },
       "summary": {
         "revenue": "收入",
         "activeSubs": "活跃订阅",
         "activeTrials": "活跃试用",
         "newTrials": "新试用",
+        "newPaid": "新增付费订阅",
         "conversion": "转化率",
         "renewals": "续订",
         "addonRevenue": "附加服务收入",
@@ -1183,13 +1188,13 @@
         "totalRegistrations": "注册数",
         "trialsIssued": "已发放试用",
         "conversion": "转化率",
-        "avgDuration": "平均时长",
         "byProvider": "按注册来源",
         "dailyChart": "每日注册与试用",
         "registrations": "注册"
       },
       "sales": {
         "totalSales": "总销售",
+        "totalRevenue": "订阅流水",
         "avgOrder": "平均订单",
         "topTariff": "热门套餐",
         "byTariff": "按套餐",
@@ -1228,6 +1233,12 @@
         "dailyChart": "每日充值",
         "dailyByMethod": "每日按支付方式充值",
         "revenue": "收入"
+      },
+      "payments": {
+        "successRate": "支付成功率",
+        "attempts": "支付尝试",
+        "failedPurchases": "失败购买",
+        "byGateway": "各网关成功率"
       },
       "loadError": "加载统计失败"
     },
@@ -1498,7 +1509,8 @@
         "promoPrefix": "优惠码前缀",
         "spinCost": "旋转费用",
         "limitsAndRtp": "限制和RTP",
-        "promocodes": "促销码"
+        "promocodes": "促销码",
+        "promoValidityDays": "促销码有效期（天）"
       },
       "starsNotEnabledGlobally": "星星支付未在支付方式中启用。请在「支付方式」中启用「Telegram Stars」。",
       "prizes": {
@@ -1525,7 +1537,9 @@
           "emoji": "表情",
           "color": "颜色",
           "active": "启用",
-          "worth": "价值"
+          "worth": "价值",
+          "probability": "手动概率 (0–1)",
+          "probabilityHint": "留空 = 按 RTP 自动"
         },
         "promo": {
           "title": "优惠码设置",
@@ -1542,7 +1556,9 @@
         "prizeDistribution": "奖品分布",
         "times": "次",
         "times_other": "{{count}} 次",
-        "topWins": "最高奖品"
+        "topWins": "最高奖品",
+        "loadError": "无法加载统计数据",
+        "empty": "暂无抽奖记录"
       }
     },
     "broadcasts": {
@@ -1873,7 +1889,7 @@
         "db_sqlite": "SQLite",
         "db_redis": "Redis",
         "sys_core": "核心与调试",
-        "sys_remnawave": "RemnaWave",
+        "sys_remnawave": "Remnawave",
         "sys_webapi": "Web API",
         "sys_webhook": "Webhook",
         "sys_server": "服务器状态",
@@ -1991,12 +2007,12 @@
       "importError": "无效的JSON文件格式",
       "importPreview": "导入预览",
       "noAppsToImport": "没有可导入的应用",
-      "refreshRemnaWave": "从RemnaWave刷新",
+      "refreshRemnaWave": "从Remnawave刷新",
       "remnaWaveConfigUuid": "配置UUID",
-      "remnaWaveConfigUuidHint": "来自RemnaWave面板的订阅页面配置UUID",
-      "remnaWaveMode": "显示来自RemnaWave面板的应用。只读模式。",
-      "remnaWaveSettings": "RemnaWave设置",
-      "remnaWaveToggle": "切换RemnaWave源",
+      "remnaWaveConfigUuidHint": "来自Remnawave面板的订阅页面配置UUID",
+      "remnaWaveMode": "显示来自Remnawave面板的应用。只读模式。",
+      "remnaWaveSettings": "Remnawave设置",
+      "remnaWaveToggle": "切换Remnawave源",
       "tabs": {
         "basic": "基本",
         "installation": "安装",
@@ -2005,8 +2021,8 @@
         "additional": "附加"
       },
       "noConfigs": "未配置任何配置",
-      "remnaWaveConnected": "RemnaWave 已连接",
-      "remnaWaveDisconnected": "RemnaWave 未连接"
+      "remnaWaveConnected": "Remnawave 已连接",
+      "remnaWaveDisconnected": "Remnawave 未连接"
     },
     "tickets": {
       "title": "工单管理",
@@ -2147,7 +2163,7 @@
       "daysShort": "天",
       "serversTitle": "服务器",
       "externalSquadTitle": "外部小组",
-      "externalSquadHint": "为此套餐的用户分配RemnaWave外部小组。创建订阅时，用户将自动添加到所选小组。",
+      "externalSquadHint": "为此套餐的用户分配Remnawave外部小组。创建订阅时，用户将自动添加到所选小组。",
       "noExternalSquad": "无外部小组",
       "externalSquadUsers": "用户",
       "serversTabHint": "选择此套餐上可用的服务器。",
@@ -2226,7 +2242,7 @@
       "sync": "同步",
       "syncing": "同步中...",
       "syncNow": "立即同步",
-      "noServers": "暂无服务器。请与RemnaWave同步。",
+      "noServers": "暂无服务器。请与Remnawave同步。",
       "edit": "编辑服务器",
       "originalName": "原始名称",
       "displayName": "显示名称",
@@ -3146,7 +3162,7 @@
       "connected": "已连接",
       "disconnected": "未配置",
       "noData": "加载数据失败",
-      "title": "RemnaWave",
+      "title": "Remnawave",
       "subtitle": "面板管理和统计",
       "tabs": {
         "overview": "概览",
@@ -3254,9 +3270,9 @@
         "success": "成功",
         "runAutoSyncNow": "立即运行自动同步",
         "fromPanel": "从面板",
-        "fromPanelDesc": "从RemnaWave导入用户到机器人",
+        "fromPanelDesc": "从Remnawave导入用户到机器人",
         "toPanel": "到面板",
-        "toPanelDesc": "从机器人导出用户到RemnaWave"
+        "toPanelDesc": "从机器人导出用户到Remnawave"
       }
     },
     "roles": {
@@ -3682,6 +3698,12 @@
         "dailyChart": "每日购买与收入",
         "tariffChart": "套餐分布",
         "giftBreakdown": "礼物 vs 普通",
+        "funnelTitle": "转化漏斗",
+        "giftClaimTitle": "礼物激活",
+        "giftClaimLabel": "已领取 / 已发送",
+        "dailyRevenue": "每日收入",
+        "byPaymentMethod": "按支付方式",
+        "bySource": "流量来源",
         "purchases": "购买",
         "revenueLabel": "收入",
         "gifts": "礼物",
@@ -3823,7 +3845,7 @@
         "deleteUser": "删除用户"
       },
       "deleteSubscription": {
-        "warning": "选中的订阅将从机器人和RemnaWave面板中永久删除！",
+        "warning": "选中的订阅将从机器人和Remnawave面板中永久删除！",
         "hint": "用户将失去已删除订阅的VPN访问权限。此操作无法撤销。",
         "activePaidWarning": "所选订阅中有 {{count}} / {{total}} 是有效的付费订阅",
         "forceDeleteConfirm": "我确认删除有效的付费订阅"
@@ -3831,7 +3853,7 @@
       "deleteUser": {
         "warning": "选中的用户将从机器人中永久删除！他们的所有订阅、余额和数据将丢失！",
         "hint": "此操作无法撤销。用户需要重新启动机器人以创建新账户。",
-        "deleteFromPanel": "同时从RemnaWave面板删除"
+        "deleteFromPanel": "同时从Remnawave面板删除"
       },
       "params": {
         "days": "天数",
@@ -4121,7 +4143,13 @@
         "vk": "VK"
       },
       "backToAccounts": "返回账户列表"
-    }
+    },
+    "emailMergePasswordRequired": "该邮箱已属于另一个账户。要合并账户，请输入该账户的密码。",
+    "emailMergeCodeSent": "确认码已发送至该邮箱。",
+    "emailMergeCodeDescription": "该邮箱已属于另一个账户。我们已向其发送验证码——请输入以确认所有权并合并账户。",
+    "emailMergeCodeLabel": "邮件中的验证码",
+    "emailMergeConfirm": "确认并合并",
+    "emailMergeCodeInvalid": "验证码无效或已过期"
   },
   "theme": {
     "colors": "主题颜色",
@@ -4334,6 +4362,14 @@
       "openBot": "打开机器人",
       "retry": "我已按 /start，重试",
       "hint": "运行 /start 后，返回此处并点击「重试」。"
+    },
+    "serviceUnavailable": {
+      "title": "服务不可用",
+      "description": "暂时无法连接到服务。可能正在进行维护，或存在临时的网络问题。",
+      "retry": "重试",
+      "checking": "正在检查连接...",
+      "hint": "服务恢复后，本页面将自动刷新。",
+      "close": "关闭"
     }
   },
   "banSystem": {
@@ -4482,6 +4518,36 @@
     "merging": "合并中..."
   },
   "landing": {
+    "giftClaim": {
+      "title": "您收到一份礼物！",
+      "error": "无法激活礼物。",
+      "notFoundTitle": "未找到礼物",
+      "notFoundDesc": "此礼物链接无效或已不可用。",
+      "alreadyTitle": "礼物已激活",
+      "alreadyDesc": "此礼物已被领取。",
+      "successTitle": "礼物已激活！",
+      "connectDesc": "使用此链接连接：",
+      "copyLink": "复制链接",
+      "pendingTitle": "即将完成…",
+      "pendingDesc": "付款仍在确认中。本页面将自动更新。",
+      "replaceWarning": "您已有订阅——激活此礼物将替换它。",
+      "activateTelegram": "在 Telegram 中激活",
+      "activateWeb": "通过邮箱激活",
+      "emailLabel": "您的邮箱",
+      "claimNow": "领取礼物",
+      "failedTitle": "礼物不可用",
+      "failedDesc": "此礼物的付款未成功，无法激活。"
+    },
+    "giftLink": {
+      "shareText": "我送您一份订阅！在此激活：",
+      "viaTelegram": "Telegram：",
+      "title": "礼物已就绪！",
+      "subtitle": "将此链接发送给您想赠送的人——他们自行激活。",
+      "linkLabel": "礼物链接",
+      "telegramLabel": "Telegram 链接",
+      "alsoSent": "我们也已发送到 {{contact}}。",
+      "copyMessage": "复制消息"
+    },
     "notFound": "页面未找到",
     "forMe": "为自己",
     "asGift": "作为礼物",
@@ -4725,6 +4791,7 @@
   "subscriptions": {
     "buy": "购买订阅",
     "buyAnother": "再购买一个订阅",
+    "browsePlans": "查看套餐并订阅",
     "empty": "您还没有订阅",
     "emptyDesc": "选择套餐以开始使用",
     "title": "我的订阅"

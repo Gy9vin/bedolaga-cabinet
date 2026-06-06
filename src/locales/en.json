@@ -608,7 +608,7 @@
       "buyTraffic": "Buy more traffic",
       "currentTrafficLimit": "Current limit: {{limit}} GB (used {{used}} GB)",
       "buyTrafficTitle": "Buy more traffic",
-      "trafficWarning": "Purchased traffic is added to your current limit and does not carry over to the next period",
+      "trafficWarning": "Purchased traffic is added to your current limit and is valid for 30 days from purchase",
       "trafficUnavailable": "Traffic purchase is not available for your tariff",
       "unlimited": "Unlimited",
       "buyTrafficGb": "Buy {{gb}} GB",
@@ -1272,7 +1272,7 @@
       "broadcasts": "Broadcasts",
       "users": "Users",
       "payments": "Payments",
-      "remnawave": "RemnaWave",
+      "remnawave": "Remnawave",
       "emailTemplates": "Email Templates",
       "paymentMethods": "Payment Methods",
       "campaigns": "Campaigns",
@@ -1347,6 +1347,9 @@
       "title": "Sales Statistics",
       "subtitle": "Revenue, trials, subscriptions, and renewals",
       "period": {
+        "thisMonth": "This month",
+        "from": "From",
+        "to": "To",
         "week": "7 days",
         "month": "30 days",
         "quarter": "90 days",
@@ -1358,13 +1361,15 @@
         "sales": "Sales",
         "renewals": "Renewals",
         "addons": "Add-ons",
-        "deposits": "Deposits"
+        "deposits": "Deposits",
+        "payment": "Payments"
       },
       "summary": {
         "revenue": "Revenue",
         "activeSubs": "Active Subs",
         "activeTrials": "Active Trials",
         "newTrials": "New Trials",
+        "newPaid": "New Paid Subscriptions",
         "conversion": "Conversion",
         "renewals": "Renewals",
         "addonRevenue": "Add-on Revenue",
@@ -1375,13 +1380,13 @@
         "totalRegistrations": "Registrations",
         "trialsIssued": "Trials Issued",
         "conversion": "Conversion Rate",
-        "avgDuration": "Avg Duration",
         "byProvider": "By Registration Source",
         "dailyChart": "Daily Registrations & Trials",
         "registrations": "Registrations"
       },
       "sales": {
         "totalSales": "Total Sales",
+        "totalRevenue": "Subscription turnover",
         "avgOrder": "Avg Order",
         "topTariff": "Top Tariff",
         "byTariff": "Sales by Tariff",
@@ -1420,6 +1425,12 @@
         "dailyChart": "Daily Deposits",
         "dailyByMethod": "Daily Deposits by Payment Method",
         "revenue": "Revenue"
+      },
+      "payments": {
+        "successRate": "Payment success rate",
+        "attempts": "Payment attempts",
+        "failedPurchases": "Failed purchases",
+        "byGateway": "Success rate by gateway"
       },
       "loadError": "Failed to load statistics"
     },
@@ -1670,7 +1681,7 @@
       "notFound": "Payment method not found"
     },
     "remnawave": {
-      "title": "RemnaWave",
+      "title": "Remnawave",
       "subtitle": "Panel management and statistics",
       "connected": "Connected",
       "disconnected": "Not configured",
@@ -1784,9 +1795,9 @@
         "success": "Success",
         "runAutoSyncNow": "Run Auto Sync Now",
         "fromPanel": "From Panel",
-        "fromPanelDesc": "Import users from RemnaWave to bot",
+        "fromPanelDesc": "Import users from Remnawave to bot",
         "toPanel": "To Panel",
-        "toPanelDesc": "Export users from bot to RemnaWave"
+        "toPanelDesc": "Export users from bot to Remnawave"
       }
     },
     "wheel": {
@@ -1810,7 +1821,8 @@
         "dailyLimit": "Daily Spin Limit (0 = unlimited)",
         "minSubDays": "Min subscription days for day payment",
         "promocodes": "Promocodes",
-        "promoPrefix": "Promo code prefix"
+        "promoPrefix": "Promo code prefix",
+        "promoValidityDays": "Promo code validity (days)"
       },
       "starsNotEnabledGlobally": "Star payments are not enabled in Payment Methods. Enable \"Telegram Stars\" in the Payment Methods section.",
       "prizes": {
@@ -1837,7 +1849,9 @@
           "emoji": "Emoji",
           "color": "Color",
           "active": "Active",
-          "worth": "Worth"
+          "worth": "Worth",
+          "probability": "Manual probability (0–1)",
+          "probabilityHint": "Empty = auto by RTP"
         },
         "promo": {
           "title": "Promo Code Settings",
@@ -1855,7 +1869,9 @@
         "times": "times",
         "times_one": "{{count}} time",
         "times_other": "{{count}} times",
-        "topWins": "Top Wins"
+        "topWins": "Top Wins",
+        "loadError": "Failed to load statistics",
+        "empty": "No spins yet"
       }
     },
     "broadcasts": {
@@ -2199,7 +2215,7 @@
         "db_sqlite": "SQLite",
         "db_redis": "Redis",
         "sys_core": "Core & Debug",
-        "sys_remnawave": "RemnaWave",
+        "sys_remnawave": "Remnawave",
         "sys_webapi": "Web API",
         "sys_webhook": "Webhook",
         "sys_server": "Server status",
@@ -2249,7 +2265,7 @@
         "deleteUser": "Delete users"
       },
       "deleteSubscription": {
-        "warning": "Selected subscriptions will be permanently deleted from the bot and RemnaWave panel!",
+        "warning": "Selected subscriptions will be permanently deleted from the bot and Remnawave panel!",
         "hint": "Users will lose VPN access for deleted subscriptions. This action cannot be undone.",
         "activePaidWarning": "{{count}} of {{total}} selected subscriptions are active paid",
         "forceDeleteConfirm": "I confirm deletion of active paid subscriptions"
@@ -2257,7 +2273,7 @@
       "deleteUser": {
         "warning": "Selected users will be permanently deleted from the bot! All their subscriptions, balance, and data will be lost!",
         "hint": "This action cannot be undone. Users will need to restart the bot to create a new account.",
-        "deleteFromPanel": "Also delete from RemnaWave panel"
+        "deleteFromPanel": "Also delete from Remnawave panel"
       },
       "params": {
         "days": "Number of days",
@@ -2441,16 +2457,16 @@
       "importError": "Invalid JSON file format",
       "importCreateError": "Failed to create some apps",
       "noAppsToImport": "No apps to import",
-      "remnaWaveToggle": "Toggle RemnaWave source",
-      "refreshRemnaWave": "Refresh from RemnaWave",
-      "remnaWaveMode": "Showing apps from RemnaWave panel. Read-only mode.",
-      "remnaWaveSettings": "RemnaWave Settings",
+      "remnaWaveToggle": "Toggle Remnawave source",
+      "refreshRemnaWave": "Refresh from Remnawave",
+      "remnaWaveMode": "Showing apps from Remnawave panel. Read-only mode.",
+      "remnaWaveSettings": "Remnawave Settings",
       "remnaWaveConfigUuid": "Config UUID",
-      "remnaWaveConfigUuidHint": "UUID of subscription page config from RemnaWave panel",
+      "remnaWaveConfigUuidHint": "UUID of subscription page config from Remnawave panel",
       "availableConfigs": "Available configs",
       "noConfigs": "No configs",
-      "remnaWaveConnected": "RemnaWave connected",
-      "remnaWaveDisconnected": "RemnaWave disconnected"
+      "remnaWaveConnected": "Remnawave connected",
+      "remnaWaveDisconnected": "Remnawave disconnected"
     },
     "tickets": {
       "title": "Ticket Management",
@@ -2601,7 +2617,7 @@
       "daysShort": "d.",
       "serversTitle": "Servers",
       "externalSquadTitle": "External Squad",
-      "externalSquadHint": "Assign a RemnaWave external squad for users on this tariff. When a subscription is created, the user will be automatically added to the selected squad.",
+      "externalSquadHint": "Assign a Remnawave external squad for users on this tariff. When a subscription is created, the user will be automatically added to the selected squad.",
       "noExternalSquad": "No external squad",
       "externalSquadUsers": "users",
       "serversTabHint": "Select servers available on this tariff.",
@@ -2680,7 +2696,7 @@
       "sync": "Sync",
       "syncing": "Syncing...",
       "syncNow": "Sync now",
-      "noServers": "No servers. Sync with RemnaWave.",
+      "noServers": "No servers. Sync with Remnawave.",
       "edit": "Edit Server",
       "originalName": "Original Name",
       "displayName": "Display Name",
@@ -4049,6 +4065,12 @@
         "dailyChart": "Purchases & Revenue by Day",
         "tariffChart": "Tariff Distribution",
         "giftBreakdown": "Gifts vs Regular",
+        "funnelTitle": "Conversion funnel",
+        "giftClaimTitle": "Gift activation",
+        "giftClaimLabel": "claimed / sent",
+        "dailyRevenue": "Daily revenue",
+        "byPaymentMethod": "By payment method",
+        "bySource": "Traffic sources",
         "purchases": "Purchases",
         "revenueLabel": "Revenue",
         "gifts": "Gifts",
@@ -4678,7 +4700,13 @@
         "vk": "VK"
       },
       "backToAccounts": "Back to accounts"
-    }
+    },
+    "emailMergePasswordRequired": "This email already belongs to another account. To merge the accounts, enter that account's password.",
+    "emailMergeCodeSent": "A confirmation code was sent to that email.",
+    "emailMergeCodeDescription": "This email already belongs to another account. We sent a code to it — enter it to confirm ownership and merge the accounts.",
+    "emailMergeCodeLabel": "Code from the email",
+    "emailMergeConfirm": "Confirm and merge",
+    "emailMergeCodeInvalid": "Invalid or expired code"
   },
   "theme": {
     "colors": "Theme Colors",
@@ -4894,6 +4922,14 @@
       "openBot": "Open the bot",
       "retry": "I pressed /start, retry",
       "hint": "After running /start, return here and tap «Retry»."
+    },
+    "serviceUnavailable": {
+      "title": "Service unavailable",
+      "description": "We can't reach the service right now. It may be undergoing maintenance or there's a temporary connection issue.",
+      "retry": "Try again",
+      "checking": "Checking connection...",
+      "hint": "This page will refresh automatically as soon as the service is back.",
+      "close": "Close"
     }
   },
   "modem": {
@@ -4951,6 +4987,36 @@
     "merging": "Merging..."
   },
   "landing": {
+    "giftClaim": {
+      "title": "You have a gift!",
+      "error": "Could not activate the gift.",
+      "notFoundTitle": "Gift not found",
+      "notFoundDesc": "This gift link is invalid or no longer available.",
+      "alreadyTitle": "Gift already activated",
+      "alreadyDesc": "This gift has already been claimed.",
+      "successTitle": "Gift activated!",
+      "connectDesc": "Use this link to connect:",
+      "copyLink": "Copy link",
+      "pendingTitle": "Almost ready…",
+      "pendingDesc": "The payment is still being confirmed. This page will update automatically.",
+      "replaceWarning": "You already have a subscription — activating this gift will replace it.",
+      "activateTelegram": "Activate in Telegram",
+      "activateWeb": "Activate by email",
+      "emailLabel": "Your email",
+      "claimNow": "Get my gift",
+      "failedTitle": "Gift unavailable",
+      "failedDesc": "The payment for this gift did not go through, so it cannot be activated."
+    },
+    "giftLink": {
+      "shareText": "I have a gift for you! Activate it here:",
+      "viaTelegram": "Telegram:",
+      "title": "Gift is ready!",
+      "subtitle": "Send this link to whoever you want to receive the gift — they activate it themselves.",
+      "linkLabel": "Gift link",
+      "telegramLabel": "Telegram link",
+      "alsoSent": "We also emailed it to {{contact}}.",
+      "copyMessage": "Copy message"
+    },
     "notFound": "Page not found",
     "forMe": "For me",
     "asGift": "As a gift",
@@ -5220,6 +5286,7 @@
   "subscriptions": {
     "buy": "Buy subscription",
     "buyAnother": "Buy another subscription",
+    "browsePlans": "View plans and subscribe",
     "empty": "You have no subscriptions yet",
     "emptyDesc": "Choose a tariff to get started",
     "title": "My subscriptions"

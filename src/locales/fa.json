@@ -429,7 +429,7 @@
       "buyTraffic": "خرید ترافیک بیشتر",
       "currentTrafficLimit": "محدودیت فعلی: {{limit}} GB (مصرف شده {{used}} GB)",
       "buyTrafficTitle": "خرید ترافیک بیشتر",
-      "trafficWarning": "ترافیک خریداری شده به محدودیت فعلی اضافه می‌شود و به دوره بعدی منتقل نمی‌شود",
+      "trafficWarning": "ترافیک خریداری‌شده به محدودیت فعلی اضافه می‌شود و تا ۳۰ روز از زمان خرید معتبر است",
       "trafficUnavailable": "خرید ترافیک برای اشتراک شما در دسترس نیست",
       "unlimited": "نامحدود",
       "buyTrafficGb": "خرید {{gb}} GB",
@@ -1086,7 +1086,7 @@
       "promoOffers": "پیشنهادات تبلیغاتی",
       "promocodes": "کدهای تخفیف",
       "promoGroups": "گروه‌های تخفیف",
-      "remnawave": "RemnaWave",
+      "remnawave": "Remnawave",
       "users": "کاربران",
       "trafficUsage": "مصرف ترافیک",
       "updates": "به‌روزرسانی‌ها",
@@ -1155,6 +1155,9 @@
       "title": "آمار فروش",
       "subtitle": "درآمد، آزمایشی، اشتراک و تمدید",
       "period": {
+        "thisMonth": "این ماه",
+        "from": "از",
+        "to": "تا",
         "week": "۷ روز",
         "month": "۳۰ روز",
         "quarter": "۹۰ روز",
@@ -1166,13 +1169,15 @@
         "sales": "فروش",
         "renewals": "تمدید",
         "addons": "خدمات اضافی",
-        "deposits": "شارژ"
+        "deposits": "شارژ",
+        "payment": "پرداخت‌ها"
       },
       "summary": {
         "revenue": "درآمد",
         "activeSubs": "اشتراک فعال",
         "activeTrials": "آزمایشی فعال",
         "newTrials": "آزمایشی جدید",
+        "newPaid": "اشتراک‌های پولی جدید",
         "conversion": "تبدیل",
         "renewals": "تمدید",
         "addonRevenue": "درآمد خدمات اضافی",
@@ -1183,13 +1188,13 @@
         "totalRegistrations": "ثبت‌نام‌ها",
         "trialsIssued": "آزمایشی صادرشده",
         "conversion": "نرخ تبدیل",
-        "avgDuration": "میانگین مدت",
         "byProvider": "بر اساس منبع",
         "dailyChart": "ثبت‌نام و آزمایشی روزانه",
         "registrations": "ثبت‌نام"
       },
       "sales": {
         "totalSales": "کل فروش",
+        "totalRevenue": "گردش اشتراک",
         "avgOrder": "میانگین سفارش",
         "topTariff": "تعرفه برتر",
         "byTariff": "بر اساس تعرفه",
@@ -1228,6 +1233,12 @@
         "dailyChart": "شارژ روزانه",
         "dailyByMethod": "شارژ روزانه بر اساس روش پرداخت",
         "revenue": "درآمد"
+      },
+      "payments": {
+        "successRate": "نرخ موفقیت پرداخت",
+        "attempts": "تلاش‌های پرداخت",
+        "failedPurchases": "خریدهای ناموفق",
+        "byGateway": "نرخ موفقیت بر اساس درگاه"
       },
       "loadError": "بارگذاری آمار ناموفق بود"
     },
@@ -1421,7 +1432,8 @@
         "promoPrefix": "پیشوند کد تخفیف",
         "spinCost": "هزینه چرخش",
         "limitsAndRtp": "محدودیت‌ها و RTP",
-        "promocodes": "کدهای تخفیف"
+        "promocodes": "کدهای تخفیف",
+        "promoValidityDays": "اعتبار کد تخفیف (روز)"
       },
       "starsNotEnabledGlobally": "پرداخت با ستاره در روش‌های پرداخت فعال نیست. «Telegram Stars» را در بخش «روش‌های پرداخت» فعال کنید.",
       "prizes": {
@@ -1448,7 +1460,9 @@
           "emoji": "ایموجی",
           "color": "رنگ",
           "active": "فعال",
-          "worth": "ارزش"
+          "worth": "ارزش",
+          "probability": "احتمال دستی (۰–۱)",
+          "probabilityHint": "خالی = خودکار بر اساس RTP"
         },
         "promo": {
           "title": "تنظیمات کد تخفیف",
@@ -1465,7 +1479,9 @@
         "prizeDistribution": "توزیع جوایز",
         "times": "بار",
         "times_other": "{{count}} بار",
-        "topWins": "برترین برنده‌ها"
+        "topWins": "برترین برنده‌ها",
+        "loadError": "بارگذاری آمار ناموفق بود",
+        "empty": "هنوز چرخشی انجام نشده"
       }
     },
     "broadcasts": {
@@ -1832,7 +1848,7 @@
         "db_sqlite": "SQLite",
         "db_redis": "Redis",
         "sys_core": "هسته و اشکال‌زدایی",
-        "sys_remnawave": "RemnaWave",
+        "sys_remnawave": "Remnawave",
         "sys_webapi": "Web API",
         "sys_webhook": "Webhook",
         "sys_server": "وضعیت سرور",
@@ -1957,15 +1973,15 @@
       "importError": "فرمت فایل JSON نامعتبر",
       "importPreview": "پیش‌نمایش وارد کردن",
       "noAppsToImport": "هیچ برنامه‌ای برای وارد کردن نیست",
-      "refreshRemnaWave": "بازخوانی از RemnaWave",
+      "refreshRemnaWave": "بازخوانی از Remnawave",
       "remnaWaveConfigUuid": "UUID پیکربندی",
-      "remnaWaveConfigUuidHint": "UUID پیکربندی صفحه اشتراک از پنل RemnaWave",
-      "remnaWaveMode": "نمایش برنامه‌ها از پنل RemnaWave. حالت فقط خواندنی.",
-      "remnaWaveSettings": "تنظیمات RemnaWave",
-      "remnaWaveToggle": "تغییر منبع RemnaWave",
+      "remnaWaveConfigUuidHint": "UUID پیکربندی صفحه اشتراک از پنل Remnawave",
+      "remnaWaveMode": "نمایش برنامه‌ها از پنل Remnawave. حالت فقط خواندنی.",
+      "remnaWaveSettings": "تنظیمات Remnawave",
+      "remnaWaveToggle": "تغییر منبع Remnawave",
       "noConfigs": "هیچ تنظیماتی وجود ندارد",
-      "remnaWaveConnected": "RemnaWave متصل است",
-      "remnaWaveDisconnected": "RemnaWave قطع است"
+      "remnaWaveConnected": "Remnawave متصل است",
+      "remnaWaveDisconnected": "Remnawave قطع است"
     },
     "tickets": {
       "title": "مدیریت تیکت‌ها",
@@ -2107,7 +2123,7 @@
       "daysShort": "روز",
       "serversTitle": "سرورها",
       "externalSquadTitle": "گروه خارجی",
-      "externalSquadHint": "یک گروه خارجی RemnaWave برای کاربران این تعرفه تعیین کنید. هنگام ایجاد اشتراک، کاربر به طور خودکار به گروه انتخاب شده اضافه می‌شود.",
+      "externalSquadHint": "یک گروه خارجی Remnawave برای کاربران این تعرفه تعیین کنید. هنگام ایجاد اشتراک، کاربر به طور خودکار به گروه انتخاب شده اضافه می‌شود.",
       "noExternalSquad": "بدون گروه خارجی",
       "externalSquadUsers": "کاربران",
       "serversTabHint": "سرورهای موجود در این تعرفه را انتخاب کنید.",
@@ -2186,7 +2202,7 @@
       "sync": "همگام‌سازی",
       "syncing": "در حال همگام‌سازی...",
       "syncNow": "همگام‌سازی الان",
-      "noServers": "سروری نیست. با RemnaWave همگام‌سازی کنید.",
+      "noServers": "سروری نیست. با Remnawave همگام‌سازی کنید.",
       "edit": "ویرایش سرور",
       "originalName": "نام اصلی",
       "displayName": "نام نمایشی",
@@ -3138,7 +3154,7 @@
       "connected": "متصل",
       "disconnected": "تنظیم نشده",
       "noData": "بارگذاری داده‌ها ناموفق بود",
-      "title": "RemnaWave",
+      "title": "Remnawave",
       "subtitle": "مدیریت پنل و آمار",
       "tabs": {
         "overview": "نمای کلی",
@@ -3246,9 +3262,9 @@
         "success": "موفق",
         "runAutoSyncNow": "اجرای همگام‌سازی خودکار",
         "fromPanel": "از پنل",
-        "fromPanelDesc": "وارد کردن کاربران از RemnaWave به ربات",
+        "fromPanelDesc": "وارد کردن کاربران از Remnawave به ربات",
         "toPanel": "به پنل",
-        "toPanelDesc": "صادر کردن کاربران از ربات به RemnaWave"
+        "toPanelDesc": "صادر کردن کاربران از ربات به Remnawave"
       }
     },
     "theme": {
@@ -3683,6 +3699,12 @@
         "dailyChart": "خرید و درآمد روزانه",
         "tariffChart": "توزیع طرح‌ها",
         "giftBreakdown": "هدایا در مقابل عادی",
+        "funnelTitle": "قیف تبدیل",
+        "giftClaimTitle": "فعال‌سازی هدیه",
+        "giftClaimLabel": "دریافت‌شده / ارسال‌شده",
+        "dailyRevenue": "درآمد روزانه",
+        "byPaymentMethod": "بر اساس روش پرداخت",
+        "bySource": "منابع ترافیک",
         "purchases": "خریدها",
         "revenueLabel": "درآمد",
         "gifts": "هدایا",
@@ -3824,7 +3846,7 @@
         "deleteUser": "حذف کاربران"
       },
       "deleteSubscription": {
-        "warning": "اشتراک‌های انتخاب شده برای همیشه از ربات و پنل RemnaWave حذف خواهند شد!",
+        "warning": "اشتراک‌های انتخاب شده برای همیشه از ربات و پنل Remnawave حذف خواهند شد!",
         "hint": "کاربران دسترسی VPN اشتراک‌های حذف شده را از دست خواهند داد. این عملیات قابل بازگشت نیست.",
         "activePaidWarning": "{{count}} از {{total}} اشتراک انتخاب‌شده اشتراک‌های فعال پرداختی هستند",
         "forceDeleteConfirm": "حذف اشتراک‌های فعال پرداختی را تأیید می‌کنم"
@@ -3832,7 +3854,7 @@
       "deleteUser": {
         "warning": "کاربران انتخاب شده برای همیشه از ربات حذف خواهند شد! تمام اشتراک‌ها، موجودی و داده‌های آن‌ها از بین خواهد رفت!",
         "hint": "این عملیات قابل بازگشت نیست. کاربران باید ربات را دوباره راه‌اندازی کنند تا حساب جدید بسازند.",
-        "deleteFromPanel": "همچنین از پنل RemnaWave حذف شود"
+        "deleteFromPanel": "همچنین از پنل Remnawave حذف شود"
       },
       "params": {
         "days": "تعداد روز",
@@ -4122,7 +4144,13 @@
         "vk": "VK"
       },
       "backToAccounts": "بازگشت به فهرست حساب‌ها"
-    }
+    },
+    "emailMergePasswordRequired": "این ایمیل قبلاً به حساب دیگری تعلق دارد. برای ادغام حساب‌ها، رمز عبور آن حساب را وارد کنید.",
+    "emailMergeCodeSent": "کد تأیید به آن ایمیل ارسال شد.",
+    "emailMergeCodeDescription": "این ایمیل قبلاً به حساب دیگری تعلق دارد. کدی به آن ارسال کردیم — برای تأیید مالکیت و ادغام حساب‌ها آن را وارد کنید.",
+    "emailMergeCodeLabel": "کد ارسال‌شده در ایمیل",
+    "emailMergeConfirm": "تأیید و ادغام",
+    "emailMergeCodeInvalid": "کد نامعتبر یا منقضی‌شده"
   },
   "theme": {
     "colors": "رنگ‌های تم",
@@ -4453,6 +4481,14 @@
       "openBot": "باز کردن ربات",
       "retry": "من /start را زدم، دوباره امتحان کن",
       "hint": "پس از اجرای /start، به اینجا بازگردید و «دوباره امتحان کنید» را بزنید."
+    },
+    "serviceUnavailable": {
+      "title": "سرویس در دسترس نیست",
+      "description": "در حال حاضر امکان اتصال به سرویس وجود ندارد. ممکن است در حال تعمیر باشد یا مشکل موقتی در اتصال وجود داشته باشد.",
+      "retry": "تلاش مجدد",
+      "checking": "در حال بررسی اتصال...",
+      "hint": "به‌محض در دسترس قرار گرفتن سرویس، این صفحه به‌طور خودکار بازخوانی می‌شود.",
+      "close": "بستن"
     }
   },
   "merge": {
@@ -4483,6 +4519,36 @@
     "merging": "در حال ادغام..."
   },
   "landing": {
+    "giftClaim": {
+      "title": "شما یک هدیه دارید!",
+      "error": "فعال‌سازی هدیه ناموفق بود.",
+      "notFoundTitle": "هدیه یافت نشد",
+      "notFoundDesc": "این لینک هدیه نامعتبر یا دیگر در دسترس نیست.",
+      "alreadyTitle": "هدیه قبلاً فعال شده است",
+      "alreadyDesc": "این هدیه قبلاً دریافت شده است.",
+      "successTitle": "هدیه فعال شد!",
+      "connectDesc": "از این لینک برای اتصال استفاده کنید:",
+      "copyLink": "کپی لینک",
+      "pendingTitle": "تقریباً آماده است…",
+      "pendingDesc": "پرداخت در حال تأیید است. این صفحه به‌طور خودکار به‌روزرسانی می‌شود.",
+      "replaceWarning": "شما در حال حاضر اشتراک دارید — فعال‌سازی این هدیه جایگزین آن خواهد شد.",
+      "activateTelegram": "فعال‌سازی در تلگرام",
+      "activateWeb": "فعال‌سازی با ایمیل",
+      "emailLabel": "ایمیل شما",
+      "claimNow": "دریافت هدیه",
+      "failedTitle": "هدیه در دسترس نیست",
+      "failedDesc": "پرداخت این هدیه انجام نشد، بنابراین قابل فعال‌سازی نیست."
+    },
+    "giftLink": {
+      "shareText": "یک هدیه برای شما دارم! اینجا فعال کنید:",
+      "viaTelegram": "تلگرام:",
+      "title": "هدیه آماده است!",
+      "subtitle": "این لینک را برای کسی که می‌خواهید هدیه را دریافت کند بفرستید — خودش آن را فعال می‌کند.",
+      "linkLabel": "لینک هدیه",
+      "telegramLabel": "لینک تلگرام",
+      "alsoSent": "آن را به {{contact}} نیز ایمیل کردیم.",
+      "copyMessage": "کپی پیام"
+    },
     "notFound": "صفحه یافت نشد",
     "forMe": "برای خودم",
     "asGift": "به عنوان هدیه",
@@ -4726,6 +4792,7 @@
   "subscriptions": {
     "buy": "خرید اشتراک",
     "buyAnother": "خرید اشتراک دیگر",
+    "browsePlans": "مشاهده تعرفه‌ها و خرید اشتراک",
     "empty": "هنوز اشتراکی ندارید",
     "emptyDesc": "برای شروع تعرفه‌ای انتخاب کنید",
     "title": "اشتراک‌های من"
