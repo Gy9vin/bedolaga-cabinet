@@ -1198,6 +1198,8 @@
       "particleColor": "Цвет частиц",
       "starColor": "Цвет звёзд",
       "trailColor": "Цвет следа",
+      "bgStarColor": "Цвет фоновых звёзд",
+      "pointerColor": "Цвет курсорного блоба",
       "bgColor": "Цвет фона",
       "fillColor": "Цвет заливки",
       "color1": "Цвет 1",

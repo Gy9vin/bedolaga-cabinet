@@ -195,6 +195,12 @@ export const backgroundRegistry: BackgroundDefinition[] = [
         default: '#2EB9DF',
       },
       {
+        key: 'bgStarColor',
+        label: 'admin.backgrounds.bgStarColor',
+        type: 'color',
+        default: '#ffffff',
+      },
+      {
         key: 'starDensity',
         label: 'admin.backgrounds.density',
         type: 'number',
@@ -248,6 +254,12 @@ export const backgroundRegistry: BackgroundDefinition[] = [
       { key: 'thirdColor', label: 'admin.backgrounds.color3', type: 'color', default: '#64DCFF' },
       { key: 'fourthColor', label: 'admin.backgrounds.color4', type: 'color', default: '#C83232' },
       { key: 'fifthColor', label: 'admin.backgrounds.color5', type: 'color', default: '#B4B432' },
+      {
+        key: 'pointerColor',
+        label: 'admin.backgrounds.pointerColor',
+        type: 'color',
+        default: '#8C64FF',
+      },
       {
         key: 'interactive',
         label: 'admin.backgrounds.interactive',
