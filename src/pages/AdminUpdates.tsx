@@ -36,6 +36,12 @@ function renderMarkdown(md: string): string {
   // Сначала разрешаем только URL с явно безопасной схемой; всё остальное —
   // плейсхолдер, чтобы javascript:/data: URI не могли пройти через DOMPurify
   // на стадии до санитизации.
+
+  // SECURITY: экранируем текст ДО интерполяции в HTML — незакрытые теги не
+  // переструктурируют DOM до финального DOMPurify.sanitize (второй слой).
+  const escapeText = (raw: string): string =>
+    DOMPurify.sanitize(raw, { ALLOWED_TAGS: [], ALLOWED_ATTR: [] });
+
   const safeHref = (raw: string): string => {
     try {
       const u = new URL(raw, 'https://example.invalid');
@@ -87,7 +93,7 @@ function renderMarkdown(md: string): string {
     // List item: * text or - text
     const listMatch = trimmed.match(/^[*-]\s+(.+)$/);
     if (listMatch) {
-      listItems.push(`<li>${listMatch[1]}</li>`);
+      listItems.push(`<li>${escapeText(listMatch[1])}</li>`);
       continue;
     }
     // Already an HTML block element from header replacement
