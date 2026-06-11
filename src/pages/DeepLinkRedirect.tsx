@@ -136,7 +136,16 @@ export default function DeepLinkRedirect() {
   }, [deepLink, status, openDeepLink]);
 
   const handleCopyLink = async () => {
-    const linkToCopy = subscriptionUrl || deepLink;
+    const isAllowedUrl = (url: string): boolean => {
+      try {
+        const u = new URL(url);
+        return ['http:', 'https:', 'tg:', 'incy:', 'happ:', 'v2raytun:'].includes(u.protocol);
+      } catch {
+        return false;
+      }
+    };
+    const linkToCopy =
+      subscriptionUrl && isAllowedUrl(subscriptionUrl) ? subscriptionUrl : deepLink;
     // Clear previous timeout to prevent stacking
     if (copiedTimeoutRef.current) {
       clearTimeout(copiedTimeoutRef.current);

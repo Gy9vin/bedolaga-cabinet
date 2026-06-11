@@ -74,7 +74,7 @@ infoPagePurify.addHook('afterSanitizeAttributes', (node) => {
       node.remove();
       return;
     }
-    node.setAttribute('sandbox', 'allow-scripts allow-same-origin allow-presentation');
+    node.setAttribute('sandbox', 'allow-scripts allow-presentation allow-popups');
     node.setAttribute('allow', 'autoplay; encrypted-media; picture-in-picture');
   }
   if (node.tagName === 'VIDEO') {
