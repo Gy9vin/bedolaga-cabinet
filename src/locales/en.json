@@ -4704,8 +4704,8 @@
       "backToAccounts": "Back to accounts"
     },
     "emailMergePasswordRequired": "This email already belongs to another account. To merge the accounts, enter that account's password.",
-    "emailMergeCodeSent": "A confirmation code was sent to that email.",
-    "emailMergeCodeDescription": "This email already belongs to another account. We sent a code to it — enter it to confirm ownership and merge the accounts.",
+    "emailMergeCodeSent": "A confirmation code was sent to {{email}}.",
+    "emailMergeCodeDescription": "This email already belongs to another account. We sent a code to {{email}} — enter it to confirm ownership and merge the accounts.",
     "emailMergeCodeLabel": "Code from the email",
     "emailMergeConfirm": "Confirm and merge",
     "emailMergeCodeInvalid": "Invalid or expired code"

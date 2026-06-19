@@ -407,7 +407,7 @@ export default function ConnectedAccounts() {
       if (response.merge_required && response.merge_verification === 'email_code') {
         setEmailMergeCodePending(true);
         setEmailMergeCode('');
-        setEmailSuccess(t('profile.emailMergeCodeSent'));
+        setEmailSuccess(t('profile.emailMergeCodeSent', { email: emailValue }));
         setEmailError(null);
         return;
       }
@@ -731,7 +731,7 @@ export default function ConnectedAccounts() {
                     <div className="mt-4 border-t border-dark-700/30 pt-4">
                       <p className="mb-4 text-sm text-dark-400">
                         {emailMergeCodePending
-                          ? t('profile.emailMergeCodeDescription')
+                          ? t('profile.emailMergeCodeDescription', { email: emailValue })
                           : t('profile.linkEmailDescription')}
                       </p>
                       {emailMergeCodePending ? (
