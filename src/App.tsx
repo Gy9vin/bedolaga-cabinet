@@ -139,7 +139,6 @@ const AdminChannelSubscriptions = lazyWithRetry(() => import('./pages/AdminChann
 const AdminChannelMembershipReport = lazyWithRetry(
   () => import('./pages/AdminChannelMembershipReport'),
 );
-const AdminEmailTemplatePreview = lazyWithRetry(() => import('./pages/AdminEmailTemplatePreview'));
 const AdminRoles = lazyWithRetry(() => import('./pages/AdminRoles'));
 const AdminRoleEdit = lazyWithRetry(() => import('./pages/AdminRoleEdit'));
 const AdminRoleAssign = lazyWithRetry(() => import('./pages/AdminRoleAssign'));
@@ -161,6 +160,7 @@ const AdminNewsCreate = lazyWithRetry(() => import('./pages/AdminNewsCreate'));
 const InfoPageView = lazyWithRetry(() => import('./pages/InfoPageView'));
 const AdminInfoPages = lazyWithRetry(() => import('./pages/AdminInfoPages'));
 const AdminInfoPageEditor = lazyWithRetry(() => import('./pages/AdminInfoPageEditor'));
+const AdminLegalPages = lazyWithRetry(() => import('./pages/AdminLegalPages'));
 
 function ProtectedRoute({
   children,
@@ -413,6 +413,18 @@ function App() {
             </ProtectedRoute>
           }
         />
+        {/* Path-based method variant: some providers (Lava) reject return URLs that carry a
+            query string, so the method is encoded in the path instead of ?method=. */}
+        <Route
+          path="/balance/top-up/result/:method"
+          element={
+            <ProtectedRoute withLayout={false}>
+              <LazyPage>
+                <TopUpResult />
+              </LazyPage>
+            </ProtectedRoute>
+          }
+        />
         <Route
           path="/balance/top-up/:methodId"
           element={
@@ -621,6 +633,19 @@ function App() {
             <PermissionRoute permission="tickets:settings">
               <LazyPage>
                 <AdminTicketSettings />
+              </LazyPage>
+            </PermissionRoute>
+          }
+        />
+        {/* Deep-link target for admin ticket notification buttons (bot issue #2988):
+            opens a specific ticket directly. Static "/settings" above out-ranks
+            this dynamic segment in react-router, so there is no conflict. */}
+        <Route
+          path="/admin/tickets/:ticketId"
+          element={
+            <PermissionRoute permission="tickets:read">
+              <LazyPage>
+                <AdminTickets />
               </LazyPage>
             </PermissionRoute>
           }
@@ -1225,16 +1250,6 @@ function App() {
             </PermissionRoute>
           }
         />
-        <Route
-          path="/admin/email-templates/preview/:type/:lang"
-          element={
-            <PermissionRoute permission="email_templates:read">
-              <LazyPage>
-                <AdminEmailTemplatePreview />
-              </LazyPage>
-            </PermissionRoute>
-          }
-        />
 
         {/* RBAC routes */}
         <Route
@@ -1366,6 +1381,16 @@ function App() {
             <PermissionRoute permission="info_pages:edit">
               <LazyPage>
                 <AdminInfoPageEditor />
+              </LazyPage>
+            </PermissionRoute>
+          }
+        />
+        <Route
+          path="/admin/legal-pages"
+          element={
+            <PermissionRoute permission="info_pages:read">
+              <LazyPage>
+                <AdminLegalPages />
               </LazyPage>
             </PermissionRoute>
           }

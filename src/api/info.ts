@@ -37,6 +37,13 @@ export interface LanguageInfo {
   flag: string;
 }
 
+export interface InfoVisibility {
+  faq: boolean;
+  rules: boolean;
+  privacy: boolean;
+  offer: boolean;
+}
+
 export const infoApi = {
   // Get FAQ pages list
   getFaqPages: async (): Promise<FaqPage[]> => {
@@ -116,6 +123,11 @@ export const infoApi = {
       '/cabinet/info/support-helper-config',
       data,
     );
+    return response.data;
+  },
+
+  getVisibility: async (): Promise<InfoVisibility> => {
+    const response = await apiClient.get<InfoVisibility>('/cabinet/info/visibility');
     return response.data;
   },
 };

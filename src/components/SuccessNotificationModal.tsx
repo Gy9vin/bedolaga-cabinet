@@ -334,7 +334,7 @@ export default function SuccessNotificationModal() {
             {isSubscription && (
               <button
                 onClick={handleGoToSubscription}
-                className="flex w-full items-center justify-center gap-2 rounded-xl bg-accent-500 py-3.5 font-bold text-white shadow-lg shadow-accent-500/25 transition-colors hover:bg-accent-400 active:bg-accent-600"
+                className="flex w-full items-center justify-center gap-2 rounded-xl bg-accent-500 py-3.5 font-bold text-on-accent shadow-lg shadow-accent-500/25 transition-colors hover:bg-accent-400 active:bg-accent-600"
               >
                 <RocketIcon className="h-8 w-8" />
                 <span>{t('successNotification.goToSubscription', 'Go to Subscription')}</span>

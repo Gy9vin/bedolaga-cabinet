@@ -444,6 +444,7 @@ export default function Support() {
             </div>
             <Button
               variant="secondary"
+              className="shrink-0 whitespace-nowrap"
               onClick={() => {
                 if (isHelperVisible) {
                   handleSupportAction('contact');
@@ -455,7 +456,7 @@ export default function Support() {
                 }
               }}
             >
-              {t('support.contactUs')}
+              {t('support.writeButton', 'Написать')}
             </Button>
           </Card>
         </motion.div>
