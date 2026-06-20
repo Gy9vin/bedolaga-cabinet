@@ -10,6 +10,7 @@ import { Spinner } from '@/components/ui/Spinner';
 import { AnimatedCheckmark } from '@/components/ui/AnimatedCheckmark';
 import { cn } from '@/lib/utils';
 import { CheckCircleIcon, CheckIcon, CopyIcon } from '@/components/icons';
+import BrandHeader from '@/components/BrandHeader';
 
 const MAX_POLL_MS = 10 * 60 * 1000; // poll an unsettled payment for up to 10 min
 
@@ -21,6 +22,7 @@ function Shell({ children }: { children: React.ReactNode }) {
   return (
     <div className="flex min-h-dvh items-center justify-center bg-dark-950 px-4 py-10">
       <div className="w-full max-w-md rounded-2xl border border-dark-800/50 bg-dark-900/50 p-6 sm:p-8">
+        <BrandHeader />
         {children}
       </div>
     </div>

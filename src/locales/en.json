@@ -5073,7 +5073,7 @@
     "giftSentSuccess": "Gift sent!",
     "giftSentDesc": "Recipient will be notified by email",
     "giftPendingActivationDesc": "The recipient already has an active subscription. They will receive a link to activate the gift.",
-    "giftTelegramSent": "Gift notification sent to recipient via Telegram",
+    "giftTelegramSent": "We sent the recipient a Telegram invite — they need to confirm to receive the gift.",
     "giftTelegramNotInBot": "Recipient hasn't started the bot yet. Send them this link:",
     "giftTelegramPendingSent": "Activation request sent to recipient via Telegram",
     "giftTelegramPendingNotInBot": "Recipient hasn't started the bot yet. Send them the bot link so they can activate the gift:",

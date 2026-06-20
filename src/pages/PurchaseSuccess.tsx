@@ -13,6 +13,7 @@ import { Spinner } from '@/components/ui/Spinner';
 import { AnimatedCheckmark } from '@/components/ui/AnimatedCheckmark';
 import { AnimatedCrossmark } from '@/components/ui/AnimatedCrossmark';
 import { cn } from '../lib/utils';
+import BrandHeader from '@/components/BrandHeader';
 
 const MAX_POLL_MS = 10 * 60 * 1000; // 10 minutes
 
@@ -786,6 +787,7 @@ export default function PurchaseSuccess() {
         aria-live="polite"
         aria-atomic="true"
       >
+        <BrandHeader />
         {isError ? (
           <FailedState />
         ) : isBuyerGiftLink ? (
