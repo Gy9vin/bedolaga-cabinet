@@ -60,9 +60,18 @@ export const apiClient = axios.create({
   },
 });
 
+// Public endpoints the request interceptor must NOT decorate with a Bearer token.
+// Entries WITHOUT a trailing slash are matched EXACTLY (the path, ignoring query).
+// Entries WITH a trailing slash are treated as broad prefixes (sub-paths/params).
+//
+// Why exact-by-default: a bare prefix like '/cabinet/auth/telegram' would also
+// match the *protected* '/cabinet/auth/telegram/link' via startsWith and silently
+// strip its Bearer token → 401. That class of bug already hit '/cabinet/auth/merge/'.
+// Only list a trailing-slash prefix when EVERY sub-path under it is public.
 const AUTH_ENDPOINTS = [
   '/cabinet/auth/telegram',
   '/cabinet/auth/telegram/widget',
+  '/cabinet/auth/telegram/oidc',
   '/cabinet/auth/email/login',
   '/cabinet/auth/email/register/standalone',
   '/cabinet/auth/email/verify',
@@ -78,7 +87,10 @@ const AUTH_ENDPOINTS = [
 
 function isAuthEndpoint(url: string | undefined): boolean {
   if (!url) return false;
-  return AUTH_ENDPOINTS.some((endpoint) => url.startsWith(endpoint));
+  const path = url.split('?')[0];
+  return AUTH_ENDPOINTS.some((endpoint) =>
+    endpoint.endsWith('/') ? path.startsWith(endpoint) : path === endpoint,
+  );
 }
 
 apiClient.interceptors.request.use(async (config: InternalAxiosRequestConfig) => {
