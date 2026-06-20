@@ -2,6 +2,13 @@ import { useState, useEffect, useCallback, useRef, useMemo } from 'react';
 import { useParams, useNavigate } from 'react-router';
 import { useTranslation } from 'react-i18next';
 import i18n from '../i18n';
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogFooter,
+} from '../components/primitives/Dialog/Dialog';
 import { DEVICE_ALIAS_MAX_LENGTH } from '../constants/devices';
 import { useCurrency } from '../hooks/useCurrency';
 import { useNotify } from '../platform/hooks/useNotify';
@@ -336,6 +343,26 @@ export default function AdminUserDetail() {
   const [requestHistoryTotal, setRequestHistoryTotal] = useState(0);
   const [requestHistoryExpanded, setRequestHistoryExpanded] = useState(false);
   const [requestHistorySubId, setRequestHistorySubId] = useState<number | null>(null);
+
+  // Link Email modal
+  const [showLinkEmailModal, setShowLinkEmailModal] = useState(false);
+  const [linkEmailValue, setLinkEmailValue] = useState('');
+  const [linkEmailPassword, setLinkEmailPassword] = useState('');
+  const [linkEmailLoading, setLinkEmailLoading] = useState(false);
+  const [generatedPassword, setGeneratedPassword] = useState<string | null>(null);
+
+  // Link Telegram modal
+  const [showLinkTelegramModal, setShowLinkTelegramModal] = useState(false);
+  const [linkTelegramId, setLinkTelegramId] = useState('');
+  const [linkTelegramUsername, setLinkTelegramUsername] = useState('');
+  const [linkTelegramFirstName, setLinkTelegramFirstName] = useState('');
+  const [linkTelegramLoading, setLinkTelegramLoading] = useState(false);
+
+  // Merge users modal
+  const [showMergeModal, setShowMergeModal] = useState(false);
+  const [mergeSecondaryId, setMergeSecondaryId] = useState('');
+  const [mergeLoading, setMergeLoading] = useState(false);
+  const [mergeConfirmed, setMergeConfirmed] = useState(false);
 
   const userId = id ? parseInt(id, 10) : null;
 
@@ -1198,6 +1225,120 @@ export default function AdminUserDetail() {
     }
   };
 
+  // Handle link email
+  const handleLinkEmail = async () => {
+    if (!userId || !linkEmailValue.trim()) return;
+    setLinkEmailLoading(true);
+    try {
+      const result = await adminUsersApi.linkEmail(
+        userId,
+        linkEmailValue.trim(),
+        linkEmailPassword.trim() || undefined,
+      );
+      if (result.generated_password) {
+        setGeneratedPassword(result.generated_password);
+      } else {
+        setShowLinkEmailModal(false);
+        setLinkEmailValue('');
+        setLinkEmailPassword('');
+        notify.success(t('admin.users.detail.linking.success.linked'));
+      }
+      await loadUser();
+    } catch (error: unknown) {
+      const axiosErr = error as { response?: { data?: { detail?: string } } };
+      notify.error(axiosErr?.response?.data?.detail || t('admin.users.userActions.error'));
+    } finally {
+      setLinkEmailLoading(false);
+    }
+  };
+
+  const handleCloseLinkEmailModal = () => {
+    setShowLinkEmailModal(false);
+    setLinkEmailValue('');
+    setLinkEmailPassword('');
+    setGeneratedPassword(null);
+  };
+
+  // Handle unlink email
+  const handleUnlinkEmail = async () => {
+    if (!userId) return;
+    setActionLoading(true);
+    try {
+      await adminUsersApi.unlinkEmail(userId);
+      notify.success(t('admin.users.detail.linking.success.unlinked'));
+      await loadUser();
+    } catch (error: unknown) {
+      const axiosErr = error as { response?: { data?: { detail?: string } } };
+      notify.error(axiosErr?.response?.data?.detail || t('admin.users.userActions.error'));
+    } finally {
+      setActionLoading(false);
+    }
+  };
+
+  // Handle link Telegram
+  const handleLinkTelegram = async () => {
+    if (!userId || !linkTelegramId.trim()) return;
+    const tgId = parseInt(linkTelegramId.trim(), 10);
+    if (isNaN(tgId)) return;
+    setLinkTelegramLoading(true);
+    try {
+      await adminUsersApi.linkTelegram(
+        userId,
+        tgId,
+        linkTelegramUsername.trim() || undefined,
+        linkTelegramFirstName.trim() || undefined,
+      );
+      setShowLinkTelegramModal(false);
+      setLinkTelegramId('');
+      setLinkTelegramUsername('');
+      setLinkTelegramFirstName('');
+      notify.success(t('admin.users.detail.linking.success.linked'));
+      await loadUser();
+    } catch (error: unknown) {
+      const axiosErr = error as { response?: { data?: { detail?: string } } };
+      notify.error(axiosErr?.response?.data?.detail || t('admin.users.userActions.error'));
+    } finally {
+      setLinkTelegramLoading(false);
+    }
+  };
+
+  // Handle unlink Telegram
+  const handleUnlinkTelegram = async () => {
+    if (!userId) return;
+    setActionLoading(true);
+    try {
+      await adminUsersApi.unlinkTelegram(userId);
+      notify.success(t('admin.users.detail.linking.success.unlinked'));
+      await loadUser();
+    } catch (error: unknown) {
+      const axiosErr = error as { response?: { data?: { detail?: string } } };
+      notify.error(axiosErr?.response?.data?.detail || t('admin.users.userActions.error'));
+    } finally {
+      setActionLoading(false);
+    }
+  };
+
+  // Handle merge users
+  const handleMergeUsers = async () => {
+    if (!userId || !mergeSecondaryId.trim()) return;
+    const secId = parseInt(mergeSecondaryId.trim(), 10);
+    if (isNaN(secId)) return;
+    setMergeLoading(true);
+    try {
+      await adminUsersApi.mergeUsers(userId, secId);
+      setShowMergeModal(false);
+      setMergeSecondaryId('');
+      setMergeConfirmed(false);
+      notify.success(t('admin.users.detail.linking.success.merged'));
+      await loadUser();
+    } catch (error: unknown) {
+      const axiosErr = error as { response?: { data?: { detail?: string } } };
+      notify.error(axiosErr?.response?.data?.detail || t('admin.users.userActions.error'));
+    } finally {
+      setMergeLoading(false);
+    }
+  };
+
   const formatDate = (date: string | null) => {
     if (!date) return '-';
     return new Date(date).toLocaleDateString(locale, {
@@ -1344,7 +1485,37 @@ export default function AdminUserDetail() {
             {/* Details grid */}
             <div className="grid grid-cols-2 gap-3">
               <div className="rounded-xl bg-dark-800/50 p-3">
-                <div className="mb-1 text-xs text-dark-500">Email</div>
+                <div className="mb-1 flex items-center justify-between">
+                  <span className="text-xs text-dark-500">Email</span>
+                  {hasPermission('users:edit') &&
+                    (user.email ? (
+                      <button
+                        onClick={() => handleInlineConfirm('unlinkEmail', handleUnlinkEmail)}
+                        disabled={actionLoading || !user.telegram_id}
+                        title={
+                          !user.telegram_id
+                            ? t('admin.users.detail.linking.cannotUnlinkLast')
+                            : undefined
+                        }
+                        className={`text-xs transition-colors disabled:opacity-40 ${
+                          confirmingAction === 'unlinkEmail'
+                            ? 'text-error-400'
+                            : 'text-dark-500 hover:text-error-400'
+                        }`}
+                      >
+                        {confirmingAction === 'unlinkEmail'
+                          ? t('admin.users.detail.actions.areYouSure')
+                          : t('admin.users.detail.linking.unlinkEmail')}
+                      </button>
+                    ) : (
+                      <button
+                        onClick={() => setShowLinkEmailModal(true)}
+                        className="text-xs text-accent-400 transition-colors hover:text-accent-300"
+                      >
+                        {t('admin.users.detail.linking.linkEmail')}
+                      </button>
+                    ))}
+                </div>
                 <div className="text-dark-100">{user.email || '-'}</div>
               </div>
               <div className="rounded-xl bg-dark-800/50 p-3">
@@ -1382,6 +1553,38 @@ export default function AdminUserDetail() {
                   {t('admin.users.detail.purchases')}
                 </div>
                 <div className="text-dark-100">{user.purchase_count}</div>
+              </div>
+              <div className="rounded-xl bg-dark-800/50 p-3">
+                <div className="mb-1 flex items-center justify-between">
+                  <span className="text-xs text-dark-500">Telegram ID</span>
+                  {hasPermission('users:edit') &&
+                    (user.telegram_id ? (
+                      <button
+                        onClick={() => handleInlineConfirm('unlinkTelegram', handleUnlinkTelegram)}
+                        disabled={actionLoading || !user.email}
+                        title={
+                          !user.email ? t('admin.users.detail.linking.cannotUnlinkLast') : undefined
+                        }
+                        className={`text-xs transition-colors disabled:opacity-40 ${
+                          confirmingAction === 'unlinkTelegram'
+                            ? 'text-error-400'
+                            : 'text-dark-500 hover:text-error-400'
+                        }`}
+                      >
+                        {confirmingAction === 'unlinkTelegram'
+                          ? t('admin.users.detail.actions.areYouSure')
+                          : t('admin.users.detail.linking.unlinkTelegram')}
+                      </button>
+                    ) : (
+                      <button
+                        onClick={() => setShowLinkTelegramModal(true)}
+                        className="text-xs text-accent-400 transition-colors hover:text-accent-300"
+                      >
+                        {t('admin.users.detail.linking.linkTelegram')}
+                      </button>
+                    ))}
+                </div>
+                <div className="text-dark-100">{user.telegram_id || '-'}</div>
               </div>
             </div>
 
@@ -1812,6 +2015,18 @@ export default function AdminUserDetail() {
                     ? t('admin.users.detail.actions.areYouSure')
                     : t('admin.users.userActions.delete')}
                 </button>
+                {hasPermission('users:edit') && (
+                  <button
+                    onClick={() => {
+                      setMergeConfirmed(false);
+                      setShowMergeModal(true);
+                    }}
+                    disabled={actionLoading}
+                    className="col-span-2 rounded-lg bg-violet-500/15 px-3 py-2 text-sm font-medium text-violet-400 transition-all hover:bg-violet-500/25 disabled:opacity-50"
+                  >
+                    {t('admin.users.detail.linking.merge')}
+                  </button>
+                )}
               </div>
             </div>
           </div>
@@ -3896,6 +4111,264 @@ export default function AdminUserDetail() {
           </div>
         )}
       </div>
+
+      {/* Link Email Modal */}
+      <Dialog
+        open={showLinkEmailModal}
+        onOpenChange={(o) => {
+          if (!o) handleCloseLinkEmailModal();
+        }}
+      >
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>{t('admin.users.detail.linking.linkEmail')}</DialogTitle>
+          </DialogHeader>
+          {generatedPassword ? (
+            <div className="space-y-3">
+              <div className="rounded-lg border border-warning-500/30 bg-warning-500/10 p-3">
+                <div className="mb-1 text-sm font-medium text-warning-400">
+                  {t('admin.users.detail.linking.generatedPasswordTitle')}
+                </div>
+                <div className="flex items-center gap-2">
+                  <code className="flex-1 rounded bg-dark-800 px-3 py-2 font-mono text-sm text-dark-100">
+                    {generatedPassword}
+                  </code>
+                  <button
+                    onClick={() => copyToClipboard(generatedPassword)}
+                    className="rounded-lg bg-dark-700 px-3 py-2 text-xs text-dark-300 transition-colors hover:bg-dark-600"
+                  >
+                    {t('admin.users.detail.copied')}
+                  </button>
+                </div>
+                <p className="mt-2 text-xs text-warning-300">
+                  {t('admin.users.detail.linking.generatedPasswordWarning')}
+                </p>
+              </div>
+              <DialogFooter>
+                <button onClick={handleCloseLinkEmailModal} className="btn-primary w-full">
+                  {t('common.close')}
+                </button>
+              </DialogFooter>
+            </div>
+          ) : (
+            <div className="space-y-3">
+              <div>
+                <label className="mb-1 block text-xs text-dark-400">Email</label>
+                <input
+                  type="email"
+                  value={linkEmailValue}
+                  onChange={(e) => setLinkEmailValue(e.target.value)}
+                  placeholder={t('admin.users.detail.linking.emailPlaceholder')}
+                  className="input w-full"
+                  disabled={linkEmailLoading}
+                  autoFocus
+                />
+              </div>
+              <div>
+                <label className="mb-1 block text-xs text-dark-400">
+                  {t('common.password', 'Пароль')}
+                </label>
+                <input
+                  type="text"
+                  value={linkEmailPassword}
+                  onChange={(e) => setLinkEmailPassword(e.target.value)}
+                  placeholder={t('admin.users.detail.linking.passwordPlaceholder')}
+                  className="input w-full"
+                  disabled={linkEmailLoading}
+                />
+              </div>
+              <DialogFooter>
+                <button
+                  onClick={handleCloseLinkEmailModal}
+                  disabled={linkEmailLoading}
+                  className="rounded-lg bg-dark-700 px-4 py-2 text-sm text-dark-300 transition-colors hover:bg-dark-600"
+                >
+                  {t('common.cancel')}
+                </button>
+                <button
+                  onClick={handleLinkEmail}
+                  disabled={linkEmailLoading || !linkEmailValue.trim()}
+                  className="btn-primary"
+                >
+                  {linkEmailLoading
+                    ? t('common.loading')
+                    : t('admin.users.detail.linking.linkEmail')}
+                </button>
+              </DialogFooter>
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
+
+      {/* Link Telegram Modal */}
+      <Dialog
+        open={showLinkTelegramModal}
+        onOpenChange={(o) => {
+          if (!o) {
+            setShowLinkTelegramModal(false);
+            setLinkTelegramId('');
+            setLinkTelegramUsername('');
+            setLinkTelegramFirstName('');
+          }
+        }}
+      >
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>{t('admin.users.detail.linking.linkTelegram')}</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-3">
+            <div>
+              <label className="mb-1 block text-xs text-dark-400">Telegram ID</label>
+              <input
+                type="number"
+                value={linkTelegramId}
+                onChange={(e) => setLinkTelegramId(e.target.value)}
+                placeholder={t('admin.users.detail.linking.telegramIdPlaceholder')}
+                className="input w-full"
+                disabled={linkTelegramLoading}
+                autoFocus
+              />
+            </div>
+            <div>
+              <label className="mb-1 block text-xs text-dark-400">Username</label>
+              <input
+                type="text"
+                value={linkTelegramUsername}
+                onChange={(e) => setLinkTelegramUsername(e.target.value)}
+                placeholder={t('admin.users.detail.linking.usernamePlaceholder')}
+                className="input w-full"
+                disabled={linkTelegramLoading}
+              />
+            </div>
+            <div>
+              <label className="mb-1 block text-xs text-dark-400">
+                {t('admin.users.detail.linking.firstNamePlaceholder')}
+              </label>
+              <input
+                type="text"
+                value={linkTelegramFirstName}
+                onChange={(e) => setLinkTelegramFirstName(e.target.value)}
+                placeholder={t('admin.users.detail.linking.firstNamePlaceholder')}
+                className="input w-full"
+                disabled={linkTelegramLoading}
+              />
+            </div>
+            <DialogFooter>
+              <button
+                onClick={() => {
+                  setShowLinkTelegramModal(false);
+                  setLinkTelegramId('');
+                  setLinkTelegramUsername('');
+                  setLinkTelegramFirstName('');
+                }}
+                disabled={linkTelegramLoading}
+                className="rounded-lg bg-dark-700 px-4 py-2 text-sm text-dark-300 transition-colors hover:bg-dark-600"
+              >
+                {t('common.cancel')}
+              </button>
+              <button
+                onClick={handleLinkTelegram}
+                disabled={linkTelegramLoading || !linkTelegramId.trim()}
+                className="btn-primary"
+              >
+                {linkTelegramLoading
+                  ? t('common.loading')
+                  : t('admin.users.detail.linking.linkTelegram')}
+              </button>
+            </DialogFooter>
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* Merge Users Modal */}
+      <Dialog
+        open={showMergeModal}
+        onOpenChange={(o) => {
+          if (!o) {
+            setShowMergeModal(false);
+            setMergeSecondaryId('');
+            setMergeConfirmed(false);
+          }
+        }}
+      >
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>{t('admin.users.detail.linking.merge')}</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-3">
+            <div className="rounded-lg bg-dark-800/60 p-3 text-xs text-dark-400">
+              <span className="font-medium text-dark-200">
+                {t('admin.users.detail.linking.primaryLabel')}:
+              </span>{' '}
+              {user.full_name} (#{userId})
+            </div>
+            <div>
+              <label className="mb-1 block text-xs text-dark-400">
+                {t('admin.users.detail.linking.secondaryLabel')}
+              </label>
+              <input
+                type="number"
+                value={mergeSecondaryId}
+                onChange={(e) => {
+                  setMergeSecondaryId(e.target.value);
+                  setMergeConfirmed(false);
+                }}
+                placeholder={t('admin.users.detail.linking.secondaryUserIdPlaceholder')}
+                className="input w-full"
+                disabled={mergeLoading}
+                autoFocus
+              />
+            </div>
+            {mergeSecondaryId.trim() && (
+              <div className="rounded-lg border border-error-500/30 bg-error-500/10 p-3 text-xs text-error-300">
+                {t('admin.users.detail.linking.mergeWarning', { id: mergeSecondaryId.trim() })}
+              </div>
+            )}
+            {mergeSecondaryId.trim() && !mergeConfirmed && (
+              <label className="flex cursor-pointer items-center gap-2 text-sm text-dark-300">
+                <input
+                  type="checkbox"
+                  checked={mergeConfirmed}
+                  onChange={(e) => setMergeConfirmed(e.target.checked)}
+                  className="h-4 w-4 rounded border-dark-500 bg-dark-700 accent-accent-500"
+                />
+                {t('admin.users.detail.linking.confirmMergeTitle')}
+              </label>
+            )}
+            {mergeSecondaryId.trim() && mergeConfirmed && (
+              <label className="flex cursor-pointer items-center gap-2 text-sm text-dark-300">
+                <input
+                  type="checkbox"
+                  checked={mergeConfirmed}
+                  onChange={(e) => setMergeConfirmed(e.target.checked)}
+                  className="h-4 w-4 rounded border-dark-500 bg-dark-700 accent-accent-500"
+                />
+                {t('admin.users.detail.linking.confirmMergeTitle')}
+              </label>
+            )}
+            <DialogFooter>
+              <button
+                onClick={() => {
+                  setShowMergeModal(false);
+                  setMergeSecondaryId('');
+                  setMergeConfirmed(false);
+                }}
+                disabled={mergeLoading}
+                className="rounded-lg bg-dark-700 px-4 py-2 text-sm text-dark-300 transition-colors hover:bg-dark-600"
+              >
+                {t('common.cancel')}
+              </button>
+              <button
+                onClick={handleMergeUsers}
+                disabled={mergeLoading || !mergeSecondaryId.trim() || !mergeConfirmed}
+                className="rounded-lg bg-error-500 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-error-600 disabled:opacity-50"
+              >
+                {mergeLoading ? t('common.loading') : t('admin.users.detail.linking.merge')}
+              </button>
+            </DialogFooter>
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

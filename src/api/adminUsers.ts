@@ -806,4 +806,56 @@ export const adminUsersApi = {
     const response = await apiClient.get(`/cabinet/admin/users/${userId}/gifts`);
     return response.data;
   },
+
+  // Link email to user
+  linkEmail: async (
+    userId: number,
+    email: string,
+    password?: string,
+  ): Promise<{ success: boolean; email: string; generated_password: string | null }> => {
+    const response = await apiClient.post(`/cabinet/admin/users/${userId}/link-email`, {
+      email,
+      password,
+    });
+    return response.data;
+  },
+
+  // Link Telegram to user
+  linkTelegram: async (
+    userId: number,
+    telegramId: number,
+    username?: string,
+    firstName?: string,
+  ): Promise<{ success: boolean; telegram_id: number }> => {
+    const response = await apiClient.post(`/cabinet/admin/users/${userId}/link-telegram`, {
+      telegram_id: telegramId,
+      username,
+      first_name: firstName,
+    });
+    return response.data;
+  },
+
+  // Unlink email from user
+  unlinkEmail: async (userId: number): Promise<{ success: boolean }> => {
+    const response = await apiClient.delete(`/cabinet/admin/users/${userId}/link-email`);
+    return response.data;
+  },
+
+  // Unlink Telegram from user
+  unlinkTelegram: async (userId: number): Promise<{ success: boolean }> => {
+    const response = await apiClient.delete(`/cabinet/admin/users/${userId}/link-telegram`);
+    return response.data;
+  },
+
+  // Merge two users (secondary is deleted, its data goes to primary)
+  mergeUsers: async (
+    primaryUserId: number,
+    secondaryUserId: number,
+  ): Promise<{ success: boolean; transferred: Record<string, unknown> }> => {
+    const response = await apiClient.post(`/cabinet/admin/users/merge`, {
+      primary_user_id: primaryUserId,
+      secondary_user_id: secondaryUserId,
+    });
+    return response.data;
+  },
 };

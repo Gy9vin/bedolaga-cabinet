@@ -3498,6 +3498,31 @@
           "searchPlaceholder": "Search by name, email, or Telegram ID...",
           "alreadyReferred": "already has referrer",
           "noUsersFound": "No users found"
+        },
+        "linking": {
+          "linkEmail": "Link email",
+          "unlinkEmail": "Unlink email",
+          "linkTelegram": "Link Telegram",
+          "unlinkTelegram": "Unlink Telegram",
+          "merge": "Merge with another account",
+          "mergeWarning": "Account #{{id}} will be DELETED; its balances and subscriptions will be transferred to the current user. This action is irreversible.",
+          "generatedPasswordTitle": "Generated password",
+          "generatedPasswordWarning": "Save this password — it is shown only once",
+          "cannotUnlinkLast": "Cannot unlink the only login method",
+          "emailPlaceholder": "user@example.com",
+          "passwordPlaceholder": "Leave empty to auto-generate",
+          "telegramIdPlaceholder": "123456789",
+          "usernamePlaceholder": "@username (optional)",
+          "firstNamePlaceholder": "First name (optional)",
+          "secondaryUserIdPlaceholder": "ID of the account to delete",
+          "primaryLabel": "Current account (kept)",
+          "secondaryLabel": "Account to delete",
+          "confirmMergeTitle": "Confirm merge",
+          "success": {
+            "linked": "Linked successfully",
+            "unlinked": "Unlinked successfully",
+            "merged": "Accounts merged successfully"
+          }
         }
       },
       "notFound": "User not found",

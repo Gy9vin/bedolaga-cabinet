@@ -3904,6 +3904,31 @@
           "searchPlaceholder": "Поиск по имени, email или Telegram ID...",
           "alreadyReferred": "уже чей-то реферал",
           "noUsersFound": "Пользователи не найдены"
+        },
+        "linking": {
+          "linkEmail": "Привязать email",
+          "unlinkEmail": "Отвязать email",
+          "linkTelegram": "Привязать Telegram",
+          "unlinkTelegram": "Отвязать Telegram",
+          "merge": "Слить с другим аккаунтом",
+          "mergeWarning": "Аккаунт #{{id}} будет удалён, его балансы и подписки перейдут текущему пользователю. Действие необратимо.",
+          "generatedPasswordTitle": "Сгенерированный пароль",
+          "generatedPasswordWarning": "Сохраните пароль — он показывается только один раз",
+          "cannotUnlinkLast": "Нельзя отвязать единственный способ входа",
+          "emailPlaceholder": "user@example.com",
+          "passwordPlaceholder": "Оставьте пустым для генерации",
+          "telegramIdPlaceholder": "123456789",
+          "usernamePlaceholder": "@username (необязательно)",
+          "firstNamePlaceholder": "Имя (необязательно)",
+          "secondaryUserIdPlaceholder": "ID аккаунта для удаления",
+          "primaryLabel": "Текущий аккаунт (сохраняется)",
+          "secondaryLabel": "Аккаунт для удаления",
+          "confirmMergeTitle": "Подтвердите объединение",
+          "success": {
+            "linked": "Привязка успешна",
+            "unlinked": "Отвязка успешна",
+            "merged": "Аккаунты объединены"
+          }
         }
       },
       "notFound": "Пользователь не найден",
