@@ -27,7 +27,9 @@
     "units": {
       "tb": "TB",
       "gb": "GB",
-      "mb": "MB"
+      "mb": "MB",
+      "days": "days",
+      "mo": "mo"
     },
     "retry": "Retry",
     "saving": "Saving...",
@@ -166,6 +168,19 @@
     "trafficAdded": "+{{value}} traffic",
     "trafficPurchased": {
       "title": "Traffic added"
+    },
+    "buyDevices": "Buy More Devices",
+    "buySubscription": "Buy Subscription",
+    "copyLink": "Copy subscription link",
+    "goToConnection": "Go to setup guide",
+    "linkCopied": "Link copied!",
+    "renewSubscription": "Renew Subscription",
+    "shareInstruction": {
+      "step1": "Copy the link and send it to the new device",
+      "step2": "Open the link on the device",
+      "step3": "Download the recommended app",
+      "step4": "After downloading, open the link again and tap \"Add subscription\". Important: tap the button in the section of the app you downloaded",
+      "title": "How to connect a new device"
     }
   },
   "auth": {
@@ -431,7 +446,9 @@
       "payAndActivate": "Pay & Activate",
       "topUpToActivate": "Top Up Balance",
       "insufficientBalance": "Top up your balance to activate",
-      "unavailable": "Trial is not available"
+      "unavailable": "Trial is not available",
+      "orDivider": "or",
+      "skipTrialBuy": "Buy subscription instead"
     },
     "trialBanner": {
       "title": "Trial period active",
@@ -591,7 +608,9 @@
       "disconnectDevicesFirst": "Disconnect extra devices first",
       "incrementDevices": "Add devices",
       "minDeviceLimit": "Minimum device limit",
-      "newDeviceLimit": "New device limit"
+      "newDeviceLimit": "New device limit",
+      "buyDevicesWarning": "Choose the number of devices carefully! Funds spent on added devices are non-refundable — even if you made a mistake or changed your mind.",
+      "reduceDevicesWarning": "When reducing devices, funds spent on purchase and renewal are non-refundable — even if you made a mistake or changed your mind."
     },
     "serverManagement": {
       "statusLegend": "✅ — connected • ➕ — will be added (paid) • ➖ — will be disconnected",
@@ -670,7 +689,19 @@
     "statusActive": "Active",
     "statusExpired": "Expired",
     "statusLimited": "Limited",
-    "statusTrial": "Trial"
+    "statusTrial": "Trial",
+    "deviceSuccess": {
+      "copied": "Link copied!",
+      "copyLink": "Copy subscription link",
+      "goToConnection": "Go to setup guide",
+      "instructionTitle": "How to connect the new device",
+      "step1": "Copy the link below and send it to the new device",
+      "step2": "Open the link on the device",
+      "step3": "Download the recommended app",
+      "step4": "After downloading, open the link again and tap \"Add subscription\". Important: tap the button in the section of the app you downloaded",
+      "title": "Device added!"
+    },
+    "qrCode": "QR Code"
   },
   "balance": {
     "title": "Balance",
@@ -856,7 +887,10 @@
       "timeout": "Taking Longer Than Expected",
       "timeoutDesc": "Payment processing is taking longer than usual. You can try checking the status again.",
       "goToBalance": "Go to Balance",
-      "tryAgain": "Try Again"
+      "tryAgain": "Try Again",
+      "buyDevices": "Buy More Devices",
+      "buySubscription": "Buy Subscription",
+      "renewSubscription": "Renew Subscription"
     },
     "top_up": "Top up balance"
   },
@@ -1003,7 +1037,8 @@
         "rejected": "Rejected",
         "cancelled": "Cancelled"
       }
-    }
+    },
+    "qrCode": "QR Code"
   },
   "support": {
     "title": "Support",
@@ -1046,7 +1081,9 @@
     "contactSupport": "Please contact {{username}} for support",
     "contactUs": "Contact Support",
     "create_ticket": "Create ticket",
-    "writeButton": "Message"
+    "writeButton": "Message",
+    "aiSuggest": "Suggest Reply",
+    "aiSuggesting": "Analyzing..."
   },
   "wheel": {
     "title": "Fortune Wheel",
@@ -2228,7 +2265,11 @@
         "telegramOidcClientSecret": "Client Secret"
       },
       "offlineConv": "Offline Conversions",
-      "apiKey": "API Key"
+      "apiKey": "API Key",
+      "supportHelperDevMode": "Development mode",
+      "supportHelperDevModeDesc": "Helper is visible only to administrators",
+      "supportHelperEnabled": "Support Helper",
+      "supportHelperEnabledDesc": "Show helpful tips popup when contacting support"
     },
     "bulkActions": {
       "title": "Bulk Actions",
@@ -2512,7 +2553,9 @@
         "checkIntervalRange": "Check interval must be between 1 and 1440 minutes",
         "reminderCooldownRange": "Reminder cooldown must be between 0 and 1440 minutes",
         "slaMinutesRange": "SLA must be between 1 and 10080 minutes"
-      }
+      },
+      "aiSuggest": "AI Suggest Reply",
+      "aiSuggesting": "Analyzing..."
     },
     "tariffs": {
       "title": "Tariff Management",
@@ -3415,7 +3458,10 @@
           "deviceLimitUpdated": "Device limit updated",
           "invalidDays": "Please enter a valid number of days (greater than 0)",
           "backToList": "Back to subscriptions",
-          "createNew": "Create new"
+          "createNew": "Create new",
+          "modem": "Modem",
+          "modemDisabled": "Modem disabled",
+          "modemEnabled": "Modem enabled"
         },
         "balance": {
           "current": "Current balance",
@@ -3523,6 +3569,12 @@
             "unlinked": "Unlinked successfully",
             "merged": "Accounts merged successfully"
           }
+        },
+        "priceMultiplier": {
+          "invalid": "Value must be between 0.01 and 1000",
+          "standard": "Standard price (×1)",
+          "title": "Price Multiplier",
+          "updated": "Price multiplier updated"
         }
       },
       "notFound": "User not found",
@@ -4733,7 +4785,10 @@
     "emailMergeCodeDescription": "This email already belongs to another account. We sent a code to {{email}} — enter it to confirm ownership and merge the accounts.",
     "emailMergeCodeLabel": "Code from the email",
     "emailMergeConfirm": "Confirm and merge",
-    "emailMergeCodeInvalid": "Invalid or expired code"
+    "emailMergeCodeInvalid": "Invalid or expired code",
+    "connections": {
+      "error": "Account operation error"
+    }
   },
   "theme": {
     "colors": "Theme Colors",
@@ -5290,5 +5345,52 @@
     "empty": "You have no subscriptions yet",
     "emptyDesc": "Choose a tariff to get started",
     "title": "My subscriptions"
+  },
+  "modem": {
+    "contactAdmin": "Setup instructions have been sent to your Telegram",
+    "description": "Additional device for subscription",
+    "disable": "Disconnect modem",
+    "disableWarning": "Modem fee is non-refundable",
+    "disabled": "Not connected",
+    "discount": "Discount {{percent}}%",
+    "enable": "Connect modem",
+    "enableSuccess": "Modem connected successfully!",
+    "enabled": "Connected",
+    "instructionsAndroid": "Android: Settings → Wi-Fi → network → Advanced → Proxy: Manual. Host: device IP, Port: HTTP port (e.g. 10809).",
+    "instructionsDevicesTitle": "Step 2: Configure other devices",
+    "instructionsHapp": "Settings → Advanced Settings → \"Allow LAN Connections\". IP address, SOCKS5 port and HTTP port will appear. Connect to the server.",
+    "instructionsHappTitle": "Step 1: Enable in Happ",
+    "instructionsIos": "iOS: Settings → Wi-Fi → ℹ️ next to network → HTTP Proxy → Manual. Server: device IP, Port: HTTP port (e.g. 10809).",
+    "instructionsTitle": "How to set up modem mode",
+    "title": "Modem"
+  },
+  "supportHelper": {
+    "addDevice": "Add Device",
+    "addDeviceDesc": "Increase device limit",
+    "buySubscription": "Buy Subscription",
+    "buySubscriptionDesc": "Choose a plan and subscribe",
+    "connectDevice": "Connect Device",
+    "connectDeviceDesc": "Setup instructions",
+    "memo": {
+      "proceed": "Got it, contact support",
+      "step1": "Describe the issue in detail — what exactly doesn't work, what you tried to do",
+      "step2": "Specify your device and the app you're using",
+      "step3": "Attach a screenshot of the error if possible",
+      "step4": "We can see when you're online, which device and app you're connected from. Claiming VPN doesn't work while being online is strange. Please specify what exactly doesn't work",
+      "step5": "Messages like \"doesn't work\" or \"VPN doesn't work\" without details will be handled last",
+      "subtitle": "So we can help you faster",
+      "title": "Before you write"
+    },
+    "noActiveSubscription": "You have no active subscription",
+    "otherQuestion": "Other Question",
+    "otherQuestionDesc": "Contact support",
+    "reduceDevices": "Reduce Devices",
+    "reduceDevicesDesc": "Decrease device limit",
+    "renewSubscription": "Renew Subscription",
+    "renewSubscriptionDesc": "Extend your current subscription",
+    "subtitle": "Select the topic of your request",
+    "title": "How can we help?",
+    "topUpBalance": "Top Up Balance",
+    "topUpBalanceDesc": "Choose a payment method"
   }
 }

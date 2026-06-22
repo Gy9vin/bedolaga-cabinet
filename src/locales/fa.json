@@ -24,7 +24,9 @@
     "units": {
       "tb": "TB",
       "gb": "GB",
-      "mb": "MB"
+      "mb": "MB",
+      "days": "روز",
+      "mo": "ماه"
     },
     "add": "افزودن",
     "refresh": "بازخوانی",
@@ -160,6 +162,19 @@
     "trafficAdded": "+{{value}} ترافیک",
     "trafficPurchased": {
       "title": "ترافیک افزوده شد"
+    },
+    "buyDevices": "خرید دستگاه بیشتر",
+    "buySubscription": "خرید اشتراک",
+    "copyLink": "کپی لینک اشتراک",
+    "goToConnection": "رفتن به راهنمای اتصال",
+    "linkCopied": "لینک کپی شد!",
+    "renewSubscription": "تمدید اشتراک",
+    "shareInstruction": {
+      "step1": "لینک را کپی کرده و به دستگاه جدید ارسال کنید",
+      "step2": "لینک را در دستگاه باز کنید",
+      "step3": "اپلیکیشن پیشنهادی را دانلود کنید",
+      "step4": "پس از دانلود، لینک را دوباره باز کنید و روی «افزودن اشتراک» بزنید. مهم: دکمه را در بخش همان اپلیکیشنی که دانلود کردید بزنید",
+      "title": "نحوه اتصال دستگاه جدید"
     }
   },
   "auth": {
@@ -385,7 +400,9 @@
       "unavailable": "دوره آزمایشی در دسترس نیست",
       "insufficientBalance": "موجودی برای فعال‌سازی دوره آزمایشی کافی نیست",
       "payAndActivate": "پرداخت و فعال‌سازی",
-      "topUpToActivate": "برای فعال‌سازی دوره آزمایشی موجودی را افزایش دهید"
+      "topUpToActivate": "برای فعال‌سازی دوره آزمایشی موجودی را افزایش دهید",
+      "orDivider": "or",
+      "skipTrialBuy": "Buy subscription instead"
     },
     "connection": {
       "title": "اتصال VPN",
@@ -447,7 +464,9 @@
       "reduceDevicesDescription": "محدودیت دستگاه‌های خود را تنظیم کنید. در صورت لزوم ابتدا دستگاه‌های اضافه را قطع کنید",
       "reduceDevicesTitle": "کاهش تعداد دستگاه‌ها",
       "reduceUnavailable": "در حال حاضر کاهش تعداد دستگاه‌ها امکان‌پذیر نیست",
-      "reducing": "در حال کاهش…"
+      "reducing": "در حال کاهش…",
+      "buyDevicesWarning": "تعداد دستگاه‌ها را با دقت انتخاب کنید! هزینه دستگاه‌های اضافه شده قابل بازگشت نیست — حتی اگر اشتباه کرده یا نظرتان عوض شده باشد.",
+      "reduceDevicesWarning": "با کاهش دستگاه‌ها، هزینه‌های صرف شده برای خرید و تمدید قابل بازگشت نیست — حتی اگر اشتباه کرده یا نظرتان عوض شده باشد."
     },
     "serverManagement": {
       "statusLegend": "✅ — متصل • ➕ — اضافه خواهد شد (پولی) • ➖ — قطع خواهد شد",
@@ -599,7 +618,19 @@
     "trialUpgrade": {
       "description": "برای دسترسی به همه امکانات و ادامه استفاده به اشتراک پرداختی ارتقا دهید",
       "title": "ارتقای اشتراک"
-    }
+    },
+    "deviceSuccess": {
+      "copied": "لینک کپی شد!",
+      "copyLink": "کپی لینک اشتراک",
+      "goToConnection": "رفتن به راهنمای اتصال",
+      "instructionTitle": "نحوه اتصال دستگاه جدید",
+      "step1": "لینک زیر را کپی کرده و به دستگاه جدید ارسال کنید",
+      "step2": "لینک را در دستگاه باز کنید",
+      "step3": "اپلیکیشن پیشنهادی را دانلود کنید",
+      "step4": "لینک را دوباره باز کنید — اشتراک به صورت خودکار اضافه می‌شود",
+      "title": "دستگاه اضافه شد!"
+    },
+    "qrCode": "کد QR"
   },
   "balance": {
     "title": "موجودی",
@@ -741,7 +772,10 @@
       "timeout": "بیشتر از حد معمول طول کشید",
       "timeoutDesc": "پردازش پرداخت بیشتر از حد معمول طول می‌کشد. می‌توانید دوباره وضعیت را بررسی کنید.",
       "goToBalance": "مشاهده موجودی",
-      "tryAgain": "تلاش مجدد"
+      "tryAgain": "تلاش مجدد",
+      "buyDevices": "خرید دستگاه بیشتر",
+      "buySubscription": "خرید اشتراک",
+      "renewSubscription": "تمدید اشتراک"
     },
     "top_up": "افزایش موجودی"
   },
@@ -888,7 +922,8 @@
         "rejected": "رد شده",
         "cancelled": "لغو شده"
       }
-    }
+    },
+    "qrCode": "QR Code"
   },
   "support": {
     "title": "پشتیبانی",
@@ -929,7 +964,9 @@
     "ticketsDisabled": "تیکت‌ها غیرفعال است",
     "useExternalLink": "لطفاً از لینک خارجی برای دریافت پشتیبانی استفاده کنید",
     "create_ticket": "ایجاد تیکت",
-    "writeButton": "پیام"
+    "writeButton": "پیام",
+    "aiSuggest": "پیشنهاد پاسخ",
+    "aiSuggesting": "در حال تحلیل..."
   },
   "wheel": {
     "title": "چرخ شانس",
@@ -1908,7 +1945,11 @@
         "telegramOidcClientSecret": "Client Secret"
       },
       "offlineConv": "تبدیل‌های آفلاین",
-      "apiKey": "کلید API"
+      "apiKey": "کلید API",
+      "supportHelperDevMode": "حالت توسعه",
+      "supportHelperDevModeDesc": "دستیار فقط برای مدیران قابل مشاهده است",
+      "supportHelperEnabled": "دستیار پشتیبانی",
+      "supportHelperEnabledDesc": "نمایش پنجره راهنما هنگام تماس با پشتیبانی"
     },
     "buttons": {
       "color": "رنگ دکمه",
@@ -2074,7 +2115,9 @@
         "checkIntervalRange": "بازه بررسی باید بین ۱ تا ۱۴۴۰ دقیقه باشد",
         "reminderCooldownRange": "زمان تأخیر یادآوری باید بین ۰ تا ۱۴۴۰ دقیقه باشد",
         "slaMinutesRange": "SLA باید بین ۱ تا ۱۰۰۸۰ دقیقه باشد"
-      }
+      },
+      "aiSuggest": "پیشنهاد پاسخ AI",
+      "aiSuggesting": "در حال تحلیل..."
     },
     "tariffs": {
       "title": "مدیریت تعرفه‌ها",
@@ -2993,7 +3036,10 @@
           "deviceLimitUpdated": "محدودیت دستگاه به‌روز شد",
           "invalidDays": "لطفاً تعداد روز معتبر وارد کنید (بیشتر از ۰)",
           "backToList": "بازگشت به فهرست اشتراک‌ها",
-          "createNew": "ایجاد جدید"
+          "createNew": "ایجاد جدید",
+          "modem": "Modem",
+          "modemDisabled": "Modem disabled",
+          "modemEnabled": "Modem enabled"
         },
         "balance": {
           "current": "موجودی فعلی",
@@ -3081,7 +3127,38 @@
           "areYouSure": "آیا مطمئنید می‌خواهید ادامه دهید؟",
           "title": "عملیات"
         },
-        "noVpnData": "داده‌ای از VPN وجود ندارد"
+        "noVpnData": "داده‌ای از VPN وجود ندارد",
+        "priceMultiplier": {
+          "invalid": "Value must be between 0.01 and 1000",
+          "standard": "Standard price (×1)",
+          "title": "Price Multiplier",
+          "updated": "Price multiplier updated"
+        },
+        "linking": {
+          "cannotUnlinkLast": "Cannot unlink the only login method",
+          "confirmMergeTitle": "Confirm merge",
+          "emailPlaceholder": "user@example.com",
+          "firstNamePlaceholder": "First name (optional)",
+          "generatedPasswordTitle": "Generated password",
+          "generatedPasswordWarning": "Save this password — it is shown only once",
+          "linkEmail": "Link email",
+          "linkTelegram": "Link Telegram",
+          "merge": "Merge with another account",
+          "mergeWarning": "Account #{{id}} will be DELETED; its balances and subscriptions will be transferred to the current user. This action is irreversible.",
+          "passwordPlaceholder": "Leave empty to auto-generate",
+          "primaryLabel": "Current account (kept)",
+          "secondaryLabel": "Account to delete",
+          "secondaryUserIdPlaceholder": "ID of the account to delete",
+          "success": {
+            "linked": "Linked successfully",
+            "merged": "Accounts merged successfully",
+            "unlinked": "Unlinked successfully"
+          },
+          "telegramIdPlaceholder": "123456789",
+          "unlinkEmail": "Unlink email",
+          "unlinkTelegram": "Unlink Telegram",
+          "usernamePlaceholder": "@username (optional)"
+        }
       },
       "notFound": "کاربر یافت نشد",
       "purchaseCount": "تعداد خرید: {{count}}",
@@ -4253,7 +4330,10 @@
     "emailMergeCodeDescription": "این ایمیل قبلاً به حساب دیگری تعلق دارد. کدی به {{email}} ارسال کردیم — برای تأیید مالکیت و ادغام حساب‌ها آن را وارد کنید.",
     "emailMergeCodeLabel": "کد ارسال‌شده در ایمیل",
     "emailMergeConfirm": "تأیید و ادغام",
-    "emailMergeCodeInvalid": "کد نامعتبر یا منقضی‌شده"
+    "emailMergeCodeInvalid": "کد نامعتبر یا منقضی‌شده",
+    "connections": {
+      "error": "Account operation error"
+    }
   },
   "theme": {
     "colors": "رنگ‌های تم",
@@ -4889,6 +4969,17 @@
         "image": "تصویر",
         "imageUrlPrompt": "آدرس تصویر:",
         "linkUrlPrompt": "آدرس پیوند:"
+      },
+      "combobox": {
+        "clear": "Clear",
+        "create": "Create",
+        "createNew": "Create new",
+        "delete": "Delete {{name}}",
+        "noItems": "Nothing found",
+        "placeholder": "Select...",
+        "searchOrCreate": "Search or create...",
+        "selectCategory": "Select category",
+        "selectTag": "Select tag"
       }
     }
   },
@@ -4899,5 +4990,52 @@
     "empty": "هنوز اشتراکی ندارید",
     "emptyDesc": "برای شروع تعرفه‌ای انتخاب کنید",
     "title": "اشتراک‌های من"
+  },
+  "modem": {
+    "contactAdmin": "دستورالعمل راه‌اندازی به تلگرام شما ارسال شد",
+    "description": "دستگاه اضافی برای اشتراک شما",
+    "disable": "قطع مودم",
+    "disableWarning": "هزینه مودم بازپرداخت نمی‌شود",
+    "disabled": "متصل نیست",
+    "discount": "تخفیف {{percent}}%",
+    "enable": "اتصال مودم",
+    "enableSuccess": "!مودم با موفقیت متصل شد",
+    "enabled": "متصل",
+    "instructionsAndroid": "اندروید: تنظیمات → Wi-Fi → شبکه → پیشرفته → پروکسی: دستی. هاست: IP دستگاه، پورت: HTTP (مثلاً 10809).",
+    "instructionsDevicesTitle": "مرحله ۲: پیکربندی سایر دستگاه‌ها",
+    "instructionsHapp": "تنظیمات → تنظیمات پیشرفته → «اجازه اتصال LAN». آدرس IP، پورت SOCKS5 و HTTP نمایش داده می‌شوند. به سرور متصل شوید.",
+    "instructionsHappTitle": "مرحله ۱: فعال‌سازی در Happ",
+    "instructionsIos": "iOS: تنظیمات → Wi-Fi → ℹ️ کنار شبکه → پروکسی HTTP → دستی. سرور: IP دستگاه، پورت: HTTP (مثلاً 10809).",
+    "instructionsTitle": "نحوه تنظیم حالت مودم",
+    "title": "مودم"
+  },
+  "supportHelper": {
+    "addDevice": "افزودن دستگاه",
+    "addDeviceDesc": "افزایش تعداد دستگاه‌ها",
+    "buySubscription": "خرید اشتراک",
+    "buySubscriptionDesc": "انتخاب طرح و اشتراک",
+    "connectDevice": "اتصال دستگاه",
+    "connectDeviceDesc": "راهنمای تنظیمات",
+    "memo": {
+      "proceed": "متوجه شدم، تماس با پشتیبانی",
+      "step1": "مشکل را با جزئیات شرح دهید — دقیقاً چه چیزی کار نمی‌کند",
+      "step2": "دستگاه و اپلیکیشنی که استفاده می‌کنید را مشخص کنید",
+      "step3": "در صورت امکان اسکرین‌شات خطا را ضمیمه کنید",
+      "step4": "ما می‌بینیم چه زمانی آنلاین هستید، از چه دستگاه و اپلیکیشنی متصل شده‌اید. ادعای اینکه VPN کار نمی‌کند در حالی که آنلاین هستید عجیب است. لطفاً دقیقاً بگویید چه چیزی کار نمی‌کند",
+      "step5": "پیام‌هایی مانند «کار نمی‌کنه» یا «VPN کار نمی‌کنه» بدون جزئیات در آخرین اولویت بررسی می‌شوند",
+      "subtitle": "تا بتوانیم سریع‌تر کمک کنیم",
+      "title": "قبل از نوشتن"
+    },
+    "noActiveSubscription": "شما اشتراک فعالی ندارید",
+    "otherQuestion": "سؤال دیگر",
+    "otherQuestionDesc": "تماس با پشتیبانی",
+    "reduceDevices": "کاهش تعداد دستگاه‌ها",
+    "reduceDevicesDesc": "کاهش محدودیت دستگاه",
+    "renewSubscription": "تمدید اشتراک",
+    "renewSubscriptionDesc": "تمدید اشتراک فعلی",
+    "subtitle": "موضوع درخواست خود را انتخاب کنید",
+    "title": "چگونه می‌توانیم کمک کنیم؟",
+    "topUpBalance": "شارژ موجودی",
+    "topUpBalanceDesc": "انتخاب روش پرداخت"
   }
 }
