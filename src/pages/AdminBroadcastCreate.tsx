@@ -11,6 +11,7 @@ import {
 } from '../api/adminBroadcasts';
 import { AdminBackButton } from '../components/admin';
 import { TelegramPreview, EmailPreview } from '../components/broadcasts/BroadcastPreview';
+import { useToast } from '../components/Toast';
 import {
   BroadcastIcon,
   ChevronDownIcon,
@@ -34,12 +35,14 @@ const FILTER_GROUP_LABEL_KEYS: Record<string, string> = {
   source: 'admin.broadcasts.filterGroups.source',
   tariff: 'admin.broadcasts.filterGroups.tariff',
   email: 'admin.broadcasts.filterGroups.email',
+  client: 'admin.broadcasts.clientFilter.title',
 };
 
 export default function AdminBroadcastCreate() {
   const { t } = useTranslation();
   const navigate = useNavigate();
   const queryClient = useQueryClient();
+  const { showToast } = useToast();
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   // Channel toggles (both can be enabled)
@@ -83,6 +86,10 @@ export default function AdminBroadcastCreate() {
 
   // Submitting state for dual send
   const [isSubmitting, setIsSubmitting] = useState(false);
+
+  // Client sync state
+  const [isSyncingClients, setIsSyncingClients] = useState(false);
+  const [clientSyncAt, setClientSyncAt] = useState<string | null>(null);
 
   // Preview modals
   const [showTelegramPreview, setShowTelegramPreview] = useState(false);
@@ -162,6 +169,17 @@ export default function AdminBroadcastCreate() {
     },
   });
 
+  // Initialize clientSyncAt from filters data (pick first non-null last_sync_at)
+  useEffect(() => {
+    if (filtersData?.client_filters) {
+      const syncAt =
+        filtersData.client_filters.find((cf) => cf.last_sync_at != null)?.last_sync_at ?? null;
+      if (syncAt !== null) {
+        setClientSyncAt(syncAt);
+      }
+    }
+  }, [filtersData]);
+
   // Group Telegram filters
   const groupedTelegramFilters = useMemo(() => {
     if (!filtersData) return {};
@@ -182,6 +200,15 @@ export default function AdminBroadcastCreate() {
       if (!groups[group]) groups[group] = [];
       groups[group].push(f);
     });
+
+    if (filtersData.client_filters && filtersData.client_filters.length > 0) {
+      groups['client'] = filtersData.client_filters.map((cf) => ({
+        key: `client:${cf.app_name}`,
+        label: cf.app_name,
+        count: cf.recipient_count,
+        group: 'client',
+      }));
+    }
 
     return groups;
   }, [filtersData]);
@@ -240,6 +267,27 @@ export default function AdminBroadcastCreate() {
     setEmailTarget(filterKey);
     setShowEmailFilters(false);
     emailPreviewMutation.mutate(filterKey);
+  };
+
+  // Sync client apps from panel
+  const handleSyncClients = async () => {
+    if (isSyncingClients) return;
+    setIsSyncingClients(true);
+    try {
+      const result = await adminBroadcastsApi.syncClients();
+      setClientSyncAt(result.last_sync_at);
+      queryClient.invalidateQueries({ queryKey: ['admin', 'broadcasts', 'filters'] });
+    } catch (err: unknown) {
+      const axiosErr = err as { response?: { status?: number } };
+      if (axiosErr?.response?.status === 409) {
+        showToast({
+          type: 'error',
+          message: t('admin.broadcasts.clientFilter.alreadyRunning'),
+        });
+      }
+    } finally {
+      setIsSyncingClients(false);
+    }
   };
 
   // Handle file selection
@@ -612,6 +660,27 @@ export default function AdminBroadcastCreate() {
             groupedTelegramFilters,
             filtersLoading,
           )}
+
+          {/* Client sync button */}
+          <div className="flex items-center gap-3">
+            <button
+              type="button"
+              onClick={handleSyncClients}
+              disabled={isSyncingClients}
+              className="flex items-center gap-2 rounded-lg border border-dark-700 bg-dark-800 px-3 py-2 text-sm text-dark-300 transition-colors hover:border-dark-600 hover:text-white disabled:cursor-not-allowed disabled:opacity-50"
+            >
+              <RefreshIcon spinning={isSyncingClients} />
+              {isSyncingClients
+                ? t('admin.broadcasts.clientFilter.syncing')
+                : t('admin.broadcasts.clientFilter.refresh')}
+            </button>
+            {clientSyncAt && (
+              <span className="text-xs text-dark-400">
+                {t('admin.broadcasts.clientFilter.updatedAt')}:{' '}
+                {new Date(clientSyncAt).toLocaleString()}
+              </span>
+            )}
+          </div>
 
           {/* Message text */}
           <div>

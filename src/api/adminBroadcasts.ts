@@ -17,10 +17,27 @@ export interface TariffFilter {
   count: number;
 }
 
+export interface ClientFilter {
+  app_name: string;
+  recipient_count: number;
+  last_sync_at: string | null;
+}
+
 export interface BroadcastFiltersResponse {
   filters: BroadcastFilter[];
   tariff_filters: TariffFilter[];
   custom_filters: BroadcastFilter[];
+  client_filters?: ClientFilter[];
+}
+
+export interface SyncClientsResult {
+  synced: {
+    devices: number;
+    users: number;
+    apps: number;
+    unknown: number;
+  };
+  last_sync_at: string | null;
 }
 
 export interface EmailFiltersResponse {
@@ -234,6 +251,14 @@ export const adminBroadcastsApi = {
   // Stop broadcast
   stop: async (id: number): Promise<Broadcast> => {
     const response = await apiClient.post<Broadcast>(`/cabinet/admin/broadcasts/${id}/stop`);
+    return response.data;
+  },
+
+  // Sync client apps from panel HWID devices
+  syncClients: async (): Promise<SyncClientsResult> => {
+    const response = await apiClient.post<SyncClientsResult>(
+      '/cabinet/admin/broadcasts/clients/sync',
+    );
     return response.data;
   },
 

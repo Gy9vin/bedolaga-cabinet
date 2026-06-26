@@ -2024,7 +2024,15 @@
       "categoryNews": "Новости",
       "categoryPromo": "Промо",
       "categorySystem": "Системные",
-      "stopping": "Останавливается…"
+      "stopping": "Останавливается…",
+      "clientFilter": {
+        "title": "По клиенту",
+        "refresh": "Обновить список клиентов",
+        "updatedAt": "Обновлено",
+        "syncing": "Синхронизация…",
+        "alreadyRunning": "Синхронизация уже выполняется",
+        "recipients": "получателей"
+      }
     },
     "pinnedMessages": {
       "title": "Закреплённые сообщения",

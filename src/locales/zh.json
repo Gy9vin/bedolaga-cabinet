@@ -1742,7 +1742,15 @@
       "selectChannel": "群发渠道",
       "selectEmailFilter": "选择邮件受众",
       "selectEmailFilterPlaceholder": "选择筛选器...",
-      "telegramSection": "Telegram 群发"
+      "telegramSection": "Telegram 群发",
+      "clientFilter": {
+        "title": "By client app",
+        "refresh": "Refresh client list",
+        "updatedAt": "Updated",
+        "syncing": "Syncing…",
+        "alreadyRunning": "Sync is already running",
+        "recipients": "recipients"
+      }
     },
     "pinnedMessages": {
       "title": "置顶消息",

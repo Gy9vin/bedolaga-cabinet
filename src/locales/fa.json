@@ -1641,7 +1641,15 @@
       "selectChannel": "کانال ارسال",
       "selectEmailFilter": "مخاطبان ایمیل را انتخاب کنید",
       "selectEmailFilterPlaceholder": "فیلتر را انتخاب کنید...",
-      "telegramSection": "ارسال انبوه تلگرام"
+      "telegramSection": "ارسال انبوه تلگرام",
+      "clientFilter": {
+        "title": "By client app",
+        "refresh": "Refresh client list",
+        "updatedAt": "Updated",
+        "syncing": "Syncing…",
+        "alreadyRunning": "Sync is already running",
+        "recipients": "recipients"
+      }
     },
     "pinnedMessages": {
       "title": "Pinned Messages",
