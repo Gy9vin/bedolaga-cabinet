@@ -20,6 +20,7 @@ import { formatUptime } from '../utils/format';
 import { getFlagEmoji } from '../utils/subscriptionHelpers';
 import Twemoji from 'react-twemoji';
 import { StatCard } from '../components/stats';
+import { ClientAppBarChart } from '../components/admin/ClientAppBarChart';
 import {
   ServerIcon,
   ChartIcon,
@@ -833,6 +834,14 @@ function OverviewTab({
             {devicesStats.total_hwid_devices} ({devicesStats.average_devices_per_user.toFixed(1)}/
             {t('admin.remnawave.overview.perUser', 'юзер')})
           </h3>
+          {devicesStats.by_app.length > 0 && (
+            <div className="mb-3">
+              <ClientAppBarChart
+                title={t('admin.remnawave.overview.byApp', 'По приложениям')}
+                data={devicesStats.by_app}
+              />
+            </div>
+          )}
           <div className="grid gap-3 lg:grid-cols-3">
             <BreakdownCard
               title={t('admin.remnawave.overview.byPlatform', 'По платформам')}
