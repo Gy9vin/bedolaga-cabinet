@@ -165,17 +165,6 @@ export default function Subscriptions() {
             activateTrialMutation={activateTrialMutation}
             trialError={trialError}
           />
-          {/* Новый пользователь не обязан активировать триал, чтобы попасть
-              в витрину — даём явный путь к покупке подписки. Раньше при
-              доступном триале это был единственный экран без кнопки «Купить»
-              (Telegram-баг #605056/#605063). */}
-          <button
-            onClick={() => navigate('/subscription/purchase')}
-            className="flex w-full items-center justify-center gap-2 rounded-xl bg-accent-500 px-6 py-3 text-sm font-semibold text-on-accent transition-colors hover:bg-accent-600"
-          >
-            <PlusIcon className="h-5 w-5" />
-            {t('subscriptions.browsePlans', 'Посмотреть тарифы и купить подписку')}
-          </button>
         </div>
       )}
       {hasNoSubscriptions && !trialLoading && !trialInfo?.is_available && (
