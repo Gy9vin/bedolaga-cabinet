@@ -380,6 +380,77 @@ export function SubscriptionTab(props: SubscriptionTabProps) {
             </div>
           </div>
 
+          {/* Autopay Status */}
+          <div className="rounded-xl bg-dark-800/50 p-4">
+            <div className="mb-3 text-sm font-medium text-dark-200">
+              {t('admin.users.detail.autopay.title')}
+            </div>
+            <div className="grid grid-cols-2 gap-3">
+              <div>
+                <div className="text-xs text-dark-500">
+                  {t('admin.users.detail.autopay.status')}
+                </div>
+                <div className="flex items-center gap-2">
+                  {selectedSub.autopay_enabled ? (
+                    <span className="rounded-full border border-success-500/30 bg-success-500/20 px-2 py-0.5 text-xs font-medium text-success-400">
+                      {t('admin.users.detail.autopay.enabled')}
+                    </span>
+                  ) : (
+                    <span className="rounded-full border border-dark-500 bg-dark-600 px-2 py-0.5 text-xs font-medium text-dark-400">
+                      {t('admin.users.detail.autopay.disabled')}
+                    </span>
+                  )}
+                  {selectedSub.autopay_enabled && selectedSub.autopay_days_before != null && (
+                    <span className="text-xs text-dark-400">
+                      {t('admin.users.detail.autopay.daysBefore', {
+                        days: selectedSub.autopay_days_before,
+                      })}
+                    </span>
+                  )}
+                </div>
+              </div>
+              <div>
+                <div className="text-xs text-dark-500">
+                  {t('admin.users.detail.autopay.lastResult')}
+                </div>
+                <div className="text-sm text-dark-200">
+                  {selectedSub.last_autopay_status === 'success' ? (
+                    <span className="text-success-400">
+                      ✅{' '}
+                      {t('admin.users.detail.autopay.renewed', {
+                        date: formatDate(selectedSub.last_autopay_renewed_at ?? null),
+                        days: selectedSub.last_autopay_period_days ?? '',
+                      })}
+                    </span>
+                  ) : selectedSub.last_autopay_status === 'insufficient_balance' ? (
+                    <span className="text-warning-400">
+                      ⚠️ {t('admin.users.detail.autopay.insufficientBalance')}
+                      {selectedSub.last_autopay_attempt_at && (
+                        <span className="ml-1 text-xs text-dark-500">
+                          {formatDate(selectedSub.last_autopay_attempt_at)}
+                        </span>
+                      )}
+                    </span>
+                  ) : selectedSub.last_autopay_status === 'error' ||
+                    selectedSub.last_autopay_status === 'skipped' ? (
+                    <span className="text-error-400">
+                      ❌ {t('admin.users.detail.autopay.error')}
+                      {selectedSub.last_autopay_attempt_at && (
+                        <span className="ml-1 text-xs text-dark-500">
+                          {formatDate(selectedSub.last_autopay_attempt_at)}
+                        </span>
+                      )}
+                    </span>
+                  ) : (
+                    <span className="text-dark-500">
+                      {t('admin.users.detail.autopay.noAttempts')}
+                    </span>
+                  )}
+                </div>
+              </div>
+            </div>
+          </div>
+
           {/* Traffic Packages */}
           {selectedSub.traffic_purchases && selectedSub.traffic_purchases.length > 0 && (
             <div className="rounded-xl bg-dark-800/50 p-4">

@@ -3575,6 +3575,18 @@
           "standard": "Standard price (×1)",
           "title": "Price Multiplier",
           "updated": "Price multiplier updated"
+        },
+        "autopay": {
+          "title": "Auto-renewal",
+          "status": "Status",
+          "enabled": "Enabled",
+          "disabled": "Disabled",
+          "daysBefore": "{{days}} days before",
+          "lastResult": "Last attempt",
+          "renewed": "✅ Renewed {{date}} for {{days}} days",
+          "insufficientBalance": "Insufficient balance",
+          "error": "Error",
+          "noAttempts": "— no attempts"
         }
       },
       "notFound": "User not found",

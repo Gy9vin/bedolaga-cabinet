@@ -3157,6 +3157,18 @@
           "unlinkEmail": "Unlink email",
           "unlinkTelegram": "Unlink Telegram",
           "usernamePlaceholder": "@username (optional)"
+        },
+        "autopay": {
+          "title": "Auto-renewal",
+          "status": "Status",
+          "enabled": "Enabled",
+          "disabled": "Disabled",
+          "daysBefore": "{{days}} days before",
+          "lastResult": "Last attempt",
+          "renewed": "✅ Renewed {{date}} for {{days}} days",
+          "insufficientBalance": "Insufficient balance",
+          "error": "Error",
+          "noAttempts": "— no attempts"
         }
       },
       "notFound": "未找到用户",

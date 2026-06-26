@@ -22,6 +22,11 @@ export interface UserSubscriptionInfo {
   tariff_id: number | null;
   tariff_name: string | null;
   autopay_enabled: boolean;
+  autopay_days_before?: number | null;
+  last_autopay_attempt_at?: string | null;
+  last_autopay_status?: string | null;
+  last_autopay_renewed_at?: string | null;
+  last_autopay_period_days?: number | null;
   is_active: boolean;
   days_remaining: number;
   purchased_traffic_gb: number;
