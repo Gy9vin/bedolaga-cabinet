@@ -1317,7 +1317,8 @@
       "news": "Новости",
       "bulkActions": "Массовые действия",
       "infoPages": "Инфо-страницы",
-      "legalPages": "Системные страницы"
+      "legalPages": "Системные страницы",
+      "googleMigration": "Миграция Google"
     },
     "panel": {
       "title": "Панель администратора",
@@ -5974,5 +5975,17 @@
     "title": "Чем мы можем помочь?",
     "topUpBalance": "Пополнить баланс",
     "topUpBalanceDesc": "Выбрать способ оплаты"
+  },
+  "googleMigration": {
+    "title": "Миграция Google",
+    "description": "Рассылка пользователям с входом через Google: письмо с долгоживущей ссылкой на задание пароля перед отключением Google-входа.",
+    "total": "Всего с Google",
+    "googleOnly": "Только Google",
+    "withPassword": "Уже с паролем",
+    "sendButton": "Отправить инвайты всем",
+    "sending": "Идёт рассылка…",
+    "inProgress": "Идёт рассылка: {{sent}}/{{total}} (ошибок {{failed}})",
+    "lastRun": "Последняя рассылка: отправлено {{sent}}, ошибок {{failed}}",
+    "confirm": "Отправить письмо с ссылкой на задание пароля всем ({{count}})?"
   }
 }

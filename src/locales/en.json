@@ -1295,7 +1295,8 @@
       "news": "News",
       "bulkActions": "Bulk Actions",
       "infoPages": "Info Pages",
-      "legalPages": "System pages"
+      "legalPages": "System pages",
+      "googleMigration": "Google Migration"
     },
     "panel": {
       "title": "Admin Panel",
@@ -5412,5 +5413,17 @@
     "title": "How can we help?",
     "topUpBalance": "Top Up Balance",
     "topUpBalanceDesc": "Choose a payment method"
+  },
+  "googleMigration": {
+    "title": "Google Migration",
+    "description": "Send invitation emails to Google-only users with a long-lived link to set a password before Google login is disabled.",
+    "total": "Total with Google",
+    "googleOnly": "Google only",
+    "withPassword": "Already have password",
+    "sendButton": "Send invites to all",
+    "sending": "Sending in progress…",
+    "inProgress": "Sending in progress: {{sent}}/{{total}} (errors: {{failed}})",
+    "lastRun": "Last run: sent {{sent}}, errors {{failed}}",
+    "confirm": "Send a password setup link to all ({{count}}) users?"
   }
 }

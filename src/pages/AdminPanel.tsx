@@ -321,6 +321,12 @@ const sections: AdminSection[] = [
         to: '/admin/updates',
         permission: 'updates:read',
       },
+      {
+        name: 'admin.nav.googleMigration',
+        icon: 'mail',
+        to: '/admin/google-migration',
+        permission: 'admin',
+      },
     ],
   },
   {

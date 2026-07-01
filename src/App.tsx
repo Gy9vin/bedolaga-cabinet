@@ -146,6 +146,7 @@ const AdminPolicies = lazyWithRetry(() => import('./pages/AdminPolicies'));
 const AdminPolicyEdit = lazyWithRetry(() => import('./pages/AdminPolicyEdit'));
 const AdminAuditLog = lazyWithRetry(() => import('./pages/AdminAuditLog'));
 const AdminHappManagement = lazyWithRetry(() => import('./pages/AdminHappManagement'));
+const AdminGoogleMigration = lazyWithRetry(() => import('./pages/AdminGoogleMigration'));
 const AdminLandings = lazyWithRetry(() => import('./pages/AdminLandings'));
 const AdminLandingEditor = lazyWithRetry(() => import('./pages/AdminLandingEditor'));
 const AdminLandingStats = lazyWithRetry(() => import('./pages/AdminLandingStats'));
@@ -1413,6 +1414,17 @@ function App() {
             <PermissionRoute permission="admin">
               <LazyPage>
                 <AdminHappManagement />
+              </LazyPage>
+            </PermissionRoute>
+          }
+        />
+
+        <Route
+          path="/admin/google-migration"
+          element={
+            <PermissionRoute permission="admin">
+              <LazyPage>
+                <AdminGoogleMigration />
               </LazyPage>
             </PermissionRoute>
           }
