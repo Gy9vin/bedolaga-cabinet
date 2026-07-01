@@ -47,4 +47,11 @@ export const adminGoogleMigrationApi = {
     );
     return data;
   },
+  sendTest: async (email: string): Promise<{ found: boolean; sent: boolean }> => {
+    const { data } = await apiClient.post<{ found: boolean; sent: boolean }>(
+      '/cabinet/admin/google-migration/send-test',
+      { email },
+    );
+    return data;
+  },
 };

@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useNavigate } from 'react-router';
 import { useTranslation } from 'react-i18next';
@@ -28,6 +29,9 @@ export default function AdminGoogleMigration() {
     mutationFn: adminGoogleMigrationApi.sendInvites,
     onSuccess: () => qc.invalidateQueries({ queryKey: ['google-migration-status'] }),
   });
+
+  const [testEmail, setTestEmail] = useState('');
+  const sendTest = useMutation({ mutationFn: adminGoogleMigrationApi.sendTest });
 
   const stats = data?.stats;
   const run = data?.run;
@@ -92,6 +96,40 @@ export default function AdminGoogleMigration() {
           >
             {run?.running ? t('googleMigration.sending') : t('googleMigration.sendButton')}
           </button>
+
+          {/* Test send to one email */}
+          <div className="rounded-xl border border-dark-700 bg-dark-800/50 p-3">
+            <div className="mb-2 text-sm font-medium text-dark-100">
+              {t('googleMigration.testTitle')}
+            </div>
+            <div className="flex flex-wrap items-center gap-2">
+              <input
+                type="email"
+                value={testEmail}
+                onChange={(e) => setTestEmail(e.target.value)}
+                placeholder={t('googleMigration.testPlaceholder')}
+                className="min-w-[220px] flex-1 rounded-lg border border-dark-700 bg-dark-800 px-3 py-2 text-sm text-dark-100 outline-none focus:border-accent-500"
+              />
+              <button
+                className="rounded-lg border border-dark-700 bg-dark-800 px-4 py-2 text-sm text-dark-100 transition-colors hover:border-dark-600 disabled:cursor-not-allowed disabled:opacity-50"
+                disabled={sendTest.isPending || !testEmail.trim()}
+                onClick={() => sendTest.mutate(testEmail.trim())}
+              >
+                {sendTest.isPending
+                  ? t('googleMigration.sending')
+                  : t('googleMigration.testButton')}
+              </button>
+            </div>
+            {sendTest.data && (
+              <div className="mt-2 text-xs text-dark-300">
+                {sendTest.data.sent
+                  ? t('googleMigration.testSent', { email: testEmail.trim() })
+                  : sendTest.data.found
+                    ? t('googleMigration.testFailed')
+                    : t('googleMigration.testNotFound')}
+              </div>
+            )}
+          </div>
 
           {/* At-risk list */}
           <h2 className="mb-2 mt-8 text-lg font-semibold text-dark-100">

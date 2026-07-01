@@ -5427,6 +5427,12 @@
     "confirm": "Send a password setup link to all ({{count}}) users?",
     "atRiskTitle": "Haven't set a password",
     "noTelegram": "no Telegram",
-    "blockedBot": "blocked the bot"
+    "blockedBot": "blocked the bot",
+    "testTitle": "Test: send to a single email",
+    "testPlaceholder": "email of an existing user",
+    "testButton": "Send test",
+    "testSent": "Test email sent to {{email}}",
+    "testFailed": "User found, but email was not sent (check SMTP)",
+    "testNotFound": "No user found with this email"
   }
 }
