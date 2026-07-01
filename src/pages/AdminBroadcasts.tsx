@@ -1,8 +1,8 @@
-import { useState } from 'react';
+import { useState, useCallback } from 'react';
 import { useNavigate } from 'react-router';
 import { useQuery } from '@tanstack/react-query';
 import { useTranslation } from 'react-i18next';
-import { adminBroadcastsApi } from '../api/adminBroadcasts';
+import { adminBroadcastsApi, BlockedActiveUser } from '../api/adminBroadcasts';
 import { usePlatform } from '../platform/hooks/usePlatform';
 import {
   BackIcon,
@@ -72,6 +72,41 @@ export default function AdminBroadcasts() {
   const [page, setPage] = useState(0);
   const limit = 20;
 
+  const [expandedBlocked, setExpandedBlocked] = useState<Set<number>>(new Set());
+  const [blockedData, setBlockedData] = useState<
+    Record<number, { count: number; users: BlockedActiveUser[] }>
+  >({});
+  const [blockedLoading, setBlockedLoading] = useState<Set<number>>(new Set());
+
+  const toggleBlockedActive = useCallback(
+    async (broadcastId: number, e: React.MouseEvent) => {
+      e.stopPropagation();
+      if (expandedBlocked.has(broadcastId)) {
+        setExpandedBlocked((prev) => {
+          const next = new Set(prev);
+          next.delete(broadcastId);
+          return next;
+        });
+        return;
+      }
+      setExpandedBlocked((prev) => new Set([...prev, broadcastId]));
+      if (!blockedData[broadcastId]) {
+        setBlockedLoading((prev) => new Set([...prev, broadcastId]));
+        try {
+          const data = await adminBroadcastsApi.getBlockedActive(broadcastId);
+          setBlockedData((prev) => ({ ...prev, [broadcastId]: data }));
+        } finally {
+          setBlockedLoading((prev) => {
+            const next = new Set(prev);
+            next.delete(broadcastId);
+            return next;
+          });
+        }
+      }
+    },
+    [expandedBlocked, blockedData],
+  );
+
   // Fetch broadcasts
   const { data, isLoading, refetch } = useQuery({
     queryKey: ['admin', 'broadcasts', 'list', page],
@@ -139,10 +174,10 @@ export default function AdminBroadcasts() {
       ) : (
         <div className="space-y-3">
           {broadcasts.map((broadcast) => (
-            <button
+            <div
               key={broadcast.id}
               onClick={() => navigate(`/admin/broadcasts/${broadcast.id}`)}
-              className="w-full rounded-xl border border-dark-700 bg-dark-800/50 p-4 text-left transition-all hover:border-dark-600 hover:bg-dark-800"
+              className="w-full cursor-pointer rounded-xl border border-dark-700 bg-dark-800/50 p-4 text-left transition-all hover:border-dark-600 hover:bg-dark-800"
             >
               <div className="flex items-start justify-between gap-4">
                 <div className="min-w-0 flex-1">
@@ -186,7 +221,68 @@ export default function AdminBroadcasts() {
                   </div>
                 )}
               </div>
-            </button>
+              {broadcast.blocked_count > 0 && (
+                <div className="mt-2 border-t border-dark-700 pt-2">
+                  <button
+                    onClick={(e) => toggleBlockedActive(broadcast.id, e)}
+                    className="flex items-center gap-1 text-xs text-warning-400 transition-colors hover:text-warning-300"
+                  >
+                    {expandedBlocked.has(broadcast.id) ? '▲' : '▼'}{' '}
+                    {t('admin.broadcasts.blockedActiveTitle')} ({broadcast.blocked_count})
+                  </button>
+                  {expandedBlocked.has(broadcast.id) && (
+                    <div className="mt-2">
+                      {blockedLoading.has(broadcast.id) ? (
+                        <p className="text-xs text-dark-400">{t('common.loading')}</p>
+                      ) : blockedData[broadcast.id]?.users.length ? (
+                        <div className="overflow-x-auto">
+                          <table className="w-full text-xs">
+                            <thead>
+                              <tr className="border-b border-dark-700 text-dark-400">
+                                <th className="py-1 pr-2 text-left font-medium">
+                                  {t('admin.broadcasts.colUser')}
+                                </th>
+                                <th className="py-1 pr-2 text-left font-medium">
+                                  {t('admin.broadcasts.colEmail')}
+                                </th>
+                                <th className="py-1 pr-2 text-left font-medium">
+                                  {t('admin.broadcasts.colTariff')}
+                                </th>
+                                <th className="py-1 pr-2 text-left font-medium">
+                                  {t('admin.broadcasts.colEnd')}
+                                </th>
+                                <th className="py-1 text-left font-medium">
+                                  {t('admin.broadcasts.colDaysLeft')}
+                                </th>
+                              </tr>
+                            </thead>
+                            <tbody>
+                              {blockedData[broadcast.id].users.map((u) => (
+                                <tr key={u.telegram_id} className="border-b border-dark-700/50">
+                                  <td className="py-1 pr-2 text-dark-200">
+                                    {u.username ? `@${u.username}` : String(u.telegram_id)}
+                                  </td>
+                                  <td className="py-1 pr-2 text-dark-300">{u.email ?? '—'}</td>
+                                  <td className="py-1 pr-2 text-dark-300">
+                                    {u.tariff_name ?? '—'}
+                                  </td>
+                                  <td className="py-1 pr-2 text-dark-300">
+                                    {new Date(u.end_date).toLocaleDateString()}
+                                  </td>
+                                  <td className="py-1 text-warning-400">{u.days_left}</td>
+                                </tr>
+                              ))}
+                            </tbody>
+                          </table>
+                        </div>
+                      ) : (
+                        <p className="text-xs text-dark-400">{t('common.noData')}</p>
+                      )}
+                    </div>
+                  )}
+                </div>
+              )}
+            </div>
           ))}
         </div>
       )}

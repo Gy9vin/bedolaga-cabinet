@@ -161,6 +161,20 @@ export interface MediaUploadResponse {
   media_url: string;
 }
 
+export interface BlockedActiveUser {
+  telegram_id: number;
+  username: string | null;
+  email: string | null;
+  tariff_name: string | null;
+  end_date: string;
+  days_left: number;
+}
+
+export interface BlockedActiveResponse {
+  count: number;
+  users: BlockedActiveUser[];
+}
+
 export const adminBroadcastsApi = {
   // Get all available filters with counts (for Telegram)
   getFilters: async (): Promise<BroadcastFiltersResponse> => {
@@ -258,6 +272,14 @@ export const adminBroadcastsApi = {
   syncClients: async (): Promise<SyncClientsResult> => {
     const response = await apiClient.post<SyncClientsResult>(
       '/cabinet/admin/broadcasts/clients/sync',
+    );
+    return response.data;
+  },
+
+  // Get users who blocked bot but still have active subscription
+  getBlockedActive: async (id: number): Promise<BlockedActiveResponse> => {
+    const response = await apiClient.get<BlockedActiveResponse>(
+      `/cabinet/admin/broadcasts/${id}/blocked-active`,
     );
     return response.data;
   },

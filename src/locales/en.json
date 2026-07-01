@@ -2006,7 +2006,13 @@
         "syncing": "Syncing…",
         "alreadyRunning": "Sync is already running",
         "recipients": "recipients"
-      }
+      },
+      "blockedActiveTitle": "Blocked with active subscription",
+      "colUser": "User",
+      "colEmail": "Email",
+      "colTariff": "Tariff",
+      "colEnd": "Expires",
+      "colDaysLeft": "Days left"
     },
     "pinnedMessages": {
       "title": "Pinned Messages",

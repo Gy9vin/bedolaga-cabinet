@@ -2033,7 +2033,13 @@
         "syncing": "Синхронизация…",
         "alreadyRunning": "Синхронизация уже выполняется",
         "recipients": "получателей"
-      }
+      },
+      "blockedActiveTitle": "Заблокировали с активной подпиской",
+      "colUser": "Пользователь",
+      "colEmail": "Email",
+      "colTariff": "Тариф",
+      "colEnd": "Действует до",
+      "colDaysLeft": "Осталось дней"
     },
     "pinnedMessages": {
       "title": "Закреплённые сообщения",
