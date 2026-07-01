@@ -106,12 +106,12 @@ export default function AdminGoogleMigration() {
                 <span className="text-dark-100">{u.email}</span>
                 <span className="flex gap-2">
                   {!u.has_telegram && (
-                    <span className="rounded bg-dark-700 px-2 py-0.5 text-xs text-dark-300">
+                    <span className="rounded bg-amber-500/15 px-2 py-0.5 text-xs text-amber-300">
                       {t('googleMigration.noTelegram')}
                     </span>
                   )}
                   {u.blocked_bot && (
-                    <span className="rounded bg-dark-700 px-2 py-0.5 text-xs text-dark-400">
+                    <span className="rounded bg-red-500/15 px-2 py-0.5 text-xs text-red-300">
                       {t('googleMigration.blockedBot')}
                     </span>
                   )}
