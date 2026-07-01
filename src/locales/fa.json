@@ -528,7 +528,7 @@
     "currentTariff": "فعلی",
     "deleteAllDevices": "حذف همه",
     "deleteDevice": "حذف دستگاه",
-    "devicesFree": "دستگاه رایگان",
+    "devicesFree": "اشتراک پایه فقط شامل {{count}} دستگاه است",
     "from": "از",
     "month": "ماه",
     "myDevices": "دستگاه‌های من",

@@ -528,7 +528,7 @@
     "currentTariff": "当前",
     "deleteAllDevices": "全部删除",
     "deleteDevice": "删除设备",
-    "devicesFree": "免费设备",
+    "devicesFree": "基础订阅仅包含 {{count}} 台设备",
     "from": "起",
     "month": "月",
     "myDevices": "我的设备",
