@@ -173,6 +173,7 @@ export interface BlockedActiveUser {
 export interface BlockedActiveResponse {
   count: number;
   users: BlockedActiveUser[];
+  recorded: boolean;
 }
 
 export const adminBroadcastsApi = {

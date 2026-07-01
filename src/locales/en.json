@@ -2007,7 +2007,10 @@
         "alreadyRunning": "Sync is already running",
         "recipients": "recipients"
       },
-      "blockedActiveTitle": "Blocked with active subscription",
+      "blockedActiveTitle": "With active subscription",
+      "blockedBotToggle": "Blocked the bot",
+      "blockedNotRecorded": "Blocker list not saved (broadcast predates the update)",
+      "blockedNoActiveSubs": "No active subscriptions among the blockers",
       "colUser": "User",
       "colEmail": "Email",
       "colTariff": "Tariff",

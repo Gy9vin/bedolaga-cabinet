@@ -2034,7 +2034,10 @@
         "alreadyRunning": "Синхронизация уже выполняется",
         "recipients": "получателей"
       },
-      "blockedActiveTitle": "Заблокировали с активной подпиской",
+      "blockedActiveTitle": "С активной подпиской",
+      "blockedBotToggle": "Заблокировавшие бота",
+      "blockedNotRecorded": "Список заблокировавших не сохранён (рассылка до обновления)",
+      "blockedNoActiveSubs": "Среди заблокировавших нет активных подписок",
       "colUser": "Пользователь",
       "colEmail": "Email",
       "colTariff": "Тариф",

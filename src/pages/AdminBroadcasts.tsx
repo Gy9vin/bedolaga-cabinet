@@ -2,7 +2,7 @@ import { useState, useCallback } from 'react';
 import { useNavigate } from 'react-router';
 import { useQuery } from '@tanstack/react-query';
 import { useTranslation } from 'react-i18next';
-import { adminBroadcastsApi, BlockedActiveUser } from '../api/adminBroadcasts';
+import { adminBroadcastsApi, BlockedActiveResponse } from '../api/adminBroadcasts';
 import { usePlatform } from '../platform/hooks/usePlatform';
 import {
   BackIcon,
@@ -73,9 +73,7 @@ export default function AdminBroadcasts() {
   const limit = 20;
 
   const [expandedBlocked, setExpandedBlocked] = useState<Set<number>>(new Set());
-  const [blockedData, setBlockedData] = useState<
-    Record<number, { count: number; users: BlockedActiveUser[] }>
-  >({});
+  const [blockedData, setBlockedData] = useState<Record<number, BlockedActiveResponse>>({});
   const [blockedLoading, setBlockedLoading] = useState<Set<number>>(new Set());
 
   const toggleBlockedActive = useCallback(
@@ -228,7 +226,7 @@ export default function AdminBroadcasts() {
                     className="flex items-center gap-1 text-xs text-warning-400 transition-colors hover:text-warning-300"
                   >
                     {expandedBlocked.has(broadcast.id) ? '▲' : '▼'}{' '}
-                    {t('admin.broadcasts.blockedActiveTitle')} ({broadcast.blocked_count})
+                    {t('admin.broadcasts.blockedBotToggle')} ({broadcast.blocked_count})
                   </button>
                   {expandedBlocked.has(broadcast.id) && (
                     <div className="mt-2">
@@ -236,6 +234,10 @@ export default function AdminBroadcasts() {
                         <p className="text-xs text-dark-400">{t('common.loading')}</p>
                       ) : blockedData[broadcast.id]?.users.length ? (
                         <div className="overflow-x-auto">
+                          <p className="mb-1 text-xs text-warning-400">
+                            {t('admin.broadcasts.blockedActiveTitle')}:{' '}
+                            {blockedData[broadcast.id].count}
+                          </p>
                           <table className="w-full text-xs">
                             <thead>
                               <tr className="border-b border-dark-700 text-dark-400">
@@ -275,8 +277,14 @@ export default function AdminBroadcasts() {
                             </tbody>
                           </table>
                         </div>
+                      ) : blockedData[broadcast.id] && !blockedData[broadcast.id].recorded ? (
+                        <p className="text-xs text-dark-400">
+                          {t('admin.broadcasts.blockedNotRecorded')}
+                        </p>
                       ) : (
-                        <p className="text-xs text-dark-400">{t('common.noData')}</p>
+                        <p className="text-xs text-dark-400">
+                          {t('admin.broadcasts.blockedNoActiveSubs')}
+                        </p>
                       )}
                     </div>
                   )}
