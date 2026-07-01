@@ -124,9 +124,11 @@ export default function AdminGoogleMigration() {
               <div className="mt-2 text-xs text-dark-300">
                 {sendTest.data.sent
                   ? t('googleMigration.testSent', { email: testEmail.trim() })
-                  : sendTest.data.found
-                    ? t('googleMigration.testFailed')
-                    : t('googleMigration.testNotFound')}
+                  : !sendTest.data.found
+                    ? t('googleMigration.testNotFound')
+                    : sendTest.data.status && sendTest.data.status !== 'active'
+                      ? t('googleMigration.testInactive', { status: sendTest.data.status })
+                      : t('googleMigration.testFailed')}
               </div>
             )}
           </div>

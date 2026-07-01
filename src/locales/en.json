@@ -5433,6 +5433,7 @@
     "testButton": "Send test",
     "testSent": "Test email sent to {{email}}",
     "testFailed": "User found, but email was not sent (check SMTP)",
-    "testNotFound": "No user found with this email"
+    "testNotFound": "No user found with this email",
+    "testInactive": "Account is inactive ({{status}}) — they won't be able to log in with a password"
   }
 }
