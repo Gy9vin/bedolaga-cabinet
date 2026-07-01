@@ -19,6 +19,11 @@ export default function AdminGoogleMigration() {
     refetchInterval: (query) => (query.state.data?.run.running ? 2000 : false),
   });
 
+  const atRisk = useQuery({
+    queryKey: ['google-at-risk'],
+    queryFn: adminGoogleMigrationApi.getAtRisk,
+  });
+
   const send = useMutation({
     mutationFn: adminGoogleMigrationApi.sendInvites,
     onSuccess: () => qc.invalidateQueries({ queryKey: ['google-migration-status'] }),
@@ -87,6 +92,33 @@ export default function AdminGoogleMigration() {
           >
             {run?.running ? t('googleMigration.sending') : t('googleMigration.sendButton')}
           </button>
+
+          {/* At-risk list */}
+          <h2 className="mb-2 mt-8 text-lg font-semibold text-dark-100">
+            {t('googleMigration.atRiskTitle')} ({atRisk.data?.count ?? 0})
+          </h2>
+          <div className="max-h-96 overflow-auto rounded-xl border border-dark-700 bg-dark-800/50">
+            {(atRisk.data?.users ?? []).map((u) => (
+              <div
+                key={u.id}
+                className="flex items-center justify-between border-b border-dark-700 px-3 py-2 text-sm last:border-b-0"
+              >
+                <span className="text-dark-100">{u.email}</span>
+                <span className="flex gap-2">
+                  {!u.has_telegram && (
+                    <span className="rounded bg-dark-700 px-2 py-0.5 text-xs text-dark-300">
+                      {t('googleMigration.noTelegram')}
+                    </span>
+                  )}
+                  {u.blocked_bot && (
+                    <span className="rounded bg-dark-700 px-2 py-0.5 text-xs text-dark-400">
+                      {t('googleMigration.blockedBot')}
+                    </span>
+                  )}
+                </span>
+              </div>
+            ))}
+          </div>
         </div>
       )}
     </div>

@@ -1,5 +1,13 @@
 import apiClient from './client';
 
+export interface GoogleAtRiskUser {
+  id: number;
+  email: string;
+  auth_type: string;
+  has_telegram: boolean;
+  blocked_bot: boolean;
+}
+
 export interface GoogleMigrationStats {
   total: number;
   google_only: number;
@@ -30,6 +38,12 @@ export const adminGoogleMigrationApi = {
   sendInvites: async (): Promise<{ started: boolean }> => {
     const { data } = await apiClient.post<{ started: boolean }>(
       '/cabinet/admin/google-migration/send',
+    );
+    return data;
+  },
+  getAtRisk: async (): Promise<{ count: number; users: GoogleAtRiskUser[] }> => {
+    const { data } = await apiClient.get<{ count: number; users: GoogleAtRiskUser[] }>(
+      '/cabinet/admin/google-migration/at-risk',
     );
     return data;
   },

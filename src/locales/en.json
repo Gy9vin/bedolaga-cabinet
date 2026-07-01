@@ -5424,6 +5424,9 @@
     "sending": "Sending in progress…",
     "inProgress": "Sending in progress: {{sent}}/{{total}} (errors: {{failed}})",
     "lastRun": "Last run: sent {{sent}}, errors {{failed}}",
-    "confirm": "Send a password setup link to all ({{count}}) users?"
+    "confirm": "Send a password setup link to all ({{count}}) users?",
+    "atRiskTitle": "Haven't set a password",
+    "noTelegram": "no Telegram",
+    "blockedBot": "blocked the bot"
   }
 }
