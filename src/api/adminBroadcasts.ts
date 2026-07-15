@@ -69,6 +69,8 @@ export interface CustomBroadcastButton {
   label: string;
   action_type: 'callback' | 'url';
   action_value: string;
+  /** Telegram custom emoji перед текстом кнопки (числовая строка custom_emoji_id) */
+  icon_custom_emoji_id?: string;
 }
 
 export interface BroadcastMedia {

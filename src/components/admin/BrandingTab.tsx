@@ -46,6 +46,11 @@ export function BrandingTab({ accentColor = '#3b82f6' }: BrandingTabProps) {
     queryFn: infoApi.getSupportHelperConfig,
   });
 
+  const { data: footerEnabled } = useQuery({
+    queryKey: ['footer-enabled'],
+    queryFn: brandingApi.getFooterEnabled,
+  });
+
   // Mutations
   const updateBrandingMutation = useMutation({
     mutationFn: brandingApi.updateName,
@@ -105,6 +110,13 @@ export function BrandingTab({ accentColor = '#3b82f6' }: BrandingTabProps) {
     mutationFn: (dev_mode: boolean) => infoApi.updateSupportHelperConfig({ dev_mode }),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['support-helper-config'] });
+    },
+  });
+
+  const updateFooterMutation = useMutation({
+    mutationFn: (enabled: boolean) => brandingApi.updateFooterEnabled(enabled),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['footer-enabled'] });
     },
   });
 
@@ -312,6 +324,25 @@ export function BrandingTab({ accentColor = '#3b82f6' }: BrandingTabProps) {
               />
             </div>
           )}
+
+          <div className="flex items-center justify-between rounded-xl bg-dark-700/30 p-4">
+            <div>
+              <span className="font-medium text-dark-100">
+                {t('admin.settings.legalFooter', 'Юридический футер')}
+              </span>
+              <p className="text-sm text-dark-400">
+                {t(
+                  'admin.settings.legalFooterDesc',
+                  'Ссылки на оферту/политику/рекурренты внизу страницы входа',
+                )}
+              </p>
+            </div>
+            <Toggle
+              checked={footerEnabled ?? true}
+              onChange={() => updateFooterMutation.mutate(!(footerEnabled ?? true))}
+              disabled={updateFooterMutation.isPending}
+            />
+          </div>
         </div>
       </div>
     </div>

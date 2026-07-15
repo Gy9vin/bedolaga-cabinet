@@ -168,7 +168,8 @@ export interface UserPanelInfo {
 
 export interface SubscriptionRequestRecord {
   id: number;
-  userUuid: string;
+  // Remnawave 2.8.0 renamed this panel field userUuid (uuid) -> userId (number).
+  userId: number;
   requestAt: string;
   requestIp: string | null;
   userAgent: string | null;
@@ -177,6 +178,23 @@ export interface SubscriptionRequestRecord {
 export interface SubscriptionRequestHistory {
   total: number;
   records: SubscriptionRequestRecord[];
+}
+
+export interface UserActivityItem {
+  type: string;
+  subtype: string | null;
+  source: string | null;
+  title: string | null;
+  amount_kopeks: number | null;
+  timestamp: string;
+  meta: Record<string, unknown> | null;
+}
+
+export interface UserActivityResponse {
+  items: UserActivityItem[];
+  total: number;
+  offset: number;
+  limit: number;
 }
 
 export interface UserNodeUsageItem {
@@ -730,6 +748,19 @@ export const adminUsersApi = {
     const response = await apiClient.get(`/cabinet/admin/users/${userId}/node-usage`, {
       params: subscriptionId != null ? { subscription_id: subscriptionId } : undefined,
     });
+    return response.data;
+  },
+
+  // Unified activity timeline (bot + cabinet actions)
+  getUserActivity: async (
+    userId: number,
+    offset = 0,
+    limit = 25,
+    types?: string,
+  ): Promise<UserActivityResponse> => {
+    const params: Record<string, unknown> = { offset, limit };
+    if (types) params.types = types;
+    const response = await apiClient.get(`/cabinet/admin/users/${userId}/activity`, { params });
     return response.data;
   },
 

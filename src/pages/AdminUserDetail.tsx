@@ -37,6 +37,7 @@ import {
   TelegramSmallIcon as TelegramIcon,
 } from '@/components/icons';
 import { AdminBackButton } from '../components/admin';
+import { ActivityTab } from '../components/admin/userDetail/ActivityTab';
 import { createNumberInputHandler, toNumber } from '../utils/inputHelpers';
 import { usePermissionStore } from '../store/permissions';
 import { MessageMediaGrid } from '../components/tickets/MessageMediaGrid';
@@ -236,7 +237,7 @@ export default function AdminUserDetail() {
   const [user, setUser] = useState<UserDetailResponse | null>(null);
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState<
-    'info' | 'subscription' | 'balance' | 'sync' | 'tickets' | 'gifts' | 'referrals'
+    'info' | 'subscription' | 'balance' | 'sync' | 'tickets' | 'gifts' | 'referrals' | 'activity'
   >('info');
   const [syncStatus, setSyncStatus] = useState<PanelSyncStatusResponse | null>(null);
   const [tariffs, setTariffs] = useState<UserAvailableTariff[]>([]);
@@ -1368,7 +1369,7 @@ export default function AdminUserDetail() {
     const k = 1024;
     const sizes = ['B', 'KB', 'MB', 'GB', 'TB', 'PB', 'EB'];
     const i = Math.min(Math.floor(Math.log(bytes) / Math.log(k)), sizes.length - 1);
-    return `${parseFloat((bytes / Math.pow(k, i)).toFixed(2))} ${sizes[i]}`;
+    return `${parseFloat((bytes / k ** i).toFixed(2))} ${sizes[i]}`;
   };
 
   const copyToClipboard = async (text: string) => {
@@ -1429,7 +1430,18 @@ export default function AdminUserDetail() {
         className="scrollbar-hide -mx-4 mb-6 flex gap-2 overflow-x-auto px-4 py-1"
         style={{ WebkitOverflowScrolling: 'touch' }}
       >
-        {(['info', 'subscription', 'balance', 'sync', 'tickets', 'gifts', 'referrals'] as const)
+        {(
+          [
+            'info',
+            'subscription',
+            'balance',
+            'sync',
+            'tickets',
+            'gifts',
+            'referrals',
+            'activity',
+          ] as const
+        )
           .filter((tab) => tab !== 'sync' || hasPermission('users:sync'))
           .map((tab) => (
             <button
@@ -1448,6 +1460,7 @@ export default function AdminUserDetail() {
               {tab === 'tickets' && t('admin.users.detail.tabs.tickets')}
               {tab === 'gifts' && t('admin.users.detail.tabs.gifts')}
               {tab === 'referrals' && t('admin.users.detail.tabs.referrals')}
+              {tab === 'activity' && t('admin.users.detail.tabs.activity')}
             </button>
           ))}
       </div>
@@ -4109,6 +4122,11 @@ export default function AdminUserDetail() {
               )}
             </div>
           </div>
+        )}
+
+        {/* Activity Tab */}
+        {activeTab === 'activity' && userId && (
+          <ActivityTab userId={userId} formatDate={formatDate} />
         )}
       </div>
 
