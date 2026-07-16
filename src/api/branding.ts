@@ -24,6 +24,10 @@ export interface EmailAuthEnabled {
   verification_enabled?: boolean;
 }
 
+export interface SubscriptionRevokeEnabled {
+  enabled: boolean;
+}
+
 export interface GiftEnabled {
   enabled: boolean;
 }
@@ -267,6 +271,19 @@ export const brandingApi = {
       return response.data;
     } catch {
       // If endpoint doesn't exist, default to enabled
+      return { enabled: true };
+    }
+  },
+
+  // Get subscription reissue (revoke) button enabled (public, no auth required)
+  getSubscriptionRevokeEnabled: async (): Promise<SubscriptionRevokeEnabled> => {
+    try {
+      const response = await apiClient.get<SubscriptionRevokeEnabled>(
+        '/cabinet/branding/subscription-revoke',
+      );
+      return response.data;
+    } catch {
+      // If endpoint doesn't exist (older backend), default to enabled
       return { enabled: true };
     }
   },

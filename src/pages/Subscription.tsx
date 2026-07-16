@@ -5,6 +5,7 @@ import { Navigate, useLocation, useNavigate, useParams } from 'react-router';
 import { AxiosError } from 'axios';
 import QRCode from 'qrcode';
 import { subscriptionApi } from '../api/subscription';
+import { brandingApi } from '../api/branding';
 import { promoApi } from '../api/promo';
 import { modemApi } from '../api/modem';
 import { DEVICE_ALIAS_MAX_LENGTH } from '../constants/devices';
@@ -263,6 +264,15 @@ export default function Subscription() {
 
   // Revoke (reissue) cooldown state
   const [revokeCooldown, setRevokeCooldown] = useState(0);
+
+  // Whether the reissue (revoke) button is enabled (SUBSCRIPTION_REVOKE_ENABLED).
+  // Hidden entirely when disabled so users can't tap a dead button.
+  const { data: revokeFlag } = useQuery({
+    queryKey: ['subscription-revoke-enabled'],
+    queryFn: brandingApi.getSubscriptionRevokeEnabled,
+    staleTime: 5 * 60 * 1000,
+  });
+  const revokeEnabled = revokeFlag?.enabled !== false;
   const [trafficData, setTrafficData] = useState<{
     traffic_used_gb: number;
     traffic_used_percent: number;
@@ -3115,6 +3125,7 @@ export default function Subscription() {
 
       {/* Reissue Subscription — standalone block, not dependent on device_limit */}
       {subscription &&
+        revokeEnabled &&
         (subscription.is_active || subscription.is_limited) &&
         !subscription.is_trial && (
           <div
