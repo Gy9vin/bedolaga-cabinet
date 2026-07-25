@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback, useRef, useMemo } from 'react';
+import { useQuery } from '@tanstack/react-query';
 import { useParams, useNavigate } from 'react-router';
 import { useTranslation } from 'react-i18next';
 import i18n from '../i18n';
@@ -43,6 +44,7 @@ import { usePermissionStore } from '../store/permissions';
 import { MessageMediaGrid } from '../components/tickets/MessageMediaGrid';
 import { linkifyText } from '../utils/linkify';
 import { getFlagEmoji } from '../utils/subscriptionHelpers';
+import { formatDetailed, formatCompact, humanizeDuration } from '../utils/subscriptionTimeline';
 
 // ============ Helpers ============
 
@@ -366,6 +368,14 @@ export default function AdminUserDetail() {
   const [mergeConfirmed, setMergeConfirmed] = useState(false);
 
   const userId = id ? parseInt(id, 10) : null;
+
+  // Subscription timeline
+  const subTimeline = useQuery({
+    queryKey: ['admin-subscription-timeline', userId],
+    queryFn: () => adminUsersApi.getSubscriptionTimeline(userId!),
+    enabled: !!userId,
+  });
+  const [timelineMode, setTimelineMode] = useState<'detailed' | 'compact'>('detailed');
 
   const loadUser = useCallback(async () => {
     if (!userId) return;
@@ -3479,6 +3489,96 @@ export default function AdminUserDetail() {
                   {t('admin.users.detail.sync.toPanel')}
                 </span>
               </button>
+            </div>
+
+            {/* История подписки */}
+            <div className="rounded-xl border border-dark-700 bg-dark-800/50 p-4">
+              <div className="mb-3 flex items-center justify-between gap-2">
+                <div className="text-sm font-medium text-dark-200">{t('timeline.title')}</div>
+                <div className="flex items-center gap-2">
+                  <div className="flex rounded-lg border border-dark-700 bg-dark-900/50 p-0.5">
+                    <button
+                      onClick={() => setTimelineMode('detailed')}
+                      className={`rounded-md px-3 py-1 text-xs font-medium transition-colors ${
+                        timelineMode === 'detailed'
+                          ? 'bg-accent-500/20 text-accent-300'
+                          : 'text-dark-400 hover:text-dark-200'
+                      }`}
+                    >
+                      {t('timeline.detailed')}
+                    </button>
+                    <button
+                      onClick={() => setTimelineMode('compact')}
+                      className={`rounded-md px-3 py-1 text-xs font-medium transition-colors ${
+                        timelineMode === 'compact'
+                          ? 'bg-accent-500/20 text-accent-300'
+                          : 'text-dark-400 hover:text-dark-200'
+                      }`}
+                    >
+                      {t('timeline.compact')}
+                    </button>
+                  </div>
+                  <button
+                    onClick={async () => {
+                      const events = subTimeline.data?.events ?? [];
+                      const text =
+                        timelineMode === 'detailed'
+                          ? formatDetailed(events, t)
+                          : formatCompact(events, t);
+                      await copyToClipboardUtil(text);
+                    }}
+                    className="rounded-lg border border-dark-700 bg-dark-700/50 px-3 py-1 text-xs text-dark-300 transition-colors hover:bg-dark-600"
+                  >
+                    {t('timeline.copy')}
+                  </button>
+                </div>
+              </div>
+
+              {(subTimeline.data?.events ?? []).length === 0 ? (
+                <div className="text-sm text-dark-500">{t('timeline.empty')}</div>
+              ) : (
+                <div className="space-y-3">
+                  {(subTimeline.data?.events ?? []).map((ev) => (
+                    <div
+                      key={ev.index}
+                      className="rounded-lg border border-dark-700/50 bg-dark-900/40 p-3"
+                    >
+                      <div className="flex items-start justify-between gap-2">
+                        <div className="text-xs text-dark-400">
+                          <span className="font-medium text-dark-200">{ev.index}. </span>
+                          {new Date(ev.date).toLocaleString()}
+                          {' — '}
+                          {t('timeline.tariffDays', { count: ev.period_days ?? 0 })}
+                        </div>
+                      </div>
+                      {ev.downtime_seconds ? (
+                        <div className="mt-1 text-xs text-warning-400">
+                          {t('timeline.downtime', {
+                            prevEnd: ev.prev_end ? new Date(ev.prev_end).toLocaleString() : '—',
+                            dur: humanizeDuration(ev.downtime_seconds, t),
+                          })}
+                        </div>
+                      ) : ev.carried_seconds ? (
+                        <div className="mt-1 text-xs text-success-400">
+                          {t('timeline.carried', {
+                            dur: humanizeDuration(ev.carried_seconds, t),
+                          })}
+                        </div>
+                      ) : null}
+                      <div className="mt-1 text-xs text-dark-400">
+                        {`→ ${t('timeline.end')}: `}
+                        {ev.new_end ? new Date(ev.new_end).toLocaleString() : '—'}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+
+              {subTimeline.data?.since && (
+                <div className="mt-3 text-xs text-dark-500">
+                  {t('timeline.since', { date: new Date(subTimeline.data.since).toLocaleString() })}
+                </div>
+              )}
             </div>
           </div>
         )}
