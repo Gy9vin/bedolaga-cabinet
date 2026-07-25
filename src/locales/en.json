@@ -5637,13 +5637,16 @@
     "tariffDays": "plan {{count}} d.",
     "until": "until",
     "end": "end",
-    "downtime": "Subscription had already expired ({{prevEnd}}) — downtime ~{{dur}}. Counter restarted.",
-    "carried": "Subscription was still active, remaining ~{{dur}} carried over.",
+    "downtime": "There was a gap of {{dur}}: the previous subscription ended {{prevEnd}} and payment came later — so the new days started fresh from the payment date instead of adding to the old ones.",
+    "carried": "Paid in advance — the remaining {{dur}} didn't burn, they were added on top.",
     "unitDays": "{{count}} d",
     "unitHours": "{{count}} h",
     "detailed": "Detailed",
     "compact": "Compact",
     "copy": "Copy",
-    "copied": "Copied"
+    "copied": "Copied",
+    "worksUntil": "Active until",
+    "daysShort": "d.",
+    "kind": { "purchase": "Payment", "renewal": "Renewal", "activation": "Trial" }
   }
 }
