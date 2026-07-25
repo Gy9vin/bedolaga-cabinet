@@ -5629,5 +5629,21 @@
     "offer": "Public Offer",
     "privacy": "Privacy Policy",
     "recurrent": "Recurring Payments"
+  },
+  "timeline": {
+    "title": "Subscription History",
+    "empty": "No history yet",
+    "since": "History tracked since {{date}}",
+    "tariffDays": "plan {{count}} d.",
+    "until": "until",
+    "end": "end",
+    "downtime": "Subscription had already expired ({{prevEnd}}) — downtime ~{{dur}}. Counter restarted.",
+    "carried": "Subscription was still active, remaining ~{{dur}} carried over.",
+    "unitDays": "{{count}} d",
+    "unitHours": "{{count}} h",
+    "detailed": "Detailed",
+    "compact": "Compact",
+    "copy": "Copy",
+    "copied": "Copied"
   }
 }

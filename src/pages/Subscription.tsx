@@ -39,6 +39,7 @@ import {
   getInsufficientBalanceError,
   getFlagEmoji,
 } from '../utils/subscriptionHelpers';
+import { humanizeDuration } from '../utils/subscriptionTimeline';
 import type {
   PurchaseSelection,
   PeriodOption,
@@ -788,6 +789,12 @@ export default function Subscription() {
     queryKey: ['modem-price'],
     queryFn: modemApi.getPrice,
     enabled: showModemConfirm,
+  });
+
+  // Subscription timeline query
+  const timeline = useQuery({
+    queryKey: ['subscription-timeline'],
+    queryFn: subscriptionApi.getTimeline,
   });
 
   // Modem enable mutation
@@ -4969,6 +4976,82 @@ export default function Subscription() {
           )}
         </div>
       )}
+      {/* ─── История подписки (subscription timeline) ─── */}
+      {timeline.data && (
+        <div
+          className="relative overflow-hidden rounded-3xl"
+          style={{
+            background: g.cardBg,
+            border: `1px solid ${g.cardBorder}`,
+            boxShadow: g.shadow,
+            padding: '24px 28px',
+          }}
+        >
+          <h2 className="mb-4 text-base font-bold tracking-tight text-dark-50">
+            {t('timeline.title')}
+          </h2>
+
+          {timeline.data.events.length === 0 ? (
+            <p className="text-sm text-dark-50/40">{t('timeline.empty')}</p>
+          ) : (
+            <div className="space-y-4">
+              {timeline.data.events.map((ev) => {
+                const fmtDate = (iso: string | null) => {
+                  if (!iso) return '—';
+                  return new Date(iso).toLocaleString(undefined, {
+                    day: '2-digit',
+                    month: '2-digit',
+                    year: 'numeric',
+                    hour: '2-digit',
+                    minute: '2-digit',
+                  });
+                };
+                return (
+                  <div
+                    key={ev.index}
+                    className={`rounded-xl border p-4 ${isDark ? 'border-dark-700/50 bg-dark-800/50' : 'border-champagne-300/60 bg-champagne-200/40'}`}
+                  >
+                    <div className="mb-1 text-sm font-semibold text-dark-50">
+                      {ev.index}.&nbsp;{fmtDate(ev.date)}&nbsp;—&nbsp;
+                      {t('timeline.tariffDays', { count: ev.period_days ?? 0 })}
+                    </div>
+                    {ev.downtime_seconds ? (
+                      <div className="mb-1 text-xs text-dark-50/50">
+                        {t('timeline.downtime', {
+                          prevEnd: fmtDate(ev.prev_end),
+                          dur: humanizeDuration(ev.downtime_seconds, t),
+                        })}
+                      </div>
+                    ) : ev.carried_seconds ? (
+                      <div className="mb-1 text-xs text-dark-50/50">
+                        {t('timeline.carried', {
+                          dur: humanizeDuration(ev.carried_seconds, t),
+                        })}
+                      </div>
+                    ) : null}
+                    <div className="text-xs text-dark-50/40">
+                      &rarr;&nbsp;{t('timeline.end')}:&nbsp;{fmtDate(ev.new_end)}
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          )}
+
+          {timeline.data.since && (
+            <p className="mt-4 text-[11px] text-dark-50/30">
+              {t('timeline.since', {
+                date: new Date(timeline.data.since).toLocaleString(undefined, {
+                  day: '2-digit',
+                  month: '2-digit',
+                  year: 'numeric',
+                }),
+              })}
+            </p>
+          )}
+        </div>
+      )}
+
       {/* QR Code Modal */}
       {showQr && qrDataUrl && (
         <div
