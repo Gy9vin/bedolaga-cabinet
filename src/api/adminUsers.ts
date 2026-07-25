@@ -1,4 +1,5 @@
 import apiClient from './client';
+import type { SubscriptionTimelineResponse } from '../types/timeline';
 
 export interface TrafficPurchaseInfo {
   id: number;
@@ -880,6 +881,14 @@ export const adminUsersApi = {
   // Unlink Telegram from user
   unlinkTelegram: async (userId: number): Promise<{ success: boolean }> => {
     const response = await apiClient.delete(`/cabinet/admin/users/${userId}/link-telegram`);
+    return response.data;
+  },
+
+  // Get subscription timeline (purchase/renewal history)
+  getSubscriptionTimeline: async (userId: number): Promise<SubscriptionTimelineResponse> => {
+    const response = await apiClient.get<SubscriptionTimelineResponse>(
+      `/cabinet/admin/users/${userId}/subscription-timeline`,
+    );
     return response.data;
   },
 

@@ -1,5 +1,6 @@
 import apiClient from './client';
 import { getYandexCid } from '../utils/yandexCid';
+import type { SubscriptionTimelineResponse } from '../types/timeline';
 import type {
   Subscription,
   SubscriptionStatusResponse,
@@ -588,6 +589,15 @@ export const subscriptionApi = {
       '/cabinet/subscription/revoke',
       undefined,
       withSubId(subscriptionId),
+    );
+    return response.data;
+  },
+
+  // ── Timeline ─────────────────────────────────────────────────────────
+
+  getTimeline: async (): Promise<SubscriptionTimelineResponse> => {
+    const response = await apiClient.get<SubscriptionTimelineResponse>(
+      '/cabinet/subscription/timeline',
     );
     return response.data;
   },
