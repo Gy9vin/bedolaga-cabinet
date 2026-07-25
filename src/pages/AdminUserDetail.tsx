@@ -44,7 +44,8 @@ import { usePermissionStore } from '../store/permissions';
 import { MessageMediaGrid } from '../components/tickets/MessageMediaGrid';
 import { linkifyText } from '../utils/linkify';
 import { getFlagEmoji } from '../utils/subscriptionHelpers';
-import { formatDetailed, formatCompact, humanizeDuration } from '../utils/subscriptionTimeline';
+import { formatDetailed, formatCompact } from '../utils/subscriptionTimeline';
+import { SubscriptionTimeline } from '../components/subscription/SubscriptionTimeline';
 
 // ============ Helpers ============
 
@@ -3534,51 +3535,10 @@ export default function AdminUserDetail() {
                 </div>
               </div>
 
-              {(subTimeline.data?.events ?? []).length === 0 ? (
-                <div className="text-sm text-dark-500">{t('timeline.empty')}</div>
-              ) : (
-                <div className="space-y-3">
-                  {(subTimeline.data?.events ?? []).map((ev) => (
-                    <div
-                      key={ev.index}
-                      className="rounded-lg border border-dark-700/50 bg-dark-900/40 p-3"
-                    >
-                      <div className="flex items-start justify-between gap-2">
-                        <div className="text-xs text-dark-400">
-                          <span className="font-medium text-dark-200">{ev.index}. </span>
-                          {new Date(ev.date).toLocaleString()}
-                          {' — '}
-                          {t('timeline.tariffDays', { count: ev.period_days ?? 0 })}
-                        </div>
-                      </div>
-                      {ev.downtime_seconds ? (
-                        <div className="mt-1 text-xs text-warning-400">
-                          {t('timeline.downtime', {
-                            prevEnd: ev.prev_end ? new Date(ev.prev_end).toLocaleString() : '—',
-                            dur: humanizeDuration(ev.downtime_seconds, t),
-                          })}
-                        </div>
-                      ) : ev.carried_seconds ? (
-                        <div className="mt-1 text-xs text-success-400">
-                          {t('timeline.carried', {
-                            dur: humanizeDuration(ev.carried_seconds, t),
-                          })}
-                        </div>
-                      ) : null}
-                      <div className="mt-1 text-xs text-dark-400">
-                        {`→ ${t('timeline.end')}: `}
-                        {ev.new_end ? new Date(ev.new_end).toLocaleString() : '—'}
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              )}
-
-              {subTimeline.data?.since && (
-                <div className="mt-3 text-xs text-dark-500">
-                  {t('timeline.since', { date: new Date(subTimeline.data.since).toLocaleString() })}
-                </div>
-              )}
+              <SubscriptionTimeline
+                events={subTimeline.data?.events ?? []}
+                since={subTimeline.data?.since ?? null}
+              />
             </div>
           </div>
         )}
