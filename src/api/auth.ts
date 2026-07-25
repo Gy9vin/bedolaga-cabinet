@@ -346,14 +346,11 @@ export const authApi = {
     return response.data;
   },
 
-  executeMerge: async (
-    mergeToken: string,
-    keepSubscriptionFrom: number,
-  ): Promise<MergeResponse> => {
+  executeMerge: async (mergeToken: string, keepAccount: number): Promise<MergeResponse> => {
     const response = await apiClient.post<MergeResponse>(
       `/cabinet/auth/merge/${encodeURIComponent(mergeToken)}`,
       {
-        keep_subscription_from: keepSubscriptionFrom,
+        keep_account: keepAccount,
       },
     );
     return response.data;
