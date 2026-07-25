@@ -839,6 +839,8 @@ export interface MergeAccountPreview {
   balance_kopeks: number;
   subscription: MergeSubscriptionPreview | null;
   created_at: string | null;
+  referrals_count: number;
+  recommended: boolean;
 }
 
 export interface MergePreviewResponse {
