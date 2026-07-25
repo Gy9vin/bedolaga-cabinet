@@ -5210,6 +5210,7 @@
     "referrals": "Referrals",
     "until": "until {{date}}",
     "makeMain": "Make primary",
+    "choosePrimary": "Choose the main account",
     "recommended": "Recommended",
     "oneProfileWarning": "The primary account will be kept. The other account will be closed and its subscription, balance, and referrals will move to the primary account. You'll be able to sign in with any method — Telegram, Yandex, or email — and reach the same profile.",
     "combinedSubscription": "Combined subscription: until {{date}}",

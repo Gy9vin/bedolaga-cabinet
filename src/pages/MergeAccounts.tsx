@@ -440,8 +440,13 @@ export default function MergeAccounts() {
   const handleCancel = () => navigate('/profile/accounts', { replace: true });
 
   // Derived state
+  const ACTIVE_SUB_STATUSES = new Set(['active', 'trial']);
   const bothHaveSubscriptions =
-    data && !!data.primary.subscription && !!data.secondary.subscription;
+    data &&
+    !!data.primary.subscription &&
+    ACTIVE_SUB_STATUSES.has(data.primary.subscription.status) &&
+    !!data.secondary.subscription &&
+    ACTIVE_SUB_STATUSES.has(data.secondary.subscription.status);
 
   const combinedEndDate = bothHaveSubscriptions
     ? computeCombinedEndDate(
@@ -486,7 +491,7 @@ export default function MergeAccounts() {
       </motion.div>
 
       {/* Account cards */}
-      <div role="radiogroup" aria-label={t('merge.makeMain')}>
+      <div role="radiogroup" aria-label={t('merge.choosePrimary')}>
         <motion.div variants={staggerItem}>
           <AccountCard
             account={data.primary}
