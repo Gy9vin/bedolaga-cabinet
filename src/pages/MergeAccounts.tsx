@@ -74,10 +74,6 @@ function CheckCircleIcon({ className = 'h-5 w-5' }: { className?: string }) {
 
 // -- Helpers --
 
-function ProviderBadgeIcon({ provider }: { provider: string }) {
-  return <ProviderIcon provider={provider} className="h-4 w-4" />;
-}
-
 function formatCountdown(seconds: number): string {
   const clamped = Math.max(0, seconds);
   const min = Math.floor(clamped / 60);
@@ -85,7 +81,7 @@ function formatCountdown(seconds: number): string {
   return `${min.toString().padStart(2, '0')}:${sec.toString().padStart(2, '0')}`;
 }
 
-function formatDate(dateStr: string | null): string {
+function formatDate(dateStr: string | null | undefined): string {
   if (!dateStr) return '-';
   try {
     return new Date(dateStr).toLocaleDateString(undefined, {
@@ -98,8 +94,39 @@ function formatDate(dateStr: string | null): string {
   }
 }
 
+function formatDateFromDate(date: Date): string {
+  try {
+    return date.toLocaleDateString(undefined, {
+      day: 'numeric',
+      month: 'long',
+      year: 'numeric',
+    });
+  } catch {
+    return date.toISOString();
+  }
+}
+
 function formatBalance(kopeks: number): string {
   return Math.floor(kopeks / 100).toLocaleString();
+}
+
+/**
+ * Compute a display-only combined end-date.
+ * Winner = later end_date; extension = max(0, loser.end_date - now).
+ * Backend computes the authoritative value; this is informational only.
+ */
+function computeCombinedEndDate(
+  primaryEndStr: string | null | undefined,
+  secondaryEndStr: string | null | undefined,
+): Date | null {
+  if (!primaryEndStr || !secondaryEndStr) return null;
+  const pDate = new Date(primaryEndStr);
+  const sDate = new Date(secondaryEndStr);
+  const now = new Date();
+  const winner = pDate > sDate ? pDate : sDate;
+  const loser = pDate > sDate ? sDate : pDate;
+  const remaining = Math.max(0, loser.getTime() - now.getTime());
+  return new Date(winner.getTime() + remaining);
 }
 
 // -- Radio Indicator --
@@ -124,16 +151,22 @@ interface AccountCardProps {
   label: string;
   isSelected: boolean;
   onSelect: () => void;
-  showRadio: boolean;
 }
 
-function AccountCard({ account, label, isSelected, onSelect, showRadio }: AccountCardProps) {
+function AccountCard({ account, label, isSelected, onSelect }: AccountCardProps) {
   const { t } = useTranslation();
 
   return (
     <Card className={cn('transition-colors', isSelected && 'border-accent-500/50')}>
       <CardHeader>
-        <CardTitle>{label}</CardTitle>
+        <div className="flex items-center justify-between gap-2">
+          <CardTitle>{label}</CardTitle>
+          {account.recommended && (
+            <span className="inline-flex items-center gap-1 rounded-md bg-accent-500/20 px-2 py-0.5 text-xs font-medium text-accent-400">
+              ⭐ {t('merge.recommended')}
+            </span>
+          )}
+        </div>
       </CardHeader>
       <CardContent className="space-y-4">
         {/* Auth methods */}
@@ -145,10 +178,11 @@ function AccountCard({ account, label, isSelected, onSelect, showRadio }: Accoun
                 key={method}
                 className="inline-flex items-center gap-1.5 rounded-md bg-dark-800 px-2.5 py-1 text-xs text-dark-200"
               >
-                <ProviderBadgeIcon provider={method} />
+                <ProviderIcon provider={method} className="h-4 w-4" />
                 {t(`profile.accounts.providers.${method}`)}
               </span>
             ))}
+            {account.auth_methods.length === 0 && <span className="text-xs text-dark-500">—</span>}
           </div>
         </div>
 
@@ -165,8 +199,9 @@ function AccountCard({ account, label, isSelected, onSelect, showRadio }: Accoun
               </p>
             )}
             <p className="text-sm text-dark-400">
-              {t('merge.traffic')}: {account.subscription.traffic_limit_gb} GB, {t('merge.devices')}
-              : {account.subscription.device_limit}
+              {t('merge.traffic')}: {account.subscription.traffic_limit_gb} GB
+              {'  '}·{'  '}
+              {t('merge.devices')}: {account.subscription.device_limit}
             </p>
           </div>
         ) : (
@@ -184,19 +219,31 @@ function AccountCard({ account, label, isSelected, onSelect, showRadio }: Accoun
           </span>
         </div>
 
-        {/* Radio selection */}
-        {showRadio && account.subscription && (
-          <button
-            type="button"
-            role="radio"
-            aria-checked={isSelected}
-            onClick={onSelect}
-            className="mt-2 flex w-full items-center gap-2.5 rounded-lg bg-dark-800/50 px-3 py-2.5 text-left transition-colors hover:bg-dark-800"
-          >
-            <RadioIndicator selected={isSelected} />
-            <span className="text-sm text-dark-200">{t('merge.keepThisSubscription')}</span>
-          </button>
+        {/* Referrals */}
+        <div className="flex items-baseline gap-1.5">
+          <span className="text-sm text-dark-400">{t('merge.referrals')}:</span>
+          <span className="text-sm text-dark-100">{account.referrals_count}</span>
+        </div>
+
+        {/* Registration date */}
+        {account.created_at && (
+          <div className="flex items-baseline gap-1.5">
+            <span className="text-sm text-dark-400">{t('profile.registeredAt')}:</span>
+            <span className="text-sm text-dark-300">{formatDate(account.created_at)}</span>
+          </div>
         )}
+
+        {/* Survivor radio */}
+        <button
+          type="button"
+          role="radio"
+          aria-checked={isSelected}
+          onClick={onSelect}
+          className="mt-2 flex w-full items-center gap-2.5 rounded-lg bg-dark-800/50 px-3 py-2.5 text-left transition-colors hover:bg-dark-800"
+        >
+          <RadioIndicator selected={isSelected} />
+          <span className="text-sm text-dark-200">{t('merge.makeMain')}</span>
+        </button>
       </CardContent>
     </Card>
   );
@@ -235,19 +282,14 @@ function LoadingSkeleton() {
       <motion.div variants={staggerItem}>
         <div className="h-12 w-full animate-pulse rounded-xl bg-dark-700" />
       </motion.div>
-
-      <motion.div variants={staggerItem} className="flex justify-center">
-        <div className="h-4 w-32 animate-pulse rounded bg-dark-700" />
-      </motion.div>
     </motion.div>
   );
 }
 
-// -- Expired State --
+// -- Expired / Error States --
 
 function ExpiredState() {
   const { t } = useTranslation();
-
   return (
     <motion.div
       className="flex min-h-[60vh] flex-col items-center justify-center space-y-6 px-4"
@@ -260,11 +302,9 @@ function ExpiredState() {
           <ClockIcon className="h-8 w-8 text-warning-400" />
         </div>
       </motion.div>
-
       <motion.div variants={staggerItem} className="text-center">
         <p className="text-lg font-medium text-dark-100">{t('merge.expired')}</p>
       </motion.div>
-
       <motion.div variants={staggerItem}>
         <Link
           to="/profile/accounts"
@@ -277,11 +317,8 @@ function ExpiredState() {
   );
 }
 
-// -- Error State --
-
 function ErrorState() {
   const { t } = useTranslation();
-
   return (
     <motion.div
       className="flex min-h-[60vh] flex-col items-center justify-center space-y-6 px-4"
@@ -294,11 +331,9 @@ function ErrorState() {
           <WarningIcon className="h-8 w-8 text-error-400" />
         </div>
       </motion.div>
-
       <motion.div variants={staggerItem} className="text-center">
         <p className="text-lg font-medium text-dark-100">{t('merge.error')}</p>
       </motion.div>
-
       <motion.div variants={staggerItem}>
         <Link
           to="/profile/accounts"
@@ -324,7 +359,6 @@ export default function MergeAccounts() {
   const [expiresIn, setExpiresIn] = useState(0);
   const [isExpired, setIsExpired] = useState(false);
 
-  // Fetch merge preview (no auth required)
   const { data, isLoading, error } = useQuery({
     queryKey: ['merge-preview', mergeToken],
     queryFn: () => {
@@ -337,24 +371,15 @@ export default function MergeAccounts() {
     refetchOnWindowFocus: false,
   });
 
-  // Auto-select subscription when data loads (only once)
+  // Auto-select the recommended account when data loads (only once)
   useEffect(() => {
     if (!data) return;
-    // Don't overwrite if user already made a selection
     if (selectedUserId !== null) return;
-
-    const primaryHasSub = !!data.primary.subscription;
-    const secondaryHasSub = !!data.secondary.subscription;
-
-    if (primaryHasSub && !secondaryHasSub) {
+    if (data.primary.recommended) {
       setSelectedUserId(data.primary.id);
-    } else if (!primaryHasSub && secondaryHasSub) {
+    } else {
       setSelectedUserId(data.secondary.id);
-    } else if (!primaryHasSub && !secondaryHasSub) {
-      // Neither has subscription — default to primary
-      setSelectedUserId(data.primary.id);
     }
-    // If both have subs — null until user picks
   }, [data, selectedUserId]);
 
   // Countdown timer (wall-clock based to avoid drift)
@@ -362,7 +387,6 @@ export default function MergeAccounts() {
     if (!data) return;
     const startTime = Date.now();
     const totalSeconds = data.expires_in_seconds;
-
     const tick = () => {
       const elapsed = Math.floor((Date.now() - startTime) / 1000);
       const remaining = totalSeconds - elapsed;
@@ -374,88 +398,65 @@ export default function MergeAccounts() {
         setExpiresIn(remaining);
       }
     };
-
     tick();
     const interval = setInterval(tick, 1000);
     return () => clearInterval(interval);
   }, [data]);
 
-  // Execute merge
   const mergeMutation = useMutation({
     mutationFn: () => {
-      if (!mergeToken || !selectedUserId) {
+      if (!mergeToken || selectedUserId === null) {
         return Promise.reject(new Error('Missing merge token or user selection'));
       }
       return authApi.executeMerge(mergeToken, selectedUserId);
     },
     onSuccess: async (response) => {
-      if (!response.success) {
+      if (!response.success || !response.access_token || !response.refresh_token) {
         showToast({ type: 'error', message: t('merge.error') });
         return;
       }
-
-      if (!response.access_token || !response.refresh_token) {
-        showToast({ type: 'error', message: t('merge.error') });
-        return;
-      }
-
       const { setTokens, setUser, checkAdminStatus } = useAuthStore.getState();
       setTokens(response.access_token, response.refresh_token);
-      if (response.user) {
-        setUser(response.user);
-      }
+      if (response.user) setUser(response.user);
       try {
         await checkAdminStatus();
       } catch {
-        // Non-critical — admin status will be checked on next navigation
+        /* non-critical */
       }
-
       queryClient.clear();
       showToast({ type: 'success', message: t('merge.success') });
       navigate('/profile/accounts', { replace: true });
     },
     onError: () => {
-      showToast({
-        type: 'error',
-        message: t('merge.error'),
-      });
+      showToast({ type: 'error', message: t('merge.error') });
     },
   });
 
   const handleMerge = () => {
-    if (!selectedUserId || mergeMutation.isPending || isExpired) return;
+    if (selectedUserId === null || mergeMutation.isPending || isExpired) return;
     mergeMutation.mutate();
   };
 
-  const handleCancel = () => {
-    navigate('/profile/accounts', { replace: true });
-  };
+  const handleCancel = () => navigate('/profile/accounts', { replace: true });
 
   // Derived state
   const bothHaveSubscriptions =
     data && !!data.primary.subscription && !!data.secondary.subscription;
-  const canConfirm = selectedUserId !== null && !isExpired && !mergeMutation.isPending;
+
+  const combinedEndDate = bothHaveSubscriptions
+    ? computeCombinedEndDate(
+        data.primary.subscription?.end_date,
+        data.secondary.subscription?.end_date,
+      )
+    : null;
+
   const combinedBalance = data ? data.primary.balance_kopeks + data.secondary.balance_kopeks : 0;
+  const canConfirm = selectedUserId !== null && !isExpired && !mergeMutation.isPending;
 
-  // Missing token param
-  if (!mergeToken) {
-    return <ErrorState />;
-  }
-
-  // Loading
-  if (isLoading) {
-    return <LoadingSkeleton />;
-  }
-
-  // Fetch error (404 = expired/invalid token)
-  if (error || !data) {
-    return <ErrorState />;
-  }
-
-  // Timer expired
-  if (isExpired) {
-    return <ExpiredState />;
-  }
+  if (!mergeToken) return <ErrorState />;
+  if (isLoading) return <LoadingSkeleton />;
+  if (error || !data) return <ErrorState />;
+  if (isExpired) return <ExpiredState />;
 
   return (
     <motion.div
@@ -464,7 +465,7 @@ export default function MergeAccounts() {
       initial="initial"
       animate="animate"
     >
-      {/* Header with warning */}
+      {/* Header */}
       <motion.div variants={staggerItem}>
         <Card className="border-warning-500/30 bg-warning-500/5">
           <div className="flex items-start gap-3">
@@ -477,27 +478,21 @@ export default function MergeAccounts() {
         </Card>
       </motion.div>
 
-      {/* Subscription choice prompt (when both have subs) */}
-      {bothHaveSubscriptions && !selectedUserId && (
-        <motion.div variants={staggerItem}>
-          <div className="rounded-xl border border-accent-500/30 bg-accent-500/10 px-4 py-3">
-            <p className="text-sm font-medium text-accent-400">{t('merge.chooseSubscription')}</p>
-          </div>
-        </motion.div>
-      )}
+      {/* One-profile warning */}
+      <motion.div variants={staggerItem}>
+        <div className="rounded-xl border border-accent-500/30 bg-accent-500/10 px-4 py-3">
+          <p className="text-sm text-accent-300">{t('merge.oneProfileWarning')}</p>
+        </div>
+      </motion.div>
 
       {/* Account cards */}
-      <div
-        role={bothHaveSubscriptions ? 'radiogroup' : undefined}
-        aria-label={bothHaveSubscriptions ? t('merge.chooseSubscription') : undefined}
-      >
+      <div role="radiogroup" aria-label={t('merge.makeMain')}>
         <motion.div variants={staggerItem}>
           <AccountCard
             account={data.primary}
             label={t('merge.currentAccount')}
             isSelected={selectedUserId === data.primary.id}
             onSelect={() => setSelectedUserId(data.primary.id)}
-            showRadio={!!bothHaveSubscriptions}
           />
         </motion.div>
 
@@ -507,10 +502,20 @@ export default function MergeAccounts() {
             label={t('merge.foundAccount')}
             isSelected={selectedUserId === data.secondary.id}
             onSelect={() => setSelectedUserId(data.secondary.id)}
-            showRadio={!!bothHaveSubscriptions}
           />
         </motion.div>
       </div>
+
+      {/* Combined subscription date (when both have active subs) */}
+      {bothHaveSubscriptions && combinedEndDate && (
+        <motion.div variants={staggerItem}>
+          <div className="rounded-xl border border-success-500/30 bg-success-500/10 px-4 py-3">
+            <p className="text-sm font-medium text-success-400">
+              {t('merge.combinedSubscription', { date: formatDateFromDate(combinedEndDate) })}
+            </p>
+          </div>
+        </motion.div>
+      )}
 
       {/* After merge summary */}
       <motion.div variants={staggerItem}>
@@ -530,14 +535,6 @@ export default function MergeAccounts() {
                   {t('merge.balanceSummed', { amount: formatBalance(combinedBalance) })}
                 </span>
               </li>
-              {bothHaveSubscriptions && (
-                <li className="flex items-start gap-2.5">
-                  <WarningIcon className="mt-0.5 h-4 w-4 shrink-0 text-warning-400" />
-                  <span className="text-sm text-dark-200">
-                    {t('merge.unselectedSubscriptionDeleted')}
-                  </span>
-                </li>
-              )}
               <li className="flex items-start gap-2.5">
                 <CheckCircleIcon className="mt-0.5 h-4 w-4 shrink-0 text-success-400" />
                 <span className="text-sm text-dark-200">{t('merge.historyPreserved')}</span>
@@ -547,7 +544,7 @@ export default function MergeAccounts() {
         </Card>
       </motion.div>
 
-      {/* Confirm button */}
+      {/* Confirm */}
       <motion.div variants={staggerItem}>
         <Button
           fullWidth
@@ -559,7 +556,7 @@ export default function MergeAccounts() {
         </Button>
       </motion.div>
 
-      {/* Cancel link */}
+      {/* Cancel */}
       <motion.div variants={staggerItem} className="flex justify-center">
         <button
           type="button"
@@ -570,7 +567,7 @@ export default function MergeAccounts() {
         </button>
       </motion.div>
 
-      {/* Countdown timer */}
+      {/* Countdown */}
       <motion.div variants={staggerItem} className="flex items-center justify-center gap-1.5 pb-6">
         <ClockIcon className="h-4 w-4 text-dark-500" />
         <span className="text-sm text-dark-500">
