@@ -89,7 +89,12 @@ export function isTokenValid(token: string | null): boolean {
 export const tokenStorage = {
   getAccessToken(): string | null {
     try {
-      return sessionStorage.getItem(TOKEN_KEYS.ACCESS);
+      // localStorage is shared across all tabs of the origin; sessionStorage is
+      // per-tab. Keeping the (short-lived, 15 min) access token in localStorage
+      // lets a newly opened tab reuse the existing session instead of bouncing
+      // to /login. The sessionStorage read is a fallback for tokens written by
+      // an older build before migrateFromLocalStorage() moves them over.
+      return localStorage.getItem(TOKEN_KEYS.ACCESS) || sessionStorage.getItem(TOKEN_KEYS.ACCESS);
     } catch {
       return null;
     }
@@ -105,8 +110,11 @@ export const tokenStorage = {
 
   setTokens(accessToken: string, refreshToken: string): void {
     try {
-      sessionStorage.setItem(TOKEN_KEYS.ACCESS, accessToken);
+      // Both tokens go to the shared localStorage so every tab of the origin
+      // shares one session. sessionStorage copies from older builds are cleared.
+      localStorage.setItem(TOKEN_KEYS.ACCESS, accessToken);
       localStorage.setItem(TOKEN_KEYS.REFRESH, refreshToken);
+      sessionStorage.removeItem(TOKEN_KEYS.ACCESS);
       sessionStorage.removeItem(TOKEN_KEYS.REFRESH);
       mirrorRefreshTokenToCloud(refreshToken);
     } catch {}
@@ -114,9 +122,10 @@ export const tokenStorage = {
 
   setAccessToken(accessToken: string): void {
     try {
-      sessionStorage.setItem(TOKEN_KEYS.ACCESS, accessToken);
+      localStorage.setItem(TOKEN_KEYS.ACCESS, accessToken);
+      sessionStorage.removeItem(TOKEN_KEYS.ACCESS);
     } catch {
-      console.error('Failed to save access token to sessionStorage');
+      console.error('Failed to save access token to localStorage');
     }
   },
 
@@ -134,11 +143,13 @@ export const tokenStorage = {
 
   migrateFromLocalStorage(): void {
     try {
-      const accessToken = localStorage.getItem(TOKEN_KEYS.ACCESS);
-      if (accessToken && !sessionStorage.getItem(TOKEN_KEYS.ACCESS)) {
-        sessionStorage.setItem(TOKEN_KEYS.ACCESS, accessToken);
+      // Move any tokens an older build wrote to per-tab sessionStorage into the
+      // shared localStorage, so every tab of the origin sees one session.
+      const accessInSession = sessionStorage.getItem(TOKEN_KEYS.ACCESS);
+      if (accessInSession && !localStorage.getItem(TOKEN_KEYS.ACCESS)) {
+        localStorage.setItem(TOKEN_KEYS.ACCESS, accessInSession);
       }
-      localStorage.removeItem(TOKEN_KEYS.ACCESS);
+      sessionStorage.removeItem(TOKEN_KEYS.ACCESS);
 
       const refreshInSession = sessionStorage.getItem(TOKEN_KEYS.REFRESH);
       if (refreshInSession && !localStorage.getItem(TOKEN_KEYS.REFRESH)) {
@@ -188,6 +199,7 @@ export function clearStaleSessionIfNeeded(freshInitData: string | null): void {
       sessionStorage.removeItem(TOKEN_KEYS.ACCESS);
       sessionStorage.removeItem(TOKEN_KEYS.REFRESH);
       sessionStorage.removeItem(TOKEN_KEYS.USER);
+      localStorage.removeItem(TOKEN_KEYS.ACCESS);
       localStorage.removeItem(TOKEN_KEYS.REFRESH);
       localStorage.removeItem('cabinet-auth');
     }
