@@ -1,4 +1,5 @@
 import apiClient from './client';
+import { isEndpointMissingError } from '../utils/api-error';
 import type { AnimationConfig } from '@/components/ui/backgrounds/types';
 import { DEFAULT_ANIMATION_CONFIG } from '@/components/ui/backgrounds/types';
 
@@ -40,6 +41,8 @@ export interface TelegramWidgetConfig {
   request_access: boolean;
   oidc_enabled: boolean;
   oidc_client_id: string;
+  /** The bot answered 404 on the config route — build older than v3.24.0. */
+  endpoint_missing?: boolean;
 }
 
 export interface OfflineConvGoal {
@@ -338,7 +341,7 @@ export const brandingApi = {
         '/cabinet/branding/telegram-widget',
       );
       return response.data;
-    } catch {
+    } catch (err) {
       return {
         bot_username: import.meta.env.VITE_TELEGRAM_BOT_USERNAME || '',
         size: 'large',
@@ -347,6 +350,7 @@ export const brandingApi = {
         request_access: true,
         oidc_enabled: false,
         oidc_client_id: '',
+        endpoint_missing: isEndpointMissingError(err),
       };
     }
   },

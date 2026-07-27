@@ -1,3 +1,4 @@
+import { uiLocale } from '@/utils/uiLocale';
 import { useState, useRef, useEffect, useCallback } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useTranslation } from 'react-i18next';
@@ -36,6 +37,7 @@ export default function Support() {
   const isAdmin = useAuthStore((state) => state.isAdmin);
   const queryClient = useQueryClient();
   const { openTelegramLink, openLink } = usePlatform();
+
   const [selectedTicket, setSelectedTicket] = useState<TicketDetail | null>(null);
   const [showCreateForm, setShowCreateForm] = useState(false);
   const [newTitle, setNewTitle] = useState('');
@@ -259,61 +261,29 @@ export default function Support() {
     const getSupportMessage = () => {
       log.debug('Getting support message for type:', supportConfig.support_type);
 
-      if (supportConfig.support_type === 'profile') {
-        const supportUsername = supportConfig.support_username || '@support';
-        log.debug('Opening profile:', supportUsername);
-        return {
-          title: isAdmin ? t('support.ticketsDisabled') : t('support.title'),
-          message: t('support.contactSupport', { username: supportUsername }),
-          buttonText: t('support.contactUs'),
-          buttonAction: () => {
-            log.debug('Button clicked, opening:', supportUsername);
-
-            // Extract username without @
-            const username = supportUsername.startsWith('@')
-              ? supportUsername.slice(1)
-              : supportUsername;
-
-            const webUrl = `https://t.me/${username}`;
-            log.debug('Web URL:', webUrl);
-
-            // Use platform's openTelegramLink
-            openTelegramLink(webUrl);
-          },
-        };
-      }
+      const title = isAdmin ? t('support.ticketsDisabled') : t('support.title');
 
       if (supportConfig.support_type === 'url' && supportConfig.support_url) {
+        const url = supportConfig.support_url;
         return {
-          title: isAdmin ? t('support.ticketsDisabled') : t('support.title'),
+          title,
           message: t('support.useExternalLink'),
           buttonText: t('support.openSupport'),
-          buttonAction: () => {
-            openLink(supportConfig.support_url!, { tryInstantView: false });
-          },
+          buttonAction: () => openLink(url, { tryInstantView: false }),
         };
       }
 
-      // Fallback: contact support (should not normally happen if config is correct)
+      // profile и любой fallback — контакт в телеграме
       const supportUsername = supportConfig.support_username || '@support';
-      log.debug('Fallback: Opening profile:', supportUsername);
       return {
-        title: isAdmin ? t('support.ticketsDisabled') : t('support.title'),
+        title,
         message: t('support.contactSupport', { username: supportUsername }),
         buttonText: t('support.contactUs'),
         buttonAction: () => {
-          log.debug('Fallback button clicked, opening:', supportUsername);
-
-          // Extract username without @
-          const username = supportUsername.startsWith('@')
+          const clean = supportUsername.startsWith('@')
             ? supportUsername.slice(1)
             : supportUsername;
-
-          const webUrl = `https://t.me/${username}`;
-          log.debug('Fallback opening URL:', webUrl);
-
-          // Use platform's openTelegramLink
-          openTelegramLink(webUrl);
+          openTelegramLink(`https://t.me/${clean}`);
         },
       };
     };
@@ -494,7 +464,7 @@ export default function Support() {
                     </span>
                   </div>
                   <div className="text-xs text-dark-500">
-                    {new Date(ticket.updated_at).toLocaleDateString()}
+                    {new Date(ticket.updated_at).toLocaleDateString(uiLocale())}
                   </div>
                 </button>
               ))}
@@ -641,7 +611,7 @@ export default function Support() {
                     </span>
                     <span className="text-xs text-dark-500">
                       {t('support.created')}{' '}
-                      {new Date(selectedTicket.created_at).toLocaleDateString()}
+                      {new Date(selectedTicket.created_at).toLocaleDateString(uiLocale())}
                     </span>
                   </div>
                 </div>
@@ -671,7 +641,7 @@ export default function Support() {
                         </span>
                         <div className="flex items-center gap-2">
                           <span className="text-xs text-dark-500">
-                            {new Date(msg.created_at).toLocaleString()}
+                            {new Date(msg.created_at).toLocaleString(uiLocale())}
                           </span>
                           {!msg.is_from_admin && (
                             <button

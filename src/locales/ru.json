@@ -121,6 +121,18 @@
       "insufficientTitle": "Недостаточно средств",
       "insufficientMessage": "Для продления нужно {{required}} {{currency}}, на балансе {{balance}} {{currency}}"
     },
+    "sbpRecurring": {
+      "confirmedTitle": "Платёж по СБП подтверждён",
+      "confirmedMessage": "Списано {{amount}} {{currency}}",
+      "failedTitle": "Ошибка платежа по СБП",
+      "failedMessage": "Не удалось списать платёж по СБП",
+      "pastDueTitle": "Просрочен платёж по СБП",
+      "pastDueMessage": "Платёж по СБП просрочен. Проверьте приложение банка.",
+      "cancelledTitle": "Автоплатёж по СБП отключён",
+      "cancelledMessage": "Автоплатёж по СБП был отключён",
+      "activatedTitle": "Автоплатёж по СБП подключён",
+      "activatedMessage": "Автоплатёж по СБП успешно подключён"
+    },
     "account": {
       "bannedTitle": "Аккаунт заблокирован",
       "bannedMessage": "Ваш аккаунт был заблокирован",
@@ -207,6 +219,7 @@
     "telegramRetryFailed": "Авторизация не удалась. Закройте приложение и откройте заново.",
     "telegramReopenHint": "Если проблема повторяется, закройте и откройте приложение заново",
     "telegramNotConfigured": "Telegram бот не настроен",
+    "botOutdated": "Версия бота несовместима с кабинетом. Обновите бота до v3.33.0 или новее.",
     "telegramUnavailable": "Вход через Telegram временно недоступен",
     "authenticating": "Авторизация...",
     "orOpenInApp": "Или откройте бота в приложении",
@@ -268,6 +281,7 @@
   "dashboard": {
     "title": "Личный кабинет",
     "welcome": "Добро пожаловать, {{name}}!",
+    "welcomeNoName": "Добро пожаловать!",
     "yourSubscription": "Ваша подписка",
     "quickActions": "Быстрые действия",
     "viewSubscription": "Управление подпиской",
@@ -701,6 +715,30 @@
     },
     "allTariffsPurchased": "Все тарифы уже куплены",
     "autopay": "Автопродление",
+    "sbpRecurring": {
+      "title": "Автоплатёж по СБП",
+      "connect": "Подключить",
+      "confirmInBank": "Подтвердите в приложении банка",
+      "cancel": "Отключить",
+      "confirmCancel": "Отключить автоплатёж по СБП? Подписка больше не будет продлеваться автоматически через СБП.",
+      "cancelled": "Автоплатёж по СБП отключён",
+      "enableError": "Не удалось подключить автоплатёж по СБП",
+      "cancelError": "Не удалось отменить автоплатёж по СБП",
+      "statusPending": "Ожидает подтверждения в приложении банка",
+      "statusActive": "Активен",
+      "statusPastDue": "Платёж не прошёл — попробуйте снова",
+      "nextCharge": "следующее списание {{date}}",
+      "amountPerInterval": "{{amount}} ₽ {{interval}}",
+      "interval": {
+        "day": "ежедневно",
+        "week": "еженедельно",
+        "month": "ежемесячно",
+        "year": "ежегодно"
+      },
+      "autopayHint": "Подписка будет автоматически продлеваться через СБП без сохранённой карты",
+      "purchaseButton": "⚡ Оформить с автооплатой СБП",
+      "purchaseHint": "Первое списание подтверждает привязку в банке; продления списываются автоматически по каденсу тарифа."
+    },
     "backToList": "К списку подписок",
     "confirmDelete": "Удалить подписку?",
     "dailyAutoCharge": "Ежедневное списание",
@@ -806,6 +844,9 @@
       "jupiter": {
         "description": "Оплата СБП через Jupiter (FPGate P2P)"
       },
+      "cispay": {
+        "description": "Оплата картой или через СБП (cisPay)"
+      },
       "donut": {
         "description": "Оплата картой и СБП через Donut P2P"
       },
@@ -886,7 +927,10 @@
       "pageTitle": "Сохранённые карты",
       "backToBalance": "Назад",
       "empty": "Нет привязанных карт. Карта будет сохранена автоматически при следующем пополнении.",
-      "loadError": "Не удалось загрузить сохранённые карты. Попробуйте позже."
+      "loadError": "Не удалось загрузить сохранённые карты. Попробуйте позже.",
+      "sbpSection": "Автоплатёж по СБП",
+      "sbpBinding": "Привязка СБП",
+      "sbpUnlink": "Отключить автоплатёж по СБП"
     },
     "paymentReady": "Ссылка на оплату готова",
     "clickToOpenPayment": "Нажмите кнопку ниже, чтобы открыть страницу оплаты в новой вкладке",
@@ -1558,7 +1602,10 @@
         "removeItem": "Удалить {{label}}",
         "clearAll": "Очистить все выбранные",
         "addScope": "Добавить область",
-        "maxReached": "Максимум {{max}} элементов"
+        "maxReached": "Максимум {{max}} элементов",
+        "fullNetwork": "Вся сеть",
+        "fullNetworkHint": "Показать граф целиком",
+        "removeFullNetwork": "Выключить режим полной сети"
       },
       "loading": "Загрузка графа...",
       "error": "Ошибка загрузки данных сети",
@@ -1671,7 +1718,7 @@
     },
     "paymentMethods": {
       "title": "Платёжные методы",
-      "description": "Настройка порядка и условий отображения",
+      "subtitle": "Настройка порядка и условий отображения",
       "enabled": "Вкл",
       "disabled": "Выкл",
       "notConfigured": "Не настроен",
@@ -1687,6 +1734,8 @@
       "openUrlDirectHint": "ВКЛ — ссылка оплаты открывается сразу, без промежуточной панели с кнопкой. ВЫКЛ — показывается кнопка «Открыть оплату». В Telegram ссылка в обоих случаях открывается во внешнем браузере (иначе оплата через банковское приложение/СБП не срабатывает), после оплаты — возврат на страницу результата. Stars/CryptoBot (t.me/-ссылки) всегда открываются нативно, флаг к ним не применяется.",
       "displayName": "Отображаемое имя",
       "displayNameHint": "Оставьте пустым для имени по умолчанию",
+      "description": "Описание",
+      "descriptionHint": "Показывается под названием метода. Пусто — текст по умолчанию",
       "subOptions": "Варианты оплаты",
       "minAmount": "Мин. сумма (коп.)",
       "maxAmount": "Макс. сумма (коп.)",
@@ -2248,6 +2297,7 @@
         "payments_etoplatezhi": "Etoplatezhi",
         "payments_antilopay": "Antilopay",
         "payments_jupiter": "Jupiter",
+        "payments_cispay": "CisPay",
         "payments_donut": "Donut",
         "payments_lava": "Lava",
         "payments_apple_iap": "Apple IAP",
@@ -2985,6 +3035,7 @@
       "namePlaceholder": "Введите название тарифа",
       "description": "Описание",
       "descriptionPlaceholder": "Краткое описание тарифа",
+      "descriptionPlaceholder2": "Краткое описание тарифа",
       "trafficLimit": "Лимит трафика",
       "trafficHint": "0 = безлимитный трафик",
       "deviceLimit": "Лимит устройств",
@@ -3520,7 +3571,8 @@
         "subscriptionDays": "Дни подписки",
         "trialSubscription": "Тестовая подписка",
         "promoGroup": "Группа скидок",
-        "discount": "Скидка %"
+        "discount": "Скидка %",
+        "balanceAndDays": "Баланс + дни"
       },
       "modal": {
         "editPromocode": "Редактирование промокода",
@@ -3538,6 +3590,11 @@
         "typeTrialSubscription": "Тестовая подписка",
         "typePromoGroup": "Группа скидок",
         "typeDiscount": "Процентная скидка",
+        "typeBonusSet": "Набор бонусов (баланс / дни / промогруппа)",
+        "bonusComposition": "Состав промокода",
+        "includeBalance": "Бонус на баланс",
+        "includeDays": "Дни подписки",
+        "includePromoGroup": "Промогруппа",
         "bonusAmount": "Сумма бонуса",
         "rub": "руб.",
         "daysCount": "Количество дней",
@@ -3631,6 +3688,7 @@
       },
       "validation": {
         "codeRequired": "Введите код промокода",
+        "bonusSetEmpty": "Выберите хотя бы один бонус в составе промокода",
         "balanceRequired": "Сумма бонуса должна быть больше 0",
         "daysRequired": "Количество дней должно быть больше 0",
         "groupRequired": "Выберите группу скидок",
@@ -3732,6 +3790,20 @@
       "confirm": {
         "block": "Заблокировать пользователя?"
       },
+      "sendMessage": {
+        "button": "✉️ Отправить сообщение",
+        "title": "Отправка сообщения пользователю",
+        "placeholder": "Текст, который бот отправит пользователю (поддерживается HTML)",
+        "send": "Отправить",
+        "sending": "Отправка...",
+        "success": "Сообщение отправлено пользователю",
+        "noTelegram": "Пользователь зарегистрирован только по email и не может получать сообщения в Telegram",
+        "errors": {
+          "no_telegram_id": "Пользователь зарегистрирован только по email и не может получать сообщения в Telegram",
+          "forbidden": "Пользователь заблокировал бота или не может получать сообщения",
+          "bad_request": "Telegram отклонил сообщение. Проверьте текст (HTML-разметку) и попробуйте ещё раз"
+        }
+      },
       "userActions": {
         "delete": "Удалить пользователя",
         "resetTrial": "Сбросить триал",
@@ -3797,6 +3869,7 @@
         "purchases": "Покупок",
         "campaign": "Рекламная кампания",
         "referralsList": "Список рефералов",
+        "referralEarnings": "Реф. доход",
         "noReferrals": "Нет рефералов",
         "panelConfig": "Конфигурация панели",
         "trojanPassword": "Trojan пароль",
@@ -3890,7 +3963,16 @@
           "createNew": "Создать новую",
           "modem": "Модем",
           "modemDisabled": "Модем выключен",
-          "modemEnabled": "Модем включён"
+          "modemEnabled": "Модем включён",
+          "sbpTitle": "Автоплатёж по СБП",
+          "sbpCancel": "Отключить",
+          "sbpCancelled": "Автоплатёж по СБП отключён",
+          "sbpStatus_PENDING": "Ожидает подтверждения",
+          "sbpStatus_ACTIVE": "Активен",
+          "sbpStatus_PAST_DUE": "Платёж не прошёл",
+          "delete": "🗑 Удалить подписку",
+          "confirmDelete": "Удалить подписку безвозвратно? Ключ будет удалён из Remnawave.",
+          "deleted": "Подписка удалена"
         },
         "balance": {
           "current": "Текущий баланс",
@@ -6213,6 +6295,10 @@
     "copied": "Скопировано",
     "worksUntil": "Работает до",
     "daysShort": "дн.",
-    "kind": { "purchase": "Оплата", "renewal": "Продление", "activation": "Пробный период" }
+    "kind": {
+      "purchase": "Оплата",
+      "renewal": "Продление",
+      "activation": "Пробный период"
+    }
   }
 }

@@ -10,7 +10,6 @@ import {
   DialogTitle,
   DialogFooter,
 } from '../components/primitives/Dialog/Dialog';
-import { DEVICE_ALIAS_MAX_LENGTH } from '../constants/devices';
 import { useCurrency } from '../hooks/useCurrency';
 import { useNotify } from '../platform/hooks/useNotify';
 import {
@@ -39,11 +38,11 @@ import {
 } from '@/components/icons';
 import { AdminBackButton } from '../components/admin';
 import { ActivityTab } from '../components/admin/userDetail/ActivityTab';
+import { SubscriptionTab } from '../components/admin/userDetail/SubscriptionTab';
 import { createNumberInputHandler, toNumber } from '../utils/inputHelpers';
 import { usePermissionStore } from '../store/permissions';
 import { MessageMediaGrid } from '../components/tickets/MessageMediaGrid';
 import { linkifyText } from '../utils/linkify';
-import { getFlagEmoji } from '../utils/subscriptionHelpers';
 import { formatDetailed, formatCompact } from '../utils/subscriptionTimeline';
 import { SubscriptionTimeline } from '../components/subscription/SubscriptionTimeline';
 
@@ -52,7 +51,6 @@ import { SubscriptionTimeline } from '../components/subscription/SubscriptionTim
 // Алгоритмический ISO 3166-1 alpha-2 → regional indicator (вместо хардкод-словаря,
 // который не покрывал все страны: например, EE раньше плыл сырым текстом в одних
 // местах, MX/AR/EG до сих пор отсутствуют в других). Единая точка истины в utils.
-const getCountryFlag = (code: string | null | undefined): string => getFlagEmoji(code);
 
 // ============ Components ============
 
@@ -872,28 +870,6 @@ export default function AdminUserDetail() {
     }
   };
 
-  const handleToggleModem = async (enabled: boolean) => {
-    if (!userId) return;
-    setActionLoading(true);
-    try {
-      await adminUsersApi.updateSubscription(userId, {
-        action: 'toggle_modem',
-        modem_enabled: enabled,
-        ...(activeSubscriptionId ? { subscription_id: activeSubscriptionId } : {}),
-      });
-      notify.success(
-        enabled
-          ? t('admin.users.detail.subscription.modemEnabled')
-          : t('admin.users.detail.subscription.modemDisabled'),
-      );
-      await loadUser();
-    } catch {
-      notify.error(t('admin.users.userActions.error'), t('common.error'));
-    } finally {
-      setActionLoading(false);
-    }
-  };
-
   // Multi-subscription: pick active subscription or first from list
   const userSubscriptions = useMemo(() => user?.subscriptions ?? [], [user?.subscriptions]);
   const selectedSub =
@@ -1195,6 +1171,48 @@ export default function AdminUserDetail() {
         notify.error(result.message || t('admin.users.userActions.error'), t('common.error'));
       }
     } catch {
+      notify.error(t('admin.users.userActions.error'), t('common.error'));
+    } finally {
+      setActionLoading(false);
+    }
+  };
+
+  const handleCancelSbpRecurring = async () => {
+    if (!userId || !selectedSub?.sbp_recurring_id) return;
+    setActionLoading(true);
+    try {
+      await adminUsersApi.cancelSbpRecurring(userId, selectedSub.id);
+      notify.success(t('admin.users.detail.subscription.sbpCancelled'), t('common.success'));
+      await loadUser();
+    } catch {
+      notify.error(t('admin.users.userActions.error'), t('common.error'));
+    } finally {
+      setActionLoading(false);
+    }
+  };
+
+  const handleDeleteSubscription = async () => {
+    if (!userId || !activeSubscriptionId) return;
+    const subIdToDelete: number = activeSubscriptionId;
+    if (
+      !confirm(
+        t(
+          'admin.users.detail.subscription.confirmDelete',
+          'Удалить подписку безвозвратно? Ключ будет удалён из Remnawave.',
+        ),
+      )
+    )
+      return;
+    setActionLoading(true);
+    try {
+      await adminUsersApi.deleteSubscription(userId, subIdToDelete);
+      notify.success(
+        t('admin.users.detail.subscription.deleted', 'Подписка удалена'),
+        t('common.success'),
+      );
+      await loadUser();
+    } catch (error) {
+      console.error('Failed to delete subscription:', error);
       notify.error(t('admin.users.userActions.error'), t('common.error'));
     } finally {
       setActionLoading(false);
@@ -2058,1094 +2076,66 @@ export default function AdminUserDetail() {
 
         {/* Subscription Tab */}
         {activeTab === 'subscription' && (
-          <div className="space-y-4">
-            {/* Multi-subscription: Level 1 — subscription list */}
-            {userSubscriptions.length > 1 && !subscriptionDetailView && (
-              <>
-                <div className="space-y-3">
-                  {userSubscriptions.map((sub) => (
-                    <button
-                      key={sub.id}
-                      onClick={() => {
-                        setActiveSubscriptionId(sub.id);
-                        setSubscriptionDetailView(true);
-                      }}
-                      className="w-full rounded-xl border border-dark-700/50 bg-dark-800/50 p-4 text-left transition-all hover:border-dark-600"
-                    >
-                      <div className="flex items-center justify-between">
-                        <div className="flex items-center gap-2">
-                          <span className="text-sm font-semibold text-dark-100">
-                            {sub.tariff_name || `#${sub.id}`}
-                          </span>
-                          <StatusBadge status={sub.status} />
-                        </div>
-                        <svg
-                          className="h-4 w-4 text-dark-500"
-                          fill="none"
-                          viewBox="0 0 24 24"
-                          stroke="currentColor"
-                          strokeWidth={2.5}
-                        >
-                          <path
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                            d="M8.25 4.5l7.5 7.5-7.5 7.5"
-                          />
-                        </svg>
-                      </div>
-                      <div className="mt-2 flex items-center gap-4 text-xs text-dark-400">
-                        <span>
-                          {sub.traffic_used_gb.toFixed(1)} / {sub.traffic_limit_gb}{' '}
-                          {t('common.units.gb')}
-                        </span>
-                        <span>{formatDate(sub.end_date)}</span>
-                        <span>
-                          {sub.device_limit}{' '}
-                          {t('admin.users.detail.subscription.devices', 'устройств')}
-                        </span>
-                      </div>
-                    </button>
-                  ))}
-                </div>
-
-                {/* Create new subscription — at list level */}
-                {hasPermission('users:subscription') && (
-                  <div className="rounded-xl bg-dark-800/50 p-4">
-                    <div className="mb-3 text-sm font-medium text-dark-200">
-                      {t('admin.users.detail.subscription.createNew', 'Создать подписку')}
-                    </div>
-                    <div className="space-y-3">
-                      <select
-                        value={selectedTariffId || ''}
-                        onChange={(e) =>
-                          setSelectedTariffId(e.target.value ? parseInt(e.target.value) : null)
-                        }
-                        className="input"
-                      >
-                        <option value="">
-                          {t('admin.users.detail.subscription.selectTariff')}
-                        </option>
-                        {tariffs
-                          .filter((tariffItem) => {
-                            const purchasedIds = new Set(
-                              userSubscriptions
-                                .filter(
-                                  (s) =>
-                                    s.is_active || s.status === 'trial' || s.status === 'limited',
-                                )
-                                .map((s) => s.tariff_id),
-                            );
-                            return !purchasedIds.has(tariffItem.id);
-                          })
-                          .map((tariffItem) => (
-                            <option key={tariffItem.id} value={tariffItem.id}>
-                              {tariffItem.name}
-                            </option>
-                          ))}
-                      </select>
-                      <input
-                        type="number"
-                        value={subDays}
-                        onChange={createNumberInputHandler(setSubDays, 1)}
-                        placeholder={t('admin.users.detail.subscription.days')}
-                        className="input"
-                        min={1}
-                        max={3650}
-                      />
-                      <button
-                        onClick={() => handleUpdateSubscription('create')}
-                        disabled={actionLoading}
-                        className="btn-primary w-full"
-                      >
-                        {actionLoading
-                          ? t('admin.users.detail.subscription.creating')
-                          : t('admin.users.detail.subscription.create')}
-                      </button>
-                    </div>
-                  </div>
-                )}
-              </>
-            )}
-
-            {/* Level 2 — subscription detail (or single subscription) */}
-            {(subscriptionDetailView || userSubscriptions.length <= 1) && selectedSub ? (
-              <>
-                {/* Back to list (multi-subscription) */}
-                {subscriptionDetailView && userSubscriptions.length > 1 && (
-                  <button
-                    onClick={() => setSubscriptionDetailView(false)}
-                    className="flex items-center gap-1.5 text-sm text-dark-400 transition-colors hover:text-dark-200"
-                  >
-                    <svg
-                      className="h-4 w-4"
-                      fill="none"
-                      viewBox="0 0 24 24"
-                      stroke="currentColor"
-                      strokeWidth={2}
-                    >
-                      <path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7" />
-                    </svg>
-                    {t('admin.users.detail.subscription.backToList', 'Все подписки')}
-                  </button>
-                )}
-
-                {/* Current subscription */}
-                <div className="rounded-xl bg-dark-800/50 p-4">
-                  <div className="mb-3 flex items-center justify-between">
-                    <span className="font-medium text-dark-200">
-                      {t('admin.users.detail.subscription.current')}
-                      {userSubscriptions.length > 1 && (
-                        <span className="ml-2 text-xs text-dark-500">#{selectedSub.id}</span>
-                      )}
-                    </span>
-                    <StatusBadge status={selectedSub.status} />
-                  </div>
-                  <div className="grid grid-cols-2 gap-3">
-                    <div>
-                      <div className="text-xs text-dark-500">
-                        {t('admin.users.detail.subscription.tariff')}
-                      </div>
-                      <div className="text-dark-100">
-                        {selectedSub.tariff_name ||
-                          t('admin.users.detail.subscription.notSpecified')}
-                      </div>
-                    </div>
-                    <div>
-                      <div className="text-xs text-dark-500">
-                        {t('admin.users.detail.subscription.validUntil')}
-                      </div>
-                      <div className="text-dark-100">{formatDate(selectedSub.end_date)}</div>
-                    </div>
-                    <div>
-                      <div className="text-xs text-dark-500">
-                        {t('admin.users.detail.subscription.traffic')}
-                      </div>
-                      <div className="text-dark-100">
-                        {panelInfo?.found
-                          ? (panelInfo.used_traffic_bytes / (1024 * 1024 * 1024)).toFixed(1)
-                          : selectedSub.traffic_used_gb.toFixed(1)}{' '}
-                        / {selectedSub.traffic_limit_gb} {t('common.units.gb')}
-                      </div>
-                    </div>
-                    <div>
-                      <div className="text-xs text-dark-500">
-                        {t('admin.users.detail.subscription.devices')}
-                      </div>
-                      <div className="flex items-center gap-2">
-                        <button
-                          onClick={() => handleSetDeviceLimit(selectedSub.device_limit - 1)}
-                          disabled={actionLoading || selectedSub.device_limit <= 1}
-                          className="flex h-6 w-6 items-center justify-center rounded-md bg-dark-700 text-dark-300 transition-colors hover:bg-dark-600 disabled:opacity-30"
-                        >
-                          <MinusIcon />
-                        </button>
-                        <span className="min-w-[2ch] text-center text-dark-100">
-                          {selectedSub.device_limit}
-                        </span>
-                        <button
-                          onClick={() => handleSetDeviceLimit(selectedSub.device_limit + 1)}
-                          disabled={
-                            actionLoading ||
-                            (currentTariff?.max_device_limit != null &&
-                              selectedSub.device_limit >= currentTariff.max_device_limit)
-                          }
-                          className="flex h-6 w-6 items-center justify-center rounded-md bg-dark-700 text-dark-300 transition-colors hover:bg-dark-600 disabled:opacity-30"
-                        >
-                          <PlusIcon />
-                        </button>
-                      </div>
-                    </div>
-                    <div>
-                      <div className="text-xs text-dark-500">
-                        {t('admin.users.detail.subscription.modem')}
-                      </div>
-                      <button
-                        onClick={() => handleToggleModem(!selectedSub.modem_enabled)}
-                        disabled={actionLoading}
-                        className={`rounded-md px-2.5 py-1 text-xs font-medium transition-colors ${
-                          selectedSub.modem_enabled
-                            ? 'bg-success-500/20 text-success-400 hover:bg-success-500/30'
-                            : 'bg-dark-700 text-dark-400 hover:bg-dark-600'
-                        }`}
-                      >
-                        {selectedSub.modem_enabled ? '✅ ON' : '❌ OFF'}
-                      </button>
-                    </div>
-                  </div>
-                </div>
-
-                {/* Traffic Packages */}
-                {selectedSub.traffic_purchases && selectedSub.traffic_purchases.length > 0 && (
-                  <div className="rounded-xl bg-dark-800/50 p-4">
-                    <div className="mb-3 flex items-center justify-between">
-                      <span className="text-sm font-medium text-dark-200">
-                        {t('admin.users.detail.subscription.trafficPackages')}
-                        {selectedSub.purchased_traffic_gb > 0 && (
-                          <span className="ml-2 text-xs text-dark-400">
-                            ({selectedSub.purchased_traffic_gb} {t('common.units.gb')})
-                          </span>
-                        )}
-                      </span>
-                    </div>
-                    <div className="space-y-2">
-                      {selectedSub.traffic_purchases.map((tp) => (
-                        <div
-                          key={tp.id}
-                          className={`flex items-center justify-between rounded-lg px-3 py-2 ${
-                            tp.is_expired ? 'bg-dark-700/30 opacity-60' : 'bg-dark-700/50'
-                          }`}
-                        >
-                          <div className="min-w-0 flex-1">
-                            <div className="flex items-center gap-2 text-sm text-dark-200">
-                              <span className="font-medium">
-                                {tp.traffic_gb} {t('common.units.gb')}
-                              </span>
-                              {tp.is_expired ? (
-                                <span className="rounded-full bg-error-500/20 px-1.5 py-0.5 text-[10px] text-error-400">
-                                  {t('admin.users.detail.subscription.expired')}
-                                </span>
-                              ) : (
-                                <span className="text-xs text-dark-400">
-                                  {tp.days_remaining}{' '}
-                                  {t('admin.users.detail.subscription.daysLeft')}
-                                </span>
-                              )}
-                            </div>
-                          </div>
-                          {!tp.is_expired && (
-                            <button
-                              onClick={() =>
-                                handleInlineConfirm(`removeTraffic_${tp.id}`, () =>
-                                  handleRemoveTraffic(tp.id),
-                                )
-                              }
-                              disabled={actionLoading}
-                              className={`ml-2 shrink-0 rounded-lg px-2 py-1 text-xs transition-all disabled:opacity-50 ${
-                                confirmingAction === `removeTraffic_${tp.id}`
-                                  ? 'bg-error-500 text-white'
-                                  : 'text-dark-500 hover:bg-error-500/15 hover:text-error-400'
-                              }`}
-                            >
-                              {confirmingAction === `removeTraffic_${tp.id}` ? '?' : '\u00D7'}
-                            </button>
-                          )}
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                )}
-
-                {/* Add Traffic */}
-                {currentTariff &&
-                  currentTariff.traffic_topup_enabled &&
-                  Object.keys(currentTariff.traffic_topup_packages).length > 0 && (
-                    <div className="rounded-xl bg-dark-800/50 p-4">
-                      <div className="mb-3 text-sm font-medium text-dark-200">
-                        {t('admin.users.detail.subscription.addTraffic')}
-                      </div>
-                      <div className="flex gap-2">
-                        <select
-                          value={selectedTrafficGb}
-                          onChange={(e) => setSelectedTrafficGb(e.target.value)}
-                          className="input flex-1"
-                        >
-                          <option value="">
-                            {t('admin.users.detail.subscription.selectPackage')}
-                          </option>
-                          {Object.entries(currentTariff.traffic_topup_packages)
-                            .sort(([a], [b]) => Number(a) - Number(b))
-                            .map(([gb]) => (
-                              <option key={gb} value={gb}>
-                                {gb} {t('common.units.gb')}
-                              </option>
-                            ))}
-                        </select>
-                        <button
-                          onClick={() =>
-                            selectedTrafficGb && handleAddTraffic(Number(selectedTrafficGb))
-                          }
-                          disabled={actionLoading || !selectedTrafficGb}
-                          className="shrink-0 rounded-lg bg-accent-500 px-4 py-2 text-sm text-white transition-colors hover:bg-accent-600 disabled:opacity-50"
-                        >
-                          {t('admin.users.detail.subscription.addButton')}
-                        </button>
-                      </div>
-                      <div className="mt-2 text-xs text-dark-500">
-                        {t('admin.users.detail.subscription.addTrafficNote')}
-                      </div>
-                    </div>
-                  )}
-
-                {/* Actions */}
-                {hasPermission('users:subscription') && (
-                  <div className="rounded-xl bg-dark-800/50 p-4">
-                    <div className="mb-3 font-medium text-dark-200">
-                      {t('admin.users.detail.subscription.actions')}
-                    </div>
-                    <div className="space-y-3">
-                      <select
-                        value={subAction}
-                        onChange={(e) => setSubAction(e.target.value)}
-                        className="input"
-                      >
-                        <option value="extend">
-                          {t('admin.users.detail.subscription.extend')}
-                        </option>
-                        <option value="shorten">
-                          {t('admin.users.detail.subscription.shorten')}
-                        </option>
-                        {userSubscriptions.length <= 1 && (
-                          <option value="change_tariff">
-                            {t('admin.users.detail.subscription.changeTariff')}
-                          </option>
-                        )}
-                        <option value="cancel">
-                          {t('admin.users.detail.subscription.cancel')}
-                        </option>
-                        <option value="activate">
-                          {t('admin.users.detail.subscription.activate')}
-                        </option>
-                      </select>
-
-                      {(subAction === 'extend' || subAction === 'shorten') && (
-                        <input
-                          type="number"
-                          value={subDays}
-                          onChange={createNumberInputHandler(setSubDays, 1)}
-                          placeholder={t('admin.users.detail.subscription.days')}
-                          className="input"
-                          min={1}
-                          max={3650}
-                        />
-                      )}
-
-                      {subAction === 'change_tariff' && (
-                        <select
-                          value={selectedTariffId || ''}
-                          onChange={(e) =>
-                            setSelectedTariffId(e.target.value ? parseInt(e.target.value) : null)
-                          }
-                          className="input"
-                        >
-                          <option value="">
-                            {t('admin.users.detail.subscription.selectTariff')}
-                          </option>
-                          {tariffs.map((tariffItem) => (
-                            <option key={tariffItem.id} value={tariffItem.id}>
-                              {tariffItem.name}{' '}
-                              {!tariffItem.is_available &&
-                                t('admin.users.detail.subscription.unavailable')}
-                            </option>
-                          ))}
-                        </select>
-                      )}
-
-                      <button
-                        onClick={() => handleUpdateSubscription()}
-                        disabled={actionLoading}
-                        className="btn-primary w-full"
-                      >
-                        {actionLoading
-                          ? t('admin.users.actions.applying')
-                          : t('admin.users.actions.apply')}
-                      </button>
-
-                      {/* Delete subscription button */}
-                      <button
-                        onClick={async () => {
-                          if (!activeSubscriptionId) return;
-                          const subIdToDelete: number = activeSubscriptionId;
-                          if (
-                            !confirm(
-                              t(
-                                'admin.users.detail.subscription.confirmDelete',
-                                'Удалить подписку безвозвратно? Ключ будет удалён из Remnawave.',
-                              ),
-                            )
-                          )
-                            return;
-                          setActionLoading(true);
-                          try {
-                            await adminUsersApi.deleteSubscription(userId, subIdToDelete);
-                            notify.success(
-                              t('admin.users.detail.subscription.deleted', 'Подписка удалена'),
-                            );
-                            await loadUser();
-                          } catch (error) {
-                            console.error('Failed to delete subscription:', error);
-                          } finally {
-                            setActionLoading(false);
-                          }
-                        }}
-                        disabled={actionLoading || !activeSubscriptionId}
-                        className="w-full rounded-xl border border-red-500/30 bg-red-500/10 py-2.5 text-sm font-medium text-red-400 transition-colors hover:bg-red-500/20 disabled:opacity-50"
-                      >
-                        {t('admin.users.detail.subscription.delete', '🗑 Удалить подписку')}
-                      </button>
-                    </div>
-                  </div>
-                )}
-              </>
-            ) : null}
-
-            {/* Create new subscription — only for single-sub users or no subs */}
-            {hasPermission('users:subscription') && userSubscriptions.length <= 1 && (
-              <div className="rounded-xl bg-dark-800/50 p-4">
-                {userSubscriptions.length === 0 && (
-                  <div className="mb-4 text-center text-dark-400">
-                    {t('admin.users.detail.subscription.noActive')}
-                  </div>
-                )}
-                <div className="mb-3 text-sm font-medium text-dark-200">
-                  {t('admin.users.detail.subscription.createNew', 'Создать подписку')}
-                </div>
-                <div className="space-y-3">
-                  <select
-                    value={selectedTariffId || ''}
-                    onChange={(e) =>
-                      setSelectedTariffId(e.target.value ? parseInt(e.target.value) : null)
-                    }
-                    className="input"
-                  >
-                    <option value="">{t('admin.users.detail.subscription.selectTariff')}</option>
-                    {tariffs
-                      .filter((tariffItem) => {
-                        // In multi-tariff: hide tariffs user already has
-                        if (userSubscriptions.length > 0) {
-                          const purchasedIds = new Set(
-                            userSubscriptions
-                              .filter((s) => s.is_active || s.status === 'trial')
-                              .map((s) => s.tariff_id),
-                          );
-                          return !purchasedIds.has(tariffItem.id);
-                        }
-                        return true;
-                      })
-                      .map((tariffItem) => (
-                        <option key={tariffItem.id} value={tariffItem.id}>
-                          {tariffItem.name}
-                        </option>
-                      ))}
-                  </select>
-                  <input
-                    type="number"
-                    value={subDays}
-                    onChange={createNumberInputHandler(setSubDays, 1)}
-                    placeholder={t('admin.users.detail.subscription.days')}
-                    className="input"
-                    min={1}
-                    max={3650}
-                  />
-                  <button
-                    onClick={() => handleUpdateSubscription('create')}
-                    disabled={actionLoading}
-                    className="btn-primary w-full"
-                  >
-                    {actionLoading
-                      ? t('admin.users.detail.subscription.creating')
-                      : t('admin.users.detail.subscription.create')}
-                  </button>
-                </div>
-              </div>
-            )}
-
-            {/* Panel Info, Traffic, Devices — only inside subscription detail */}
-            {(subscriptionDetailView || userSubscriptions.length <= 1) && (
-              <>
-                {panelInfoLoading ? (
-                  <div className="flex justify-center rounded-xl bg-dark-800/50 py-8">
-                    <div className="h-6 w-6 animate-spin rounded-full border-2 border-accent-500 border-t-transparent" />
-                  </div>
-                ) : panelInfo && !panelInfo.found ? (
-                  <div className="rounded-xl border border-dark-700 bg-dark-800/50 p-4 text-center text-sm text-dark-400">
-                    {t('admin.users.detail.panelNotFound')}
-                  </div>
-                ) : panelInfo && panelInfo.found ? (
-                  <>
-                    {/* Links */}
-                    {(panelInfo.subscription_url || panelInfo.happ_link) && (
-                      <div className="rounded-xl bg-dark-800/50 p-4">
-                        <div className="mb-3 text-sm font-medium text-dark-200">
-                          {t('admin.users.detail.subscriptionUrl')} /{' '}
-                          {t('admin.users.detail.happLink')}
-                        </div>
-                        <div className="space-y-2">
-                          {panelInfo.subscription_url && (
-                            <button
-                              onClick={() => copyToClipboard(panelInfo.subscription_url!)}
-                              className="w-full rounded-lg bg-dark-700/50 p-2 text-left transition-colors hover:bg-dark-700"
-                            >
-                              <div className="mb-0.5 text-xs text-dark-500">
-                                {t('admin.users.detail.subscriptionUrl')}
-                              </div>
-                              <div className="truncate font-mono text-xs text-dark-200">
-                                {panelInfo.subscription_url}
-                              </div>
-                            </button>
-                          )}
-                          {panelInfo.happ_link && (
-                            <button
-                              onClick={() => copyToClipboard(panelInfo.happ_link!)}
-                              className="w-full rounded-lg bg-dark-700/50 p-2 text-left transition-colors hover:bg-dark-700"
-                            >
-                              <div className="mb-0.5 text-xs text-dark-500">
-                                {t('admin.users.detail.happLink')}
-                              </div>
-                              <div className="truncate font-mono text-xs text-dark-200">
-                                {panelInfo.happ_link}
-                              </div>
-                            </button>
-                          )}
-                        </div>
-                      </div>
-                    )}
-
-                    {/* Config */}
-                    {(panelInfo.trojan_password ||
-                      panelInfo.vless_uuid ||
-                      panelInfo.ss_password) && (
-                      <div className="rounded-xl bg-dark-800/50 p-4">
-                        <div className="mb-3 text-sm font-medium text-dark-200">
-                          {t('admin.users.detail.panelConfig')}
-                        </div>
-                        <div className="space-y-2">
-                          {panelInfo.trojan_password && (
-                            <button
-                              onClick={() => copyToClipboard(panelInfo.trojan_password!)}
-                              className="w-full rounded-lg bg-dark-700/50 p-2 text-left transition-colors hover:bg-dark-700"
-                            >
-                              <div className="mb-0.5 text-xs text-dark-500">
-                                {t('admin.users.detail.trojanPassword')}
-                              </div>
-                              <div className="truncate font-mono text-xs text-dark-200">
-                                {panelInfo.trojan_password}
-                              </div>
-                            </button>
-                          )}
-                          {panelInfo.vless_uuid && (
-                            <button
-                              onClick={() => copyToClipboard(panelInfo.vless_uuid!)}
-                              className="w-full rounded-lg bg-dark-700/50 p-2 text-left transition-colors hover:bg-dark-700"
-                            >
-                              <div className="mb-0.5 text-xs text-dark-500">
-                                {t('admin.users.detail.vlessUuid')}
-                              </div>
-                              <div className="truncate font-mono text-xs text-dark-200">
-                                {panelInfo.vless_uuid}
-                              </div>
-                            </button>
-                          )}
-                          {panelInfo.ss_password && (
-                            <button
-                              onClick={() => copyToClipboard(panelInfo.ss_password!)}
-                              className="w-full rounded-lg bg-dark-700/50 p-2 text-left transition-colors hover:bg-dark-700"
-                            >
-                              <div className="mb-0.5 text-xs text-dark-500">
-                                {t('admin.users.detail.ssPassword')}
-                              </div>
-                              <div className="truncate font-mono text-xs text-dark-200">
-                                {panelInfo.ss_password}
-                              </div>
-                            </button>
-                          )}
-                        </div>
-                      </div>
-                    )}
-
-                    {/* Connection info */}
-                    <div className="rounded-xl bg-dark-800/50 p-4">
-                      <div className="grid grid-cols-2 gap-3">
-                        <div>
-                          <div className="text-xs text-dark-500">
-                            {t('admin.users.detail.firstConnected')}
-                          </div>
-                          <div className="text-sm text-dark-100">
-                            {formatDate(panelInfo.first_connected_at)}
-                          </div>
-                        </div>
-                        <div>
-                          <div className="text-xs text-dark-500">
-                            {t('admin.users.detail.lastOnline')}
-                          </div>
-                          <div className="text-sm text-dark-100">
-                            {formatDate(panelInfo.online_at)}
-                          </div>
-                        </div>
-                        {panelInfo.last_connected_node_name && (
-                          <div className="col-span-2">
-                            <div className="text-xs text-dark-500">
-                              {t('admin.users.detail.lastNode')}
-                            </div>
-                            <div className="text-sm text-dark-100">
-                              {panelInfo.last_connected_node_name}
-                            </div>
-                          </div>
-                        )}
-                      </div>
-                    </div>
-
-                    {/* Live traffic */}
-                    <div className="rounded-xl bg-dark-800/50 p-4">
-                      <div className="mb-3 text-sm font-medium text-dark-200">
-                        {t('admin.users.detail.liveTraffic')}
-                      </div>
-                      <div className="mb-2">
-                        <div className="mb-1 flex justify-between text-xs">
-                          <span className="text-dark-400">
-                            {formatBytes(panelInfo.used_traffic_bytes)}
-                          </span>
-                          <span className="text-dark-500">
-                            {panelInfo.traffic_limit_bytes > 0
-                              ? formatBytes(panelInfo.traffic_limit_bytes)
-                              : '∞'}
-                          </span>
-                        </div>
-                        <div className="h-2 overflow-hidden rounded-full bg-dark-700">
-                          <div
-                            className="h-full rounded-full bg-accent-500 transition-all"
-                            style={{
-                              width:
-                                panelInfo.traffic_limit_bytes > 0
-                                  ? `${Math.min(100, (panelInfo.used_traffic_bytes / panelInfo.traffic_limit_bytes) * 100)}%`
-                                  : '0%',
-                            }}
-                          />
-                        </div>
-                      </div>
-                      <div className="text-xs text-dark-500">
-                        {t('admin.users.detail.lifetime')}:{' '}
-                        {formatBytes(panelInfo.lifetime_used_traffic_bytes)}
-                      </div>
-                    </div>
-
-                    {/* Node usage */}
-                    <div className="rounded-xl bg-dark-800/50 p-4">
-                      <div className="mb-3 flex items-center justify-between">
-                        <span className="text-sm font-medium text-dark-200">
-                          {t('admin.users.detail.nodeUsage')}
-                        </span>
-                        <div className="flex items-center gap-2">
-                          <div className="flex gap-1">
-                            {[1, 3, 7, 14, 30].map((d) => (
-                              <button
-                                key={d}
-                                onClick={() => setNodeUsageDays(d)}
-                                className={`rounded-lg px-2 py-1 text-xs transition-colors ${
-                                  nodeUsageDays === d
-                                    ? 'bg-accent-500/20 text-accent-400'
-                                    : 'text-dark-500 hover:text-dark-300'
-                                }`}
-                              >
-                                {d}d
-                              </button>
-                            ))}
-                          </div>
-                          <button
-                            onClick={() => loadSubscriptionData()}
-                            className="rounded-lg p-1 text-dark-500 transition-colors hover:text-dark-300"
-                            title={t('common.refresh')}
-                          >
-                            <RefreshIcon className="h-3.5 w-3.5" />
-                          </button>
-                        </div>
-                      </div>
-                      {nodeUsageForPeriod.length > 0 ? (
-                        <div className="space-y-2">
-                          {nodeUsageForPeriod.map((item) => {
-                            const maxBytes = nodeUsageForPeriod[0].total_bytes;
-                            const pct = maxBytes > 0 ? (item.total_bytes / maxBytes) * 100 : 0;
-                            return (
-                              <div key={item.node_uuid}>
-                                <div className="mb-1 flex justify-between text-xs">
-                                  <span className="text-dark-300">
-                                    {item.country_code && (
-                                      <span className="mr-1">
-                                        {getCountryFlag(item.country_code)}
-                                      </span>
-                                    )}
-                                    {item.node_name}
-                                  </span>
-                                  <span className="text-dark-400">
-                                    {formatBytes(item.total_bytes)}
-                                  </span>
-                                </div>
-                                <div className="h-1.5 overflow-hidden rounded-full bg-dark-700">
-                                  <div
-                                    className="h-full rounded-full bg-accent-500/60"
-                                    style={{ width: `${pct}%` }}
-                                  />
-                                </div>
-                              </div>
-                            );
-                          })}
-                        </div>
-                      ) : (
-                        <div className="py-2 text-center text-xs text-dark-500">-</div>
-                      )}
-                    </div>
-                  </>
-                ) : null}
-
-                {/* Devices */}
-                <div className="rounded-xl bg-dark-800/50 p-4">
-                  <div className="mb-3 flex items-center justify-between">
-                    <span className="text-sm font-medium text-dark-200">
-                      {t('admin.users.detail.devices.title')} ({devicesTotal}/{deviceLimit})
-                    </span>
-                    <div className="flex items-center gap-2">
-                      <button
-                        onClick={() => loadDevices()}
-                        className="rounded-lg p-1 text-dark-500 transition-colors hover:text-dark-300"
-                        title={t('common.refresh')}
-                      >
-                        <RefreshIcon className="h-3.5 w-3.5" />
-                      </button>
-                      {devices.length > 0 && (
-                        <button
-                          onClick={() => handleInlineConfirm('resetDevices', handleResetDevices)}
-                          disabled={actionLoading}
-                          className={`rounded-lg px-2 py-1 text-xs font-medium transition-all disabled:opacity-50 ${
-                            confirmingAction === 'resetDevices'
-                              ? 'bg-error-500 text-white'
-                              : 'bg-error-500/15 text-error-400 hover:bg-error-500/25'
-                          }`}
-                        >
-                          {confirmingAction === 'resetDevices'
-                            ? t('admin.users.detail.actions.areYouSure')
-                            : t('admin.users.detail.devices.resetAll')}
-                        </button>
-                      )}
-                    </div>
-                  </div>
-                  {devicesLoading ? (
-                    <div className="flex justify-center py-4">
-                      <div className="h-5 w-5 animate-spin rounded-full border-2 border-accent-500 border-t-transparent" />
-                    </div>
-                  ) : devices.length > 0 ? (
-                    <div className="space-y-2">
-                      {devices.map((device) => {
-                        const isEditing = editingDeviceHwid === device.hwid;
-                        // Display priority: alias \u2192 model \u2192 platform \u2192 hwid prefix.
-                        const displayName =
-                          (device.local_name && device.local_name.trim()) ||
-                          device.platform ||
-                          device.device_model ||
-                          device.hwid.slice(0, 12);
-
-                        return (
-                          <div
-                            key={device.hwid}
-                            className="flex items-center justify-between rounded-lg bg-dark-700/50 px-3 py-2"
-                          >
-                            <div className="min-w-0 flex-1">
-                              {isEditing ? (
-                                <input
-                                  type="text"
-                                  autoFocus
-                                  value={editingDeviceName}
-                                  maxLength={DEVICE_ALIAS_MAX_LENGTH}
-                                  placeholder={
-                                    device.platform ||
-                                    device.device_model ||
-                                    device.hwid.slice(0, 12)
-                                  }
-                                  onChange={(e) => setEditingDeviceName(e.target.value)}
-                                  onKeyDown={(e) => {
-                                    if (e.key === 'Enter') {
-                                      e.preventDefault();
-                                      handleRenameDevice(device.hwid);
-                                    } else if (e.key === 'Escape') {
-                                      e.preventDefault();
-                                      setEditingDeviceHwid(null);
-                                      setEditingDeviceName('');
-                                    }
-                                  }}
-                                  className="w-full rounded-md bg-dark-900/70 px-2 py-1 text-xs font-medium text-dark-50 outline-none ring-1 ring-dark-600/60 focus:ring-accent-500/50"
-                                />
-                              ) : (
-                                <div className="truncate text-xs font-medium text-dark-200">
-                                  {displayName}
-                                </div>
-                              )}
-                              <div className="mt-0.5 flex items-center gap-2 text-[10px] text-dark-500">
-                                {device.device_model && device.platform && (
-                                  <span>{device.device_model}</span>
-                                )}
-                                <span className="font-mono">{device.hwid.slice(0, 8)}...</span>
-                                {device.created_at && (
-                                  <span>
-                                    {new Date(device.created_at).toLocaleDateString(locale)}
-                                  </span>
-                                )}
-                              </div>
-                            </div>
-                            <div className="ml-2 flex shrink-0 items-center gap-1">
-                              {isEditing ? (
-                                <>
-                                  <button
-                                    type="button"
-                                    onClick={() => handleRenameDevice(device.hwid)}
-                                    disabled={renameSaving}
-                                    className="rounded-lg px-2 py-1 text-success-400 transition-all hover:bg-success-500/15 disabled:opacity-50"
-                                    title={t(
-                                      'admin.users.detail.devices.renameSave',
-                                      t(
-                                        'common.save',
-                                        '\u0421\u043E\u0445\u0440\u0430\u043D\u0438\u0442\u044C',
-                                      ),
-                                    )}
-                                    aria-label={t(
-                                      'admin.users.detail.devices.renameSave',
-                                      '\u0421\u043E\u0445\u0440\u0430\u043D\u0438\u0442\u044C',
-                                    )}
-                                  >
-                                    <svg
-                                      width="14"
-                                      height="14"
-                                      viewBox="0 0 24 24"
-                                      fill="none"
-                                      stroke="currentColor"
-                                      strokeWidth="2"
-                                      strokeLinecap="round"
-                                      strokeLinejoin="round"
-                                      aria-hidden="true"
-                                    >
-                                      <path d="M5 13l4 4L19 7" />
-                                    </svg>
-                                  </button>
-                                  <button
-                                    type="button"
-                                    onClick={() => {
-                                      setEditingDeviceHwid(null);
-                                      setEditingDeviceName('');
-                                    }}
-                                    disabled={renameSaving}
-                                    className="rounded-lg px-2 py-1 text-dark-500 transition-all hover:bg-dark-700 disabled:opacity-50"
-                                    title={t(
-                                      'common.cancel',
-                                      '\u041E\u0442\u043C\u0435\u043D\u0430',
-                                    )}
-                                    aria-label={t(
-                                      'common.cancel',
-                                      '\u041E\u0442\u043C\u0435\u043D\u0430',
-                                    )}
-                                  >
-                                    <svg
-                                      width="14"
-                                      height="14"
-                                      viewBox="0 0 24 24"
-                                      fill="none"
-                                      stroke="currentColor"
-                                      strokeWidth="2"
-                                      strokeLinecap="round"
-                                      strokeLinejoin="round"
-                                      aria-hidden="true"
-                                    >
-                                      <path d="M6 18L18 6M6 6l12 12" />
-                                    </svg>
-                                  </button>
-                                </>
-                              ) : (
-                                <>
-                                  <button
-                                    type="button"
-                                    onClick={() => {
-                                      setEditingDeviceHwid(device.hwid);
-                                      setEditingDeviceName(device.local_name || '');
-                                    }}
-                                    className="rounded-lg px-2 py-1 text-dark-500 transition-all hover:bg-accent-500/15 hover:text-accent-400"
-                                    title={t(
-                                      'admin.users.detail.devices.rename',
-                                      '\u041F\u0435\u0440\u0435\u0438\u043C\u0435\u043D\u043E\u0432\u0430\u0442\u044C',
-                                    )}
-                                    aria-label={t(
-                                      'admin.users.detail.devices.rename',
-                                      '\u041F\u0435\u0440\u0435\u0438\u043C\u0435\u043D\u043E\u0432\u0430\u0442\u044C',
-                                    )}
-                                  >
-                                    <svg
-                                      width="14"
-                                      height="14"
-                                      viewBox="0 0 24 24"
-                                      fill="none"
-                                      stroke="currentColor"
-                                      strokeWidth="1.5"
-                                      strokeLinecap="round"
-                                      strokeLinejoin="round"
-                                      aria-hidden="true"
-                                    >
-                                      <path d="M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L6.832 19.82a4.5 4.5 0 01-1.897 1.13l-2.685.8.8-2.685a4.5 4.5 0 011.13-1.897L16.863 4.487zm0 0L19.5 7.125" />
-                                    </svg>
-                                  </button>
-                                  <button
-                                    onClick={() =>
-                                      handleInlineConfirm(`deleteDevice_${device.hwid}`, () =>
-                                        handleDeleteDevice(device.hwid),
-                                      )
-                                    }
-                                    disabled={actionLoading}
-                                    className={`rounded-lg px-2 py-1 text-xs transition-all disabled:opacity-50 ${
-                                      confirmingAction === `deleteDevice_${device.hwid}`
-                                        ? 'bg-error-500 text-white'
-                                        : 'text-dark-500 hover:bg-error-500/15 hover:text-error-400'
-                                    }`}
-                                  >
-                                    {confirmingAction === `deleteDevice_${device.hwid}`
-                                      ? '?'
-                                      : '\u00D7'}
-                                  </button>
-                                </>
-                              )}
-                            </div>
-                          </div>
-                        );
-                      })}
-                    </div>
-                  ) : (
-                    <div className="py-2 text-center text-xs text-dark-500">
-                      {t('admin.users.detail.devices.none')}
-                    </div>
-                  )}
-                </div>
-
-                {/* Subscription Request History */}
-                <div className="rounded-xl bg-dark-800/50">
-                  <button
-                    onClick={() => {
-                      const next = !requestHistoryExpanded;
-                      setRequestHistoryExpanded(next);
-                      if (next && requestHistory.length === 0) {
-                        loadRequestHistory(0);
-                      }
-                    }}
-                    className="flex w-full items-center justify-between p-4 text-left"
-                  >
-                    <div className="flex items-center gap-2">
-                      <span className="text-sm font-medium text-dark-200">
-                        {t('admin.users.detail.requestHistory')}
-                      </span>
-                      {requestHistoryTotal > 0 && (
-                        <span className="rounded-full bg-accent-500/15 px-2 py-0.5 text-xs font-medium text-accent-400">
-                          {requestHistoryTotal}
-                        </span>
-                      )}
-                    </div>
-                    <svg
-                      className={`h-4 w-4 text-dark-500 transition-transform ${requestHistoryExpanded ? 'rotate-180' : ''}`}
-                      fill="none"
-                      viewBox="0 0 24 24"
-                      stroke="currentColor"
-                      strokeWidth={2}
-                    >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        d="M19.5 8.25l-7.5 7.5-7.5-7.5"
-                      />
-                    </svg>
-                  </button>
-
-                  {requestHistoryExpanded && (
-                    <div className="border-t border-dark-700/50 px-4 pb-4 pt-3">
-                      {/* Subscription selector for multi-tariff */}
-                      {userSubscriptions.length > 1 && (
-                        <div className="mb-3">
-                          <select
-                            value={requestHistorySubId || ''}
-                            onChange={(e) => {
-                              setRequestHistorySubId(Number(e.target.value) || null);
-                            }}
-                            className="w-full rounded-lg border border-dark-600 bg-dark-700 px-3 py-2 text-sm text-dark-100"
-                          >
-                            {userSubscriptions.map((sub) => (
-                              <option key={sub.id} value={sub.id}>
-                                {sub.tariff_name || `#${sub.id}`} — {sub.status}
-                              </option>
-                            ))}
-                          </select>
-                        </div>
-                      )}
-
-                      {requestHistoryLoading && requestHistory.length === 0 ? (
-                        <div className="flex justify-center py-6">
-                          <div className="h-5 w-5 animate-spin rounded-full border-2 border-accent-500 border-t-transparent" />
-                        </div>
-                      ) : requestHistory.length === 0 && !requestHistoryLoading ? (
-                        <div className="py-6 text-center text-sm text-dark-500">
-                          {t('admin.users.detail.noRequests')}
-                        </div>
-                      ) : (
-                        <>
-                          <div className="mb-2 text-xs text-dark-500">
-                            {t('admin.users.detail.requestHistoryTotal')}: {requestHistoryTotal}
-                          </div>
-
-                          {/* Table */}
-                          <div className="-mx-4 overflow-x-auto px-4">
-                            <table className="w-full min-w-[480px] text-left text-sm">
-                              <thead>
-                                <tr className="border-b border-dark-700/50 text-xs text-dark-500">
-                                  <th className="pb-2 pr-3 font-medium">
-                                    {t('admin.users.detail.requestAt')}
-                                  </th>
-                                  <th className="pb-2 pr-3 font-medium">
-                                    {t('admin.users.detail.requestIp')}
-                                  </th>
-                                  <th className="pb-2 font-medium">
-                                    {t('admin.users.detail.requestUserAgent')}
-                                  </th>
-                                </tr>
-                              </thead>
-                              <tbody>
-                                {requestHistory.map((record, idx) => (
-                                  <tr
-                                    key={record.id}
-                                    className={`border-b border-dark-700/30 ${idx % 2 === 0 ? 'bg-dark-800/30' : ''}`}
-                                  >
-                                    <td className="whitespace-nowrap py-2.5 pr-3 text-dark-200">
-                                      {formatDate(record.requestAt)}
-                                    </td>
-                                    <td className="whitespace-nowrap py-2.5 pr-3 font-mono text-xs text-dark-300">
-                                      {record.requestIp || '\u2014'}
-                                    </td>
-                                    <td
-                                      className="max-w-[200px] truncate py-2.5 text-xs text-dark-400"
-                                      title={record.userAgent || ''}
-                                    >
-                                      {record.userAgent
-                                        ? record.userAgent.length > 60
-                                          ? `${record.userAgent.slice(0, 60)}...`
-                                          : record.userAgent
-                                        : '\u2014'}
-                                    </td>
-                                  </tr>
-                                ))}
-                              </tbody>
-                            </table>
-                          </div>
-
-                          {/* Load more */}
-                          {requestHistory.length < requestHistoryTotal && (
-                            <button
-                              onClick={() => loadRequestHistory(requestHistoryOffset, true)}
-                              disabled={requestHistoryLoading}
-                              className="mt-3 flex min-h-[44px] w-full items-center justify-center rounded-lg bg-dark-700/50 py-2.5 text-sm text-dark-300 transition-colors hover:bg-dark-700 disabled:opacity-50"
-                            >
-                              {requestHistoryLoading ? (
-                                <div className="h-4 w-4 animate-spin rounded-full border-2 border-accent-500 border-t-transparent" />
-                              ) : (
-                                t('admin.users.detail.loadMore')
-                              )}
-                            </button>
-                          )}
-                        </>
-                      )}
-                    </div>
-                  )}
-                </div>
-              </>
-            )}
-          </div>
+          <SubscriptionTab
+            userSubscriptions={userSubscriptions}
+            selectedSub={selectedSub}
+            onCancelSbpRecurring={handleCancelSbpRecurring}
+            onDeleteSubscription={handleDeleteSubscription}
+            activeSubscriptionId={activeSubscriptionId}
+            onActiveSubscriptionChange={setActiveSubscriptionId}
+            subscriptionDetailView={subscriptionDetailView}
+            onSubscriptionDetailViewChange={setSubscriptionDetailView}
+            tariffs={tariffs}
+            currentTariff={currentTariff}
+            subAction={subAction}
+            subDays={subDays}
+            onSubActionChange={setSubAction}
+            onSubDaysChange={setSubDays}
+            selectedTariffId={selectedTariffId}
+            onSelectedTariffIdChange={setSelectedTariffId}
+            selectedTrafficGb={selectedTrafficGb}
+            onSelectedTrafficGbChange={setSelectedTrafficGb}
+            panelInfo={panelInfo}
+            panelInfoLoading={panelInfoLoading}
+            copyToClipboard={copyToClipboard}
+            formatBytes={formatBytes}
+            nodeUsageDays={nodeUsageDays}
+            onNodeUsageDaysChange={setNodeUsageDays}
+            nodeUsageForPeriod={nodeUsageForPeriod}
+            devices={devices}
+            devicesLoading={devicesLoading}
+            devicesTotal={devicesTotal}
+            deviceLimit={deviceLimit}
+            editingDeviceHwid={editingDeviceHwid}
+            editingDeviceName={editingDeviceName}
+            onEditingDeviceHwidChange={setEditingDeviceHwid}
+            onEditingDeviceNameChange={setEditingDeviceName}
+            renameSaving={renameSaving}
+            requestHistory={requestHistory}
+            requestHistoryLoading={requestHistoryLoading}
+            requestHistoryTotal={requestHistoryTotal}
+            requestHistoryOffset={requestHistoryOffset}
+            requestHistorySubId={requestHistorySubId}
+            requestHistoryExpanded={requestHistoryExpanded}
+            onRequestHistoryExpandedChange={setRequestHistoryExpanded}
+            onRequestHistorySubIdChange={setRequestHistorySubId}
+            actionLoading={actionLoading}
+            confirmingAction={confirmingAction}
+            onInlineConfirm={handleInlineConfirm}
+            onUpdateSubscription={handleUpdateSubscription}
+            onSetDeviceLimit={handleSetDeviceLimit}
+            onAddTraffic={handleAddTraffic}
+            onRemoveTraffic={handleRemoveTraffic}
+            onResetDevices={handleResetDevices}
+            onDeleteDevice={handleDeleteDevice}
+            onRenameDevice={handleRenameDevice}
+            onLoadDevices={loadDevices}
+            onLoadSubscriptionData={loadSubscriptionData}
+            onLoadRequestHistory={loadRequestHistory}
+            hasPermission={hasPermission}
+            formatDate={formatDate}
+            locale={locale}
+          />
         )}
 
         {/* Balance Tab */}

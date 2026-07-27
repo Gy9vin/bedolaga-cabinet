@@ -1,3 +1,4 @@
+import { uiLocale } from '@/utils/uiLocale';
 import { useState, useEffect, useRef } from 'react';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { useTranslation } from 'react-i18next';
@@ -335,11 +336,11 @@ export default function Balance() {
                     onClick={() => method.is_available && navigate(`/balance/top-up/${method.id}`)}
                   >
                     <div className="font-semibold text-dark-100">
-                      {translatedName || method.name}
+                      {method.name || translatedName}
                     </div>
-                    {(translatedDesc || method.description) && (
+                    {(method.description || translatedDesc) && (
                       <div className="mt-1 text-sm text-dark-500">
-                        {translatedDesc || method.description}
+                        {method.description || translatedDesc}
                       </div>
                     )}
                     <div className="mt-3 text-xs text-dark-400">
@@ -413,7 +414,7 @@ export default function Balance() {
                                   {getTypeLabel(tx.type)}
                                 </span>
                                 <span className="text-xs text-dark-500">
-                                  {new Date(tx.created_at).toLocaleDateString()}
+                                  {new Date(tx.created_at).toLocaleDateString(uiLocale())}
                                 </span>
                               </div>
                               {tx.description && (

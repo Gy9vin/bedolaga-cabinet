@@ -130,6 +130,8 @@ export interface SubscriptionTabProps {
   onAddTraffic: (gb: number) => Promise<void>;
   onRemoveTraffic: (purchaseId: number) => Promise<void>;
   onResetDevices: () => Promise<void>;
+  onCancelSbpRecurring: () => Promise<void>;
+  onDeleteSubscription: () => Promise<void>;
   onDeleteDevice: (hwid: string) => Promise<void>;
   onRenameDevice: (hwid: string) => Promise<void>;
   onLoadDevices: () => Promise<void>;
@@ -193,6 +195,8 @@ export function SubscriptionTab(props: SubscriptionTabProps) {
     onAddTraffic,
     onRemoveTraffic,
     onResetDevices,
+    onCancelSbpRecurring,
+    onDeleteSubscription,
     onDeleteDevice,
     onRenameDevice,
     onLoadDevices,
@@ -226,6 +230,14 @@ export function SubscriptionTab(props: SubscriptionTabProps) {
                       {sub.tariff_name || `#${sub.id}`}
                     </span>
                     <StatusBadge status={sub.status} />
+                    {sub.sbp_recurring_status && (
+                      <span
+                        title={t('admin.users.detail.subscription.sbpTitle')}
+                        className="rounded-full bg-accent-500/15 px-2 py-0.5 text-[10px] font-medium text-accent-400"
+                      >
+                        SBP
+                      </span>
+                    )}
                   </div>
                   <ChevronRightIcon className="h-4 w-4 text-dark-500" />
                 </div>
@@ -451,6 +463,45 @@ export function SubscriptionTab(props: SubscriptionTabProps) {
             </div>
           </div>
 
+          {/* SBP (Platega) recurring auto-payment — status comes from the admin
+              detail response; cancel is idempotent on the backend. */}
+          {selectedSub.sbp_recurring_status && (
+            <div className="rounded-xl bg-dark-800/50 p-4">
+              <div className="flex items-center justify-between">
+                <div>
+                  <div className="text-sm font-medium text-dark-200">
+                    {t('admin.users.detail.subscription.sbpTitle')}
+                  </div>
+                  <div className="mt-0.5 text-xs text-dark-400">
+                    {t(
+                      `admin.users.detail.subscription.sbpStatus_${selectedSub.sbp_recurring_status}`,
+                      selectedSub.sbp_recurring_status,
+                    )}
+                  </div>
+                </div>
+                {hasPermission('users:subscription') && (
+                  <button
+                    // Per-subscription confirm key: an armed confirm must not
+                    // survive switching to another subscription in the picker.
+                    onClick={() =>
+                      onInlineConfirm(`cancelSbpRecurring_${selectedSub.id}`, onCancelSbpRecurring)
+                    }
+                    disabled={actionLoading}
+                    className={`rounded-lg px-3 py-2 text-sm font-medium transition-all disabled:opacity-50 ${
+                      confirmingAction === `cancelSbpRecurring_${selectedSub.id}`
+                        ? 'bg-warning-500 text-white'
+                        : 'bg-warning-500/15 text-warning-400 hover:bg-warning-500/25'
+                    }`}
+                  >
+                    {confirmingAction === `cancelSbpRecurring_${selectedSub.id}`
+                      ? t('admin.users.detail.actions.areYouSure')
+                      : t('admin.users.detail.subscription.sbpCancel')}
+                  </button>
+                )}
+              </div>
+            </div>
+          )}
+
           {/* Traffic Packages */}
           {selectedSub.traffic_purchases && selectedSub.traffic_purchases.length > 0 && (
             <div className="rounded-xl bg-dark-800/50 p-4">
@@ -608,6 +659,15 @@ export function SubscriptionTab(props: SubscriptionTabProps) {
                   {actionLoading
                     ? t('admin.users.actions.applying')
                     : t('admin.users.actions.apply')}
+                </button>
+
+                {/* Delete subscription button */}
+                <button
+                  onClick={onDeleteSubscription}
+                  disabled={actionLoading || !activeSubscriptionId}
+                  className="w-full rounded-xl border border-red-500/30 bg-red-500/10 py-2.5 text-sm font-medium text-red-400 transition-colors hover:bg-red-500/20 disabled:opacity-50"
+                >
+                  {t('admin.users.detail.subscription.delete', '🗑 Удалить подписку')}
                 </button>
               </div>
             </div>

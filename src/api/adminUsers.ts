@@ -28,6 +28,8 @@ export interface UserSubscriptionInfo {
   last_autopay_status?: string | null;
   last_autopay_renewed_at?: string | null;
   last_autopay_period_days?: number | null;
+  sbp_recurring_status: string | null;
+  sbp_recurring_id: number | null;
   is_active: boolean;
   days_remaining: number;
   purchased_traffic_gb: number;
@@ -529,6 +531,14 @@ export const adminUsersApi = {
     return response.data;
   },
 
+  // Cancel a user's SBP (Platega) recurring auto-payment
+  cancelSbpRecurring: async (userId: number, subId: number): Promise<{ status: string }> => {
+    const response = await apiClient.post(
+      `/cabinet/admin/users/${userId}/subscriptions/${subId}/cancel-sbp-recurring`,
+    );
+    return response.data;
+  },
+
   // Update status
   updateStatus: async (
     userId: number,
@@ -553,6 +563,15 @@ export const adminUsersApi = {
   // Unblock user
   unblockUser: async (userId: number): Promise<UpdateUserStatusResponse> => {
     const response = await apiClient.post(`/cabinet/admin/users/${userId}/unblock`);
+    return response.data;
+  },
+
+  // Send direct Telegram message to user via bot (parity with bot's admin action)
+  sendMessage: async (
+    userId: number,
+    text: string,
+  ): Promise<{ success: boolean; message: string }> => {
+    const response = await apiClient.post(`/cabinet/admin/users/${userId}/send-message`, { text });
     return response.data;
   },
 
