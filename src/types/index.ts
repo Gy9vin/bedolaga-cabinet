@@ -870,3 +870,41 @@ export interface MergeResponse {
   refresh_token: string | null;
   user: User | null;
 }
+
+// Admin Merge Preview (with device info, for users:edit flow)
+export interface AdminMergeDeviceInfo {
+  hwid: string | null;
+  app: string | null;
+  platform: string | null;
+  last_seen: string | null;
+}
+
+export interface AdminMergeSubPreview {
+  subscription_id: number;
+  tariff_name: string | null;
+  end_date: string | null;
+  status: string;
+  subscription_url: string | null;
+  subscription_crypto_link: string | null;
+  remnawave_short_uuid: string | null;
+  devices_count: number | null;
+  devices: AdminMergeDeviceInfo[];
+}
+
+export interface AdminMergeUserPreview {
+  id: number;
+  username: string | null;
+  first_name: string | null;
+  email: string | null;
+  telegram_id: number | null;
+  auth_methods: string[];
+  balance_kopeks: number;
+  referrals_count: number;
+  created_at: string | null;
+  subscriptions: AdminMergeSubPreview[];
+}
+
+export interface AdminMergePreviewResponse {
+  primary: AdminMergeUserPreview;
+  secondary: AdminMergeUserPreview;
+}

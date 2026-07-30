@@ -915,10 +915,23 @@ export const adminUsersApi = {
   mergeUsers: async (
     primaryUserId: number,
     secondaryUserId: number,
+    keepSubscriptionId?: number | null,
   ): Promise<{ success: boolean; transferred: Record<string, unknown> }> => {
     const response = await apiClient.post(`/cabinet/admin/users/merge`, {
       primary_user_id: primaryUserId,
       secondary_user_id: secondaryUserId,
+      keep_subscription_id: keepSubscriptionId ?? null,
+    });
+    return response.data;
+  },
+
+  // Get merge preview (both users + subscriptions + live device counts)
+  getMergePreview: async (
+    primaryId: number,
+    secondaryId: number,
+  ): Promise<import('../types').AdminMergePreviewResponse> => {
+    const response = await apiClient.get('/cabinet/admin/users/merge/preview', {
+      params: { primary_user_id: primaryId, secondary_user_id: secondaryId },
     });
     return response.data;
   },
