@@ -4079,7 +4079,24 @@
             "linked": "Привязка успешна",
             "unlinked": "Отвязка успешна",
             "merged": "Аккаунты объединены"
-          }
+          },
+          "mergeSearchPlaceholder": "Поиск по имени, email, TG ID...",
+          "mergeSearchLabel": "Найти второй аккаунт",
+          "mergeSearchButton": "Найти",
+          "mergeSearchSubUntil": "до",
+          "mergePreviewTitle": "Сравнение аккаунтов",
+          "mergePrimaryAccountLabel": "Приоритетный аккаунт (выживет)",
+          "mergeSecondaryAccountLabel": "Второй аккаунт (будет удалён)",
+          "mergeChooseSurvivorLabel": "Приоритетный аккаунт",
+          "mergeChooseLinkLabel": "Сохранить ссылку подписки",
+          "mergeDevicesLabel": "Устройства",
+          "mergeDevicesNone": "нет",
+          "mergeDevicesUnavailable": "данные недоступны",
+          "mergeWarningV2": "Аккаунт {{survivor}} останется. Аккаунт {{deleted}} будет закрыт, его данные переедут в основной. Ссылка выбранной подписки сохранится. Действие необратимо.",
+          "mergeConfirmV2": "Подтвердить объединение",
+          "mergeBackToSearch": "Назад к поиску",
+          "mergeNoSubscription": "нет подписки",
+          "mergePickSubHint": "Выберите подписку, ссылку которой нужно сохранить"
         },
         "priceMultiplier": {
           "invalid": "Значение должно быть от 0.01 до 1000",
