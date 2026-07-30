@@ -3683,10 +3683,10 @@
             "unlinked": "Unlinked successfully",
             "merged": "Accounts merged successfully"
           },
-          "mergeV2": "Merge accounts (new flow)",
           "mergeSearchPlaceholder": "Search by name, email, TG ID...",
           "mergeSearchLabel": "Find second account",
           "mergeSearchButton": "Search",
+          "mergeSearchSubUntil": "until",
           "mergePreviewTitle": "Account comparison",
           "mergePrimaryAccountLabel": "Primary account (survives)",
           "mergeSecondaryAccountLabel": "Secondary account (will be deleted)",
@@ -3695,10 +3695,11 @@
           "mergeDevicesLabel": "Devices",
           "mergeDevicesNone": "none",
           "mergeDevicesUnavailable": "data unavailable",
-          "mergeWarningV2": "The selected account survives. Data from the other account moves to it. The chosen subscription link is preserved. This action is irreversible.",
+          "mergeWarningV2": "Account {{survivor}} will survive. Account {{deleted}} will be closed and its data will be moved to the primary account. The chosen subscription link will be preserved. This action is irreversible.",
           "mergeConfirmV2": "Confirm merge",
           "mergeBackToSearch": "Back to search",
-          "mergeNoSubscription": "no subscription"
+          "mergeNoSubscription": "no subscription",
+          "mergePickSubHint": "Please select a subscription whose link to keep"
         },
         "priceMultiplier": {
           "invalid": "Value must be between 0.01 and 1000",

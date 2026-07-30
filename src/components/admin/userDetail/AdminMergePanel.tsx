@@ -241,7 +241,7 @@ export function AdminMergePanel({ primaryUserId, onClose, onSuccess }: Props) {
             <div className="text-xs text-dark-500">
               #{u.id}
               {u.subscription_end_date &&
-                ` · до ${new Date(u.subscription_end_date).toLocaleDateString()}`}
+                ` · ${t('admin.users.detail.linking.mergeSearchSubUntil')} ${new Date(u.subscription_end_date).toLocaleDateString()}`}
             </div>
           </button>
         ))}
@@ -269,6 +269,18 @@ export function AdminMergePanel({ primaryUserId, onClose, onSuccess }: Props) {
     const primaryPreview = preview.primary;
     const secondaryPreview = preview.secondary;
 
+    const survivorPreview = survivorId === primaryPreview.id ? primaryPreview : secondaryPreview;
+    const deletedPreview = survivorId === primaryPreview.id ? secondaryPreview : primaryPreview;
+
+    const survivorLabel =
+      survivorPreview.first_name || survivorPreview.username || `#${survivorPreview.id}`;
+    const deletedLabel =
+      deletedPreview.first_name || deletedPreview.username || `#${deletedPreview.id}`;
+
+    const hasAnySub =
+      primaryPreview.subscriptions.length > 0 || secondaryPreview.subscriptions.length > 0;
+    const confirmDisabled = mergeLoading || (hasAnySub && keepSubId === null);
+
     return (
       <div className="space-y-4">
         <div className="text-sm font-semibold text-dark-200">
@@ -289,8 +301,17 @@ export function AdminMergePanel({ primaryUserId, onClose, onSuccess }: Props) {
         </div>
 
         <div className="rounded-lg border border-error-500/30 bg-error-500/10 p-3 text-xs text-error-300">
-          {t('admin.users.detail.linking.mergeWarningV2')}
+          {t('admin.users.detail.linking.mergeWarningV2', {
+            survivor: survivorLabel,
+            deleted: deletedLabel,
+          })}
         </div>
+
+        {hasAnySub && keepSubId === null && (
+          <div className="text-xs text-warning-400">
+            {t('admin.users.detail.linking.mergePickSubHint')}
+          </div>
+        )}
 
         <div className="flex gap-2">
           <button
@@ -306,7 +327,7 @@ export function AdminMergePanel({ primaryUserId, onClose, onSuccess }: Props) {
           </button>
           <button
             onClick={handleConfirm}
-            disabled={mergeLoading}
+            disabled={confirmDisabled}
             className="flex-1 rounded-lg bg-error-500 py-2 text-sm font-medium text-white hover:bg-error-600 disabled:opacity-50"
           >
             {mergeLoading ? t('common.loading') : t('admin.users.detail.linking.mergeConfirmV2')}
