@@ -322,34 +322,6 @@ export default function Referral() {
       <div className="bento-card">
         <h2 className="mb-4 text-lg font-semibold text-dark-100">{t('referral.yourLink')}</h2>
         <div className="space-y-3">
-          {/* Bot link */}
-          {botReferralLink && (
-            <div>
-              <div className="mb-1.5 flex items-center gap-2 text-sm font-medium text-dark-300">
-                <TelegramIcon className="h-4 w-4 text-accent-400" />
-                {t('referral.botLink')}
-              </div>
-              <div className="flex flex-col gap-2 sm:flex-row">
-                <input
-                  type="text"
-                  readOnly
-                  value={botReferralLink}
-                  className="input flex-1 text-sm"
-                />
-                <button
-                  onClick={() => copyLink(botReferralLink, 'bot')}
-                  className={`btn-primary shrink-0 px-4 ${
-                    copiedLink === 'bot' ? 'bg-success-500 hover:bg-success-500' : ''
-                  }`}
-                >
-                  {copiedLink === 'bot' ? <CheckIcon /> : <CopyIcon />}
-                  <span className="ml-2">
-                    {copiedLink === 'bot' ? t('referral.copied') : t('referral.copyLink')}
-                  </span>
-                </button>
-              </div>
-            </div>
-          )}
           {/* Cabinet link */}
           <div>
             <div className="mb-1.5 flex items-center gap-2 text-sm font-medium text-dark-300">
@@ -384,6 +356,34 @@ export default function Referral() {
               </div>
             </div>
           </div>
+          {/* Bot link */}
+          {botReferralLink && (
+            <div>
+              <div className="mb-1.5 flex items-center gap-2 text-sm font-medium text-dark-300">
+                <TelegramIcon className="h-4 w-4 text-accent-400" />
+                {t('referral.botLink')}
+              </div>
+              <div className="flex flex-col gap-2 sm:flex-row">
+                <input
+                  type="text"
+                  readOnly
+                  value={botReferralLink}
+                  className="input flex-1 text-sm"
+                />
+                <button
+                  onClick={() => copyLink(botReferralLink, 'bot')}
+                  className={`btn-primary shrink-0 px-4 ${
+                    copiedLink === 'bot' ? 'bg-success-500 hover:bg-success-500' : ''
+                  }`}
+                >
+                  {copiedLink === 'bot' ? <CheckIcon /> : <CopyIcon />}
+                  <span className="ml-2">
+                    {copiedLink === 'bot' ? t('referral.copied') : t('referral.copyLink')}
+                  </span>
+                </button>
+              </div>
+            </div>
+          )}
         </div>
         <div className="mt-3 flex items-start gap-3">
           <p className="flex-1 text-sm text-dark-500">

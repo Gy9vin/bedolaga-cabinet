@@ -34,20 +34,17 @@ export function MobileBottomNav({
   // when the wheel feature flag was on; that trade is hostile to the
   // support-user persona and was flagged by the /impeccable critique.
   //
-  // Slot priority when both Wheel and Referral are enabled and only
-  // four slots remain after Dashboard / Subscriptions / Balance / Support:
-  //   - Wheel wins (operator opted in as a deliberate brand moment)
-  //   - Referral falls back to the hamburger drawer
-  // When only one of them is enabled, that one fills the slot.
+  // Wheel and Referral are shown INDEPENDENTLY: when both feature flags are
+  // on, BOTH appear in the bar (operator wants referral reachable in the
+  // bottom nav without turning the wheel off). Support stays last and is
+  // always present. With both enabled the bar has 6 items — the flex layout
+  // (flex-1, min-w-56px) keeps them evenly sized on phone widths.
   const coreItems = [
     { path: '/', label: t('nav.dashboard'), icon: HomeIcon },
     { path: '/subscriptions', label: t('nav.subscription'), icon: SubscriptionIcon },
     { path: '/balance', label: t('nav.balance'), icon: WalletIcon },
-    ...(wheelEnabled
-      ? [{ path: '/wheel', label: t('nav.wheel'), icon: WheelIcon }]
-      : referralEnabled
-        ? [{ path: '/referral', label: t('nav.referral'), icon: UsersIcon }]
-        : []),
+    ...(wheelEnabled ? [{ path: '/wheel', label: t('nav.wheel'), icon: WheelIcon }] : []),
+    ...(referralEnabled ? [{ path: '/referral', label: t('nav.referral'), icon: UsersIcon }] : []),
     { path: '/support', label: t('nav.support'), icon: ChatIcon },
   ];
 
