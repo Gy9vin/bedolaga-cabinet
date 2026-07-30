@@ -1,5 +1,5 @@
 import apiClient from './client';
-import type { SupportConfig, SupportHelperConfig } from '../types';
+import type { LegalConsentConfig, SupportConfig, SupportHelperConfig } from '../types';
 
 export interface FaqPage {
   id: number;
@@ -142,6 +142,14 @@ export const infoApi = {
 
   getVisibility: async (): Promise<InfoVisibility> => {
     const response = await apiClient.get<InfoVisibility>('/cabinet/info/visibility');
+    return response.data;
+  },
+
+  // Публичный: экран логина запрашивает это ДО авторизации.
+  getLegalConsentConfig: async (language?: string): Promise<LegalConsentConfig> => {
+    const response = await apiClient.get<LegalConsentConfig>('/cabinet/info/legal-consent', {
+      params: language ? { language } : undefined,
+    });
     return response.data;
   },
 };

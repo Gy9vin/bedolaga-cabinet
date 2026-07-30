@@ -48,9 +48,12 @@ interface AuthState {
   initialize: () => Promise<void>;
   refreshUser: () => Promise<void>;
   checkAdminStatus: () => Promise<void>;
-  loginWithTelegram: (initData: string) => Promise<void>;
-  loginWithTelegramWidget: (data: TelegramWidgetData) => Promise<void>;
-  loginWithTelegramOIDC: (idToken: string) => Promise<void>;
+  loginWithTelegram: (initData: string, acceptedLegalDocuments?: string[]) => Promise<void>;
+  loginWithTelegramWidget: (
+    data: TelegramWidgetData,
+    acceptedLegalDocuments?: string[],
+  ) => Promise<void>;
+  loginWithTelegramOIDC: (idToken: string, acceptedLegalDocuments?: string[]) => Promise<void>;
   loginWithEmail: (email: string, password: string) => Promise<void>;
   loginWithOAuth: (
     provider: string,
@@ -64,6 +67,7 @@ interface AuthState {
     password: string,
     firstName?: string,
     referralCode?: string,
+    acceptedLegalDocuments?: string[],
   ) => Promise<RegisterResponse>;
 }
 
@@ -261,11 +265,17 @@ export const useAuthStore = create<AuthState>()(
         return initState.promise;
       },
 
-      loginWithTelegram: async (initData) => {
-        const campaignSlug = consumeCampaignSlug();
-        // Read without clearing — clear only after success so failed requests don't lose the code
+      loginWithTelegram: async (initData, acceptedLegalDocuments) => {
+        const campaignSlug = getPendingCampaignSlug();
         const referralCode = getPendingReferralCode();
-        const response = await authApi.loginTelegram(initData, campaignSlug, referralCode);
+        const response = await authApi.loginTelegram(
+          initData,
+          campaignSlug,
+          referralCode,
+          acceptedLegalDocuments,
+        );
+        // Clear only after successful auth — retry keeps the slugs
+        consumeCampaignSlug();
         consumeReferralCode();
         tokenStorage.setTokens(response.access_token, response.refresh_token);
         set({
@@ -278,10 +288,16 @@ export const useAuthStore = create<AuthState>()(
         await get().checkAdminStatus();
       },
 
-      loginWithTelegramWidget: async (data) => {
-        const campaignSlug = consumeCampaignSlug();
+      loginWithTelegramWidget: async (data, acceptedLegalDocuments) => {
+        const campaignSlug = getPendingCampaignSlug();
         const referralCode = getPendingReferralCode();
-        const response = await authApi.loginTelegramWidget(data, campaignSlug, referralCode);
+        const response = await authApi.loginTelegramWidget(
+          data,
+          campaignSlug,
+          referralCode,
+          acceptedLegalDocuments,
+        );
+        consumeCampaignSlug();
         consumeReferralCode();
         tokenStorage.setTokens(response.access_token, response.refresh_token);
         set({
@@ -294,10 +310,16 @@ export const useAuthStore = create<AuthState>()(
         await get().checkAdminStatus();
       },
 
-      loginWithTelegramOIDC: async (idToken) => {
-        const campaignSlug = consumeCampaignSlug();
+      loginWithTelegramOIDC: async (idToken, acceptedLegalDocuments) => {
+        const campaignSlug = getPendingCampaignSlug();
         const referralCode = getPendingReferralCode();
-        const response = await authApi.loginTelegramOIDC(idToken, campaignSlug, referralCode);
+        const response = await authApi.loginTelegramOIDC(
+          idToken,
+          campaignSlug,
+          referralCode,
+          acceptedLegalDocuments,
+        );
+        consumeCampaignSlug();
         consumeReferralCode();
         tokenStorage.setTokens(response.access_token, response.refresh_token);
         set({
@@ -367,7 +389,13 @@ export const useAuthStore = create<AuthState>()(
         await get().checkAdminStatus();
       },
 
-      registerWithEmail: async (email, password, firstName, referralCode) => {
+      registerWithEmail: async (
+        email,
+        password,
+        firstName,
+        referralCode,
+        acceptedLegalDocuments,
+      ) => {
         const code = referralCode || getPendingReferralCode() || undefined;
         const campaignSlug = getPendingCampaignSlug() || undefined;
         const response = await authApi.registerEmailStandalone({
@@ -377,6 +405,7 @@ export const useAuthStore = create<AuthState>()(
           language: navigator.language.split('-')[0] || 'ru',
           referral_code: code,
           campaign_slug: campaignSlug,
+          accepted_legal_documents: acceptedLegalDocuments,
         });
         consumeReferralCode();
         return response;
