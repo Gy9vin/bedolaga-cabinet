@@ -39,6 +39,7 @@ import {
 import { AdminBackButton } from '../components/admin';
 import { ActivityTab } from '../components/admin/userDetail/ActivityTab';
 import { SubscriptionTab } from '../components/admin/userDetail/SubscriptionTab';
+import { AdminMergePanel } from '../components/admin/userDetail/AdminMergePanel';
 import { createNumberInputHandler, toNumber } from '../utils/inputHelpers';
 import { usePermissionStore } from '../store/permissions';
 import { MessageMediaGrid } from '../components/tickets/MessageMediaGrid';
@@ -365,6 +366,7 @@ export default function AdminUserDetail() {
   const [mergeSecondaryId, setMergeSecondaryId] = useState('');
   const [mergeLoading, setMergeLoading] = useState(false);
   const [mergeConfirmed, setMergeConfirmed] = useState(false);
+  const [showNewMergePanel, setShowNewMergePanel] = useState(false);
 
   const userId = id ? parseInt(id, 10) : null;
 
@@ -2059,10 +2061,7 @@ export default function AdminUserDetail() {
                 </button>
                 {hasPermission('users:edit') && (
                   <button
-                    onClick={() => {
-                      setMergeConfirmed(false);
-                      setShowMergeModal(true);
-                    }}
+                    onClick={() => setShowNewMergePanel(true)}
                     disabled={actionLoading}
                     className="col-span-2 rounded-lg bg-violet-500/15 px-3 py-2 text-sm font-medium text-violet-400 transition-all hover:bg-violet-500/25 disabled:opacity-50"
                   >
@@ -3345,6 +3344,30 @@ export default function AdminUserDetail() {
               </button>
             </DialogFooter>
           </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* New Admin Merge Panel — full preview with subscription link choice */}
+      <Dialog
+        open={showNewMergePanel && !!userId && !!user}
+        onOpenChange={(o) => {
+          if (!o) setShowNewMergePanel(false);
+        }}
+      >
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>{t('admin.users.detail.linking.merge')}</DialogTitle>
+          </DialogHeader>
+          {showNewMergePanel && userId && (
+            <AdminMergePanel
+              primaryUserId={userId}
+              onClose={() => setShowNewMergePanel(false)}
+              onSuccess={() => {
+                setShowNewMergePanel(false);
+                loadUser();
+              }}
+            />
+          )}
         </DialogContent>
       </Dialog>
 
