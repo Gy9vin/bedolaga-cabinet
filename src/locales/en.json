@@ -240,6 +240,10 @@
     "invalidCredentials": "Invalid email or password",
     "tooManyAttempts": "Too many attempts. Please try again later",
     "verificationEmailNotice": "After registration, a verification email will be sent to your address",
+    "legalConsentPrefix": "I have read the",
+    "legalConsentTitle": "One more step",
+    "legalConsentSubtitle": "To create an account, confirm that you have read the documents.",
+    "legalConsentContinue": "Continue",
     "checkEmail": "Check your email",
     "verificationSent": "We sent a verification link to:",
     "clickLinkToVerify": "Click the link in the email to verify your account and log in.",
@@ -719,6 +723,33 @@
       "autopayHint": "Your subscription will be charged automatically via SBP, no card required",
       "purchaseButton": "⚡ Subscribe with SBP auto-payment",
       "purchaseHint": "First charge confirms the binding in your bank app; renewals are charged automatically per the tariff cadence."
+    },
+    "lavaRecurring": {
+      "title": "Lava auto-renewal",
+      "connect": "Connect",
+      "payFirst": "Pay the first invoice",
+      "cancel": "Disable",
+      "confirmCancel": "Disable Lava auto-renewal? The subscription will no longer renew automatically.",
+      "cancelled": "Lava auto-renewal disabled",
+      "enableError": "Could not enable Lava auto-renewal",
+      "cancelError": "Could not disable Lava auto-renewal",
+      "statusPending": "Waiting for the first invoice to be paid",
+      "statusActive": "Active",
+      "statusPastDue": "Payment failed — please try again",
+      "nextCharge": "next charge on {{date}}",
+      "amountPerPeriod": "{{amount}} ₽ {{period}}",
+      "amountPerDays": "{{amount}} ₽ every {{days}} days",
+      "period": {
+        "day": "daily",
+        "week": "weekly",
+        "month": "monthly",
+        "quarter": "quarterly",
+        "halfYear": "every six months",
+        "year": "yearly"
+      },
+      "autopayHint": "The subscription will renew automatically via Lava",
+      "purchaseButton": "⚡ Subscribe with Lava auto-renewal",
+      "purchaseHint": "The first invoice is paid via a Lava link; renewals are then charged automatically on the product’s schedule."
     },
     "backToList": "Back to subscriptions",
     "confirmDelete": "Delete subscription?",
@@ -1968,7 +1999,7 @@
     },
     "broadcasts": {
       "title": "Broadcasts",
-      "subtitle": "History and management",
+      "subtitle": "Mass sending of messages to users",
       "create": "Create Broadcast",
       "empty": "No broadcasts",
       "selectFilter": "Select audience",
@@ -2352,7 +2383,15 @@
       "supportHelperEnabled": "Support Helper",
       "supportHelperEnabledDesc": "Show helpful tips popup when contacting support",
       "legalFooter": "Legal Footer",
-      "legalFooterDesc": "Links to the offer, privacy policy and recurring payments at the bottom of the login page"
+      "legalFooterDesc": "Links to the offer, privacy policy and recurring payments at the bottom of the login page",
+      "botStartVideo": "Bot start-menu video",
+      "botStartVideoDesc": "The bot attaches this video to the /start message instead of the logo image. The file is uploaded to Telegram once — we only keep its identifier.",
+      "botStartVideoUpload": "Upload video",
+      "botStartVideoReplace": "Replace video",
+      "botStartVideoRemove": "Remove",
+      "botStartVideoActive": "Video is set",
+      "botStartVideoNone": "No video — the menu uses the logo image",
+      "botStartVideoError": "Could not upload the video"
     },
     "bulkActions": {
       "title": "Bulk Actions",
@@ -2801,7 +2840,9 @@
         "periodsRequired": "Add at least one period",
         "dailyPriceRequired": "Enter a price per day greater than 0",
         "trafficPackagesRequired": "Add at least one traffic package (or disable traffic topup)"
-      }
+      },
+      "lavaProductLabel": "Lava product (auto-renewal)",
+      "lavaProductDesc": "Product UUID from the Lava dashboard: price and charge period are configured there. Empty — auto-renewal is unavailable for this tariff."
     },
     "servers": {
       "title": "Squad Management",
@@ -3153,6 +3194,96 @@
       "revokeDialog": {
         "title": "Revoke Partner Status?",
         "description": "This will remove partner privileges. The partner will no longer earn commissions from referrals."
+      }
+    },
+    "coupons": {
+      "title": "Coupons",
+      "subtitle": "Wholesale batches of one-time subscription links",
+      "addBatch": "Create batch",
+      "noBatches": "No batches yet",
+      "days": "d.",
+      "stats": {
+        "batches": "Batches",
+        "active": "Active",
+        "redeemed": "Redeemed",
+        "revoked": "Revoked"
+      },
+      "list": {
+        "revoked": "Revoked",
+        "until": "Until",
+        "price": "Wholesale"
+      },
+      "pagination": {
+        "prev": "Previous",
+        "next": "Next",
+        "page": "Page {{current}} of {{total}}"
+      },
+      "form": {
+        "title": "New coupon batch",
+        "subtitle": "Every coupon is a one-time subscription link",
+        "name": "Batch name",
+        "namePlaceholder": "E.g. the partner name",
+        "tariff": "Tariff",
+        "selectTariff": "Select a tariff",
+        "periodDays": "Subscription days per coupon",
+        "couponsCount": "Number of coupons (1–500)",
+        "price": "Wholesale price per coupon, ₽",
+        "priceHint": "Bookkeeping only, 0 — not set",
+        "validDays": "Coupon lifetime, days",
+        "validDaysHint": "0 or empty — perpetual",
+        "create": "Create batch",
+        "creating": "Creating…",
+        "cancel": "Cancel",
+        "maxPerUser": "Per-user limit",
+        "maxPerUserHint": "How many coupons from this batch one person may redeem. 0 — unlimited; use 1 for giveaways and contests."
+      },
+      "validation": {
+        "nameRequired": "Enter the batch name",
+        "tariffRequired": "Select a tariff",
+        "periodInvalid": "Subscription days: 1 to 3650",
+        "countInvalid": "Number of coupons: 1 to 500"
+      },
+      "created": {
+        "title": "Batch created",
+        "linksLabel": "Links ({{count}})",
+        "copyAll": "Copy all",
+        "copied": "Copied",
+        "download": "Download .txt",
+        "toList": "Back to batches",
+        "toBatch": "Open batch"
+      },
+      "detail": {
+        "title": "Batch #{{id}}",
+        "total": "Total coupons",
+        "price": "Wholesale price",
+        "priceTotal": "total",
+        "validUntil": "Valid until",
+        "perpetual": "Perpetual",
+        "createdAt": "Created",
+        "linksTitle": "Active links ({{count}})",
+        "maxPerUser": "Per user"
+      },
+      "revoke": {
+        "button": "Revoke unredeemed ({{count}})",
+        "confirmTitle": "Revoke the batch?",
+        "confirmText": "{{count}} unredeemed coupons will be revoked. Their links will stop working. This cannot be undone.",
+        "confirm": "Revoke",
+        "cancel": "Cancel",
+        "success": "Coupons revoked: {{count}}"
+      },
+      "errors": {
+        "loadFailed": "Batch not found",
+        "createFailed": "Failed to create the batch",
+        "revokeFailed": "Failed to revoke the batch",
+        "deleteFailed": "Could not delete the batch"
+      },
+      "delete": {
+        "button": "🗑 Delete batch",
+        "confirmTitle": "Delete the batch?",
+        "confirmText": "{{count}} coupons will be deleted along with the batch itself.",
+        "redeemedWarning": "{{count}} of them are already redeemed. The redemption history will be lost; granted subscriptions are not revoked.",
+        "confirm": "Delete",
+        "success": "Batch deleted ({{count}} coupons)"
       }
     },
     "promocodes": {
@@ -3856,7 +3987,9 @@
         "sendError": "Failed to send offer",
         "notificationsSent": "Notifications sent",
         "offersCreated": "Offers created",
-        "notificationsFailed": "(failed: {{count}})"
+        "notificationsFailed": "(failed: {{count}})",
+        "deliveryTitle": "Telegram delivery",
+        "openAsBroadcast": "Open as broadcast"
       },
       "notFound": "Template not found",
       "noActiveTemplates": "No active templates",
@@ -4496,84 +4629,6 @@
       "charCount": "Characters: {{count}}",
       "botSplitEstimate_one": "⚠️ The bot will show it split into ~{{count}} message",
       "botSplitEstimate_other": "⚠️ The bot will show it split into ~{{count}} messages"
-    },
-    "coupons": {
-      "title": "Coupons",
-      "subtitle": "Wholesale batches of one-time subscription links",
-      "addBatch": "Create batch",
-      "noBatches": "No batches yet",
-      "days": "d.",
-      "stats": {
-        "batches": "Batches",
-        "active": "Active",
-        "redeemed": "Redeemed",
-        "revoked": "Revoked"
-      },
-      "list": {
-        "revoked": "Revoked",
-        "until": "Until",
-        "price": "Wholesale"
-      },
-      "pagination": {
-        "prev": "Previous",
-        "next": "Next",
-        "page": "Page {{current}} of {{total}}"
-      },
-      "form": {
-        "title": "New coupon batch",
-        "subtitle": "Every coupon is a one-time subscription link",
-        "name": "Batch name",
-        "namePlaceholder": "E.g. the partner name",
-        "tariff": "Tariff",
-        "selectTariff": "Select a tariff",
-        "periodDays": "Subscription days per coupon",
-        "couponsCount": "Number of coupons (1–500)",
-        "price": "Wholesale price per coupon, ₽",
-        "priceHint": "Bookkeeping only, 0 — not set",
-        "validDays": "Coupon lifetime, days",
-        "validDaysHint": "0 or empty — perpetual",
-        "create": "Create batch",
-        "creating": "Creating…",
-        "cancel": "Cancel"
-      },
-      "validation": {
-        "nameRequired": "Enter the batch name",
-        "tariffRequired": "Select a tariff",
-        "periodInvalid": "Subscription days: 1 to 3650",
-        "countInvalid": "Number of coupons: 1 to 500"
-      },
-      "created": {
-        "title": "Batch created",
-        "linksLabel": "Links ({{count}})",
-        "copyAll": "Copy all",
-        "copied": "Copied",
-        "download": "Download .txt",
-        "toList": "Back to batches",
-        "toBatch": "Open batch"
-      },
-      "detail": {
-        "title": "Batch #{{id}}",
-        "total": "Total coupons",
-        "price": "Wholesale price",
-        "priceTotal": "total",
-        "validUntil": "Valid until",
-        "perpetual": "Perpetual",
-        "createdAt": "Created",
-        "linksTitle": "Active links ({{count}})"
-      },
-      "revoke": {
-        "button": "Revoke unredeemed ({{count}})",
-        "confirmTitle": "Revoke the batch?",
-        "confirmText": "{{count}} unredeemed coupons will be revoked. Their links will stop working. This cannot be undone.",
-        "confirm": "Revoke",
-        "cancel": "Cancel",
-        "success": "Coupons revoked: {{count}}"
-      },
-      "errors": {
-        "loadFailed": "Batch not found",
-        "createFailed": "Failed to create the batch",
-        "revokeFailed": "Failed to revoke the batch"
-      }
     }
   },
   "adminUpdates": {
@@ -5558,7 +5613,15 @@
     "shareModalActivateVia": "Activate via bot:",
     "shareModalActivateViaCabinet": "Or via website:",
     "copyMessage": "Copy message",
-    "shareToastCopied": "Message copied"
+    "shareToastCopied": "Message copied",
+    "qrHint": "Scan to activate the gift",
+    "scanButton": "📷 Scan QR",
+    "scanInProgress": "Scanning…",
+    "scanCancel": "Stop scanning",
+    "scanDescription": "Point the camera at the gift QR code",
+    "scanNotRecognized": "No gift code in this QR",
+    "scanError": "Could not scan",
+    "scanNoCamera": "Camera unavailable — enter the code manually"
   },
   "news": {
     "title": "News & Updates",
