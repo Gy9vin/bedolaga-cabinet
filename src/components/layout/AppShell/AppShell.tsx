@@ -19,6 +19,7 @@ import { cn } from '@/lib/utils';
 import WebSocketNotifications from '@/components/WebSocketNotifications';
 import CampaignBonusNotifier from '@/components/CampaignBonusNotifier';
 import SuccessNotificationModal from '@/components/SuccessNotificationModal';
+import ChannelNudgeModal from '@/components/ChannelNudgeModal';
 import { PromptDialogHost } from '@/components/PromptDialogHost';
 import LanguageSwitcher from '@/components/LanguageSwitcher';
 import TicketNotificationBell from '@/components/TicketNotificationBell';
@@ -187,6 +188,7 @@ export function AppShell({ children }: AppShellProps) {
       <WebSocketNotifications />
       <CampaignBonusNotifier />
       <SuccessNotificationModal />
+      <ChannelNudgeModal />
       <PromptDialogHost />
 
       {/* Desktop Header */}

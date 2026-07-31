@@ -148,12 +148,14 @@ function ChannelCard({
   onDelete,
   onEdit,
   onUpdate,
+  onSetMain,
 }: {
   channel: RequiredChannel;
   onToggle: (id: number) => void;
   onDelete: (id: number) => void;
   onEdit: (channel: RequiredChannel) => void;
   onUpdate: (id: number, data: UpdateChannelRequest) => void;
+  onSetMain: (id: number) => void;
 }) {
   const { t } = useTranslation();
 
@@ -251,6 +253,44 @@ function ChannelCard({
           />
         </div>
       </div>
+
+      {/* is_main toggle */}
+      <div className="mt-3 flex items-center justify-between gap-3 rounded-lg bg-dark-700/30 px-3 py-2">
+        <div>
+          <p className="text-xs font-medium text-dark-200">
+            {t('admin.channelSubscriptions.isMain.label', 'Главный канал')}
+          </p>
+          <p className="mt-0.5 text-xs text-dark-400">
+            {t(
+              'admin.channelSubscriptions.isMain.desc',
+              'Бот мониторит посты этого канала для нуджа',
+            )}
+          </p>
+        </div>
+        <Toggle checked={channel.is_main} onChange={() => onSetMain(channel.id)} />
+      </div>
+
+      {/* Latest post read-only display (main channel only) */}
+      {channel.is_main && channel.last_post_message_id && (
+        <div className="mt-3 rounded-lg bg-dark-700/20 px-3 py-2">
+          <p className="text-xs font-medium text-dark-300">
+            {t('admin.channelSubscriptions.latestPost', 'Последний пост')}
+          </p>
+          {channel.last_post_title && (
+            <p className="mt-0.5 text-xs text-dark-400 line-clamp-2">{channel.last_post_title}</p>
+          )}
+          {channel.last_post_link && (
+            <a
+              href={channel.last_post_link}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="mt-1 inline-block text-xs text-primary-400 hover:underline"
+            >
+              {t('admin.channelSubscriptions.viewPost', 'Посмотреть →')}
+            </a>
+          )}
+        </div>
+      )}
 
       {/* Action buttons */}
       <div className="mt-3 flex flex-wrap gap-2 border-t border-dark-700/50 pt-3">
@@ -592,6 +632,18 @@ export default function AdminChannelSubscriptions() {
     },
   });
 
+  const setMainMutation = useMutation({
+    mutationFn: (id: number) => adminChannelsApi.setMain(id),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['admin-channels'] });
+      haptic.impact('light');
+    },
+    onError: () => {
+      haptic.notification('error');
+      notify.error(t('common.error'));
+    },
+  });
+
   const handleToggle = (id: number) => {
     toggleMutation.mutate(id);
   };
@@ -705,6 +757,7 @@ export default function AdminChannelSubscriptions() {
               onDelete={handleDelete}
               onEdit={handleEdit}
               onUpdate={handleUpdate}
+              onSetMain={(id) => setMainMutation.mutate(id)}
             />
           ))}
         </div>

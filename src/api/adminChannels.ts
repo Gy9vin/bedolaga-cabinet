@@ -7,9 +7,14 @@ export interface RequiredChannel {
   channel_link: string | null;
   title: string | null;
   is_active: boolean;
+  is_main: boolean;
   sort_order: number;
   disable_trial_on_leave: boolean;
   disable_paid_on_leave: boolean;
+  last_post_message_id: number | null;
+  last_post_link: string | null;
+  last_post_title: string | null;
+  last_post_at: string | null;
 }
 
 export interface ChannelListResponse {
@@ -110,6 +115,13 @@ export const adminChannelsApi = {
   cancelReport: async (reportId: string): Promise<{ cancelled: boolean }> => {
     const { data } = await apiClient.post<{ cancelled: boolean }>(
       `/cabinet/admin/channel-subscriptions/reports/${reportId}/cancel`,
+    );
+    return data;
+  },
+
+  setMain: async (id: number): Promise<RequiredChannel> => {
+    const { data } = await apiClient.post<RequiredChannel>(
+      `/cabinet/admin/channel-subscriptions/${id}/set-main`,
     );
     return data;
   },

@@ -1,4 +1,12 @@
 {
+  "channelNudge": {
+    "newPost": "🆕 New in channel",
+    "openPost": "Open post",
+    "subscribeTitle": "Subscribe to our channel",
+    "subscribeBody": "Subscribe to our channel to stay up to date with the latest news!",
+    "subscribeButton": "Subscribe",
+    "close": "Close"
+  },
   "common": {
     "loading": "Loading...",
     "error": "Error",
@@ -2190,7 +2198,13 @@
         "disableTrialDesc": "Revoke trial when user leaves this channel",
         "disablePaid": "Disable paid on leave",
         "disablePaidDesc": "Revoke paid access when user leaves this channel"
-      }
+      },
+      "isMain": {
+        "label": "Main channel",
+        "desc": "Bot monitors posts from this channel and shows the nudge"
+      },
+      "latestPost": "Latest post",
+      "viewPost": "View →"
     },
     "settings": {
       "title": "System Settings",
