@@ -34,7 +34,7 @@ export default function ChannelNudgeModal() {
     queryKey: ['channel-nudge'],
     queryFn: getChannelNudge,
     staleTime: 60_000,
-    retry: false,
+    retry: 1,
   });
 
   const shouldShow =
@@ -57,11 +57,13 @@ export default function ChannelNudgeModal() {
   const handleClose = useCallback(() => {
     setDismissed(true);
 
+    // Both actions are independent — run whichever applies (both may apply together).
     if (data?.latest_post?.id != null) {
-      // Post nudge: server-side throttle (already called on show, idempotent).
+      // Post seen: server-side throttle (already called on show, idempotent).
       markChannelPostSeen(data.latest_post.id).catch(() => {});
-    } else if (data?.needs_subscribe) {
-      // Subscribe-only nudge: client-side 24-h throttle.
+    }
+    if (data?.needs_subscribe) {
+      // Subscribe nudge: client-side 24-h throttle.
       const now = Date.now();
       writeSubscribeDismissedAt(now);
       setLastDismissedAt(now);
@@ -72,14 +74,14 @@ export default function ChannelNudgeModal() {
 
   const modal = (
     <div
-      className="fixed inset-0 z-[200] flex items-end justify-center sm:items-center"
+      className="pointer-events-none fixed inset-0 z-[200] flex items-end justify-center sm:items-center"
       data-testid="channel-nudge-modal"
     >
-      {/* Backdrop — clicking it dismisses without blocking navigation */}
-      <div className="absolute inset-0 bg-black/40" onClick={handleClose} aria-hidden="true" />
+      {/* Backdrop — visual dim only; pointer-events-none so cabinet stays clickable */}
+      <div className="absolute inset-0 bg-black/40" aria-hidden="true" />
 
-      {/* Panel */}
-      <div className="relative z-10 mx-4 mb-6 w-full max-w-sm rounded-2xl border border-dark-700 bg-dark-900 p-5 shadow-xl sm:mb-0">
+      {/* Panel — re-enable pointer events so panel itself is interactive */}
+      <div className="pointer-events-auto relative z-10 mx-4 mb-6 w-full max-w-sm rounded-2xl border border-dark-700 bg-dark-900 p-5 shadow-xl sm:mb-0">
         {/* Post block (shown to all when show_post=true) */}
         {data.show_post && data.latest_post && (
           <div className="mb-4">

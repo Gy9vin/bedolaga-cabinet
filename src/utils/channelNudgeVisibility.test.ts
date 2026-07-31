@@ -68,6 +68,56 @@ describe('shouldShowChannelNudge', () => {
     ).toBe(true);
   });
 
+  // ── C1 fix: subscribe shown even when latest_post is populated ──────────────
+
+  it('shows subscribe nudge when needs_subscribe=true, latest_post present, never dismissed (C1)', () => {
+    expect(
+      shouldShowChannelNudge({
+        show_post: false,
+        needs_subscribe: true,
+        latest_post: { id: 5 },
+        lastDismissedAt: null,
+        nowMs: NOW,
+      }),
+    ).toBe(true);
+  });
+
+  it('hides subscribe nudge when needs_subscribe=true, latest_post present, dismissed 1h ago (C1)', () => {
+    expect(
+      shouldShowChannelNudge({
+        show_post: false,
+        needs_subscribe: true,
+        latest_post: { id: 5 },
+        lastDismissedAt: NOW - 60 * 60 * 1000, // 1 h ago
+        nowMs: NOW,
+      }),
+    ).toBe(false);
+  });
+
+  it('shows subscribe nudge when needs_subscribe=true, latest_post present, dismissed 25h ago (C1)', () => {
+    expect(
+      shouldShowChannelNudge({
+        show_post: false,
+        needs_subscribe: true,
+        latest_post: { id: 5 },
+        lastDismissedAt: NOW - 25 * 60 * 60 * 1000, // 25 h ago
+        nowMs: NOW,
+      }),
+    ).toBe(true);
+  });
+
+  it('shows when show_post=true regardless of needs_subscribe or latest_post (C1)', () => {
+    expect(
+      shouldShowChannelNudge({
+        show_post: true,
+        needs_subscribe: true,
+        latest_post: { id: 5 },
+        lastDismissedAt: NOW - 1000,
+        nowMs: NOW,
+      }),
+    ).toBe(true);
+  });
+
   // ── nothing to show ──────────────────────────────────────────────────────────
 
   it('hides when show_post=false and needs_subscribe=false', () => {

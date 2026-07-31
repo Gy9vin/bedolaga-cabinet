@@ -25,13 +25,20 @@ export interface NudgeVisibilityInput {
  * Returns true when the ChannelNudge popup should be rendered.
  */
 export function shouldShowChannelNudge(input: NudgeVisibilityInput): boolean {
-  const { show_post, needs_subscribe, latest_post, lastDismissedAt, nowMs = Date.now() } = input;
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  const {
+    show_post,
+    needs_subscribe,
+    latest_post: _latest_post,
+    lastDismissedAt,
+    nowMs = Date.now(),
+  } = input;
 
   // Case 1: there is a fresh post to show — always show once per post (server throttles).
   if (show_post) return true;
 
-  // Case 2: user is not subscribed but no new post — throttle to once per 24h.
-  if (needs_subscribe && latest_post == null) {
+  // Case 2: user is not subscribed — throttle to once per 24h regardless of latest_post.
+  if (needs_subscribe) {
     if (lastDismissedAt == null) return true;
     return nowMs - lastDismissedAt >= SUBSCRIBE_NUDGE_COOLDOWN_MS;
   }
