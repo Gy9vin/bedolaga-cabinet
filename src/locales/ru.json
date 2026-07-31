@@ -4192,7 +4192,7 @@
           "unlinkEmail": "Отвязать email",
           "linkTelegram": "Привязать Telegram",
           "unlinkTelegram": "Отвязать Telegram",
-          "merge": "Слить с другим аккаунтом",
+          "merge": "Объединить с другим аккаунтом",
           "mergeWarning": "Аккаунт #{{id}} будет удалён, его балансы и подписки перейдут текущему пользователю. Действие необратимо.",
           "generatedPasswordTitle": "Сгенерированный пароль",
           "generatedPasswordWarning": "Сохраните пароль — он показывается только один раз",
