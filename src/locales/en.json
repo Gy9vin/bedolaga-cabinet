@@ -2198,7 +2198,13 @@
         "disableTrialDesc": "Revoke trial when user leaves this channel",
         "disablePaid": "Disable paid on leave",
         "disablePaidDesc": "Revoke paid access when user leaves this channel"
-      }
+      },
+      "isMain": {
+        "label": "Main channel",
+        "desc": "Bot monitors posts from this channel and shows the nudge"
+      },
+      "latestPost": "Latest post",
+      "viewPost": "View →"
     },
     "settings": {
       "title": "System Settings",
