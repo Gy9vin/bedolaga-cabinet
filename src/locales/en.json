@@ -1,4 +1,12 @@
 {
+  "channelNudge": {
+    "newPost": "🆕 New in channel",
+    "openPost": "Open post",
+    "subscribeTitle": "Subscribe to our channel",
+    "subscribeBody": "Subscribe to our channel to stay up to date with the latest news!",
+    "subscribeButton": "Subscribe",
+    "close": "Close"
+  },
   "common": {
     "loading": "Loading...",
     "error": "Error",
