@@ -363,3 +363,14 @@ export const authApi = {
     return response.data;
   },
 };
+
+export interface BackupLoginSuggestionResponse {
+  needs_backup: boolean;
+}
+
+export const getBackupLoginSuggestion = async (): Promise<BackupLoginSuggestionResponse> => {
+  const response = await apiClient.get<BackupLoginSuggestionResponse>(
+    '/cabinet/auth/account/backup-login-suggestion',
+  );
+  return response.data;
+};

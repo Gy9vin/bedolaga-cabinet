@@ -269,7 +269,13 @@
     "continueWithDiscord": "Продолжить через Discord",
     "continueWithVk": "Продолжить через VK",
     "oauthError": "Авторизация отклонена или не удалась",
-    "oauthExpired": "Сессия OAuth истекла. Попробуйте снова."
+    "oauthExpired": "Сессия OAuth истекла. Попробуйте снова.",
+    "backupLogin": {
+      "title": "Привяжи резервный способ входа",
+      "description": "Сможешь заходить на сайт и продлевать подписку в любой момент — даже если сменишь Telegram.",
+      "linkButton": "Привязать",
+      "dismissButton": "Позже"
+    }
   },
   "emailVerification": {
     "title": "Подтверждение email",

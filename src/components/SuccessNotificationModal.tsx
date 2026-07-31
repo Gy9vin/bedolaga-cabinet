@@ -15,6 +15,7 @@ import { useTelegramSDK } from '../hooks/useTelegramSDK';
 import { useFocusTrap } from '../hooks/useFocusTrap';
 import { useHaptic } from '@/platform';
 import { subscriptionApi } from '../api/subscription';
+import { getBackupLoginSuggestion } from '../api/auth';
 import { copyToClipboard } from '@/utils/clipboard';
 import {
   CheckCircleIcon,
@@ -97,6 +98,38 @@ export default function SuccessNotificationModal() {
   }, [isOpen]);
 
   const isBalanceTopup = data?.type === 'balance_topup';
+
+  // Backup login suggestion — computed before early return to satisfy Rules of Hooks
+  const isSubscriptionType =
+    data?.type === 'subscription_activated' ||
+    data?.type === 'subscription_renewed' ||
+    data?.type === 'subscription_purchased';
+
+  const [backupLoginDismissed, setBackupLoginDismissed] = useState(false);
+
+  // Сброс dismiss при закрытии модала
+  useEffect(() => {
+    if (!isOpen) {
+      setBackupLoginDismissed(false);
+    }
+  }, [isOpen]);
+
+  const { data: backupData } = useQuery({
+    queryKey: ['backup-login-suggestion'],
+    queryFn: getBackupLoginSuggestion,
+    enabled: isOpen && isSubscriptionType,
+    staleTime: 0,
+    retry: false,
+  });
+
+  const showBackupLoginBanner =
+    !backupLoginDismissed && backupData?.needs_backup === true && isSubscriptionType;
+
+  const handleGoToConnectedAccounts = useCallback(() => {
+    hide();
+    haptic.impact('light');
+    navigate('/profile/accounts');
+  }, [hide, haptic, navigate]);
 
   const { data: subsData } = useQuery({
     queryKey: ['subscriptions-list'],
@@ -327,6 +360,35 @@ export default function SuccessNotificationModal() {
                 {t('successNotification.validUntil', 'Valid until')}
               </span>
               <span className="font-semibold text-dark-100">{formattedExpiry}</span>
+            </div>
+          )}
+
+          {/* Backup login suggestion */}
+          {showBackupLoginBanner && (
+            <div className="rounded-xl border border-accent-500/20 bg-accent-500/5 p-4">
+              <p className="mb-1 font-semibold text-accent-300">
+                {t('auth.backupLogin.title', 'Привяжи резервный способ входа')}
+              </p>
+              <p className="mb-3 text-sm text-dark-400">
+                {t(
+                  'auth.backupLogin.description',
+                  'Сможешь заходить на сайт и продлевать подписку в любой момент.',
+                )}
+              </p>
+              <div className="flex gap-2">
+                <button
+                  onClick={handleGoToConnectedAccounts}
+                  className="flex-1 rounded-xl bg-accent-500 py-2.5 text-sm font-bold text-on-accent transition-colors hover:bg-accent-400"
+                >
+                  {t('auth.backupLogin.linkButton', 'Привязать')}
+                </button>
+                <button
+                  onClick={() => setBackupLoginDismissed(true)}
+                  className="flex-1 rounded-xl bg-dark-800 py-2.5 text-sm font-semibold text-dark-400 transition-colors hover:bg-dark-700 hover:text-dark-200"
+                >
+                  {t('auth.backupLogin.dismissButton', 'Позже')}
+                </button>
+              </div>
             </div>
           )}
 

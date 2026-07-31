@@ -266,7 +266,13 @@
     "continueWithDiscord": "Continue with Discord",
     "continueWithVk": "Continue with VK",
     "oauthError": "Authorization was denied or failed",
-    "oauthExpired": "OAuth session expired. Please try again."
+    "oauthExpired": "OAuth session expired. Please try again.",
+    "backupLogin": {
+      "title": "Add a backup login method",
+      "description": "You'll be able to access the site and renew your subscription anytime — even if you change your Telegram.",
+      "linkButton": "Link account",
+      "dismissButton": "Later"
+    }
   },
   "emailVerification": {
     "title": "Email Verification",
