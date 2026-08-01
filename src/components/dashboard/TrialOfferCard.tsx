@@ -1,10 +1,12 @@
 import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router';
-import { UseMutationResult } from '@tanstack/react-query';
+import type { UseMutationResult } from '@tanstack/react-query';
 import type { TrialInfo } from '../../types';
 import { useCurrency } from '../../hooks/useCurrency';
 import { useTheme } from '../../hooks/useTheme';
 import { getGlassColors } from '../../utils/glassTheme';
+import InsufficientBalancePrompt from '../InsufficientBalancePrompt';
+import { subscriptionApi } from '../../api/subscription';
 
 interface TrialOfferCardProps {
   trialInfo: TrialInfo;
@@ -174,17 +176,10 @@ export default function TrialOfferCard({
               : t('subscription.trial.payAndActivate')}
           </button>
         ) : (
-          <Link
-            to="/balance"
-            className="block w-full rounded-[14px] py-4 text-center text-base font-bold tracking-tight transition-all duration-300"
-            style={{
-              background: 'linear-gradient(135deg, #FFB800, #FF8C42)',
-              color: '#1a1200',
-              boxShadow: '0 4px 20px rgba(255,184,0,0.2)',
-            }}
-          >
-            {t('subscription.trial.topUpToActivate')}
-          </Link>
+          <InsufficientBalancePrompt
+            missingAmountKopeks={trialInfo.price_kopeks - balanceKopeks}
+            onBeforeTopUp={subscriptionApi.saveTrialCart}
+          />
         )
       ) : (
         <button

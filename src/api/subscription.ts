@@ -453,6 +453,36 @@ export const subscriptionApi = {
     return response.data;
   },
 
+  /**
+   * Сохраняет «корзину» триала — вызывает POST /subscription/trial и
+   * трактует HTTP 402 insufficient_funds как успех (корзина сохранена,
+   * вебхук взведён). Все остальные ошибки пробрасываются наружу.
+   */
+  saveTrialCart: async (): Promise<void> => {
+    try {
+      await apiClient.post('/cabinet/subscription/trial', {
+        yandex_cid: getYandexCid() || undefined,
+      });
+    } catch (err: unknown) {
+      // 402 insufficient_funds означает «баланса не хватает, но корзина сохранена»
+      if (
+        err &&
+        typeof err === 'object' &&
+        'response' in err &&
+        (err as { response?: { status?: number; data?: { detail?: { code?: string } } } }).response
+          ?.status === 402
+      ) {
+        const detail = (err as { response?: { data?: { detail?: { code?: string } } } }).response
+          ?.data?.detail;
+        if (detail?.code === 'insufficient_funds') {
+          // Корзина сохранена — считаем успехом, не пробрасываем
+          return;
+        }
+      }
+      throw err;
+    }
+  },
+
   // ── Purchase ────────────────────────────────────────────────────────
 
   getPurchaseOptions: async (subscriptionId?: number): Promise<PurchaseOptions> => {
