@@ -319,6 +319,30 @@ class TokenRefreshManager {
 
 export const tokenRefreshManager = new TokenRefreshManager();
 
+// Proactively refresh on tab focus/visibility regain, instead of only reacting
+// to the next failed request. Purely reactive refresh (request interceptor sees
+// an expired token / response interceptor sees a 401) is still correct — it's
+// just not triggered until something happens to make a request. If the app was
+// backgrounded (phone locked, tab minimized, Telegram Mini App suspended) past
+// the access token's TTL and the user returns to a screen that renders from
+// already-cached state without firing a request, the WebSocket connection
+// (opened once with whatever token was live at the time — see
+// tokenRefreshManager.subscribe() wiring in store/auth.ts) would sit on a dead
+// token until something else happened to trigger a refresh. Kicking a refresh
+// here closes that gap; refreshAccessToken() is single-flight and a no-op
+// without a stored refresh token, so this is safe to call unconditionally.
+if (typeof document !== 'undefined') {
+  document.addEventListener('visibilitychange', () => {
+    if (document.visibilityState !== 'visible') return;
+    const refreshToken = tokenStorage.getRefreshToken();
+    if (!refreshToken) return;
+    const accessToken = tokenStorage.getAccessToken();
+    if (!isTokenValid(accessToken)) {
+      void tokenRefreshManager.refreshAccessToken();
+    }
+  });
+}
+
 const RETURN_URL_KEY = 'auth_return_url';
 
 export function saveReturnUrl(): void {

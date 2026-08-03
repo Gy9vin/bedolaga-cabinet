@@ -218,9 +218,19 @@ export const useAuthStore = create<AuthState>()(
             if (!isTokenValid(accessToken)) {
               const newToken = await tokenRefreshManager.refreshAccessToken();
               if (newToken) {
-                const user = await authApi.getMe();
-                await get().checkAdminStatus();
-                applySession(newToken, refreshToken, user);
+                // getMe()/checkAdminStatus() must stay inside this try: an uncaught
+                // rejection here (transient network blip right after a fresh
+                // refresh) used to escape the outer try — which has only a
+                // `finally`, no `catch` — leaving isLoading stuck at `true` forever
+                // (ProtectedRoute spins on PageLoader indefinitely, never granting
+                // access or redirecting to /login). Mirrors the retry branch below.
+                try {
+                  const user = await authApi.getMe();
+                  await get().checkAdminStatus();
+                  applySession(newToken, refreshToken, user);
+                } catch {
+                  clearSession();
+                }
               } else if (tokenRefreshManager.lastFailureWasTransport) {
                 // Backend unreachable, not a rejected token — keep the session
                 // (don't wipe tokens) so the ServiceUnavailableScreen can resume
@@ -422,6 +432,25 @@ export const useAuthStore = create<AuthState>()(
 
 captureCampaignFromUrl();
 captureReferralFromUrl();
+
+// Keep the store's accessToken in sync with silent background refreshes.
+// tokenRefreshManager.doRefresh() only persists the new token to tokenStorage
+// (localStorage) — it never touches this Zustand store. apiClient reads the
+// token straight from tokenStorage on every request, so HTTP calls were never
+// affected, but anything that reads state.accessToken directly (e.g.
+// WebSocketProvider, which opens the notifications WebSocket with whatever
+// token was in the store at mount/login time) kept using the token issued at
+// login/initialize() forever. Once that token's 15-minute TTL passed, a WS
+// reconnect (network blip, idle proxy timeout, phone locking) would present
+// the now-expired token, get rejected with code 1008, and silently stop
+// reconnecting — killing live notifications without ever touching
+// isAuthenticated. Subscribing here (the manager already had unused
+// subscribe()/notifySubscribers() plumbing for exactly this) closes that gap.
+tokenRefreshManager.subscribe((token) => {
+  if (token) {
+    useAuthStore.setState({ accessToken: token });
+  }
+});
 
 // Note: initialize() is kicked off from main.tsx after the Telegram SDK is set up,
 // so CloudStorage-backed token recovery can run during bootstrap.
