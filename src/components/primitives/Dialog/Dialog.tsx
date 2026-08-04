@@ -75,43 +75,51 @@ export const DialogContent = forwardRef<HTMLDivElement, DialogContentProps>(
           {open && (
             <>
               <DialogOverlay />
-              <DialogPrimitive.Content
-                ref={ref}
-                className={cn(
-                  'fixed left-1/2 top-1/2 z-50 -translate-x-1/2 -translate-y-1/2',
-                  'max-h-[85vh] w-full max-w-[min(32rem,calc(100vw-2rem))]',
-                  'grid gap-4 overflow-auto',
-                  'rounded-linear-lg border border-dark-700/50 bg-dark-900/95 backdrop-blur-linear',
-                  'p-6 shadow-linear-lg',
-                  'focus:outline-none',
-                  className,
-                )}
-                asChild
-                {...props}
-              >
-                <motion.div
-                  variants={scale}
-                  initial="initial"
-                  animate="animate"
-                  exit="exit"
-                  transition={scaleTransition}
-                >
-                  {children}
-                  {showCloseButton && (
-                    <DialogPrimitive.Close
-                      className={cn(
-                        'absolute right-4 top-4 rounded-linear p-1.5',
-                        'text-dark-400 opacity-70 transition-all',
-                        'hover:bg-dark-800/80 hover:opacity-100',
-                        'focus:outline-none focus:ring-2 focus:ring-accent-500/50',
-                      )}
-                    >
-                      <CloseIcon />
-                      <span className="sr-only">Close</span>
-                    </DialogPrimitive.Close>
+              {/* Центрируем флексом, а не translate: контент рендерится через
+                  motion.div, и его анимация масштаба ставит собственный inline
+                  transform, затирая -translate-x-1/2/-translate-y-1/2 — окно
+                  вставало левым верхним углом в центр экрана вместо середины.
+                  Обёртка не ловит указатель, чтобы клик мимо окна по-прежнему
+                  доходил до оверлея и закрывал диалог. */}
+              <div className="pointer-events-none fixed inset-0 z-50 flex items-center justify-center p-4">
+                <DialogPrimitive.Content
+                  ref={ref}
+                  className={cn(
+                    'pointer-events-auto relative',
+                    'max-h-[85vh] w-full max-w-[min(32rem,calc(100vw-2rem))]',
+                    'grid gap-4 overflow-auto',
+                    'rounded-linear-lg border border-dark-700/50 bg-dark-900/95 backdrop-blur-linear',
+                    'p-6 shadow-linear-lg',
+                    'focus:outline-none',
+                    className,
                   )}
-                </motion.div>
-              </DialogPrimitive.Content>
+                  asChild
+                  {...props}
+                >
+                  <motion.div
+                    variants={scale}
+                    initial="initial"
+                    animate="animate"
+                    exit="exit"
+                    transition={scaleTransition}
+                  >
+                    {children}
+                    {showCloseButton && (
+                      <DialogPrimitive.Close
+                        className={cn(
+                          'absolute right-4 top-4 rounded-linear p-1.5',
+                          'text-dark-400 opacity-70 transition-all',
+                          'hover:bg-dark-800/80 hover:opacity-100',
+                          'focus:outline-none focus:ring-2 focus:ring-accent-500/50',
+                        )}
+                      >
+                        <CloseIcon />
+                        <span className="sr-only">Close</span>
+                      </DialogPrimitive.Close>
+                    )}
+                  </motion.div>
+                </DialogPrimitive.Content>
+              </div>
             </>
           )}
         </AnimatePresence>
