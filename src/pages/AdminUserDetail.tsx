@@ -3354,7 +3354,7 @@ export default function AdminUserDetail() {
           if (!o) setShowNewMergePanel(false);
         }}
       >
-        <DialogContent>
+        <DialogContent className="max-w-[min(48rem,calc(100vw-2rem))]">
           <DialogHeader>
             <DialogTitle>{t('admin.users.detail.linking.merge')}</DialogTitle>
           </DialogHeader>

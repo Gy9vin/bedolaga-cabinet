@@ -160,7 +160,7 @@ export function AdminMergePanel({ primaryUserId, onClose, onSuccess }: Props) {
     const isSurvivor = userPreview.id === survivorId;
     return (
       <div
-        className={`flex-1 rounded-xl border p-4 ${
+        className={`min-w-0 flex-1 rounded-xl border p-4 ${
           isSurvivor ? 'border-accent-500/50 bg-accent-500/5' : 'border-dark-600 bg-dark-800/30'
         }`}
       >
@@ -287,7 +287,7 @@ export function AdminMergePanel({ primaryUserId, onClose, onSuccess }: Props) {
           {t('admin.users.detail.linking.mergePreviewTitle')}
         </div>
 
-        <div className="flex gap-3">
+        <div className="flex flex-col gap-3 sm:flex-row">
           {renderUserColumn(
             primaryPreview,
             t('admin.users.detail.linking.mergePrimaryAccountLabel'),
