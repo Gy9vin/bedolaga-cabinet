@@ -15,6 +15,7 @@ import type {
   AppConfig,
   SbpRecurringInfo,
   LavaRecurringInfo,
+  PriceLine,
 } from '../types';
 
 /** Helper: build query params with optional subscription_id */
@@ -540,6 +541,7 @@ export const subscriptionApi = {
     tariff_name: string;
     balance_kopeks: number;
     balance_label: string;
+    price_lines?: PriceLine[];
   }> => {
     const response = await apiClient.post('/cabinet/subscription/purchase-tariff', {
       tariff_id: tariffId,

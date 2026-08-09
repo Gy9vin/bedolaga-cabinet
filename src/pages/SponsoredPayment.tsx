@@ -8,6 +8,7 @@ import { getGlassColors } from '../utils/glassTheme';
 import { useCurrency } from '../hooks/useCurrency';
 import { useHaptic } from '../platform';
 import InsufficientBalancePrompt from '../components/InsufficientBalancePrompt';
+import PriceBreakdown from '../components/PriceBreakdown';
 import { WebBackButton } from '../components/WebBackButton';
 import { SearchIcon, UserIcon, CheckIcon } from '@/components/icons';
 
@@ -293,6 +294,22 @@ export default function SponsoredPayment() {
                   })}
                 </div>
               )}
+
+              {/* Price breakdown for the selected period */}
+              {selectedPeriod &&
+                (() => {
+                  const selectedOption = lookupData.options.find(
+                    (o) => o.period_days === selectedPeriod,
+                  );
+                  return selectedOption ? (
+                    <div className="mt-4">
+                      <PriceBreakdown
+                        lines={selectedOption.price_lines}
+                        totalKopeks={selectedOption.price_kopeks}
+                      />
+                    </div>
+                  ) : null;
+                })()}
 
               {/* Pay errors */}
               {payError?.code === 'insufficient_balance' && (

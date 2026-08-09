@@ -182,6 +182,13 @@ export interface TariffSwitchPreview {
   discount_kopeks?: number;
 }
 
+/** Одна строка расшифровки цены («из чего складывается сумма»). */
+export interface PriceLine {
+  label: string;
+  amount_kopeks: number;
+  hint: string | null;
+}
+
 export interface RenewalOption {
   period_days: number;
   price_kopeks: number;
@@ -189,6 +196,7 @@ export interface RenewalOption {
   discount_percent: number;
   original_price_kopeks: number | null;
   modem_price_kopeks?: number;
+  price_lines?: PriceLine[];
 }
 
 export interface TrafficPackage {

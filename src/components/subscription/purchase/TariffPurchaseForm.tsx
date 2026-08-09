@@ -10,7 +10,8 @@ import { usePlatform } from '../../../platform';
 import { openPaymentUrl } from '../../../utils/openPaymentUrl';
 import { getMonthlyPriceKopeks } from '../../../utils/pricing';
 import InsufficientBalancePrompt from '../../InsufficientBalancePrompt';
-import type { Tariff, TariffPeriod } from '../../../types';
+import PriceBreakdown from '../../PriceBreakdown';
+import type { Tariff, TariffPeriod, PriceLine } from '../../../types';
 
 // ──────────────────────────────────────────────────────────────────
 // TariffPurchaseForm
@@ -72,8 +73,24 @@ export function TariffPurchaseForm({
   const [useCustomDays, setUseCustomDays] = useState(false);
   const [useCustomTraffic, setUseCustomTraffic] = useState(false);
 
+  // Set when the backend response includes a non-empty `price_lines`
+  // breakdown, so we pause on a short confirmation panel (showing what
+  // was actually charged — e.g. the recurring per-device cost) instead
+  // of navigating away immediately.
+  const [purchaseReceipt, setPurchaseReceipt] = useState<{
+    priceLines: PriceLine[];
+    totalKopeks: number;
+  } | null>(null);
+
+  const goToSubscriptions = () => {
+    queryClient.invalidateQueries({ queryKey: ['subscription'] });
+    queryClient.invalidateQueries({ queryKey: ['purchase-options'] });
+    queryClient.invalidateQueries({ queryKey: ['subscriptions-list'] });
+    navigate('/subscriptions', { replace: true });
+  };
+
   const purchaseMutation = useMutation({
-    mutationFn: () => {
+    mutationFn: async (totalKopeks: number) => {
       const isDailyTariff =
         tariff.is_daily || (tariff.daily_price_kopeks && tariff.daily_price_kopeks > 0);
       const days = isDailyTariff
@@ -88,18 +105,20 @@ export function TariffPurchaseForm({
       // uses it to resolve the exact target row by ID, avoiding the
       // race with concurrent panel webhooks that would otherwise hit
       // the partial UNIQUE on uq_subscriptions_user_tariff_active.
-      return subscriptionApi.purchaseTariff(
+      const data = await subscriptionApi.purchaseTariff(
         tariff.id,
         days,
         trafficGb,
         subscriptionId ?? undefined,
       );
+      return { data, totalKopeks };
     },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['subscription'] });
-      queryClient.invalidateQueries({ queryKey: ['purchase-options'] });
-      queryClient.invalidateQueries({ queryKey: ['subscriptions-list'] });
-      navigate('/subscriptions', { replace: true });
+    onSuccess: ({ data, totalKopeks }) => {
+      if (data.price_lines && data.price_lines.length > 0) {
+        setPurchaseReceipt({ priceLines: data.price_lines, totalKopeks });
+        return;
+      }
+      goToSubscriptions();
     },
   });
 
@@ -197,6 +216,20 @@ export function TariffPurchaseForm({
     }
   }, []);
 
+  if (purchaseReceipt) {
+    return (
+      <div className="space-y-6">
+        <PriceBreakdown
+          lines={purchaseReceipt.priceLines}
+          totalKopeks={purchaseReceipt.totalKopeks}
+        />
+        <button onClick={goToSubscriptions} className="btn-primary w-full py-3">
+          {t('common.continue', 'Продолжить')}
+        </button>
+      </div>
+    );
+  }
+
   return (
     <div ref={ref} className="space-y-6">
       <div className="flex items-center justify-between gap-2">
@@ -268,7 +301,7 @@ export function TariffPurchaseForm({
                 )}
 
                 <button
-                  onClick={() => purchaseMutation.mutate()}
+                  onClick={() => purchaseMutation.mutate(dailyPrice)}
                   disabled={purchaseMutation.isPending}
                   className="btn-primary w-full py-3"
                 >
@@ -696,7 +729,7 @@ export function TariffPurchaseForm({
                     </div>
 
                     <button
-                      onClick={() => purchaseMutation.mutate()}
+                      onClick={() => purchaseMutation.mutate(totalPrice)}
                       disabled={purchaseMutation.isPending}
                       className="btn-primary w-full py-3"
                     >

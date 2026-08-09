@@ -1,10 +1,12 @@
 import apiClient from './client';
+import type { PriceLine } from '../types';
 
 // Types
 
 export interface SponsoredPeriodOption {
   period_days: number;
   price_kopeks: number;
+  price_lines?: PriceLine[];
 }
 
 export interface SponsoredLookupResponse {

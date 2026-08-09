@@ -9,6 +9,7 @@ import { getMonthlyPriceKopeks } from '../utils/pricing';
 import { useCurrency } from '../hooks/useCurrency';
 import { useHaptic } from '../platform';
 import InsufficientBalancePrompt from '../components/InsufficientBalancePrompt';
+import PriceBreakdown from '../components/PriceBreakdown';
 import { WebBackButton } from '../components/WebBackButton';
 
 export default function RenewSubscription() {
@@ -210,6 +211,18 @@ export default function RenewSubscription() {
           })}
         </div>
       )}
+
+      {/* Price breakdown for the selected period */}
+      {selectedPeriod &&
+        (() => {
+          const selectedOption = options?.find((o) => o.period_days === selectedPeriod);
+          return selectedOption ? (
+            <PriceBreakdown
+              lines={selectedOption.price_lines}
+              totalKopeks={selectedOption.price_kopeks}
+            />
+          ) : null;
+        })()}
 
       {/* Insufficient balance prompt */}
       {missingAmount && <InsufficientBalancePrompt missingAmountKopeks={missingAmount} compact />}
