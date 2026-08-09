@@ -5655,6 +5655,8 @@
     "payAnother": "Pay for another person",
     "successTitle": "Subscription paid",
     "successDesc": "{{recipient}} received {{days}} days of subscription for {{amount}} {{currency}}",
+    "yourBalance": "Your balance",
+    "priceExplainerFallback": "Price is calculated from the recipient's plan and device count",
     "errors": {
       "recipientNotFound": "Check the username or ID",
       "recipientIsSelf": "This is your own account, use the regular renewal instead",

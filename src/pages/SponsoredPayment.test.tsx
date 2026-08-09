@@ -149,3 +149,79 @@ describe('SponsoredPayment — обработка ошибок', () => {
     });
   });
 });
+
+describe('SponsoredPayment — баланс и расшифровка цены', () => {
+  it('баланс подписан как «ваш» и не выводится внутри карточки получателя', async () => {
+    const lookup = sponsoredApi.lookup as ReturnType<typeof vi.fn>;
+
+    lookup.mockResolvedValue({
+      recipient_display_name: 'Иван Иванов',
+      subscription_id: 42,
+      options: [{ period_days: 30, price_kopeks: 10000 }],
+      payer_balance_kopeks: 5000,
+    });
+
+    const Wrapper = makeWrapper();
+    render(
+      <Wrapper>
+        <SponsoredPayment />
+      </Wrapper>,
+    );
+
+    fireEvent.change(screen.getByPlaceholderText(/ник|telegram/i), {
+      target: { value: '@ivan' },
+    });
+    fireEvent.click(screen.getByRole('button', { name: /Найти|Search/i }));
+
+    await waitFor(() => {
+      expect(screen.getByText('Иван Иванов')).toBeTruthy();
+    });
+
+    // Баланс явно подписан как «ваш», а не безадресное «Баланс»
+    expect(screen.getByText(/^Ваш баланс$|^Your balance$/i)).toBeTruthy();
+    expect(screen.queryByText(/^Баланс$|^Balance$/i)).toBeNull();
+
+    // Баланс не должен быть внутри карточки получателя (рядом с именем)
+    const recipientName = screen.getByText('Иван Иванов');
+    const recipientCard = recipientName.closest('div')?.parentElement;
+    expect(recipientCard?.textContent).not.toMatch(/50\.00/);
+  });
+
+  it('после успешного поиска расшифровка первого периода отрисована', async () => {
+    const lookup = sponsoredApi.lookup as ReturnType<typeof vi.fn>;
+
+    lookup.mockResolvedValue({
+      recipient_display_name: 'Иван Иванов',
+      subscription_id: 42,
+      options: [
+        {
+          period_days: 30,
+          price_kopeks: 20000,
+          price_lines: [
+            { label: 'Тариф получателя', amount_kopeks: 15000 },
+            { label: 'Доп. устройства', amount_kopeks: 5000 },
+          ],
+        },
+        { period_days: 90, price_kopeks: 60000, price_lines: [] },
+      ],
+      payer_balance_kopeks: 100000,
+    });
+
+    const Wrapper = makeWrapper();
+    render(
+      <Wrapper>
+        <SponsoredPayment />
+      </Wrapper>,
+    );
+
+    fireEvent.change(screen.getByPlaceholderText(/ник|telegram/i), {
+      target: { value: '@ivan' },
+    });
+    fireEvent.click(screen.getByRole('button', { name: /Найти|Search/i }));
+
+    await waitFor(() => {
+      expect(screen.getByText('Тариф получателя')).toBeTruthy();
+      expect(screen.getByText('Доп. устройства')).toBeTruthy();
+    });
+  });
+});

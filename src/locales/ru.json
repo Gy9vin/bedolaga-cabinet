@@ -6209,6 +6209,8 @@
     "payAnother": "Оплатить ещё одному человеку",
     "successTitle": "Подписка оплачена",
     "successDesc": "{{recipient}} получил(а) {{days}} дн. подписки на сумму {{amount}} {{currency}}",
+    "yourBalance": "Ваш баланс",
+    "priceExplainerFallback": "Цена рассчитана по тарифу получателя и количеству его устройств",
     "errors": {
       "recipientNotFound": "Проверьте ник или ID",
       "recipientIsSelf": "Это ваш аккаунт, используйте обычное продление",

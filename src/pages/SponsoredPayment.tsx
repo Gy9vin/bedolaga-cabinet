@@ -69,7 +69,7 @@ export default function SponsoredPayment() {
     onSuccess: (data) => {
       setLookupData(data);
       setLookupError(null);
-      setSelectedPeriod(null);
+      setSelectedPeriod(data.options.length > 0 ? data.options[0].period_days : null);
       setPayError(null);
       setPayResult(null);
     },
@@ -234,10 +234,6 @@ export default function SponsoredPayment() {
                   <div className="truncate font-semibold" style={{ color: g.text }}>
                     {lookupData.recipient_display_name}
                   </div>
-                  <div className="text-xs" style={{ color: g.textSecondary }}>
-                    {t('common.balance', 'Баланс')}:{' '}
-                    {formatAmount(lookupData.payer_balance_kopeks / 100)} {currencySymbol}
-                  </div>
                 </div>
               </div>
 
@@ -301,15 +297,36 @@ export default function SponsoredPayment() {
                   const selectedOption = lookupData.options.find(
                     (o) => o.period_days === selectedPeriod,
                   );
-                  return selectedOption ? (
-                    <div className="mt-4">
-                      <PriceBreakdown
-                        lines={selectedOption.price_lines}
-                        totalKopeks={selectedOption.price_kopeks}
-                      />
+                  if (!selectedOption) return null;
+                  if (selectedOption.price_lines && selectedOption.price_lines.length > 0) {
+                    return (
+                      <div className="mt-4">
+                        <PriceBreakdown
+                          lines={selectedOption.price_lines}
+                          totalKopeks={selectedOption.price_kopeks}
+                        />
+                      </div>
+                    );
+                  }
+                  return (
+                    <div className="mt-4 text-xs" style={{ color: g.textSecondary }}>
+                      {t(
+                        'sponsored.priceExplainerFallback',
+                        'Цена рассчитана по тарифу получателя и количеству его устройств',
+                      )}
                     </div>
-                  ) : null;
+                  );
                 })()}
+
+              {/* Payer balance */}
+              <div className="mt-4 flex items-center justify-between text-sm">
+                <span style={{ color: g.textSecondary }}>
+                  {t('sponsored.yourBalance', 'Ваш баланс')}
+                </span>
+                <span className="font-semibold" style={{ color: g.text }}>
+                  {formatAmount(lookupData.payer_balance_kopeks / 100)} {currencySymbol}
+                </span>
+              </div>
 
               {/* Pay errors */}
               {payError?.code === 'insufficient_balance' && (
