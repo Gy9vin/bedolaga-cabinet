@@ -537,6 +537,11 @@ function BuyTabContent({
     return `${t('gift.fromBalance')} (${formatPrice(config.balance_kopeks)})`;
   }, [config, t]);
 
+  const valueConversionNotice =
+    typeof config.value_conversion_notice === 'string' && config.value_conversion_notice.trim()
+      ? config.value_conversion_notice
+      : null;
+
   const showTariffCards = config.tariffs.length > 1;
 
   // Periods for the selected tariff (for period cards)
@@ -565,6 +570,19 @@ function BuyTabContent({
               />
             ))}
           </div>
+        </div>
+      )}
+
+      {/* Value conversion notice — warns the sender that the gift amount is
+          converted into days at the recipient's tariff price, not delivered
+          as a fixed package (backend-provided text, may be absent on older
+          backends). */}
+      {valueConversionNotice && (
+        <div className="flex items-start gap-3 rounded-xl border border-warning-500/30 bg-warning-500/10 p-3">
+          <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-warning-500/20">
+            <WarningCircleIcon className="h-4 w-4 text-warning-400" />
+          </div>
+          <p className="text-sm text-warning-400">{valueConversionNotice}</p>
         </div>
       )}
 
