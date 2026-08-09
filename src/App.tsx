@@ -77,6 +77,7 @@ const TopUpResult = lazyWithRetry(() => import('./pages/TopUpResult'));
 const ConnectedAccounts = lazyWithRetry(() => import('./pages/ConnectedAccounts'));
 const LinkTelegramCallback = lazyWithRetry(() => import('./pages/LinkTelegramCallback'));
 const MergeAccounts = lazyWithRetry(() => import('./pages/MergeAccounts'));
+const SponsoredPayment = lazyWithRetry(() => import('./pages/SponsoredPayment'));
 
 // Admin pages - lazy load (only for admins)
 const AdminPanel = lazyWithRetry(() => import('./pages/AdminPanel'));
@@ -451,6 +452,16 @@ function App() {
             <ProtectedRoute>
               <LazyPage>
                 <TopUpAmount />
+              </LazyPage>
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/sponsored"
+          element={
+            <ProtectedRoute>
+              <LazyPage>
+                <SponsoredPayment />
               </LazyPage>
             </ProtectedRoute>
           }

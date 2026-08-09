@@ -5643,6 +5643,24 @@
     "scanError": "Could not scan",
     "scanNoCamera": "Camera unavailable — enter the code manually"
   },
+  "sponsored": {
+    "title": "Pay for someone else's subscription",
+    "subtitle": "Find the recipient and pay for their subscription from your balance",
+    "recipientLabel": "Recipient",
+    "recipientPlaceholder": "@username, telegram id or email",
+    "searchButton": "Search",
+    "noOptions": "No payment options available",
+    "payButton": "Pay",
+    "payAnother": "Pay for another person",
+    "successTitle": "Subscription paid",
+    "successDesc": "{{recipient}} received {{days}} days of subscription for {{amount}} {{currency}}",
+    "errors": {
+      "recipientNotFound": "Check the username or ID",
+      "recipientIsSelf": "This is your own account, use the regular renewal instead",
+      "rateLimited": "Too many attempts, please wait a minute",
+      "periodUnavailable": "This period is no longer available, try looking up the recipient again"
+    }
+  },
   "news": {
     "title": "News & Updates",
     "filterAll": "All",

@@ -13,7 +13,13 @@ import type { PaginatedResponse, Transaction } from '../types';
 
 import { Card } from '@/components/data-display/Card';
 import { Button } from '@/components/primitives/Button';
-import { ChevronDownIcon, ChevronRightIcon, CreditCardIcon, WalletIcon } from '@/components/icons';
+import {
+  ChevronDownIcon,
+  ChevronRightIcon,
+  CreditCardIcon,
+  UsersIcon,
+  WalletIcon,
+} from '@/components/icons';
 import { staggerContainer, staggerItem } from '@/components/motion/transitions';
 import { isPaidStatus, isFailedStatus } from '../utils/paymentStatus';
 
@@ -216,6 +222,19 @@ export default function Balance() {
           <div className="text-4xl font-bold text-dark-50 sm:text-5xl">
             {formatAmount(balanceData?.balance_rubles || 0)}
             <span className="ml-2 text-2xl text-dark-400">{currencySymbol}</span>
+          </div>
+        </Card>
+      </motion.div>
+
+      {/* Pay for someone else */}
+      <motion.div variants={staggerItem}>
+        <Card interactive onClick={() => navigate('/sponsored')}>
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <UsersIcon className="h-5 w-5 text-dark-400" />
+              <span className="font-medium text-dark-100">{t('sponsored.title')}</span>
+            </div>
+            <ChevronRightIcon className="h-5 w-5 text-dark-400" />
           </div>
         </Card>
       </motion.div>

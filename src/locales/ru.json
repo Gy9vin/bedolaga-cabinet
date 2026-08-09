@@ -6197,6 +6197,24 @@
     "scanError": "Не удалось отсканировать",
     "scanNoCamera": "Камера недоступна — введите код вручную"
   },
+  "sponsored": {
+    "title": "Оплатить подписку другому человеку",
+    "subtitle": "Найдите получателя и оплатите его подписку с вашего баланса",
+    "recipientLabel": "Получатель",
+    "recipientPlaceholder": "@ник, telegram id или email",
+    "searchButton": "Найти",
+    "noOptions": "Нет доступных вариантов оплаты",
+    "payButton": "Оплатить",
+    "payAnother": "Оплатить ещё одному человеку",
+    "successTitle": "Подписка оплачена",
+    "successDesc": "{{recipient}} получил(а) {{days}} дн. подписки на сумму {{amount}} {{currency}}",
+    "errors": {
+      "recipientNotFound": "Проверьте ник или ID",
+      "recipientIsSelf": "Это ваш аккаунт, используйте обычное продление",
+      "rateLimited": "Слишком много попыток, подождите минуту",
+      "periodUnavailable": "Этот период больше недоступен, попробуйте найти получателя ещё раз"
+    }
+  },
   "news": {
     "title": "Новости и обновления",
     "filterAll": "Все",
