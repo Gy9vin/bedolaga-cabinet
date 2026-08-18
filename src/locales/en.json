@@ -5876,5 +5876,36 @@
       "renewal": "Renewal",
       "activation": "Trial"
     }
+  },
+  "simple": {
+    "dashboard": {
+      "brand": "Bedolaga VPN",
+      "statusConnected": "Connected",
+      "statusNoSub": "No subscription",
+      "daysLeft": "{{count}} days left",
+      "activeUntil": "Subscription active until {{date}}",
+      "connectDevice": "Connect a device",
+      "showQr": "Show QR code",
+      "copyLink": "Copy link",
+      "traffic": "Traffic",
+      "trafficValue": "of {{limit}} GB",
+      "devices": "Devices",
+      "devicesValue": "of {{limit}}",
+      "heroTitle": "Connect in a minute",
+      "heroSubTrialFree": "{{days}} days free — try it out",
+      "heroSubTrialPaid": "{{days}} days for {{price}} — try it out",
+      "heroSubNoTrial": "Choose a plan and connect",
+      "tryTrialFree": "Try {{days}} days free",
+      "tryTrialPaid": "Try {{days}} days for {{price}}",
+      "choosePlan": "Choose a plan",
+      "trialHintFree": "No card needed, nothing will be charged. The trial is given once.",
+      "trialHintPaid": "One-time charge of {{price}}. Nothing renews automatically.",
+      "trialComposition": "What's included in the trial",
+      "trialDaysRow": "{{count}} days of access",
+      "trialTrafficRow": "{{count}} GB of traffic",
+      "trialDevicesRow": "{{count}} devices",
+      "balance": "Balance",
+      "balanceHint": "Tap to top up"
+    }
   }
 }

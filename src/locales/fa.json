@@ -5264,5 +5264,36 @@
     "offer": "پیشنهاد عمومی",
     "privacy": "سیاست حفظ حریم خصوصی",
     "recurrent": "پرداخت‌های مکرر"
+  },
+  "simple": {
+    "dashboard": {
+      "brand": "بدولاگا وی‌پی‌ان",
+      "statusConnected": "متصل",
+      "statusNoSub": "بدون اشتراک",
+      "daysLeft": "{{count}} روز باقی‌مانده",
+      "activeUntil": "اشتراک تا {{date}} فعال است",
+      "connectDevice": "اتصال دستگاه",
+      "showQr": "نمایش کد QR",
+      "copyLink": "کپی لینک",
+      "traffic": "ترافیک",
+      "trafficValue": "از {{limit}} گیگابایت",
+      "devices": "دستگاه‌ها",
+      "devicesValue": "از {{limit}}",
+      "heroTitle": "در یک دقیقه وصل شوید",
+      "heroSubTrialFree": "{{days}} روز رایگان — برای امتحان",
+      "heroSubTrialPaid": "{{days}} روز به قیمت {{price}} — برای امتحان",
+      "heroSubNoTrial": "یک طرح انتخاب کنید و وصل شوید",
+      "tryTrialFree": "امتحان {{days}} روز رایگان",
+      "tryTrialPaid": "امتحان {{days}} روز به قیمت {{price}}",
+      "choosePlan": "انتخاب طرح",
+      "trialHintFree": "نیازی به کارت نیست و هزینه‌ای کسر نمی‌شود. دوره آزمایشی فقط یک‌بار داده می‌شود.",
+      "trialHintPaid": "یک‌بار {{price}} کسر می‌شود. چیزی به‌صورت خودکار تمدید نمی‌شود.",
+      "trialComposition": "شامل دوره آزمایشی",
+      "trialDaysRow": "{{count}} روز دسترسی",
+      "trialTrafficRow": "{{count}} گیگابایت ترافیک",
+      "trialDevicesRow": "{{count}} دستگاه",
+      "balance": "موجودی",
+      "balanceHint": "برای شارژ ضربه بزنید"
+    }
   }
 }

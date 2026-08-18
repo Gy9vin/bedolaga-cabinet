@@ -22,10 +22,13 @@ import PendingGiftCard from '../components/dashboard/PendingGiftCard';
 import SubscriptionListCard from '../components/subscription/SubscriptionListCard';
 import { API } from '../config/constants';
 import { ChevronRightIcon, StarIcon } from '@/components/icons';
+import { useUiMode } from '../hooks/useUiMode';
+import SimpleDashboard from '../components/simple/SimpleDashboard';
 
 export default function Dashboard() {
   const { t } = useTranslation();
   const navigate = useNavigate();
+  const { isSimple } = useUiMode();
   const user = useAuthStore((state) => state.user);
   const refreshUser = useAuthStore((state) => state.refreshUser);
   const queryClient = useQueryClient();
@@ -245,6 +248,13 @@ export default function Dashboard() {
 
     return steps;
   }, [t, subscription]);
+
+  // Переключение режима — ПОСЛЕ всех вызовов хуков выше (правила хуков:
+  // при переключении режима порядок вызовов не должен меняться, иначе
+  // React падает). SimpleDashboard сам делает все свои запросы.
+  if (isSimple) {
+    return <SimpleDashboard />;
+  }
 
   const handleOnboardingComplete = () => {
     completeOnboarding();

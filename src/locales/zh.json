@@ -5263,5 +5263,36 @@
     "offer": "公开要约",
     "privacy": "隐私政策",
     "recurrent": "定期付款"
+  },
+  "simple": {
+    "dashboard": {
+      "brand": "Bedolaga VPN",
+      "statusConnected": "已连接",
+      "statusNoSub": "暂无订阅",
+      "daysLeft": "剩余 {{count}} 天",
+      "activeUntil": "订阅有效期至 {{date}}",
+      "connectDevice": "连接设备",
+      "showQr": "显示二维码",
+      "copyLink": "复制链接",
+      "traffic": "流量",
+      "trafficValue": "/ {{limit}} GB",
+      "devices": "设备",
+      "devicesValue": "/ {{limit}}",
+      "heroTitle": "一分钟内连接",
+      "heroSubTrialFree": "免费试用 {{days}} 天 — 体验效果",
+      "heroSubTrialPaid": "{{days}} 天，仅需 {{price}} — 体验效果",
+      "heroSubNoTrial": "选择套餐并连接",
+      "tryTrialFree": "免费试用 {{days}} 天",
+      "tryTrialPaid": "试用 {{days}} 天，{{price}}",
+      "choosePlan": "选择套餐",
+      "trialHintFree": "无需绑卡，不会扣款。试用机会仅有一次。",
+      "trialHintPaid": "一次性扣款 {{price}}，之后不会自动续费。",
+      "trialComposition": "试用包含",
+      "trialDaysRow": "{{count}} 天使用权限",
+      "trialTrafficRow": "{{count}} GB 流量",
+      "trialDevicesRow": "{{count}} 台设备",
+      "balance": "余额",
+      "balanceHint": "点击充值"
+    }
   }
 }

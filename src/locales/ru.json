@@ -6430,5 +6430,36 @@
       "renewal": "Продление",
       "activation": "Пробный период"
     }
+  },
+  "simple": {
+    "dashboard": {
+      "brand": "Бедолага VPN",
+      "statusConnected": "Подключено",
+      "statusNoSub": "Подписки нет",
+      "daysLeft": "Осталось {{count}} дн.",
+      "activeUntil": "Подписка активна до {{date}}",
+      "connectDevice": "Подключить устройство",
+      "showQr": "Показать QR-код",
+      "copyLink": "Скопировать ссылку",
+      "traffic": "Трафик",
+      "trafficValue": "из {{limit}} ГБ",
+      "devices": "Устройства",
+      "devicesValue": "из {{limit}}",
+      "heroTitle": "Подключитесь за минуту",
+      "heroSubTrialFree": "{{days}} дн. бесплатно — проверить, что всё работает",
+      "heroSubTrialPaid": "{{days}} дн. за {{price}} — проверить, что всё работает",
+      "heroSubNoTrial": "Выберите тариф и подключайтесь",
+      "tryTrialFree": "Попробовать {{days}} дн. бесплатно",
+      "tryTrialPaid": "Попробовать {{days}} дн. за {{price}}",
+      "choosePlan": "Выбрать тариф",
+      "trialHintFree": "Карта не нужна, деньги не спишем. Пробный период даётся один раз.",
+      "trialHintPaid": "Разовое списание {{price}}. Само ничего не продлится.",
+      "trialComposition": "Что в пробном периоде",
+      "trialDaysRow": "{{count}} дн. доступа",
+      "trialTrafficRow": "{{count}} ГБ трафика",
+      "trialDevicesRow": "{{count}} устройства",
+      "balance": "Баланс",
+      "balanceHint": "Нажмите, чтобы пополнить"
+    }
   }
 }
