@@ -5293,6 +5293,38 @@
       "trialDevicesRow": "{{count}} 台设备",
       "balance": "余额",
       "balanceHint": "点击充值"
+    },
+    "subscription": {
+      "title": "订阅",
+      "titleBuy": "购买订阅",
+      "statusActive": "有效",
+      "until": "至 {{date}}",
+      "tariffLabel": "套餐「{{name}}」",
+      "devicesCount": "{{count}} 台设备",
+      "trafficCount": "{{count}} GB",
+      "period": "周期",
+      "devicesRowTitle": "设备",
+      "devicesRowSub": "套餐已包含 {{included}} 台，每多一台 — {{priceLabel}}",
+      "devicesDecrease": "减少设备",
+      "devicesIncrease": "增加设备",
+      "autopayTitle": "自动续费",
+      "autopaySub": "将扣款 {{price}}（所选周期）",
+      "autopayHint": "仅从账户余额扣款——不会触碰您的银行卡或银行账户。请在扣款日前确保余额充足，否则将无法自动续费。",
+      "paymentMethodLabel": "充值方式",
+      "paymentMethodHint": "可选方式取决于后台开启的支付方式。",
+      "paymentMin": "起充 {{amount}}",
+      "fromBalanceLabel": "从余额扣除",
+      "fromBalanceSub": "余额 {{balance}}",
+      "topUpLabel": "充值",
+      "topUpSub": "仅需补足差额",
+      "payButton": "支付 {{price}}",
+      "topUpAndPayButton": "充值 {{price}} 并开通",
+      "payHint": "支付完成后订阅立即生效，无需返回此页面。",
+      "historyRowTitle": "订阅历史",
+      "historyRowSub": "购买、续费和中断记录",
+      "changeTrafficLink": "修改流量和国家",
+      "tariffsModeFallback": "此页面暂不支持选择套餐，请打开完整版面板。",
+      "openFull": "打开完整版面板"
     }
   }
 }

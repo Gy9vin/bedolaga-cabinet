@@ -10,6 +10,8 @@ import { getGlassColors } from '../utils/glassTheme';
 import { useAuthStore } from '../store/auth';
 import SubscriptionListCard from '../components/subscription/SubscriptionListCard';
 import TrialOfferCard from '../components/dashboard/TrialOfferCard';
+import { useUiMode } from '../hooks/useUiMode';
+import SimpleSubscription from '../components/simple/SimpleSubscription';
 
 function EmptyState({ onBuy }: { onBuy: () => void }) {
   const { t } = useTranslation();
@@ -50,6 +52,7 @@ export default function Subscriptions() {
   const g = getGlassColors(isDark);
   const queryClient = useQueryClient();
   const refreshUser = useAuthStore((state) => state.refreshUser);
+  const { isSimple } = useUiMode();
   const [trialError, setTrialError] = useState<string | null>(null);
 
   const { data, isLoading } = useQuery({
@@ -100,6 +103,13 @@ export default function Subscriptions() {
       setTrialError(error.response?.data?.detail || t('common.error'));
     },
   });
+
+  // Переключение режима — ПОСЛЕ всех вызовов хуков выше (иначе при
+  // переключении режима порядок хуков поменяется и React упадёт).
+  // SimpleSubscription сам делает свои запросы (подписка/тарифы/оплата).
+  if (isSimple) {
+    return <SimpleSubscription />;
+  }
 
   // Single-tariff mode with one subscription: skip list, go directly to detail
   if (data && !isMultiTariff && subscriptions.length === 1) {

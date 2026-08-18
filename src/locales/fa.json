@@ -5294,6 +5294,38 @@
       "trialDevicesRow": "{{count}} دستگاه",
       "balance": "موجودی",
       "balanceHint": "برای شارژ ضربه بزنید"
+    },
+    "subscription": {
+      "title": "اشتراک",
+      "titleBuy": "خرید اشتراک",
+      "statusActive": "فعال",
+      "until": "تا {{date}}",
+      "tariffLabel": "طرح «{{name}}»",
+      "devicesCount": "{{count}} دستگاه",
+      "trafficCount": "{{count}} گیگابایت",
+      "period": "دوره",
+      "devicesRowTitle": "دستگاه‌ها",
+      "devicesRowSub": "{{included}} دستگاه در طرح گنجانده شده، هر دستگاه بعدی — {{priceLabel}}",
+      "devicesDecrease": "کم کردن دستگاه",
+      "devicesIncrease": "افزودن دستگاه",
+      "autopayTitle": "تمدید خودکار",
+      "autopaySub": "برای دوره انتخابی {{price}} کسر می‌شود",
+      "autopayHint": "فقط از موجودی کیف پول کسر می‌کنیم — کارت و بانک شما دست‌نخورده باقی می‌ماند. تا تاریخ کسر مبلغ کافی در موجودی نگه دارید، وگرنه تمدید انجام نمی‌شود.",
+      "paymentMethodLabel": "روش شارژ",
+      "paymentMethodHint": "فهرست به روش‌های فعال‌شده در پنل مدیریت بستگی دارد.",
+      "paymentMin": "از {{amount}}",
+      "fromBalanceLabel": "از موجودی کسر می‌شود",
+      "fromBalanceSub": "موجودی {{balance}}",
+      "topUpLabel": "شارژ",
+      "topUpSub": "فقط مبلغ کسری",
+      "payButton": "پرداخت {{price}}",
+      "topUpAndPayButton": "شارژ {{price}} و فعال‌سازی",
+      "payHint": "اشتراک بلافاصله پس از پرداخت فعال می‌شود. نیازی به بازگشت به این صفحه نیست.",
+      "historyRowTitle": "تاریخچه اشتراک",
+      "historyRowSub": "خریدها، تمدیدها و وقفه‌ها",
+      "changeTrafficLink": "تغییر ترافیک و کشورها",
+      "tariffsModeFallback": "این صفحه هنوز از انتخاب طرح پشتیبانی نمی‌کند. پنل کامل را باز کنید.",
+      "openFull": "باز کردن پنل کامل"
     }
   }
 }

@@ -5906,6 +5906,38 @@
       "trialDevicesRow": "{{count}} devices",
       "balance": "Balance",
       "balanceHint": "Tap to top up"
+    },
+    "subscription": {
+      "title": "Subscription",
+      "titleBuy": "Buy a subscription",
+      "statusActive": "Active",
+      "until": "Until {{date}}",
+      "tariffLabel": "Plan \"{{name}}\"",
+      "devicesCount": "{{count}} devices",
+      "trafficCount": "{{count}} GB",
+      "period": "Period",
+      "devicesRowTitle": "Devices",
+      "devicesRowSub": "{{included}} included in the plan, each next one — {{priceLabel}}",
+      "devicesDecrease": "Remove a device",
+      "devicesIncrease": "Add a device",
+      "autopayTitle": "Renew automatically",
+      "autopaySub": "We'll charge {{price}} for the selected period",
+      "autopayHint": "We only charge the cabinet balance — your card and bank are never touched for this. Keep enough on your balance by the charge date, or the renewal won't happen.",
+      "paymentMethodLabel": "Top up with",
+      "paymentMethodHint": "The list depends on the methods enabled in the admin panel.",
+      "paymentMin": "from {{amount}}",
+      "fromBalanceLabel": "From balance",
+      "fromBalanceSub": "Balance: {{balance}}",
+      "topUpLabel": "Top up",
+      "topUpSub": "Only the missing part",
+      "payButton": "Pay {{price}}",
+      "topUpAndPayButton": "Top up {{price}} and activate",
+      "payHint": "The subscription activates right after payment. No need to come back here.",
+      "historyRowTitle": "Subscription history",
+      "historyRowSub": "Purchases, renewals and gaps",
+      "changeTrafficLink": "Change traffic and countries",
+      "tariffsModeFallback": "This screen doesn't support plan selection yet. Open the full cabinet.",
+      "openFull": "Open full cabinet"
     }
   }
 }
