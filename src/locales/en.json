@@ -5113,6 +5113,11 @@
       "promoOffersDesc": "Receive special offers and discounts",
       "unavailable": "Notification settings unavailable"
     },
+    "uiMode": {
+      "title": "Simple interface",
+      "description": "Turn off to open all sections: wheel, contests, gifts and news",
+      "saving": "Saving…"
+    },
     "accounts": {
       "title": "Connected Accounts",
       "subtitle": "Manage your sign-in methods",

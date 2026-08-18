@@ -19,6 +19,7 @@ import {
 import { referralApi } from '../api/referral';
 import { brandingApi, type EmailAuthEnabled } from '../api/branding';
 import { UI } from '../config/constants';
+import { useUiMode } from '@/hooks/useUiMode';
 import { Card } from '@/components/data-display/Card';
 import { Button } from '@/components/primitives/Button';
 import { Switch } from '@/components/primitives/Switch';
@@ -31,6 +32,7 @@ export default function Profile() {
   const user = useAuthStore((state) => state.user);
   const setUser = useAuthStore((state) => state.setUser);
   const queryClient = useQueryClient();
+  const { isSimple, setMode, isSaving } = useUiMode();
 
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
@@ -752,6 +754,21 @@ export default function Profile() {
                   onCheckedChange={(checked) =>
                     handleNotificationToggle('promo_offers_enabled', checked)
                   }
+                />
+              </div>
+
+              {/* UI Mode */}
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="font-medium text-dark-100">{t('profile.uiMode.title')}</p>
+                  <p className="text-sm text-dark-400">
+                    {isSaving ? t('profile.uiMode.saving') : t('profile.uiMode.description')}
+                  </p>
+                </div>
+                <Switch
+                  checked={isSimple}
+                  disabled={isSaving}
+                  onCheckedChange={(checked) => setMode(checked ? 'simple' : 'advanced')}
                 />
               </div>
             </div>

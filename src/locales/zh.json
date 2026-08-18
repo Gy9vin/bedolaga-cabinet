@@ -4501,6 +4501,11 @@
       "promoOffersDesc": "接收特别优惠和折扣",
       "unavailable": "通知设置不可用"
     },
+    "uiMode": {
+      "title": "简洁界面",
+      "description": "关闭后可显示全部板块：转盘、活动、赠送和新闻",
+      "saving": "保存中…"
+    },
     "accounts": {
       "title": "关联账户",
       "subtitle": "管理您的登录方式",
