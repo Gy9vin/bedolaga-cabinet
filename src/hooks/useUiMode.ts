@@ -1,3 +1,4 @@
+import { useEffect } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useAuthStore } from '@/store/auth';
 import { infoApi, type UiMode } from '@/api/info';
@@ -46,9 +47,16 @@ export function useUiMode() {
   });
 
   const mode: UiMode = data?.mode ?? cached;
-  if (data?.mode && data.mode !== cached) {
-    writeUiModeCache(data.mode);
-  }
+
+  // Запись в кэш — побочный эффект, ему не место в теле рендера (рендер обязан
+  // быть чистым): при конкурентном рендеринге он мог бы сработать для рендера,
+  // который так и не закоммитится. Выносим в useEffect по образцу useFeatureFlags.
+  useEffect(() => {
+    if (data?.mode && data.mode !== cached) {
+      writeUiModeCache(data.mode);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [data?.mode]);
 
   return {
     mode,
