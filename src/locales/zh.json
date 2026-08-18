@@ -5301,7 +5301,13 @@
       "until": "至 {{date}}",
       "tariffLabel": "套餐「{{name}}」",
       "devicesCount": "{{count}} 台设备",
+      "devicesUnlimited": "设备数不限",
       "trafficCount": "{{count}} GB",
+      "tariffSectionLabel": "套餐",
+      "tariffPriceFrom": "起价 {{price}}",
+      "tariffPriceDaily": "{{price}}/天",
+      "dailyPeriodLabel": "每日",
+      "noTariffsAvailable": "暂无可用套餐，请稍后再来或联系客服。",
       "period": "周期",
       "devicesRowTitle": "设备",
       "devicesRowSub": "套餐已包含 {{included}} 台，每多一台 — {{priceLabel}}",
@@ -5322,9 +5328,7 @@
       "payHint": "支付完成后订阅立即生效，无需返回此页面。",
       "historyRowTitle": "订阅历史",
       "historyRowSub": "购买、续费和中断记录",
-      "changeTrafficLink": "修改流量和国家",
-      "tariffsModeFallback": "此页面暂不支持选择套餐，请打开完整版面板。",
-      "openFull": "打开完整版面板"
+      "changeTrafficLink": "修改流量和国家"
     },
     "history": {
       "title": "历史记录",

@@ -5,20 +5,31 @@ import { useTranslation } from 'react-i18next';
 import SimpleScreen from './SimpleScreen';
 import SimpleRow from './SimpleRow';
 import { Button } from '@/components/primitives/Button/Button';
+import { Switch } from '@/components/primitives/Switch';
 import { BentoCard } from '@/components/ui/BentoCard';
 import { subscriptionApi } from '../../api/subscription';
 import { balanceApi } from '../../api/balance';
 import { formatPrice, formatShortDate } from '../../utils/format';
-import type { ClassicPurchaseOptions, PurchaseSelection } from '../../types';
+import type {
+  ClassicPurchaseOptions,
+  PurchaseSelection,
+  Tariff,
+  TariffsPurchaseOptions,
+} from '../../types';
 
 /**
- * Экран «Подписка» простого режима: период, устройства, автопродление и
- * оплата на одном экране — без ухода в баланс и возврата обратно. Работает
- * только для классического режима продаж (periods/devices/servers единые
- * на аккаунт); для тарифного режима (sales_mode='tariffs', отдельные
- * тарифы со своими периодами) отдаём ссылку на полный кабинет — там уже
- * есть весь мастер выбора тарифа, а простой экран рассчитан на один общий
- * список периодов, как в макете.
+ * Экран «Подписка» простого режима: тариф/период, устройства, автопродление
+ * и оплата на одном экране — без ухода в баланс и возврата обратно.
+ *
+ * Поддерживает оба режима продаж:
+ *  - classic: единый список периодов на аккаунт (periods/devices/servers);
+ *  - tariffs (по умолчанию в конфиге бота, SALES_MODE=tariffs): сначала
+ *    выбор тарифа, затем период внутри него. У тарифа нет мастера — вся
+ *    покупка укладывается на этот же один экран, переиспользуя тот же
+ *    клиент subscriptionApi.purchaseTariff, что и полный кабинет
+ *    (TariffPurchaseForm). Устройства в тарифном режиме на этапе покупки
+ *    не меняются (это делает сам тариф) — блок «Устройства» показываем
+ *    только в классическом режиме, где период это позволяет.
  */
 export default function SimpleSubscription() {
   const { t } = useTranslation();
@@ -29,6 +40,8 @@ export default function SimpleSubscription() {
   const [selectedPeriodId, setSelectedPeriodId] = useState<string | null>(null);
   const [selectedDevices, setSelectedDevices] = useState<number | null>(null);
   const [selectedMethodId, setSelectedMethodId] = useState<string | null>(null);
+  const [selectedTariffId, setSelectedTariffId] = useState<number | null>(null);
+  const [selectedTariffPeriodDays, setSelectedTariffPeriodDays] = useState<number | null>(null);
 
   const { data: subscriptionResponse, isLoading: subLoading } = useQuery({
     queryKey: ['subscription'],
@@ -47,6 +60,44 @@ export default function SimpleSubscription() {
   const isClassic = purchaseOptions?.sales_mode === 'classic';
   const classicOptions = isClassic ? (purchaseOptions as ClassicPurchaseOptions) : null;
   const periods = classicOptions?.periods ?? [];
+
+  const isTariffsMode = purchaseOptions?.sales_mode === 'tariffs';
+  const tariffsOptions = isTariffsMode ? (purchaseOptions as TariffsPurchaseOptions) : null;
+  const tariffs = tariffsOptions?.tariffs ?? [];
+
+  const effectiveTariffId =
+    selectedTariffId ?? tariffsOptions?.current_tariff_id ?? tariffs[0]?.id ?? null;
+  const selectedTariff: Tariff | null =
+    tariffs.find((tariff) => tariff.id === effectiveTariffId) ?? null;
+
+  // Периоды тарифа — либо стандартный список из tariff.periods, либо (для
+  // суточного тарифа без периодов) один синтетический период на день, как
+  // и в полном кабинете (TariffPurchaseForm, ветка isDailyTariff).
+  const isDailyTariff =
+    !!selectedTariff && (selectedTariff.is_daily || (selectedTariff.daily_price_kopeks ?? 0) > 0);
+  const tariffPeriods = useMemo(() => {
+    if (!selectedTariff) return [];
+    if (selectedTariff.periods.length > 0) return selectedTariff.periods;
+    if (isDailyTariff) {
+      return [
+        {
+          days: 1,
+          months: 0,
+          label: t('simple.subscription.dailyPeriodLabel'),
+          price_kopeks: selectedTariff.daily_price_kopeks ?? 0,
+          price_label: formatPrice(selectedTariff.daily_price_kopeks ?? 0),
+          price_per_month_kopeks: 0,
+          price_per_month_label: '',
+        },
+      ];
+    }
+    return [];
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [selectedTariff?.id, isDailyTariff]);
+
+  const effectiveTariffPeriodDays = selectedTariffPeriodDays ?? tariffPeriods[0]?.days ?? null;
+  const selectedTariffPeriod =
+    tariffPeriods.find((period) => period.days === effectiveTariffPeriodDays) ?? null;
 
   const effectivePeriodId =
     selectedPeriodId ?? classicOptions?.selection.period_id ?? periods[0]?.id ?? null;
@@ -91,6 +142,27 @@ export default function SimpleSubscription() {
     },
   });
 
+  // Тарифная покупка не идёт через previewPurchase/submitPurchase (это
+  // API классического режима с единым списком периодов) — у тарифов свой
+  // клиент purchaseTariff(tariffId, periodDays, trafficGb?, subscriptionId?),
+  // тот же, что использует TariffPurchaseForm в полном кабинете. Возврат
+  // недостающей суммы бэкенд для тарифов не считает — считаем на клиенте
+  // так же, как это делает TariffPurchaseForm (price − balance_kopeks).
+  const purchaseTariffMutation = useMutation({
+    mutationFn: () =>
+      subscriptionApi.purchaseTariff(
+        (selectedTariff as Tariff).id,
+        effectiveTariffPeriodDays as number,
+        undefined,
+        subscription?.id,
+      ),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['subscription'] });
+      queryClient.invalidateQueries({ queryKey: ['purchase-options', undefined] });
+      queryClient.invalidateQueries({ queryKey: ['balance'] });
+    },
+  });
+
   const autopayMutation = useMutation({
     mutationFn: (enabled: boolean) => subscriptionApi.updateAutopay(enabled),
     onSuccess: () => {
@@ -106,12 +178,34 @@ export default function SimpleSubscription() {
   const fromBalanceKopeks = Math.max(totalKopeks - missingKopeks, 0);
   const hasEnoughBalance = missingKopeks <= 0;
 
+  const totalTariffKopeks = selectedTariffPeriod?.price_kopeks ?? 0;
+  const tariffBalanceKopeks = tariffsOptions?.balance_kopeks ?? 0;
+  const missingTariffKopeks = Math.max(totalTariffKopeks - tariffBalanceKopeks, 0);
+  const fromBalanceTariffKopeks = Math.max(totalTariffKopeks - missingTariffKopeks, 0);
+  const hasEnoughTariffBalance = missingTariffKopeks <= 0;
+
+  // Единые значения для сводки/кнопки — считаются по активному режиму
+  // продаж, чтобы разметку ниже не пришлось дублировать под каждый режим.
+  const showSummary = isClassic ? !!preview : !!selectedTariff && !!selectedTariffPeriod;
+  const effectiveTotalKopeks = isClassic ? totalKopeks : totalTariffKopeks;
+  const effectiveMissingKopeks = isClassic ? missingKopeks : missingTariffKopeks;
+  const effectiveFromBalanceKopeks = isClassic ? fromBalanceKopeks : fromBalanceTariffKopeks;
+  const effectiveHasEnoughBalance = isClassic ? hasEnoughBalance : hasEnoughTariffBalance;
+  const effectiveBalanceKopeks = isClassic ? (preview?.balance_kopeks ?? 0) : tariffBalanceKopeks;
+  const isPurchasePending = isClassic
+    ? purchaseMutation.isPending
+    : purchaseTariffMutation.isPending;
+
   const handlePrimaryAction = () => {
-    if (hasEnoughBalance) {
-      purchaseMutation.mutate();
+    if (effectiveHasEnoughBalance) {
+      if (isClassic) {
+        purchaseMutation.mutate();
+      } else {
+        purchaseTariffMutation.mutate();
+      }
       return;
     }
-    const rubles = Math.ceil(missingKopeks / 100);
+    const rubles = Math.ceil(effectiveMissingKopeks / 100);
     navigate(
       `/balance/top-up?amount=${rubles}&returnTo=${encodeURIComponent(location.pathname)}${
         effectiveMethodId ? `&method=${encodeURIComponent(effectiveMethodId)}` : ''
@@ -123,17 +217,6 @@ export default function SimpleSubscription() {
     return (
       <SimpleScreen title={t('simple.subscription.title')}>
         <div className="skeleton h-40 w-full rounded-2xl" />
-      </SimpleScreen>
-    );
-  }
-
-  if (purchaseOptions && !isClassic) {
-    return (
-      <SimpleScreen title={t('simple.subscription.title')}>
-        <p className="text-sm text-dark-400">{t('simple.subscription.tariffsModeFallback')}</p>
-        <Button variant="primary" fullWidth onClick={() => navigate('/subscription/purchase')}>
-          {t('simple.subscription.openFull')}
-        </Button>
       </SimpleScreen>
     );
   }
@@ -161,6 +244,110 @@ export default function SimpleSubscription() {
             {t('simple.subscription.trafficCount', { count: subscription.traffic_limit_gb })}
           </p>
         </BentoCard>
+      )}
+
+      {isTariffsMode && tariffs.length === 0 && (
+        <p className="text-sm text-dark-400">{t('simple.subscription.noTariffsAvailable')}</p>
+      )}
+
+      {isTariffsMode && tariffs.length > 0 && (
+        <div>
+          <span className="text-[11px] font-semibold uppercase tracking-[0.1em] text-dark-50/40">
+            {t('simple.subscription.tariffSectionLabel')}
+          </span>
+          <div className="mt-2 space-y-2">
+            {tariffs.map((tariff) => {
+              const isSelected = tariff.id === effectiveTariffId;
+              const tariffIsDaily = tariff.is_daily || (tariff.daily_price_kopeks ?? 0) > 0;
+              const priceLabel = tariffIsDaily
+                ? t('simple.subscription.tariffPriceDaily', {
+                    price: formatPrice(tariff.daily_price_kopeks ?? 0),
+                  })
+                : tariff.periods.length > 0
+                  ? t('simple.subscription.tariffPriceFrom', {
+                      price: formatPrice(tariff.periods[0].price_kopeks),
+                    })
+                  : null;
+              return (
+                <button
+                  key={tariff.id}
+                  type="button"
+                  onClick={() => {
+                    setSelectedTariffId(tariff.id);
+                    setSelectedTariffPeriodDays(null);
+                  }}
+                  aria-pressed={isSelected}
+                  className={`flex w-full items-center justify-between rounded-2xl border p-3.5 text-left transition-colors ${
+                    isSelected
+                      ? 'border-accent-500/60 bg-accent-500/10'
+                      : 'border-dark-700/40 bg-dark-900/70'
+                  }`}
+                >
+                  <div className="min-w-0">
+                    <div className="font-medium text-dark-100">{tariff.name}</div>
+                    <div className="mt-0.5 text-xs text-dark-400">
+                      {tariff.traffic_limit_label}
+                      {' · '}
+                      {tariff.device_limit === 0
+                        ? t('simple.subscription.devicesUnlimited')
+                        : t('simple.subscription.devicesCount', { count: tariff.device_limit })}
+                    </div>
+                  </div>
+                  {priceLabel && (
+                    <span className="shrink-0 font-semibold tabular-nums text-dark-50">
+                      {priceLabel}
+                    </span>
+                  )}
+                </button>
+              );
+            })}
+          </div>
+        </div>
+      )}
+
+      {isTariffsMode && selectedTariff && tariffPeriods.length > 0 && (
+        <div>
+          <span className="text-[11px] font-semibold uppercase tracking-[0.1em] text-dark-50/40">
+            {t('simple.subscription.period')}
+          </span>
+          <div className="mt-2 space-y-2">
+            {tariffPeriods.map((period) => {
+              const isSelected = period.days === effectiveTariffPeriodDays;
+              return (
+                <button
+                  key={period.days}
+                  type="button"
+                  onClick={() => setSelectedTariffPeriodDays(period.days)}
+                  aria-pressed={isSelected}
+                  className={`flex w-full items-center justify-between rounded-2xl border p-3.5 text-left transition-colors ${
+                    isSelected
+                      ? 'border-accent-500/60 bg-accent-500/10'
+                      : 'border-dark-700/40 bg-dark-900/70'
+                  }`}
+                >
+                  <div className="min-w-0">
+                    <div className="flex items-center gap-2">
+                      <span className="font-medium text-dark-100">{period.label}</span>
+                      {!!period.discount_percent && (
+                        <span className="text-xs font-semibold text-success-400">
+                          −{period.discount_percent}%
+                        </span>
+                      )}
+                    </div>
+                    {period.months > 1 && (
+                      <div className="mt-0.5 text-xs text-dark-400">
+                        {period.price_per_month_label}
+                      </div>
+                    )}
+                  </div>
+                  <span className="shrink-0 font-semibold tabular-nums text-dark-50">
+                    {period.price_label}
+                  </span>
+                </button>
+              );
+            })}
+          </div>
+        </div>
       )}
 
       {periods.length > 0 && (
@@ -260,25 +447,16 @@ export default function SimpleSubscription() {
               <div className="min-w-0 flex-1">
                 <p className="font-medium text-dark-100">{t('simple.subscription.autopayTitle')}</p>
                 <p className="mt-0.5 text-sm text-dark-400">
-                  {t('simple.subscription.autopaySub', { price: formatPrice(totalKopeks) })}
+                  {t('simple.subscription.autopaySub', {
+                    price: formatPrice(effectiveTotalKopeks),
+                  })}
                 </p>
               </div>
-              <button
-                type="button"
-                role="switch"
-                aria-checked={subscription.autopay_enabled}
+              <Switch
+                checked={subscription.autopay_enabled}
                 disabled={autopayMutation.isPending}
-                onClick={() => autopayMutation.mutate(!subscription.autopay_enabled)}
-                className={`relative h-6 w-11 shrink-0 rounded-full transition-colors ${
-                  subscription.autopay_enabled ? 'bg-accent-500' : 'bg-dark-700/60'
-                }`}
-              >
-                <span
-                  className={`absolute top-0.5 h-5 w-5 rounded-full bg-white transition-transform ${
-                    subscription.autopay_enabled ? 'translate-x-5' : 'translate-x-0.5'
-                  }`}
-                />
-              </button>
+                onCheckedChange={(checked) => autopayMutation.mutate(checked)}
+              />
             </div>
           </div>
           <p className="-mt-2 text-xs text-dark-500">{t('simple.subscription.autopayHint')}</p>
@@ -321,18 +499,18 @@ export default function SimpleSubscription() {
         </div>
       )}
 
-      {preview && (
+      {showSummary && (
         <BentoCard>
           <div className="flex items-start justify-between gap-3 py-1.5">
             <div className="min-w-0">
               <p className="font-medium text-dark-100">
-                {selectedPeriod?.label}
-                {' · '}
-                {t('simple.subscription.devicesCount', { count: effectiveDevices })}
+                {isClassic
+                  ? `${selectedPeriod?.label} · ${t('simple.subscription.devicesCount', { count: effectiveDevices })}`
+                  : `${selectedTariff?.name} · ${selectedTariffPeriod?.label}`}
               </p>
             </div>
             <span className="shrink-0 font-semibold tabular-nums text-dark-50">
-              {formatPrice(totalKopeks)}
+              {formatPrice(effectiveTotalKopeks)}
             </span>
           </div>
           <div className="flex items-start justify-between gap-3 border-t border-dark-700/40 py-1.5 pt-2.5">
@@ -342,40 +520,42 @@ export default function SimpleSubscription() {
               </p>
               <p className="mt-0.5 text-xs text-dark-400">
                 {t('simple.subscription.fromBalanceSub', {
-                  balance: formatPrice(preview.balance_kopeks),
+                  balance: formatPrice(effectiveBalanceKopeks),
                 })}
               </p>
             </div>
             <span className="shrink-0 font-semibold tabular-nums text-dark-50">
-              − {formatPrice(fromBalanceKopeks)}
+              − {formatPrice(effectiveFromBalanceKopeks)}
             </span>
           </div>
-          {missingKopeks > 0 && (
+          {effectiveMissingKopeks > 0 && (
             <div className="flex items-start justify-between gap-3 border-t border-dark-700/40 py-1.5 pt-2.5">
               <div className="min-w-0">
                 <p className="font-semibold text-dark-100">{t('simple.subscription.topUpLabel')}</p>
                 <p className="mt-0.5 text-xs text-dark-400">{t('simple.subscription.topUpSub')}</p>
               </div>
               <span className="shrink-0 text-lg font-bold tabular-nums text-warning-400">
-                {formatPrice(missingKopeks)}
+                {formatPrice(effectiveMissingKopeks)}
               </span>
             </div>
           )}
         </BentoCard>
       )}
 
-      {preview && (
+      {showSummary && (
         <>
           <Button
             variant="primary"
             size="lg"
             fullWidth
-            loading={purchaseMutation.isPending}
+            loading={isPurchasePending}
             onClick={handlePrimaryAction}
           >
-            {hasEnoughBalance
-              ? t('simple.subscription.payButton', { price: formatPrice(totalKopeks) })
-              : t('simple.subscription.topUpAndPayButton', { price: formatPrice(missingKopeks) })}
+            {effectiveHasEnoughBalance
+              ? t('simple.subscription.payButton', { price: formatPrice(effectiveTotalKopeks) })
+              : t('simple.subscription.topUpAndPayButton', {
+                  price: formatPrice(effectiveMissingKopeks),
+                })}
           </Button>
           <p className="text-xs text-dark-500">{t('simple.subscription.payHint')}</p>
         </>

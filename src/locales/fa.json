@@ -5302,7 +5302,13 @@
       "until": "تا {{date}}",
       "tariffLabel": "طرح «{{name}}»",
       "devicesCount": "{{count}} دستگاه",
+      "devicesUnlimited": "دستگاه نامحدود",
       "trafficCount": "{{count}} گیگابایت",
+      "tariffSectionLabel": "طرح",
+      "tariffPriceFrom": "از {{price}}",
+      "tariffPriceDaily": "{{price}}/روز",
+      "dailyPeriodLabel": "روزانه",
+      "noTariffsAvailable": "طرحی موجود نیست. بعداً سر بزنید یا با پشتیبانی تماس بگیرید.",
       "period": "دوره",
       "devicesRowTitle": "دستگاه‌ها",
       "devicesRowSub": "{{included}} دستگاه در طرح گنجانده شده، هر دستگاه بعدی — {{priceLabel}}",
@@ -5323,9 +5329,7 @@
       "payHint": "اشتراک بلافاصله پس از پرداخت فعال می‌شود. نیازی به بازگشت به این صفحه نیست.",
       "historyRowTitle": "تاریخچه اشتراک",
       "historyRowSub": "خریدها، تمدیدها و وقفه‌ها",
-      "changeTrafficLink": "تغییر ترافیک و کشورها",
-      "tariffsModeFallback": "این صفحه هنوز از انتخاب طرح پشتیبانی نمی‌کند. پنل کامل را باز کنید.",
-      "openFull": "باز کردن پنل کامل"
+      "changeTrafficLink": "تغییر ترافیک و کشورها"
     },
     "history": {
       "title": "تاریخچه",

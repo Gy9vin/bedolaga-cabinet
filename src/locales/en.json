@@ -5914,7 +5914,13 @@
       "until": "Until {{date}}",
       "tariffLabel": "Plan \"{{name}}\"",
       "devicesCount": "{{count}} devices",
+      "devicesUnlimited": "unlimited devices",
       "trafficCount": "{{count}} GB",
+      "tariffSectionLabel": "Plan",
+      "tariffPriceFrom": "from {{price}}",
+      "tariffPriceDaily": "{{price}}/day",
+      "dailyPeriodLabel": "Daily",
+      "noTariffsAvailable": "No plans available yet. Check back later or contact support.",
       "period": "Period",
       "devicesRowTitle": "Devices",
       "devicesRowSub": "{{included}} included in the plan, each next one — {{priceLabel}}",
@@ -5935,9 +5941,7 @@
       "payHint": "The subscription activates right after payment. No need to come back here.",
       "historyRowTitle": "Subscription history",
       "historyRowSub": "Purchases, renewals and gaps",
-      "changeTrafficLink": "Change traffic and countries",
-      "tariffsModeFallback": "This screen doesn't support plan selection yet. Open the full cabinet.",
-      "openFull": "Open full cabinet"
+      "changeTrafficLink": "Change traffic and countries"
     },
     "history": {
       "title": "History",

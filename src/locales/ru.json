@@ -6468,7 +6468,13 @@
       "until": "До {{date}}",
       "tariffLabel": "Тариф «{{name}}»",
       "devicesCount": "{{count}} устройств",
+      "devicesUnlimited": "безлимит устройств",
       "trafficCount": "{{count}} ГБ",
+      "tariffSectionLabel": "Тариф",
+      "tariffPriceFrom": "от {{price}}",
+      "tariffPriceDaily": "{{price}}/день",
+      "dailyPeriodLabel": "Ежедневно",
+      "noTariffsAvailable": "Нет доступных тарифов. Загляните позже или напишите в поддержку.",
       "period": "Период",
       "devicesRowTitle": "Устройства",
       "devicesRowSub": "{{included}} включены в тариф, каждое следующее — {{priceLabel}}",
@@ -6489,9 +6495,7 @@
       "payHint": "Подписка включится сразу после оплаты. Возвращаться сюда не нужно.",
       "historyRowTitle": "История подписки",
       "historyRowSub": "Покупки, продления и перерывы",
-      "changeTrafficLink": "Изменить трафик и страны",
-      "tariffsModeFallback": "Этот экран пока не поддерживает выбор тарифа. Откройте полный кабинет.",
-      "openFull": "Открыть полный кабинет"
+      "changeTrafficLink": "Изменить трафик и страны"
     },
     "history": {
       "title": "История",

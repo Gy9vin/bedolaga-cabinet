@@ -19,6 +19,7 @@ import { subscriptionApi } from '../../api/subscription';
 import { balanceApi } from '../../api/balance';
 import type {
   ClassicPurchaseOptions,
+  TariffsPurchaseOptions,
   PurchasePreview,
   Subscription,
   PaymentMethod,
@@ -31,6 +32,7 @@ vi.mock('../../api/subscription', () => ({
     previewPurchase: vi.fn(),
     submitPurchase: vi.fn(),
     updateAutopay: vi.fn(),
+    purchaseTariff: vi.fn(),
   },
 }));
 
@@ -141,6 +143,41 @@ const CLASSIC_OPTIONS: ClassicPurchaseOptions = {
   selection: { period_id: 'p1', period_days: 90, traffic_value: 200, servers: [], devices: 5 },
 };
 
+const TARIFFS_OPTIONS: TariffsPurchaseOptions = {
+  sales_mode: 'tariffs',
+  tariffs: [
+    {
+      id: 1,
+      name: 'Стандарт',
+      description: null,
+      tier_level: 1,
+      traffic_limit_gb: 200,
+      traffic_limit_label: '200 ГБ',
+      is_unlimited_traffic: false,
+      device_limit: 5,
+      extra_devices_count: 0,
+      servers_count: 1,
+      servers: [],
+      periods: [
+        {
+          days: 30,
+          months: 1,
+          label: '1 месяц',
+          price_kopeks: 50000,
+          price_label: '500 ₽',
+          price_per_month_kopeks: 50000,
+          price_per_month_label: '500 ₽ в месяц',
+        },
+      ],
+      is_current: true,
+      is_available: true,
+    },
+  ],
+  current_tariff_id: 1,
+  balance_kopeks: 100000,
+  balance_label: '1 000 ₽',
+};
+
 const PAYMENT_METHODS: PaymentMethod[] = [
   {
     id: 'sbp',
@@ -224,5 +261,45 @@ describe('SimpleSubscription', () => {
       expect(screen.getByRole('switch')).toBeTruthy();
     });
     expect(screen.getByText(/баланса кабинета/i)).toBeTruthy();
+  });
+});
+
+describe('SimpleSubscription — тарифный режим (sales_mode=tariffs)', () => {
+  it('показывает выбор тарифа, а не заглушку со ссылкой в полный кабинет', async () => {
+    getPurchaseOptionsMock.mockResolvedValue(TARIFFS_OPTIONS);
+
+    render(<SimpleSubscription />, { wrapper: makeWrapper() });
+
+    await waitFor(() => {
+      expect(screen.getByText('Стандарт')).toBeTruthy();
+    });
+    // Заглушки-ссылки в полный кабинет из старой реализации быть не должно.
+    expect(screen.queryByText(/пока не поддерживает выбор тарифа/i)).toBeNull();
+    expect(screen.queryByRole('button', { name: /Открыть полный кабинет/i })).toBeNull();
+  });
+
+  it('при достаточном балансе кнопка «Оплатить», строки «Пополнить» нет', async () => {
+    getPurchaseOptionsMock.mockResolvedValue(TARIFFS_OPTIONS); // баланс 1000 ₽, тариф 500 ₽
+
+    render(<SimpleSubscription />, { wrapper: makeWrapper() });
+
+    await waitFor(() => {
+      expect(screen.getByRole('button', { name: /Оплатить/i })).toBeTruthy();
+    });
+    expect(screen.queryByText('Пополнить', { exact: true })).toBeNull();
+  });
+
+  it('при нехватке баланса кнопка про пополнение, а сумма — РАЗНИЦА, не полная стоимость тарифа', async () => {
+    getPurchaseOptionsMock.mockResolvedValue({
+      ...TARIFFS_OPTIONS,
+      balance_kopeks: 20000, // 200 ₽ на балансе, тариф стоит 500 ₽ → не хватает 300 ₽
+      balance_label: '200 ₽',
+    });
+
+    render(<SimpleSubscription />, { wrapper: makeWrapper() });
+
+    const btn = await screen.findByRole('button', { name: /Пополнить/i });
+    expect(btn.textContent).toMatch(/300/);
+    expect(btn.textContent).not.toMatch(/500/);
   });
 });
