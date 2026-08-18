@@ -15,7 +15,7 @@ import { referralApi } from '../../api/referral';
 import { withdrawalApi } from '../../api/withdrawals';
 import { brandingApi } from '../../api/branding';
 import { copyToClipboard } from '../../utils/clipboard';
-import { formatPrice } from '../../utils/format';
+import { formatPrice, formatShortDate } from '../../utils/format';
 
 type FeedItem = {
   id: string;
@@ -145,10 +145,16 @@ export default function SimpleReferral() {
 
   // Приглашённые и начисления — один список (бриф задачи 6), а не два.
   const feed: FeedItem[] = useMemo(() => {
+    // Дата раньше только сортировала ленту и нигде не была видна человеку —
+    // подпись выглядела как голый статус без контекста, когда это произошло
+    // (бриф задачи 6). Формат — как в остальном кабинете, через
+    // formatShortDate, а не свой парсинг даты.
     const referralItems: FeedItem[] = (referralList?.items ?? []).map((ref) => ({
       id: `ref-${ref.id}`,
       title: ref.first_name || ref.username || t('referral.anonymousUser', { id: ref.id }),
-      subtitle: ref.has_paid ? t('simple.referral.feedPaid') : t('simple.referral.feedWaiting'),
+      subtitle: `${formatShortDate(ref.created_at)} · ${
+        ref.has_paid ? t('simple.referral.feedPaid') : t('simple.referral.feedWaiting')
+      }`,
       value: null,
       positive: false,
       createdAt: ref.created_at,
@@ -157,7 +163,7 @@ export default function SimpleReferral() {
       id: `earn-${earning.id}`,
       title:
         earning.referral_first_name || earning.referral_username || t('referral.anonymousReferral'),
-      subtitle: t(`referral.reasons.${earning.reason}`, earning.reason),
+      subtitle: `${formatShortDate(earning.created_at)} · ${t(`referral.reasons.${earning.reason}`, earning.reason)}`,
       value: formatPrice(earning.amount_kopeks),
       positive: true,
       createdAt: earning.created_at,

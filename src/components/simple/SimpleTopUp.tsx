@@ -8,7 +8,7 @@ import { BentoCard } from '@/components/ui/BentoCard';
 import { usePlatform } from '@/platform';
 import { openPaymentUrl } from '../../utils/openPaymentUrl';
 import { balanceApi } from '../../api/balance';
-import { formatPrice } from '../../utils/format';
+import { formatPrice, formatPeriodDays } from '../../utils/format';
 import { getSafeRedirectPath } from '../../utils/safeRedirect';
 import { useCloseOnSuccessNotification } from '../../store/successNotification';
 
@@ -160,7 +160,9 @@ export default function SimpleTopUp() {
                 >
                   {formatPrice(preset.amount_kopeks)}
                   <small className="mt-0.5 block text-[10.5px] font-medium text-dark-400">
-                    {t('simple.topUp.presetDays', { count: preset.label_days })}
+                    {/* Находка 9: чип показывал «90 дней» вместо «3 месяца» —
+                     * кратные 30 дней теперь выводим месяцами, 360/365 годом. */}
+                    {formatPeriodDays(preset.label_days, t)}
                   </small>
                 </button>
               );
@@ -192,9 +194,14 @@ export default function SimpleTopUp() {
                       : 'border-dark-700/40 bg-dark-900/70'
                   }`}
                 >
-                  <span className="font-medium text-dark-100">{method.name}</span>
+                  <div className="min-w-0">
+                    <div className="font-medium text-dark-100">{method.name}</div>
+                    {method.description && (
+                      <div className="mt-0.5 text-xs text-dark-400">{method.description}</div>
+                    )}
+                  </div>
                   {method.min_amount_kopeks > 0 && (
-                    <span className="text-xs text-dark-400">
+                    <span className="shrink-0 text-xs text-dark-400">
                       {t('simple.topUp.methodMin', {
                         amount: formatPrice(method.min_amount_kopeks),
                       })}

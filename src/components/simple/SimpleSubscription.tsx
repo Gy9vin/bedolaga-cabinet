@@ -543,9 +543,14 @@ export default function SimpleSubscription() {
                       : 'border-dark-700/40 bg-dark-900/70'
                   }`}
                 >
-                  <span className="font-medium text-dark-100">{method.name}</span>
+                  <div className="min-w-0">
+                    <div className="font-medium text-dark-100">{method.name}</div>
+                    {method.description && (
+                      <div className="mt-0.5 text-xs text-dark-400">{method.description}</div>
+                    )}
+                  </div>
                   {method.min_amount_kopeks > 0 && (
-                    <span className="text-xs text-dark-400">
+                    <span className="shrink-0 text-xs text-dark-400">
                       {t('simple.subscription.paymentMin', {
                         amount: formatPrice(method.min_amount_kopeks),
                       })}

@@ -1,7 +1,7 @@
 import { useTranslation } from 'react-i18next';
 import type { SubscriptionTimelineEvent } from '../../types/timeline';
 import { humanizeDuration } from '../../utils/subscriptionTimeline';
-import { formatPrice } from '../../utils/format';
+import { formatPrice, formatPeriodDays } from '../../utils/format';
 
 const fmtDate = (iso: string | null): string =>
   iso
@@ -21,12 +21,20 @@ export function SubscriptionTimeline({
   since,
   isDark = true,
   showAmount = false,
+  showPeriodInTitle = false,
 }: {
   events: SubscriptionTimelineEvent[];
   since: string | null;
   isDark?: boolean;
   /** Цена события справа в строке (находка 8, используется в простом режиме). */
   showAmount?: boolean;
+  /**
+   * Необязательный пропс вместо своей отрисовки простого режима (находка 8):
+   * компонент общий с расширенным режимом, там заголовок не трогаем.
+   * Тарифа в событии нет — добавляем в заголовок хотя бы период
+   * («Продление · 3 месяца»), как просит бриф, когда план недоступен.
+   */
+  showPeriodInTitle?: boolean;
 }) {
   const { t } = useTranslation();
   if (!events.length) return <p className="text-sm text-dark-50/40">{t('timeline.empty')}</p>;
@@ -49,7 +57,9 @@ export function SubscriptionTimeline({
             <div className={`mb-1 flex-1 rounded-xl border p-3 ${cardCls}`}>
               <div className="flex flex-wrap items-center gap-2">
                 <span className="text-sm font-semibold text-dark-50">
-                  {t(`timeline.kind.${ev.event_type}`)}
+                  {showPeriodInTitle && ev.period_days
+                    ? `${t(`timeline.kind.${ev.event_type}`)} · ${formatPeriodDays(ev.period_days, t)}`
+                    : t(`timeline.kind.${ev.event_type}`)}
                 </span>
                 <span className="text-xs text-dark-50/45">{fmtDate(ev.date)}</span>
                 <div className="ml-auto flex items-center gap-2">
