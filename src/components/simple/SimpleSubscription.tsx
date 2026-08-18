@@ -285,9 +285,13 @@ export default function SimpleSubscription() {
           <p className="mt-0.5 text-sm text-dark-400">
             {t('simple.subscription.tariffLabel', { name: subscription.tariff_name || '—' })}
             {' · '}
-            {t('simple.subscription.devicesCount', { count: subscription.device_limit })}
+            {subscription.device_limit === 0
+              ? t('simple.subscription.devicesUnlimited')
+              : t('simple.subscription.devicesCount', { count: subscription.device_limit })}
             {' · '}
-            {t('simple.subscription.trafficCount', { count: subscription.traffic_limit_gb })}
+            {subscription.traffic_limit_gb === 0
+              ? t('simple.subscription.trafficUnlimited')
+              : t('simple.subscription.trafficCount', { count: subscription.traffic_limit_gb })}
           </p>
         </BentoCard>
       )}
@@ -454,7 +458,7 @@ export default function SimpleSubscription() {
               </p>
               <p className="mt-0.5 text-sm text-dark-400">
                 {t('simple.subscription.devicesRowSub', {
-                  included: selectedPeriod.devices.min,
+                  count: selectedPeriod.devices.min,
                   priceLabel: selectedPeriod.devices.price_per_device_label,
                 })}
               </p>

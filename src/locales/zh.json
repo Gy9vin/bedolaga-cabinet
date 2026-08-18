@@ -5313,6 +5313,7 @@
       "devicesCount": "{{count}} 台设备",
       "devicesUnlimited": "设备数不限",
       "trafficCount": "{{count}} GB",
+      "trafficUnlimited": "流量不限",
       "tariffSectionLabel": "套餐",
       "tariffPriceFrom": "起价 {{price}}",
       "tariffPriceDaily": "{{price}}/天",
@@ -5321,7 +5322,7 @@
       "period": "续费时长",
       "perMonthLabel": "每月 {{price}}",
       "devicesRowTitle": "设备",
-      "devicesRowSub": "套餐已包含 {{included}} 台，每多一台 — {{priceLabel}}",
+      "devicesRowSub": "套餐已包含 {{count}} 台，每多一台 — {{priceLabel}}",
       "devicesDecrease": "减少设备",
       "devicesIncrease": "增加设备",
       "autopayTitle": "自动续费",
@@ -5379,6 +5380,14 @@
       "totalPaid": "累计支付",
       "daysWithSubscription": "订阅天数",
       "allEvents": "全部事件",
+      "eventTitlePurchase": "购买 {{period}}",
+      "eventTitleRenewal": "续费 {{period}}",
+      "eventTitleActivation": "试用期，{{period}}",
+      "renewedUntil": "续费至 {{date}}",
+      "activeUntilPast": "曾生效至 {{date}}",
+      "trialUntil": "曾生效至 {{date}}",
+      "carriedNote": "结转了 {{dur}} 剩余时长",
+      "downtimeNote": "中断 {{dur}}，期间订阅未生效",
       "hint": "「结转余量」指提前续费时未作废的剩余天数。「中断」指订阅未生效的时间段。"
     },
     "devices": {
@@ -5440,6 +5449,7 @@
       "methodMin": "起充 {{amount}}",
       "methodHint": "每种支付方式都有各自的最低金额——金额不足时该方式将不可用。",
       "submitButton": "充值 {{amount}}",
+      "submitButtonEmpty": "充值",
       "paymentReady": "正在打开支付页面…"
     },
     "paymentPending": {

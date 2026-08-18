@@ -272,6 +272,7 @@ export default function SimpleDeviceLimit() {
               connected: connectedCount,
               limit: effectiveLimit,
               needed: devicesToDisconnect,
+              count: devicesToDisconnect,
             })}
           </p>
         </div>

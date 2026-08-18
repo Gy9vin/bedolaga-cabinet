@@ -5314,6 +5314,7 @@
       "devicesCount": "{{count}} دستگاه",
       "devicesUnlimited": "دستگاه نامحدود",
       "trafficCount": "{{count}} گیگابایت",
+      "trafficUnlimited": "ترافیک نامحدود",
       "tariffSectionLabel": "طرح",
       "tariffPriceFrom": "از {{price}}",
       "tariffPriceDaily": "{{price}}/روز",
@@ -5322,7 +5323,7 @@
       "period": "تمدید برای",
       "perMonthLabel": "{{price}} در ماه",
       "devicesRowTitle": "دستگاه‌ها",
-      "devicesRowSub": "{{included}} دستگاه در طرح گنجانده شده، هر دستگاه بعدی — {{priceLabel}}",
+      "devicesRowSub": "{{count}} دستگاه در طرح گنجانده شده، هر دستگاه بعدی — {{priceLabel}}",
       "devicesDecrease": "کم کردن دستگاه",
       "devicesIncrease": "افزودن دستگاه",
       "autopayTitle": "تمدید خودکار",
@@ -5380,6 +5381,14 @@
       "totalPaid": "مجموع پرداختی",
       "daysWithSubscription": "روزهای دارای اشتراک",
       "allEvents": "همه رویدادها",
+      "eventTitlePurchase": "خرید برای {{period}}",
+      "eventTitleRenewal": "تمدید برای {{period}}",
+      "eventTitleActivation": "دوره آزمایشی، {{period}}",
+      "renewedUntil": "تمدید شد تا {{date}}",
+      "activeUntilPast": "تا {{date}} فعال بود",
+      "trialUntil": "تا {{date}} فعال بود",
+      "carriedNote": "{{dur}} مانده منتقل شد",
+      "downtimeNote": "{{dur}} وقفه بدون اشتراک",
       "hint": "«انتقال مانده» یعنی روزهایی که هنگام تمدید زودهنگام از بین نرفتند. «وقفه» یعنی زمانی که اشتراک فعال نبود."
     },
     "devices": {
@@ -5441,6 +5450,7 @@
       "methodMin": "از {{amount}}",
       "methodHint": "هر روش حداقل مبلغ خودش را دارد — اگر مبلغ کمتر باشد، آن روش غیرفعال می‌شود.",
       "submitButton": "شارژ {{amount}}",
+      "submitButtonEmpty": "شارژ موجودی",
       "paymentReady": "در حال باز کردن صفحه پرداخت…"
     },
     "paymentPending": {

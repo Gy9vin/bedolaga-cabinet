@@ -1,10 +1,11 @@
 // @vitest-environment jsdom
 /**
  * SimpleHistory — история подписки простого режима: сводка (с какой даты
- * клиент, всего оплачено, дней с подпиской) поверх готовой ленты событий
- * SubscriptionTimeline. Перерывы (downtime_seconds) и перенесённый остаток
- * (carried_seconds) рисует сам SubscriptionTimeline — здесь только
- * проверяем, что он получает данные и что сводка сверху посчитана верно.
+ * клиент, всего оплачено, дней с подпиской) поверх своей ленты событий
+ * (SimpleGroup/SimpleRow, находка 1 — раньше здесь был чужой визуальный
+ * язык расширенного режима, SubscriptionTimeline). Перерывы
+ * (downtime_seconds) и перенесённый остаток (carried_seconds) рисуются
+ * прямо в строке события своей подписью.
  */
 import type React from 'react';
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
@@ -94,21 +95,40 @@ describe('SimpleHistory', () => {
 
     await waitFor(() => {
       // Сумма оплаченного — сумма amount_kopeks по событиям (249 ₽; триал бесплатный).
-      // Та же сумма появляется и в ленте — цена события теперь видна и там
-      // (находка 8), поэтому совпадений минимум два, а не одно.
+      // Та же сумма появляется и в строке события справа, поэтому
+      // совпадений минимум два, а не одно.
       expect(screen.getAllByText(/249/).length).toBeGreaterThanOrEqual(2);
     });
     // Дней с подпиской — календарные дни от `since` (10 дней назад) до сегодня.
     expect(screen.getByText('10')).toBeTruthy();
   });
 
-  it('перерыв между подписками виден в ленте событий (её рисует SubscriptionTimeline)', async () => {
+  it('пробный период показан бесплатным, а не суммой 0 ₽', async () => {
     render(<SimpleHistory />, { wrapper: makeWrapper() });
 
     await waitFor(() => {
-      // «Был перерыв …» — предупреждение внутри карточки события ленты
-      // (в отличие от общей подсказки внизу экрана, которая тоже содержит слово «Перерыв»).
-      expect(screen.getByText(/Был перерыв/)).toBeTruthy();
+      expect(screen.getByText('бесплатно')).toBeTruthy();
+    });
+  });
+
+  it('перерыв между подписками виден в строке события своей подписью', async () => {
+    render(<SimpleHistory />, { wrapper: makeWrapper() });
+
+    await waitFor(() => {
+      // «Перерыв …» — подпись под строкой события (находка 1: собственный
+      // список простого режима вместо карточек SubscriptionTimeline).
+      expect(screen.getByText(/Перерыв 4 дн без подписки/)).toBeTruthy();
+    });
+  });
+
+  it('заголовок и статус события собираются из типа и периода, а не из карточки SubscriptionTimeline', async () => {
+    render(<SimpleHistory />, { wrapper: makeWrapper() });
+
+    await waitFor(() => {
+      // purchase, period_days=30 → «Покупка на 1 месяц»
+      expect(screen.getByText('Покупка на 1 месяц')).toBeTruthy();
+      // activation, period_days=3 → «Пробный период, 3 дн.»
+      expect(screen.getByText(/Пробный период/)).toBeTruthy();
     });
   });
 });

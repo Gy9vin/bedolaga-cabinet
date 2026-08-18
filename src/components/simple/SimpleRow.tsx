@@ -3,7 +3,9 @@ import { ChevronRightIcon } from '@/components/icons';
 
 interface SimpleRowProps {
   title: string;
-  subtitle?: string;
+  /** Обычно строка; ReactNode нужен истории подписки — там вторая строка
+   * подписи подсвечивается цветом (перенос остатка / перерыв, находка 1). */
+  subtitle?: ReactNode;
   value?: ReactNode;
   /** Задан — строка становится кнопкой и доступна с клавиатуры. */
   onClick?: () => void;

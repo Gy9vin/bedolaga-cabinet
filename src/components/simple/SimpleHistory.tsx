@@ -2,22 +2,27 @@ import { useMemo } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { useTranslation } from 'react-i18next';
 import SimpleScreen from './SimpleScreen';
+import SimpleGroup from './SimpleGroup';
+import SimpleRow from './SimpleRow';
 import { BentoCard } from '@/components/ui/BentoCard';
-import { SubscriptionTimeline } from '../subscription/SubscriptionTimeline';
 import { subscriptionApi } from '../../api/subscription';
-import { useTheme } from '../../hooks/useTheme';
-import { formatPrice, formatShortDate } from '../../utils/format';
+import { humanizeDuration } from '../../utils/subscriptionTimeline';
+import { formatPrice, formatShortDate, formatPeriodDays } from '../../utils/format';
+import type { SubscriptionTimelineEvent } from '../../types/timeline';
 
 /**
  * История подписки простого режима: сводка сверху (с какой даты клиент,
- * сколько всего оплачено, сколько дней с подпиской) и сама лента событий.
- * Лента — готовый SubscriptionTimeline (он уже рисует перерывы и
- * перенесённый остаток), поэтому здесь только оборачиваем его и считаем
- * сводку из тех же events/since, не выдумывая свой источник данных.
+ * сколько всего оплачено, сколько дней с подпиской) и лента событий.
+ *
+ * Раньше лента переиспользовала общий `SubscriptionTimeline` — у него свой
+ * визуальный язык расширенного режима (иконки в кружках, вертикальная
+ * «рельса», карточка на каждое событие), который не похож на остальные
+ * экраны простого режима и выбивался из макета (находка 1). Здесь — обычный
+ * список в `SimpleGroup`/`SimpleRow`, как везде в простом режиме.
+ * `SubscriptionTimeline` не трогаем — он остаётся для расширенного режима.
  */
 export default function SimpleHistory() {
   const { t } = useTranslation();
-  const { isDark } = useTheme();
 
   const { data, isLoading } = useQuery({
     queryKey: ['subscription-timeline'],
@@ -64,15 +69,15 @@ export default function SimpleHistory() {
         <span className="text-[11px] font-semibold uppercase tracking-[0.1em] text-dark-50/40">
           {t('simple.history.allEvents')}
         </span>
-        <div className="mt-2">
-          <SubscriptionTimeline
-            events={events}
-            since={since}
-            isDark={isDark}
-            showAmount
-            showPeriodInTitle
-          />
-        </div>
+        {events.length > 0 ? (
+          <SimpleGroup className="mt-2">
+            {events.map((event) => (
+              <EventRow key={event.index} event={event} />
+            ))}
+          </SimpleGroup>
+        ) : (
+          <p className="mt-2 text-sm text-dark-50/40">{t('timeline.empty')}</p>
+        )}
       </div>
 
       <p className="text-xs text-dark-500">{t('simple.history.hint')}</p>
@@ -86,5 +91,65 @@ function SummaryLine({ title, value }: { title: string; value: string }) {
       <span className="font-medium text-dark-100">{title}</span>
       <span className="shrink-0 font-semibold tabular-nums text-dark-50">{value}</span>
     </div>
+  );
+}
+
+// Заголовок и статусная фраза различаются по типу события — тарифа в
+// событии нет (см. SubscriptionTimeline), поэтому заголовок собирается из
+// типа события и длительности периода, а не из названия тарифа.
+const EVENT_TITLE_KEY: Record<SubscriptionTimelineEvent['event_type'], string> = {
+  purchase: 'simple.history.eventTitlePurchase',
+  renewal: 'simple.history.eventTitleRenewal',
+  activation: 'simple.history.eventTitleActivation',
+};
+
+const EVENT_STATUS_KEY: Record<SubscriptionTimelineEvent['event_type'], string> = {
+  purchase: 'simple.history.activeUntilPast',
+  renewal: 'simple.history.renewedUntil',
+  activation: 'simple.history.trialUntil',
+};
+
+function EventRow({ event }: { event: SubscriptionTimelineEvent }) {
+  const { t } = useTranslation();
+
+  const period = formatPeriodDays(event.period_days ?? 0, t);
+  const title = t(EVENT_TITLE_KEY[event.event_type], { period });
+  const status = t(EVENT_STATUS_KEY[event.event_type], {
+    date: formatShortDate(event.new_end),
+  });
+
+  // Перерыв и перенесённый остаток взаимоисключающие (см. SubscriptionTimeline) —
+  // показываем максимум одну дополнительную строку под датой.
+  const note = event.downtime_seconds
+    ? {
+        text: t('simple.history.downtimeNote', {
+          dur: humanizeDuration(event.downtime_seconds, t),
+        }),
+        className: 'text-warning-400',
+      }
+    : event.carried_seconds
+      ? {
+          text: t('simple.history.carriedNote', {
+            dur: humanizeDuration(event.carried_seconds, t),
+          }),
+          className: 'text-accent-400',
+        }
+      : null;
+
+  const subtitle = (
+    <>
+      <span className="block">
+        {formatShortDate(event.date)} · {status}
+      </span>
+      {note && <span className={`mt-0.5 block font-medium ${note.className}`}>{note.text}</span>}
+    </>
+  );
+
+  return (
+    <SimpleRow
+      title={title}
+      subtitle={subtitle}
+      value={event.amount_kopeks ? formatPrice(event.amount_kopeks) : t('timeline.free')}
+    />
   );
 }

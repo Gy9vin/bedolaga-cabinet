@@ -222,7 +222,9 @@ export default function SimpleTopUp() {
         loading={topUpMutation.isPending}
         onClick={() => topUpMutation.mutate()}
       >
-        {t('simple.topUp.submitButton', { amount: formatPrice(amountKopeks) })}
+        {amountKopeks > 0
+          ? t('simple.topUp.submitButton', { amount: formatPrice(amountKopeks) })
+          : t('simple.topUp.submitButtonEmpty')}
       </Button>
       <p className="text-xs text-dark-500">{t('simple.topUp.methodHint')}</p>
 
