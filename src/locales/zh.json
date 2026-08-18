@@ -5446,7 +5446,8 @@
       "withdrawButtonMin": "满 {{amount}} 起可提现",
       "feedLabel": "邀请与收益记录",
       "feedPaid": "已支付订阅",
-      "feedWaiting": "尚未支付"
+      "feedWaiting": "尚未支付",
+      "showAllLink": "查看全部 — {{count}}"
     },
     "profile": {
       "title": "个人资料",

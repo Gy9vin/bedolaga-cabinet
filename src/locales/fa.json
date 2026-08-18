@@ -5447,7 +5447,8 @@
       "withdrawButtonMin": "برداشت از {{amount}}",
       "feedLabel": "دعوت‌شده‌ها و تراکنش‌ها",
       "feedPaid": "اشتراک را پرداخت کرد",
-      "feedWaiting": "هنوز پرداخت نکرده"
+      "feedWaiting": "هنوز پرداخت نکرده",
+      "showAllLink": "نمایش همه — {{count}}"
     },
     "profile": {
       "title": "پروفایل",

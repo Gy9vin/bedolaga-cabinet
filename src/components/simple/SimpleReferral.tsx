@@ -10,6 +10,7 @@ import SimpleGroup from './SimpleGroup';
 import { Button } from '@/components/primitives/Button/Button';
 import { BentoCard } from '@/components/ui/BentoCard';
 import { usePlatform } from '@/platform';
+import { useUiMode } from '@/hooks/useUiMode';
 import { referralApi } from '../../api/referral';
 import { withdrawalApi } from '../../api/withdrawals';
 import { brandingApi } from '../../api/branding';
@@ -35,6 +36,7 @@ export default function SimpleReferral() {
   const { t } = useTranslation();
   const navigate = useNavigate();
   const { openTelegramLink } = usePlatform();
+  const { setMode } = useUiMode();
 
   const [copiedLink, setCopiedLink] = useState<'cabinet' | 'bot' | null>(null);
   const [showQr, setShowQr] = useState(false);
@@ -279,6 +281,17 @@ export default function SimpleReferral() {
               />
             ))}
           </SimpleGroup>
+          <button
+            type="button"
+            // Лента показывает только последние 8 записей — «Показать всех»
+            // ведёт в расширенный режим, где для рефералов есть полный
+            // список с пагинацией (тот же экран /referral, просто не
+            // упрощённый — переключаем режим, а не уходим на другой роут).
+            onClick={() => setMode('advanced')}
+            className="mt-2 text-center text-sm font-medium text-accent-400"
+          >
+            {t('simple.referral.showAllLink', { count: info?.total_referrals ?? 0 })}
+          </button>
         </div>
       )}
 

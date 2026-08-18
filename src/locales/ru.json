@@ -6614,7 +6614,8 @@
       "withdrawButtonMin": "Вывести от {{amount}}",
       "feedLabel": "Кто пришёл и начисления",
       "feedPaid": "оплатил подписку",
-      "feedWaiting": "ещё не оплатил"
+      "feedWaiting": "ещё не оплатил",
+      "showAllLink": "Показать всех — {{count}}"
     },
     "profile": {
       "title": "Профиль",

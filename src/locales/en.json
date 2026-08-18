@@ -6060,7 +6060,8 @@
       "withdrawButtonMin": "Withdraw from {{amount}}",
       "feedLabel": "Referrals and payouts",
       "feedPaid": "paid for a subscription",
-      "feedWaiting": "has not paid yet"
+      "feedWaiting": "has not paid yet",
+      "showAllLink": "Show all — {{count}}"
     },
     "profile": {
       "title": "Profile",
