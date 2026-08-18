@@ -191,7 +191,9 @@ function TariffCard({
             ? `${tariff.traffic_limit_gb} ${t('gift.gbShort')}`
             : t('gift.unlimitedTraffic')}
           {' \u2022 '}
-          {t('gift.deviceCount', { count: tariff.device_limit })}
+          {tariff.device_limit === 0
+            ? '\u221e'
+            : t('gift.deviceCount', { count: tariff.device_limit })}
         </p>
       </div>
 
@@ -1073,7 +1075,9 @@ function SentGiftCard({ gift }: { gift: SentGift }) {
         {' \u2022 '}
         {gift.period_days} {t('gift.daysShort')}
         {' \u2022 '}
-        {gift.device_limit} {t('gift.devicesShort', { count: gift.device_limit })}
+        {gift.device_limit === 0
+          ? '∞'
+          : `${gift.device_limit} ${t('gift.devicesShort', { count: gift.device_limit })}`}
       </p>
 
       {/* Gift code + actions (only when not activated) */}
@@ -1145,7 +1149,9 @@ function ReceivedGiftCard({ gift }: { gift: ReceivedGift }) {
         {' \u2022 '}
         {gift.period_days} {t('gift.daysShort')}
         {' \u2022 '}
-        {gift.device_limit} {t('gift.devicesShort', { count: gift.device_limit })}
+        {gift.device_limit === 0
+          ? '∞'
+          : `${gift.device_limit} ${t('gift.devicesShort', { count: gift.device_limit })}`}
       </p>
 
       {/* Sender */}

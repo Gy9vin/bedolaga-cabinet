@@ -202,7 +202,8 @@ function AccountCard({ account, label, isSelected, onSelect }: AccountCardProps)
             <p className="text-sm text-dark-400">
               {t('merge.traffic')}: {account.subscription.traffic_limit_gb} GB
               {'  '}·{'  '}
-              {t('merge.devices')}: {account.subscription.device_limit}
+              {t('merge.devices')}:{' '}
+              {account.subscription.device_limit === 0 ? '∞' : account.subscription.device_limit}
             </p>
           </div>
         ) : (

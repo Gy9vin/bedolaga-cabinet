@@ -185,7 +185,7 @@ export default function SubscriptionListCard({
       >
         <span className="flex items-center gap-1">
           <DevicesIcon className="h-3.5 w-3.5 opacity-50" />
-          {subscription.device_limit}
+          {subscription.device_limit === 0 ? '∞' : subscription.device_limit}
         </span>
         <span className="flex items-center gap-1">
           <CalendarIcon className="h-3.5 w-3.5 opacity-50" />

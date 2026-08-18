@@ -3643,7 +3643,9 @@ export default function Subscription() {
             <div className="space-y-2">
               <div className="mb-2 font-mono text-[11px] text-dark-50/30">
                 {devicesData.total} /{' '}
-                {t('subscription.devices', { count: devicesData.device_limit })}
+                {devicesData.device_limit === 0
+                  ? '∞'
+                  : t('subscription.devices', { count: devicesData.device_limit })}
               </div>
               {devicesData.devices.map((device) => {
                 const isEditing = editingDeviceHwid === device.hwid;
@@ -4248,7 +4250,9 @@ export default function Subscription() {
                               />
                             </svg>
                             <span className="text-dark-300">
-                              {t('subscription.devices', { count: tariff.device_limit })}
+                              {tariff.device_limit === 0
+                                ? '∞'
+                                : t('subscription.devices', { count: tariff.device_limit })}
                             </span>
                           </div>
                           {/* Traffic Reset */}
@@ -4444,7 +4448,7 @@ export default function Subscription() {
                     <div>
                       <span className="text-dark-500">{t('subscription.devices')}:</span>
                       <span className="ml-2 text-dark-200">
-                        {selectedTariff.device_limit}
+                        {selectedTariff.device_limit === 0 ? '∞' : selectedTariff.device_limit}
                         {selectedTariff.extra_devices_count > 0 && (
                           <span className="ml-1 text-xs text-accent-400">
                             (+{selectedTariff.extra_devices_count})

@@ -65,6 +65,10 @@ export function DeviceTopupSheet({
     },
   });
 
+  if (subscription.device_limit === 0) {
+    return null;
+  }
+
   if (!open) {
     return (
       <button
