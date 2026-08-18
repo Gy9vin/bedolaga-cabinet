@@ -190,6 +190,20 @@ export default function SimpleSubscription() {
   const fromBalanceKopeks = Math.max(totalKopeks - missingKopeks, 0);
   const hasEnoughBalance = missingKopeks <= 0;
 
+  // Расшифровка первой строки сводки — «649 ₽ тариф + 360 ₽ за 2 устройства»
+  // (находка «в первой строке сводки нет подписи, из чего сложилась сумма»).
+  // Строим подпись из готовых строк preview.breakdown, а не пересчитываем
+  // сами: неверная расшифровка хуже её отсутствия. breakdown[0] — тариф/
+  // период, он приходит от бэкенда всегда первым и безусловно; строку про
+  // устройства ищем по label — бэкенд отдаёт её только при реальной
+  // доплате сверх включённых в тариф (см. build_preview_payload). Нет
+  // доплаты за устройства или breakdown пуст — подписи не будет вовсе.
+  const breakdownBaseItem = isClassic ? preview?.breakdown?.[0] : undefined;
+  const breakdownDevicesItem = isClassic
+    ? preview?.breakdown?.find((item) => item.label === 'Devices')
+    : undefined;
+  const extraDevicesCount = Math.max(effectiveDevices - (selectedPeriod?.devices.min ?? 0), 0);
+
   const totalTariffKopeks = selectedTariffPeriod?.price_kopeks ?? 0;
   const tariffBalanceKopeks = tariffsOptions?.balance_kopeks ?? 0;
   const missingTariffKopeks = Math.max(totalTariffKopeks - tariffBalanceKopeks, 0);
@@ -554,6 +568,15 @@ export default function SimpleSubscription() {
                   ? `${selectedPeriod?.label} · ${t('simple.subscription.devicesCount', { count: effectiveDevices })}`
                   : `${selectedTariff?.name} · ${selectedTariffPeriod?.label}`}
               </p>
+              {breakdownBaseItem && breakdownDevicesItem && (
+                <p className="mt-0.5 text-xs text-dark-400">
+                  {t('simple.subscription.summaryBaseDevicesHint', {
+                    basePrice: breakdownBaseItem.value,
+                    devicesPrice: breakdownDevicesItem.value,
+                    count: extraDevicesCount,
+                  })}
+                </p>
+              )}
             </div>
             <span className="shrink-0 font-semibold tabular-nums text-dark-50">
               {formatPrice(effectiveTotalKopeks)}

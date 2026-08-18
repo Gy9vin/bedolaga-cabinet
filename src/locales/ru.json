@@ -6504,7 +6504,12 @@
       "payHint": "Подписка включится сразу после оплаты. Возвращаться сюда не нужно.",
       "historyRowTitle": "История подписки",
       "historyRowSub": "Покупки, продления и перерывы",
-      "changeTrafficLink": "Изменить трафик и страны"
+      "changeTrafficLink": "Изменить трафик и страны",
+      "sponsoredRowTitle": "Оплатить подписку другу",
+      "sponsoredRowSub": "С вашего баланса — для друга",
+      "summaryBaseDevicesHint_one": "{{basePrice}} тариф + {{devicesPrice}} за {{count}} устройство",
+      "summaryBaseDevicesHint_few": "{{basePrice}} тариф + {{devicesPrice}} за {{count}} устройства",
+      "summaryBaseDevicesHint_many": "{{basePrice}} тариф + {{devicesPrice}} за {{count}} устройств"
     },
     "history": {
       "title": "История",

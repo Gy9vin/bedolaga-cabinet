@@ -5336,7 +5336,10 @@
       "payHint": "支付完成后订阅立即生效，无需返回此页面。",
       "historyRowTitle": "订阅历史",
       "historyRowSub": "购买、续费和中断记录",
-      "changeTrafficLink": "修改流量和国家"
+      "changeTrafficLink": "修改流量和国家",
+      "sponsoredRowTitle": "为好友付费",
+      "sponsoredRowSub": "从您的余额扣款 — 为好友",
+      "summaryBaseDevicesHint_other": "{{basePrice}} 套餐 + {{devicesPrice}}（{{count}} 台设备）"
     },
     "history": {
       "title": "历史记录",

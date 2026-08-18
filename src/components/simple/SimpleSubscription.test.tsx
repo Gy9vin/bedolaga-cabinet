@@ -232,8 +232,10 @@ describe('SimpleSubscription', () => {
 
     render(<SimpleSubscription />, { wrapper: makeWrapper() });
 
+    // Регекс требует цифру сразу после «Оплатить» — иначе матчится ещё и
+    // строка-ссылка «Оплатить подписку другу» внизу экрана (тоже button).
     await waitFor(() => {
-      expect(screen.getByRole('button', { name: /Оплатить/i })).toBeTruthy();
+      expect(screen.getByRole('button', { name: /Оплатить \d/i })).toBeTruthy();
     });
     // Точное совпадение — «Чем пополнить» (заголовок способов оплаты) должен
     // остаться, а вот строка сводки «Пополнить» (недостающая часть) — нет.
@@ -262,6 +264,39 @@ describe('SimpleSubscription', () => {
       expect(screen.getByRole('switch')).toBeTruthy();
     });
     expect(screen.getByText(/баланса кабинета/i)).toBeTruthy();
+  });
+
+  it('первая строка сводки — с подписью из чего сложилась цена (тариф + устройства)', async () => {
+    previewPurchaseMock.mockResolvedValue(
+      makePreview({
+        breakdown: [
+          { label: 'Base plan', value: '649 ₽' },
+          { label: 'Devices', value: '360 ₽' },
+        ],
+      }),
+    );
+
+    render(<SimpleSubscription />, { wrapper: makeWrapper() });
+
+    await waitFor(() => {
+      expect(screen.getByText(/649 ₽/)).toBeTruthy();
+    });
+    expect(screen.getByText(/649 ₽.*\+.*360 ₽/)).toBeTruthy();
+  });
+
+  it('без доплаты за устройства в breakdown подписи под первой строкой сводки нет', async () => {
+    previewPurchaseMock.mockResolvedValue(
+      makePreview({ breakdown: [{ label: 'Base plan', value: '1 009 ₽' }] }),
+    );
+
+    render(<SimpleSubscription />, { wrapper: makeWrapper() });
+
+    await waitFor(() => {
+      expect(screen.getByText('1 009 ₽')).toBeTruthy();
+    });
+    // Неверная расшифровка хуже её отсутствия — без строки «Devices» в
+    // breakdown подпись про доплату придумывать не должны.
+    expect(screen.queryByText(/Base plan/)).toBeNull();
   });
 
   it('находка 7: у периода на 3 месяца подпись про месяц словами, а итог отличается от неё', async () => {
@@ -324,8 +359,10 @@ describe('SimpleSubscription — тарифный режим (sales_mode=tariffs
 
     render(<SimpleSubscription />, { wrapper: makeWrapper() });
 
+    // См. комментарий у первого такого же теста (классический режим) —
+    // регекс с цифрой отсекает строку-ссылку «Оплатить подписку другу».
     await waitFor(() => {
-      expect(screen.getByRole('button', { name: /Оплатить/i })).toBeTruthy();
+      expect(screen.getByRole('button', { name: /Оплатить \d/i })).toBeTruthy();
     });
     expect(screen.queryByText('Пополнить', { exact: true })).toBeNull();
   });

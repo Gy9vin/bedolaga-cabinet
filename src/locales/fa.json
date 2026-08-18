@@ -5337,7 +5337,10 @@
       "payHint": "اشتراک بلافاصله پس از پرداخت فعال می‌شود. نیازی به بازگشت به این صفحه نیست.",
       "historyRowTitle": "تاریخچه اشتراک",
       "historyRowSub": "خریدها، تمدیدها و وقفه‌ها",
-      "changeTrafficLink": "تغییر ترافیک و کشورها"
+      "changeTrafficLink": "تغییر ترافیک و کشورها",
+      "sponsoredRowTitle": "پرداخت اشتراک برای دوست",
+      "sponsoredRowSub": "از موجودی شما — برای دوست",
+      "summaryBaseDevicesHint_other": "{{basePrice}} طرح + {{devicesPrice}} برای {{count}} دستگاه"
     },
     "history": {
       "title": "تاریخچه",

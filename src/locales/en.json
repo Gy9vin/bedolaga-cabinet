@@ -5950,7 +5950,11 @@
       "payHint": "The subscription activates right after payment. No need to come back here.",
       "historyRowTitle": "Subscription history",
       "historyRowSub": "Purchases, renewals and gaps",
-      "changeTrafficLink": "Change traffic and countries"
+      "changeTrafficLink": "Change traffic and countries",
+      "sponsoredRowTitle": "Pay for a friend's subscription",
+      "sponsoredRowSub": "From your balance — for a friend",
+      "summaryBaseDevicesHint_one": "{{basePrice}} plan + {{devicesPrice}} for {{count}} device",
+      "summaryBaseDevicesHint_other": "{{basePrice}} plan + {{devicesPrice}} for {{count}} devices"
     },
     "history": {
       "title": "History",
