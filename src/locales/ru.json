@@ -6566,6 +6566,26 @@
       "submitButton": "Пополнить {{amount}}",
       "paymentReady": "Открываем страницу оплаты…"
     },
+    "paymentPending": {
+      "title": "Ждём подтверждение",
+      "subtitle": "Обычно меньше минуты. Банк может думать дольше.",
+      "whatNextLabel": "Что произойдёт дальше",
+      "stepTopUp": "Пополним баланс",
+      "stepCharge": "Спишем за подписку",
+      "stepActivate": "Включим подписку",
+      "stepActivateSub": "Автоматически, без вашего участия",
+      "hint": "Экран можно закрыть. Мы включим подписку сами и пришлём уведомление в Телеграм."
+    },
+    "paymentSuccess": {
+      "statusTitle": "Подписка активна",
+      "statusTitleNoSubscription": "Баланс пополнен",
+      "whatHappenedLabel": "Что произошло",
+      "rowTopUp": "Пополнение",
+      "rowCharge": "Оплата подписки",
+      "rowChargeSub": "Автоматически",
+      "rowBalanceLeft": "Остаток на балансе",
+      "hint": "Историю всех операций видно в расширенном режиме."
+    },
     "referral": {
       "title": "Рефералы",
       "linksLabel": "Ваши ссылки",

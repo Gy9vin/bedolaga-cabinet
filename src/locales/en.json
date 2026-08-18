@@ -6012,6 +6012,26 @@
       "submitButton": "Top up {{amount}}",
       "paymentReady": "Opening the payment page…"
     },
+    "paymentPending": {
+      "title": "Awaiting confirmation",
+      "subtitle": "Usually under a minute. The bank may take longer.",
+      "whatNextLabel": "What happens next",
+      "stepTopUp": "Top up the balance",
+      "stepCharge": "Charge for the subscription",
+      "stepActivate": "Activate the subscription",
+      "stepActivateSub": "Automatically, no action needed",
+      "hint": "You can close this screen. We'll activate the subscription ourselves and send you a notification in Telegram."
+    },
+    "paymentSuccess": {
+      "statusTitle": "Subscription active",
+      "statusTitleNoSubscription": "Balance topped up",
+      "whatHappenedLabel": "What happened",
+      "rowTopUp": "Top-up",
+      "rowCharge": "Subscription payment",
+      "rowChargeSub": "Automatic",
+      "rowBalanceLeft": "Balance left",
+      "hint": "The full history is available in extended mode."
+    },
     "referral": {
       "title": "Referrals",
       "linksLabel": "Your links",

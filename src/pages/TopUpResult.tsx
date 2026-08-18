@@ -8,10 +8,13 @@ import { balanceApi } from '../api/balance';
 import { subscriptionApi } from '../api/subscription';
 import { useAuthStore } from '../store/auth';
 import { useCurrency } from '../hooks/useCurrency';
+import { useUiMode } from '@/hooks/useUiMode';
 import { useHaptic } from '@/platform';
 import { Spinner } from '@/components/ui/Spinner';
 import { AnimatedCheckmark } from '@/components/ui/AnimatedCheckmark';
 import { AnimatedCrossmark } from '@/components/ui/AnimatedCrossmark';
+import SimplePaymentPending from '@/components/simple/SimplePaymentPending';
+import SimplePaymentSuccess from '@/components/simple/SimplePaymentSuccess';
 import { loadTopUpPendingInfo, clearTopUpPendingInfo } from '../utils/topUpStorage';
 import { isPaidStatus, isFailedStatus } from '../utils/paymentStatus';
 
@@ -243,6 +246,10 @@ export default function TopUpResult() {
   const queryClient = useQueryClient();
   const refreshUser = useAuthStore((state) => state.refreshUser);
   const haptic = useHaptic();
+  // Хук вызывается вместе со всеми остальными, ранний возврат — ниже, после
+  // всех хуков: иначе порядок хуков меняется между рендерами при
+  // переключении режима, и React падает (см. TopUpMethodSelect).
+  const { isSimple } = useUiMode();
   const pollStart = useRef(Date.now());
   const [pollTimedOut, setPollTimedOut] = useState(false);
   const hapticFiredRef = useRef(false);
@@ -388,6 +395,22 @@ export default function TopUpResult() {
       haptic.notification('error');
     }
   }, [resolvedPaid, resolvedFailed, haptic]);
+
+  // Простой режим: «Ждём оплату» и «Готово» — свои экраны (разрывы 3 и 4
+  // разбора макета). Для сбоя и таймаута отдельного макета в брифе простого
+  // режима нет — там используем общие состояния ниже.
+  if (isSimple && resolvedPaid) {
+    return (
+      <SimplePaymentSuccess
+        amountKopeks={amountKopeks}
+        methodName={effectivePayment?.method_display ?? pendingInfo?.method_name ?? null}
+        paidAt={effectivePayment?.created_at ?? null}
+      />
+    );
+  }
+  if (isSimple && !resolvedFailed && !pollTimedOut) {
+    return <SimplePaymentPending amountKopeks={amountKopeks} />;
+  }
 
   return (
     <div className="flex min-h-dvh items-center justify-center bg-dark-950 px-4">

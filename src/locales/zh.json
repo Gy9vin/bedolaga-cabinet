@@ -5399,6 +5399,26 @@
       "submitButton": "充值 {{amount}}",
       "paymentReady": "正在打开支付页面…"
     },
+    "paymentPending": {
+      "title": "等待确认",
+      "subtitle": "通常不到一分钟，银行处理可能更久。",
+      "whatNextLabel": "接下来会发生什么",
+      "stepTopUp": "充值余额",
+      "stepCharge": "扣除订阅费用",
+      "stepActivate": "开通订阅",
+      "stepActivateSub": "自动完成，无需操作",
+      "hint": "您可以关闭此页面。我们会自动为您开通订阅，并通过 Telegram 发送通知。"
+    },
+    "paymentSuccess": {
+      "statusTitle": "订阅已激活",
+      "statusTitleNoSubscription": "余额已充值",
+      "whatHappenedLabel": "发生了什么",
+      "rowTopUp": "充值",
+      "rowCharge": "订阅扣费",
+      "rowChargeSub": "自动完成",
+      "rowBalanceLeft": "剩余余额",
+      "hint": "完整的操作记录可在扩展模式中查看。"
+    },
     "referral": {
       "title": "推荐好友",
       "linksLabel": "您的链接",

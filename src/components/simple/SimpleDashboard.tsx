@@ -9,12 +9,11 @@ import { Button } from '@/components/primitives/Button/Button';
 import { BentoCard } from '@/components/ui/BentoCard';
 import { usePlatform } from '@/platform';
 import { useBranding } from '@/hooks/useBranding';
+import { useSubscriptionConnection } from '@/hooks/useSubscriptionConnection';
 import { subscriptionApi } from '../../api/subscription';
 import { balanceApi } from '../../api/balance';
 import { API } from '../../config/constants';
 import { formatPrice, formatShortDate } from '../../utils/format';
-import { resolveConnectionUrlForUi } from '../../utils/connectionLink';
-import { copyToClipboard } from '../../utils/clipboard';
 
 /**
  * Главная простого режима: одна карточка «работает ли подписка» плюс одно
@@ -55,12 +54,8 @@ export default function SimpleDashboard() {
     staleTime: API.BALANCE_STALE_TIME_MS,
   });
 
-  const { data: connectionLink } = useQuery({
-    queryKey: ['connectionLink', undefined],
-    queryFn: () => subscriptionApi.getConnectionLink(),
-    enabled: hasSubscription,
-    retry: false,
-  });
+  const { connectionUrl, handleCopyLink, handleShowQr } =
+    useSubscriptionConnection(hasSubscription);
 
   const { data: balanceData } = useQuery({
     queryKey: ['balance'],
@@ -76,31 +71,6 @@ export default function SimpleDashboard() {
       queryClient.invalidateQueries({ queryKey: ['balance'] });
     },
   });
-
-  const connectionUrl = useMemo(() => {
-    if (!connectionLink) return null;
-    return resolveConnectionUrlForUi({
-      mode: connectionLink.connect_mode,
-      subscriptionUrl: connectionLink.subscription_url,
-      displayLink: connectionLink.display_link,
-      happSchemeLink: connectionLink.happ_scheme_link,
-      happCryptLink: connectionLink.happ_cryptolink,
-      happCryptoLink: connectionLink.happ_crypto_link,
-      happLink: connectionLink.happ_link,
-    });
-  }, [connectionLink]);
-
-  const handleCopyLink = () => {
-    if (connectionUrl) {
-      void copyToClipboard(connectionUrl);
-    }
-  };
-
-  const handleShowQr = () => {
-    navigate('/connection/qr', {
-      state: { url: connectionUrl, hideLink: connectionLink?.hide_link ?? false },
-    });
-  };
 
   // Тот же приём, что и в SimpleReferral.shareLink: сперва системный шаринг
   // (navigator.share), а если его нет — запасной вариант через Telegram
