@@ -5267,7 +5267,6 @@
   },
   "simple": {
     "dashboard": {
-      "brand": "بدولاگا وی‌پی‌ان",
       "statusConnected": "متصل",
       "statusNoSub": "بدون اشتراک",
       "daysLeft": "{{count}} روز باقی‌مانده",
@@ -5275,6 +5274,7 @@
       "connectDevice": "اتصال دستگاه",
       "showQr": "نمایش کد QR",
       "copyLink": "کپی لینک",
+      "shareSubscription": "اشتراک‌گذاری اشتراک",
       "traffic": "ترافیک",
       "trafficValue": "از {{limit}} گیگابایت",
       "devices": "دستگاه‌ها",
@@ -5309,7 +5309,8 @@
       "tariffPriceDaily": "{{price}}/روز",
       "dailyPeriodLabel": "روزانه",
       "noTariffsAvailable": "طرحی موجود نیست. بعداً سر بزنید یا با پشتیبانی تماس بگیرید.",
-      "period": "دوره",
+      "period": "تمدید برای",
+      "perMonthLabel": "{{price}} در ماه",
       "devicesRowTitle": "دستگاه‌ها",
       "devicesRowSub": "{{included}} دستگاه در طرح گنجانده شده، هر دستگاه بعدی — {{priceLabel}}",
       "devicesDecrease": "کم کردن دستگاه",

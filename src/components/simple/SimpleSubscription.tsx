@@ -4,6 +4,7 @@ import { useLocation, useNavigate } from 'react-router';
 import { useTranslation } from 'react-i18next';
 import SimpleScreen from './SimpleScreen';
 import SimpleRow from './SimpleRow';
+import SimpleGroup from './SimpleGroup';
 import { Button } from '@/components/primitives/Button/Button';
 import { Switch } from '@/components/primitives/Switch';
 import { BentoCard } from '@/components/ui/BentoCard';
@@ -336,7 +337,9 @@ export default function SimpleSubscription() {
                     </div>
                     {period.months > 1 && (
                       <div className="mt-0.5 text-xs text-dark-400">
-                        {period.price_per_month_label}
+                        {t('simple.subscription.perMonthLabel', {
+                          price: formatPrice(period.price_per_month_kopeks),
+                        })}
                       </div>
                     )}
                   </div>
@@ -381,7 +384,9 @@ export default function SimpleSubscription() {
                     </div>
                     {period.months > 1 && (
                       <div className="mt-0.5 text-xs text-dark-400">
-                        {period.per_month_price_label}
+                        {t('simple.subscription.perMonthLabel', {
+                          price: formatPrice(period.per_month_price_kopeks),
+                        })}
                       </div>
                     )}
                   </div>
@@ -442,7 +447,7 @@ export default function SimpleSubscription() {
 
       {hasSubscription && subscription && (
         <>
-          <div className="divide-y divide-dark-700/40">
+          <SimpleGroup>
             <div className="flex w-full items-center gap-3 py-3">
               <div className="min-w-0 flex-1">
                 <p className="font-medium text-dark-100">{t('simple.subscription.autopayTitle')}</p>
@@ -458,7 +463,7 @@ export default function SimpleSubscription() {
                 onCheckedChange={(checked) => autopayMutation.mutate(checked)}
               />
             </div>
-          </div>
+          </SimpleGroup>
           <p className="-mt-2 text-xs text-dark-500">{t('simple.subscription.autopayHint')}</p>
         </>
       )}
@@ -561,14 +566,14 @@ export default function SimpleSubscription() {
         </>
       )}
 
-      <div className="divide-y divide-dark-700/40">
+      <SimpleGroup>
         <SimpleRow
           title={t('simple.subscription.historyRowTitle')}
           subtitle={t('simple.subscription.historyRowSub')}
           onClick={() => navigate('/subscription/history')}
           chevron
         />
-      </div>
+      </SimpleGroup>
 
       <button
         type="button"

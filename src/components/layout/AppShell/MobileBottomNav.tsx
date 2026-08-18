@@ -7,8 +7,15 @@ import { usePlatform } from '@/platform';
 import { useUiMode } from '@/hooks/useUiMode';
 
 // Icons
-import { HomeIcon, SubscriptionIcon, WalletIcon, UsersIcon, ChatIcon, WheelIcon } from './icons';
-import { filterNavForSimpleMode } from './simpleNavItems';
+import {
+  HomeIcon,
+  SubscriptionIcon,
+  WalletIcon,
+  UsersIcon,
+  ChatIcon,
+  WheelIcon,
+  UserIcon,
+} from './icons';
 
 interface MobileBottomNavProps {
   isKeyboardOpen: boolean;
@@ -59,8 +66,21 @@ export function MobileBottomNav({
     { path: '/support', label: t('nav.support'), icon: ChatIcon },
   ];
 
+  // Простой таббар — явный список из четырёх разделов, а не фильтрация
+  // coreItems сверху. Профиль в полном режиме живёт в гамбургер-меню и в
+  // coreItems никогда не появляется, поэтому filterNavForSimpleMode (умеет
+  // только убирать пункты) не мог бы его туда добавить — отсюда пропавший
+  // четвёртый пункт таббара в простом режиме. referralEnabled по-прежнему
+  // может выключить раздел рефералов — тогда таббар остаётся из трёх.
+  const simpleItems = [
+    { path: '/', label: t('nav.dashboard'), icon: HomeIcon },
+    { path: '/subscriptions', label: t('nav.subscription'), icon: SubscriptionIcon },
+    ...(referralEnabled ? [{ path: '/referral', label: t('nav.referral'), icon: UsersIcon }] : []),
+    { path: '/profile', label: t('nav.profile'), icon: UserIcon },
+  ];
+
   const { isSimple } = useUiMode();
-  const visibleCoreItems = isSimple ? filterNavForSimpleMode(coreItems) : coreItems;
+  const visibleCoreItems = isSimple ? simpleItems : coreItems;
 
   const handleNavClick = () => {
     haptic.impact('light');

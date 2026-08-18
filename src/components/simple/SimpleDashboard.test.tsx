@@ -35,11 +35,20 @@ vi.mock('../../api/balance', () => ({
   },
 }));
 
+// Находка 5: название берётся из брендинга бота, а не из локали. Мокаем
+// сам хук — его собственные источники (API/env) проверяются в
+// useBranding.test.ts, здесь важен только факт использования.
+vi.mock('@/hooks/useBranding', () => ({
+  useBranding: () => ({ appName: 'Тестовый VPN' }),
+}));
+
+const mockOpenTelegramLink = vi.fn();
 vi.mock('@/platform', () => ({
   useHaptic: () => ({ notification: vi.fn(), impact: vi.fn() }),
   usePlatform: () => ({
     platform: 'web',
     haptic: { impact: vi.fn(), notification: vi.fn() },
+    openTelegramLink: mockOpenTelegramLink,
   }),
 }));
 
@@ -146,6 +155,18 @@ beforeEach(async () => {
 afterEach(() => cleanup());
 
 describe('SimpleDashboard', () => {
+  it('название берётся из брендинга, а не из плейсхолдера макета', async () => {
+    getSubscriptionMock.mockResolvedValue({ has_subscription: false, subscription: null });
+    getTrialInfoMock.mockResolvedValue(UNAVAILABLE_TRIAL);
+
+    render(<SimpleDashboard />, { wrapper: makeWrapper() });
+
+    await waitFor(() => {
+      expect(screen.getByText('Тестовый VPN')).toBeTruthy();
+    });
+    expect(screen.queryByText('Бедолага VPN')).toBeNull();
+  });
+
   it('активная подписка: видно «Подключить устройство» и число оставшихся дней', async () => {
     getSubscriptionMock.mockResolvedValue({
       has_subscription: true,
@@ -218,5 +239,38 @@ describe('SimpleDashboard', () => {
       expect(screen.getByText('∞')).toBeTruthy();
     });
     expect(screen.queryByTestId('devices-bar')).toBeNull();
+  });
+
+  it('активная подписка: есть «Поделиться подпиской», клик зовёт navigator.share со ссылкой', async () => {
+    getSubscriptionMock.mockResolvedValue({
+      has_subscription: true,
+      subscription: ACTIVE_SUBSCRIPTION,
+    });
+
+    const shareMock = vi.fn().mockResolvedValue(undefined);
+    // jsdom не реализует navigator.share — подставляем свой, как в брифе
+    // находки 4 (переиспользуем приём SimpleReferral.shareLink).
+    Object.defineProperty(window.navigator, 'share', {
+      value: shareMock,
+      configurable: true,
+    });
+
+    render(<SimpleDashboard />, { wrapper: makeWrapper() });
+
+    const shareBtn = await screen.findByText(/Поделиться подпиской/i);
+    // Кнопка рендерится сразу, но заблокирована, пока /connection-link не
+    // ответил — ждём, пока ссылка подтянется, иначе клик по disabled-кнопке
+    // тихо проглатывается jsdom, как и в настоящем браузере.
+    await waitFor(() => expect(shareBtn.hasAttribute('disabled')).toBe(false));
+    fireEvent.click(shareBtn);
+
+    await waitFor(() => {
+      expect(shareMock).toHaveBeenCalledWith(
+        expect.objectContaining({ url: CONNECTION_LINK.subscription_url }),
+      );
+    });
+
+    // @ts-expect-error — убираем тестовый навигатор, чтобы не течь в другие тесты
+    delete window.navigator.share;
   });
 });

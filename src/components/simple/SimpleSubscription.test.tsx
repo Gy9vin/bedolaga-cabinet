@@ -262,6 +262,21 @@ describe('SimpleSubscription', () => {
     });
     expect(screen.getByText(/баланса кабинета/i)).toBeTruthy();
   });
+
+  it('находка 7: у периода на 3 месяца подпись про месяц словами, а итог отличается от неё', async () => {
+    previewPurchaseMock.mockResolvedValue(makePreview({}));
+
+    render(<SimpleSubscription />, { wrapper: makeWrapper() });
+
+    // 216 ₽ — цена за месяц (per_month_price_kopeks у периода p1), с явными
+    // словами «в месяц», а не голым числом (было раньше — находка 7).
+    await waitFor(() => {
+      expect(screen.getByText(/216.*в месяц/i)).toBeTruthy();
+    });
+    // Итог за весь период (1 009 ₽) — отдельная величина, не совпадает с
+    // помесячной ценой.
+    expect(screen.getByText('1 009 ₽')).toBeTruthy();
+  });
 });
 
 describe('SimpleSubscription — тарифный режим (sales_mode=tariffs)', () => {

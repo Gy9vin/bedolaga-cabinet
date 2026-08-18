@@ -6,6 +6,7 @@ import QRCode from 'qrcode';
 import SimpleScreen from './SimpleScreen';
 import SimpleStat from './SimpleStat';
 import SimpleRow from './SimpleRow';
+import SimpleGroup from './SimpleGroup';
 import { Button } from '@/components/primitives/Button/Button';
 import { BentoCard } from '@/components/ui/BentoCard';
 import { usePlatform } from '@/platform';
@@ -262,7 +263,7 @@ export default function SimpleReferral() {
           <span className="text-[11px] font-semibold uppercase tracking-[0.1em] text-dark-50/40">
             {t('simple.referral.feedLabel')}
           </span>
-          <div className="divide-y divide-dark-700/40">
+          <SimpleGroup className="mt-2">
             {feed.map((item) => (
               <SimpleRow
                 key={item.id}
@@ -277,7 +278,7 @@ export default function SimpleReferral() {
                 }
               />
             ))}
-          </div>
+          </SimpleGroup>
         </div>
       )}
 

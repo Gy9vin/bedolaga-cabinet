@@ -6433,7 +6433,6 @@
   },
   "simple": {
     "dashboard": {
-      "brand": "Бедолага VPN",
       "statusConnected": "Подключено",
       "statusNoSub": "Подписки нет",
       "daysLeft": "Осталось {{count}} дн.",
@@ -6441,6 +6440,7 @@
       "connectDevice": "Подключить устройство",
       "showQr": "Показать QR-код",
       "copyLink": "Скопировать ссылку",
+      "shareSubscription": "Поделиться подпиской",
       "traffic": "Трафик",
       "trafficValue": "из {{limit}} ГБ",
       "devices": "Устройства",
@@ -6475,7 +6475,8 @@
       "tariffPriceDaily": "{{price}}/день",
       "dailyPeriodLabel": "Ежедневно",
       "noTariffsAvailable": "Нет доступных тарифов. Загляните позже или напишите в поддержку.",
-      "period": "Период",
+      "period": "Продлить на",
+      "perMonthLabel": "{{price}} в месяц",
       "devicesRowTitle": "Устройства",
       "devicesRowSub": "{{included}} включены в тариф, каждое следующее — {{priceLabel}}",
       "devicesDecrease": "Убавить устройство",

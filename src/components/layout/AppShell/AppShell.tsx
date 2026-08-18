@@ -64,9 +64,12 @@ export function AppShell({ children }: AppShellProps) {
   const { appName, logoLetter, hasCustomLogo, logoUrl } = useBranding();
   const { referralEnabled, wheelEnabled, hasContests, hasPolls, giftEnabled } = useFeatureFlags();
   useScrollRestoration();
+  const { isSimple } = useUiMode();
   // Анимированный фон рендерит BackgroundHost в App (не перемонтируется при
   // смене роута) — здесь только регистрируем, что на этом роуте он нужен.
-  useBackgroundConsumer();
+  // В простом режиме фон не регистрируем вовсе: декоративные полосы
+  // просвечивают сквозь карточки и противоречат задаче «меньше шума».
+  useBackgroundConsumer(!isSimple);
 
   // Theme toggle visibility
   const { data: enabledThemes } = useQuery({
@@ -129,7 +132,6 @@ export function AppShell({ children }: AppShellProps) {
     { path: '/profile', label: t('nav.profile'), icon: UserIcon },
   ];
 
-  const { isSimple } = useUiMode();
   const visibleDesktopNav = isSimple ? filterNavForSimpleMode(desktopNav) : desktopNav;
 
   const isActive = (path: string) => {

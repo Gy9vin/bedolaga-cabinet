@@ -4,8 +4,11 @@ import { useNavigate } from 'react-router';
 import { useTranslation } from 'react-i18next';
 import SimpleScreen from './SimpleScreen';
 import SimpleRow from './SimpleRow';
+import SimpleGroup from './SimpleGroup';
 import { Button } from '@/components/primitives/Button/Button';
 import { BentoCard } from '@/components/ui/BentoCard';
+import { usePlatform } from '@/platform';
+import { useBranding } from '@/hooks/useBranding';
 import { subscriptionApi } from '../../api/subscription';
 import { balanceApi } from '../../api/balance';
 import { API } from '../../config/constants';
@@ -24,6 +27,10 @@ export default function SimpleDashboard() {
   const { t } = useTranslation();
   const navigate = useNavigate();
   const queryClient = useQueryClient();
+  const { openTelegramLink } = usePlatform();
+  // Название — из брендинга бота (с запасным значением из окружения), а не
+  // из плейсхолдера макета «Бедолага VPN», зашитого в локаль (находка 5).
+  const { appName } = useBranding();
 
   const { data: subscriptionResponse, isLoading: subLoading } = useQuery({
     queryKey: ['subscription'],
@@ -95,6 +102,21 @@ export default function SimpleDashboard() {
     });
   };
 
+  // Тот же приём, что и в SimpleReferral.shareLink: сперва системный шаринг
+  // (navigator.share), а если его нет — запасной вариант через Telegram
+  // share-URL. Своего механизма здесь не заводим.
+  const handleShareSubscription = () => {
+    if (!connectionUrl) return;
+    if (navigator.share) {
+      navigator
+        .share({ title: t('simple.dashboard.shareSubscription'), url: connectionUrl })
+        .catch(() => {});
+      return;
+    }
+    const telegramUrl = `https://t.me/share/url?url=${encodeURIComponent(connectionUrl)}`;
+    openTelegramLink(telegramUrl);
+  };
+
   const handleTrialClick = () => {
     if (!trialInfo) return;
     const canAfford = (balanceData?.balance_kopeks ?? 0) >= trialInfo.price_kopeks;
@@ -114,14 +136,14 @@ export default function SimpleDashboard() {
 
   if (subLoading) {
     return (
-      <SimpleScreen brand={t('simple.dashboard.brand')}>
+      <SimpleScreen brand={appName}>
         <div className="skeleton h-40 w-full rounded-2xl" />
       </SimpleScreen>
     );
   }
 
   return (
-    <SimpleScreen brand={t('simple.dashboard.brand')}>
+    <SimpleScreen brand={appName}>
       {hasSubscription && subscription ? (
         <>
           <BentoCard size="xl" className="text-center">
@@ -152,6 +174,15 @@ export default function SimpleDashboard() {
               {t('simple.dashboard.copyLink')}
             </Button>
           </div>
+
+          <button
+            type="button"
+            onClick={handleShareSubscription}
+            disabled={!connectionUrl}
+            className="text-center text-sm font-medium text-accent-400 disabled:opacity-50"
+          >
+            {t('simple.dashboard.shareSubscription')}
+          </button>
 
           <div className="grid grid-cols-2 gap-2.5">
             <SimpleTile
@@ -270,7 +301,7 @@ export default function SimpleDashboard() {
                 <span className="text-[11px] font-semibold uppercase tracking-[0.1em] text-dark-50/40">
                   {t('simple.dashboard.trialComposition')}
                 </span>
-                <div className="divide-y divide-dark-700/40">
+                <SimpleGroup>
                   <SimpleRow
                     title={t('simple.dashboard.trialDaysRow', { count: trialInfo.duration_days })}
                   />
@@ -282,14 +313,14 @@ export default function SimpleDashboard() {
                   <SimpleRow
                     title={t('simple.dashboard.trialDevicesRow', { count: trialInfo.device_limit })}
                   />
-                </div>
+                </SimpleGroup>
               </div>
             </>
           )}
         </>
       )}
 
-      <div className="divide-y divide-dark-700/40">
+      <SimpleGroup>
         <SimpleRow
           title={t('simple.dashboard.balance')}
           subtitle={t('simple.dashboard.balanceHint')}
@@ -297,7 +328,7 @@ export default function SimpleDashboard() {
           onClick={() => navigate('/balance/top-up')}
           chevron
         />
-      </div>
+      </SimpleGroup>
     </SimpleScreen>
   );
 }

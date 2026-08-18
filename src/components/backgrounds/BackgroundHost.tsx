@@ -17,12 +17,22 @@ import { BackgroundRenderer } from './BackgroundRenderer';
  */
 const useBackgroundConsumers = create<{ count: number }>(() => ({ count: 0 }));
 
-/** Вызывается из AppShell: «на этом роуте должен быть анимированный фон». */
-export function useBackgroundConsumer() {
+/**
+ * Вызывается из AppShell: «на этом роуте должен быть анимированный фон».
+ *
+ * `active` (по умолчанию true) — простой режим передаёт false: декоративные
+ * диагональные полосы фона просвечивают сквозь плотную карточную вёрстку
+ * простого режима и создают шум, которого в макете нет (задача — «меньше
+ * решений и меньше шума на экран»). Полностью не регистрируясь как
+ * потребитель, мы даём BackgroundHost догадаться, что фон никому не нужен,
+ * и он не монтирует BackgroundRenderer вовсе — не просто гасит непрозрачность.
+ */
+export function useBackgroundConsumer(active = true) {
   useEffect(() => {
+    if (!active) return;
     useBackgroundConsumers.setState((s) => ({ count: s.count + 1 }));
     return () => useBackgroundConsumers.setState((s) => ({ count: s.count - 1 }));
-  }, []);
+  }, [active]);
 }
 
 export function BackgroundHost() {

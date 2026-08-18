@@ -5879,7 +5879,6 @@
   },
   "simple": {
     "dashboard": {
-      "brand": "Bedolaga VPN",
       "statusConnected": "Connected",
       "statusNoSub": "No subscription",
       "daysLeft": "{{count}} days left",
@@ -5887,6 +5886,7 @@
       "connectDevice": "Connect a device",
       "showQr": "Show QR code",
       "copyLink": "Copy link",
+      "shareSubscription": "Share subscription",
       "traffic": "Traffic",
       "trafficValue": "of {{limit}} GB",
       "devices": "Devices",
@@ -5921,7 +5921,8 @@
       "tariffPriceDaily": "{{price}}/day",
       "dailyPeriodLabel": "Daily",
       "noTariffsAvailable": "No plans available yet. Check back later or contact support.",
-      "period": "Period",
+      "period": "Extend for",
+      "perMonthLabel": "{{price}} per month",
       "devicesRowTitle": "Devices",
       "devicesRowSub": "{{included}} included in the plan, each next one — {{priceLabel}}",
       "devicesDecrease": "Remove a device",

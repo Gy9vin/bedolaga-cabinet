@@ -3,6 +3,7 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useNavigate } from 'react-router';
 import { useTranslation } from 'react-i18next';
 import SimpleScreen from './SimpleScreen';
+import SimpleGroup from './SimpleGroup';
 import { Button } from '@/components/primitives/Button/Button';
 import { BentoCard } from '@/components/ui/BentoCard';
 import { CheckIcon } from '@/components/icons';
@@ -221,7 +222,7 @@ export default function SimpleDeviceLimit() {
               needed: devicesToDisconnect,
             })}
           </span>
-          <div className="mt-2 divide-y divide-dark-700/40">
+          <SimpleGroup className="mt-2">
             {devices.map((device) => {
               const displayName = device.local_name?.trim()
                 ? device.local_name
@@ -258,7 +259,7 @@ export default function SimpleDeviceLimit() {
                 </button>
               );
             })}
-          </div>
+          </SimpleGroup>
           <p className="mt-2 text-xs text-dark-500">
             {t('simple.deviceLimit.selectDevicesHint', {
               connected: connectedCount,

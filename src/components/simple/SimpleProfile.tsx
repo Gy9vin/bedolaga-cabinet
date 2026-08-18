@@ -4,6 +4,7 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useTranslation } from 'react-i18next';
 import SimpleScreen from './SimpleScreen';
 import SimpleRow from './SimpleRow';
+import SimpleGroup from './SimpleGroup';
 import { Switch } from '@/components/primitives/Switch';
 import { BentoCard } from '@/components/ui/BentoCard';
 import { useAuthStore } from '../../store/auth';
@@ -111,7 +112,7 @@ export default function SimpleProfile() {
           <span className="text-[11px] font-semibold uppercase tracking-[0.1em] text-dark-50/40">
             {t('simple.profile.loginMethodsLabel')}
           </span>
-          <div className="divide-y divide-dark-700/40">
+          <SimpleGroup className="mt-2">
             {providers.map((provider) => (
               <SimpleRow
                 key={provider.provider}
@@ -138,7 +139,7 @@ export default function SimpleProfile() {
                 chevron
               />
             ))}
-          </div>
+          </SimpleGroup>
         </div>
       )}
 
@@ -146,7 +147,7 @@ export default function SimpleProfile() {
         <span className="text-[11px] font-semibold uppercase tracking-[0.1em] text-dark-50/40">
           {t('simple.profile.settingsLabel')}
         </span>
-        <div className="divide-y divide-dark-700/40">
+        <SimpleGroup className="mt-2">
           {/* Тумблер режима — не гейтится ни одним из запросов ниже. */}
           <SimpleRow
             title={t('simple.profile.uiModeTitle')}
@@ -184,7 +185,7 @@ export default function SimpleProfile() {
             onClick={languages.length > 1 ? () => setShowLangPicker((v) => !v) : undefined}
             chevron={languages.length > 1}
           />
-        </div>
+        </SimpleGroup>
 
         {showLangPicker && languages.length > 1 && (
           <div className="mt-2 divide-y divide-dark-700/40 rounded-2xl border border-dark-700/40">
@@ -205,7 +206,7 @@ export default function SimpleProfile() {
         )}
       </div>
 
-      <div className="divide-y divide-dark-700/40">
+      <SimpleGroup>
         {isAdmin && (
           <SimpleRow
             title={t('simple.profile.adminPanelTitle')}
@@ -226,7 +227,7 @@ export default function SimpleProfile() {
           chevron
         />
         <SimpleRow title={t('simple.profile.logout')} onClick={() => logout()} danger />
-      </div>
+      </SimpleGroup>
     </SimpleScreen>
   );
 }

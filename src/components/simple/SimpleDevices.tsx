@@ -3,6 +3,7 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useNavigate } from 'react-router';
 import { useTranslation } from 'react-i18next';
 import SimpleScreen from './SimpleScreen';
+import SimpleGroup from './SimpleGroup';
 import { Button } from '@/components/primitives/Button/Button';
 import { BentoCard } from '@/components/ui/BentoCard';
 import { ChevronRightIcon, CheckIcon } from '@/components/icons';
@@ -190,7 +191,7 @@ export default function SimpleDevices() {
       )}
 
       {!selectionMode && (
-        <div className="divide-y divide-dark-700/40">
+        <SimpleGroup>
           <button
             type="button"
             onClick={() => {
@@ -207,7 +208,7 @@ export default function SimpleDevices() {
             </span>
             {!isUnlimited && <ChevronRightIcon className="size-4 shrink-0 text-dark-50/30" />}
           </button>
-        </div>
+        </SimpleGroup>
       )}
 
       {selectionMode && devices.length > 0 && (
@@ -222,76 +223,78 @@ export default function SimpleDevices() {
 
       {batchError && <p className="text-sm text-error-400">{batchError}</p>}
 
-      <div className="divide-y divide-dark-700/40">
-        {devices.map((device) => {
-          const displayName = deviceDisplayName(device);
-          const isEditing = editingHwid === device.hwid;
-          const isSelected = selectedHwids.has(device.hwid);
-          const subtitleParts = [
-            device.client || null,
-            device.platform || null,
-            device.created_at
-              ? t('simple.devices.requestOn', { date: formatShortDate(device.created_at) })
-              : null,
-          ].filter(Boolean);
+      {devices.length > 0 && (
+        <SimpleGroup>
+          {devices.map((device) => {
+            const displayName = deviceDisplayName(device);
+            const isEditing = editingHwid === device.hwid;
+            const isSelected = selectedHwids.has(device.hwid);
+            const subtitleParts = [
+              device.client || null,
+              device.platform || null,
+              device.created_at
+                ? t('simple.devices.requestOn', { date: formatShortDate(device.created_at) })
+                : null,
+            ].filter(Boolean);
 
-          return (
-            <div key={device.hwid} className="flex items-center gap-3 py-3">
-              {selectionMode && (
-                <button
-                  type="button"
-                  onClick={() => toggleSelected(device.hwid)}
-                  aria-pressed={isSelected}
-                  aria-label={displayName}
-                  className={`flex h-5 w-5 shrink-0 items-center justify-center rounded-md border ${
-                    isSelected ? 'border-accent-500 bg-accent-500' : 'border-dark-600'
-                  }`}
-                >
-                  {isSelected && <CheckIcon className="h-3.5 w-3.5 text-white" />}
-                </button>
-              )}
-
-              {isEditing ? (
-                <>
-                  <input
-                    value={editingName}
-                    onChange={(e) => setEditingName(e.target.value)}
-                    placeholder={displayName}
-                    autoFocus
-                    className="min-w-0 flex-1 rounded-xl border border-accent-500 bg-dark-900 px-3 py-2 text-sm text-dark-100 focus:outline-none"
-                  />
+            return (
+              <div key={device.hwid} className="flex items-center gap-3 py-3">
+                {selectionMode && (
                   <button
                     type="button"
-                    onClick={submitEdit}
-                    disabled={renameMutation.isPending}
-                    className="shrink-0 rounded-lg bg-accent-500 px-3 py-1.5 text-xs font-semibold text-on-accent"
+                    onClick={() => toggleSelected(device.hwid)}
+                    aria-pressed={isSelected}
+                    aria-label={displayName}
+                    className={`flex h-5 w-5 shrink-0 items-center justify-center rounded-md border ${
+                      isSelected ? 'border-accent-500 bg-accent-500' : 'border-dark-600'
+                    }`}
                   >
-                    {t('simple.devices.renameDone')}
+                    {isSelected && <CheckIcon className="h-3.5 w-3.5 text-white" />}
                   </button>
-                </>
-              ) : (
-                <>
-                  <div className="min-w-0 flex-1">
-                    <p className="font-medium text-dark-100">{displayName}</p>
-                    {subtitleParts.length > 0 && (
-                      <p className="mt-0.5 text-sm text-dark-400">{subtitleParts.join(' · ')}</p>
-                    )}
-                  </div>
-                  {!selectionMode && (
+                )}
+
+                {isEditing ? (
+                  <>
+                    <input
+                      value={editingName}
+                      onChange={(e) => setEditingName(e.target.value)}
+                      placeholder={displayName}
+                      autoFocus
+                      className="min-w-0 flex-1 rounded-xl border border-accent-500 bg-dark-900 px-3 py-2 text-sm text-dark-100 focus:outline-none"
+                    />
                     <button
                       type="button"
-                      onClick={() => startEdit(device)}
-                      className="shrink-0 rounded-lg border border-dark-700/50 px-2.5 py-1 text-xs font-semibold text-dark-300"
+                      onClick={submitEdit}
+                      disabled={renameMutation.isPending}
+                      className="shrink-0 rounded-lg bg-accent-500 px-3 py-1.5 text-xs font-semibold text-on-accent"
                     >
-                      {t('simple.devices.renameButton')}
+                      {t('simple.devices.renameDone')}
                     </button>
-                  )}
-                </>
-              )}
-            </div>
-          );
-        })}
-      </div>
+                  </>
+                ) : (
+                  <>
+                    <div className="min-w-0 flex-1">
+                      <p className="font-medium text-dark-100">{displayName}</p>
+                      {subtitleParts.length > 0 && (
+                        <p className="mt-0.5 text-sm text-dark-400">{subtitleParts.join(' · ')}</p>
+                      )}
+                    </div>
+                    {!selectionMode && (
+                      <button
+                        type="button"
+                        onClick={() => startEdit(device)}
+                        className="shrink-0 rounded-lg border border-dark-700/50 px-2.5 py-1 text-xs font-semibold text-dark-300"
+                      >
+                        {t('simple.devices.renameButton')}
+                      </button>
+                    )}
+                  </>
+                )}
+              </div>
+            );
+          })}
+        </SimpleGroup>
+      )}
 
       {!selectionMode && <p className="text-xs text-dark-500">{t('simple.devices.hint')}</p>}
 
