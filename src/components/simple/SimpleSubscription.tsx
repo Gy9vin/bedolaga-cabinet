@@ -174,6 +174,17 @@ export default function SimpleSubscription() {
   const availableMethods = (paymentMethods ?? []).filter((m) => m.is_available);
   const effectiveMethodId = selectedMethodId ?? availableMethods[0]?.id ?? null;
 
+  // Дата списания автопродления — конец подписки минус «за сколько дней
+  // списывать» (находка 7): без даты предупреждение про баланс ссылалось
+  // в пустоту, а в макете дата стоит прямо в подписи тумблера.
+  const autopayChargeDate = useMemo(() => {
+    if (!subscription) return null;
+    const endMs = new Date(subscription.end_date).getTime();
+    if (!Number.isFinite(endMs)) return null;
+    const daysBefore = subscription.autopay_days_before ?? 0;
+    return new Date(endMs - daysBefore * 86_400_000).toISOString();
+  }, [subscription?.end_date, subscription?.autopay_days_before]);
+
   const totalKopeks = preview?.total_price_kopeks ?? 0;
   const missingKopeks = Math.max(preview?.missing_amount_kopeks ?? 0, 0);
   const fromBalanceKopeks = Math.max(totalKopeks - missingKopeks, 0);
@@ -473,9 +484,14 @@ export default function SimpleSubscription() {
               <div className="min-w-0 flex-1">
                 <p className="font-medium text-dark-100">{t('simple.subscription.autopayTitle')}</p>
                 <p className="mt-0.5 text-sm text-dark-400">
-                  {t('simple.subscription.autopaySub', {
-                    price: formatPrice(effectiveTotalKopeks),
-                  })}
+                  {autopayChargeDate
+                    ? t('simple.subscription.autopaySubWithDate', {
+                        price: formatPrice(effectiveTotalKopeks),
+                        date: formatShortDate(autopayChargeDate),
+                      })
+                    : t('simple.subscription.autopaySub', {
+                        price: formatPrice(effectiveTotalKopeks),
+                      })}
                 </p>
               </div>
               <Switch
@@ -485,7 +501,11 @@ export default function SimpleSubscription() {
               />
             </div>
           </SimpleGroup>
-          <p className="-mt-2 text-xs text-dark-500">{t('simple.subscription.autopayHint')}</p>
+          <p className="-mt-2 text-xs text-dark-500">
+            {autopayChargeDate
+              ? t('simple.subscription.autopayHint')
+              : t('simple.subscription.autopayHintNoDate')}
+          </p>
         </>
       )}
 
