@@ -5393,6 +5393,26 @@
       "methodHint": "每种支付方式都有各自的最低金额——金额不足时该方式将不可用。",
       "submitButton": "充值 {{amount}}",
       "paymentReady": "正在打开支付页面…"
+    },
+    "referral": {
+      "title": "推荐好友",
+      "linksLabel": "您的链接",
+      "cabinetLinkCaption": "通过邮箱及其他方式注册",
+      "botLinkCaption": "通过 Telegram 注册",
+      "shareButton": "分享给好友",
+      "qrButton": "二维码",
+      "statCame": "已邀请",
+      "statEarned": "已赚取",
+      "statAvailable": "可提现",
+      "commissionHint": "每次被邀请人付款，您都会获得 {{percent}}% 佣金。",
+      "withdrawalTitle": "提现收益",
+      "withdrawalReady": "可以提现到您的账户",
+      "withdrawalRemaining": "距最低提现金额还差 {{amount}}",
+      "withdrawButtonReady": "提现 {{amount}}",
+      "withdrawButtonMin": "满 {{amount}} 起可提现",
+      "feedLabel": "邀请与收益记录",
+      "feedPaid": "已支付订阅",
+      "feedWaiting": "尚未支付"
     }
   }
 }

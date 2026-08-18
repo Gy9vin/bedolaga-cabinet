@@ -6560,6 +6560,26 @@
       "methodHint": "У каждого способа свой минимум — если сумма меньше, способ станет недоступен.",
       "submitButton": "Пополнить {{amount}}",
       "paymentReady": "Открываем страницу оплаты…"
+    },
+    "referral": {
+      "title": "Рефералы",
+      "linksLabel": "Ваши ссылки",
+      "cabinetLinkCaption": "Регистрация через почту и другие сервисы",
+      "botLinkCaption": "Регистрация через Телеграм",
+      "shareButton": "Отправить другу",
+      "qrButton": "QR-код",
+      "statCame": "Пришли",
+      "statEarned": "Заработано",
+      "statAvailable": "Доступно",
+      "commissionHint": "Вы получаете {{percent}}% с каждой оплаты приглашённого.",
+      "withdrawalTitle": "Вывод заработанного",
+      "withdrawalReady": "Можно вывести на реквизиты",
+      "withdrawalRemaining": "Ещё {{amount}} до минимальной суммы",
+      "withdrawButtonReady": "Вывести {{amount}}",
+      "withdrawButtonMin": "Вывести от {{amount}}",
+      "feedLabel": "Кто пришёл и начисления",
+      "feedPaid": "оплатил подписку",
+      "feedWaiting": "ещё не оплатил"
     }
   }
 }

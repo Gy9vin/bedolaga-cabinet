@@ -6006,6 +6006,26 @@
       "methodHint": "Each method has its own minimum — a smaller amount makes it unavailable.",
       "submitButton": "Top up {{amount}}",
       "paymentReady": "Opening the payment page…"
+    },
+    "referral": {
+      "title": "Referrals",
+      "linksLabel": "Your links",
+      "cabinetLinkCaption": "Sign-up via email and other services",
+      "botLinkCaption": "Sign-up via Telegram",
+      "shareButton": "Send to a friend",
+      "qrButton": "QR code",
+      "statCame": "Joined",
+      "statEarned": "Earned",
+      "statAvailable": "Available",
+      "commissionHint": "You get {{percent}}% from every payment of an invited friend.",
+      "withdrawalTitle": "Withdraw earnings",
+      "withdrawalReady": "Ready to withdraw to your details",
+      "withdrawalRemaining": "{{amount}} more until the minimum amount",
+      "withdrawButtonReady": "Withdraw {{amount}}",
+      "withdrawButtonMin": "Withdraw from {{amount}}",
+      "feedLabel": "Referrals and payouts",
+      "feedPaid": "paid for a subscription",
+      "feedWaiting": "has not paid yet"
     }
   }
 }

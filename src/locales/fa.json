@@ -5394,6 +5394,26 @@
       "methodHint": "هر روش حداقل مبلغ خودش را دارد — اگر مبلغ کمتر باشد، آن روش غیرفعال می‌شود.",
       "submitButton": "شارژ {{amount}}",
       "paymentReady": "در حال باز کردن صفحه پرداخت…"
+    },
+    "referral": {
+      "title": "دعوت از دوستان",
+      "linksLabel": "لینک‌های شما",
+      "cabinetLinkCaption": "ثبت‌نام از طریق ایمیل و سایر روش‌ها",
+      "botLinkCaption": "ثبت‌نام از طریق تلگرام",
+      "shareButton": "ارسال به دوست",
+      "qrButton": "کد QR",
+      "statCame": "دعوت‌شده‌ها",
+      "statEarned": "درآمد",
+      "statAvailable": "قابل برداشت",
+      "commissionHint": "شما {{percent}}٪ از هر پرداخت فرد دعوت‌شده دریافت می‌کنید.",
+      "withdrawalTitle": "برداشت درآمد",
+      "withdrawalReady": "می‌توانید به مشخصات خود برداشت کنید",
+      "withdrawalRemaining": "{{amount}} تا رسیدن به حداقل مبلغ",
+      "withdrawButtonReady": "برداشت {{amount}}",
+      "withdrawButtonMin": "برداشت از {{amount}}",
+      "feedLabel": "دعوت‌شده‌ها و تراکنش‌ها",
+      "feedPaid": "اشتراک را پرداخت کرد",
+      "feedWaiting": "هنوز پرداخت نکرده"
     }
   }
 }

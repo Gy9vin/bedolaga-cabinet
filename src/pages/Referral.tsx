@@ -11,6 +11,8 @@ import { partnerApi } from '../api/partners';
 import { withdrawalApi } from '../api/withdrawals';
 import { CampaignCard } from '../components/partner/CampaignCard';
 import { useCurrency } from '../hooks/useCurrency';
+import { useUiMode } from '@/hooks/useUiMode';
+import SimpleReferral from '@/components/simple/SimpleReferral';
 import { StatCard } from '@/components/stats';
 import {
   ArrowDownIcon,
@@ -68,6 +70,10 @@ export default function Referral() {
   const navigate = useNavigate();
   const { formatAmount, currencySymbol, formatPositive, formatWithCurrency } = useCurrency();
   const queryClient = useQueryClient();
+  // Хук вызывается вместе со всеми остальными, ранний возврат — ниже, после
+  // всех хуков компонента (см. инвариант из брифа задачи 8): иначе порядок
+  // хуков меняется между рендерами при переключении режима, и React падает.
+  const { isSimple } = useUiMode();
   const [copiedLink, setCopiedLink] = useState<'cabinet' | 'bot' | null>(null);
   const [showQr, setShowQr] = useState(false);
   const [qrDataUrl, setQrDataUrl] = useState<string | null>(null);
@@ -259,6 +265,10 @@ export default function Referral() {
       }
     }
   };
+
+  if (isSimple) {
+    return <SimpleReferral />;
+  }
 
   if (isLoading) {
     return (
