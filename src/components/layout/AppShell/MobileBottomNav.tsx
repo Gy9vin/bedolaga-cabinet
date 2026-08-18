@@ -4,9 +4,11 @@ import { motion } from 'framer-motion';
 
 import { cn } from '@/lib/utils';
 import { usePlatform } from '@/platform';
+import { useUiMode } from '@/hooks/useUiMode';
 
 // Icons
 import { HomeIcon, SubscriptionIcon, WalletIcon, UsersIcon, ChatIcon, WheelIcon } from './icons';
+import { filterNavForSimpleMode } from './simpleNavItems';
 
 interface MobileBottomNavProps {
   isKeyboardOpen: boolean;
@@ -28,11 +30,18 @@ export function MobileBottomNav({
 
   // Core navigation items for bottom bar.
   //
-  // Support is ALWAYS present — frustrated paying customers must find help
-  // in the primary nav, not in the hamburger drawer. Previously Wheel
-  // (a brand-moment surface) displaced Support (a critical-path surface)
-  // when the wheel feature flag was on; that trade is hostile to the
-  // support-user persona and was flagged by the /impeccable critique.
+  // Support is ALWAYS present in the full interface — frustrated paying
+  // customers must find help in the primary nav, not in the hamburger
+  // drawer. Previously Wheel (a brand-moment surface) displaced Support
+  // (a critical-path surface) when the wheel feature flag was on; that
+  // trade is hostile to the support-user persona and was flagged by the
+  // /impeccable critique.
+  //
+  // In the simple mode the tabbar is cut down to four sections and Support
+  // is one of the items that leaves it — this is intentional, not a
+  // regression of the rule above. Support stays reachable from Profile
+  // instead, since the simple mode's promise is fewer top-level surfaces,
+  // not fewer capabilities.
   //
   // Wheel and Referral are shown INDEPENDENTLY: when both feature flags are
   // on, BOTH appear in the bar (operator wants referral reachable in the
@@ -47,6 +56,9 @@ export function MobileBottomNav({
     ...(referralEnabled ? [{ path: '/referral', label: t('nav.referral'), icon: UsersIcon }] : []),
     { path: '/support', label: t('nav.support'), icon: ChatIcon },
   ];
+
+  const { isSimple } = useUiMode();
+  const visibleCoreItems = isSimple ? filterNavForSimpleMode(coreItems) : coreItems;
 
   const handleNavClick = () => {
     haptic.impact('light');
@@ -70,7 +82,7 @@ export function MobileBottomNav({
       }}
     >
       <div className="flex justify-around">
-        {coreItems.map((item) => (
+        {visibleCoreItems.map((item) => (
           <Link
             key={item.path}
             to={item.path}

@@ -12,9 +12,12 @@ import { useTheme } from '@/hooks/useTheme';
 import { useBranding } from '@/hooks/useBranding';
 import { useFeatureFlags } from '@/hooks/useFeatureFlags';
 import { useScrollRestoration } from '@/hooks/useScrollRestoration';
+import { useUiMode } from '@/hooks/useUiMode';
 import { themeColorsApi } from '@/api/themeColors';
 import { isLogoPreloaded } from '@/api/branding';
 import { cn } from '@/lib/utils';
+
+import { filterNavForSimpleMode } from './simpleNavItems';
 
 import WebSocketNotifications from '@/components/WebSocketNotifications';
 import CampaignBonusNotifier from '@/components/CampaignBonusNotifier';
@@ -126,6 +129,9 @@ export function AppShell({ children }: AppShellProps) {
     { path: '/profile', label: t('nav.profile'), icon: UserIcon },
   ];
 
+  const { isSimple } = useUiMode();
+  const visibleDesktopNav = isSimple ? filterNavForSimpleMode(desktopNav) : desktopNav;
+
   const isActive = (path: string) => {
     if (path === '/') return location.pathname === '/';
     return location.pathname.startsWith(path);
@@ -235,7 +241,7 @@ export function AppShell({ children }: AppShellProps) {
               всегда, без скролла/сжатия/сворачивания. Центрируется средней
               колонкой grid (justify-self-center), а не auto-margin'ами. */}
           <nav className="flex items-center gap-0.5 justify-self-center rounded-full border border-dark-800/70 bg-dark-900/50 p-1 shadow-sm backdrop-blur-sm">
-            {desktopNav.map((item) => renderNavLink(item.path, item.label, item.icon))}
+            {visibleDesktopNav.map((item) => renderNavLink(item.path, item.label, item.icon))}
             {isAdmin && (
               <>
                 <div className="mx-1 h-5 w-px shrink-0 bg-dark-700/60" />

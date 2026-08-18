@@ -18,9 +18,11 @@ import {
 } from '@/api/branding';
 import { themeColorsApi } from '@/api/themeColors';
 import { cn } from '@/lib/utils';
+import { useUiMode } from '@/hooks/useUiMode';
 
 import LanguageSwitcher from '@/components/LanguageSwitcher';
 import TicketNotificationBell from '@/components/TicketNotificationBell';
+import { filterNavForSimpleMode } from './simpleNavItems';
 
 // Icons
 import {
@@ -171,6 +173,9 @@ export function AppHeader({
     ...(giftEnabled ? [{ path: '/gift', label: t('nav.gift'), icon: GiftIcon }] : []),
     { path: '/info', label: t('nav.info'), icon: InfoIcon },
   ];
+
+  const { isSimple } = useUiMode();
+  const visibleNavItems = isSimple ? filterNavForSimpleMode(navItems) : navItems;
 
   return (
     <>
@@ -356,7 +361,7 @@ export function AppHeader({
 
               {/* Nav items */}
               <nav className="space-y-1">
-                {navItems.map((item) => (
+                {visibleNavItems.map((item) => (
                   <Link
                     key={item.path}
                     to={item.path}
