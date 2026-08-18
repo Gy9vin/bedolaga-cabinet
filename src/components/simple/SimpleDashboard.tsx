@@ -176,7 +176,7 @@ export default function SimpleDashboard() {
             />
             <SimpleTile
               as="button"
-              onClick={() => navigate(`/subscriptions/${subscription.id}`)}
+              onClick={() => navigate('/subscription/devices')}
               label={t('simple.dashboard.devices')}
               value={
                 subscription.device_limit === 0 ? (

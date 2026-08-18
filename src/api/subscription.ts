@@ -240,6 +240,8 @@ export const subscriptionApi = {
     min_device_limit: number;
     can_reduce: number;
     connected_devices_count: number;
+    /** Возврат за ОДНО освобождаемое место (см. описание задачи 4 волны 3). */
+    refund_kopeks_per_slot?: number;
   }> => {
     const response = await apiClient.get(
       '/cabinet/subscription/devices/reduction-info',
@@ -251,15 +253,30 @@ export const subscriptionApi = {
   reduceDevices: async (
     newDeviceLimit: number,
     subscriptionId?: number,
+    /**
+     * Какие hwid отключить при уменьшении лимита. Число отключаемых устройств
+     * и число освобождаемых мест — разные величины (см. бриф задачи 4):
+     * освобождается «старый лимит − новый», а отключить нужно «подключено −
+     * новый лимит» (и это бывает 0, если подключённых устройств меньше
+     * нового лимита). Экран сам решает, сколько hwid нужно передать.
+     */
+    hwidsToRemove?: string[],
   ): Promise<{
     success: boolean;
     message: string;
     old_device_limit: number;
     new_device_limit: number;
+    refund_kopeks?: number;
   }> => {
     const response = await apiClient.post(
       '/cabinet/subscription/devices/reduce',
-      ...bodyWithSubId({ new_device_limit: newDeviceLimit }, subscriptionId),
+      ...bodyWithSubId(
+        {
+          new_device_limit: newDeviceLimit,
+          ...(hwidsToRemove != null && { hwids_to_remove: hwidsToRemove }),
+        },
+        subscriptionId,
+      ),
     );
     return response.data;
   },
@@ -273,6 +290,8 @@ export const subscriptionApi = {
       device_model: string;
       created_at: string | null;
       local_name?: string | null;
+      /** Имя клиента (Happ, INCY, ...) — место занимает программа, не телефон. */
+      client?: string | null;
     }>;
     total: number;
     device_limit: number;
@@ -330,6 +349,27 @@ export const subscriptionApi = {
     const response = await apiClient.delete(
       '/cabinet/subscription/devices',
       withSubId(subscriptionId),
+    );
+    return response.data;
+  },
+
+  /**
+   * Массовое отключение выбранных устройств (режим выбора простого режима).
+   * В отличие от deleteAllDevices сносит только переданные hwid; неудачные
+   * возвращаются в failed_hwids — их нужно показать человеку, а не молчать.
+   */
+  deleteDevicesBatch: async (
+    hwids: string[],
+    subscriptionId?: number,
+  ): Promise<{
+    success: boolean;
+    deleted_count: number;
+    failed_hwids: string[];
+    timed_out?: boolean;
+  }> => {
+    const response = await apiClient.post(
+      '/cabinet/subscription/devices/delete-batch',
+      ...bodyWithSubId({ hwids }, subscriptionId),
     );
     return response.data;
   },
