@@ -50,6 +50,14 @@ export interface InfoVisibility {
   recurrent: boolean;
 }
 
+export type UiMode = 'simple' | 'advanced';
+
+export interface UiModeResponse {
+  mode: UiMode;
+  choice: UiMode | null;
+  global_default: UiMode;
+}
+
 export const infoApi = {
   // Get FAQ pages list
   getFaqPages: async (): Promise<FaqPage[]> => {
@@ -112,6 +120,18 @@ export const infoApi = {
     const response = await apiClient.patch<{ language: string }>('/cabinet/info/user/language', {
       language,
     });
+    return response.data;
+  },
+
+  // Get effective cabinet UI mode
+  getUiMode: async (): Promise<UiModeResponse> => {
+    const response = await apiClient.get<UiModeResponse>('/cabinet/info/user/ui-mode');
+    return response.data;
+  },
+
+  // Save personal UI mode choice. `null` resets to the global default.
+  updateUiMode: async (mode: UiMode | null): Promise<UiModeResponse> => {
+    const response = await apiClient.patch<UiModeResponse>('/cabinet/info/user/ui-mode', { mode });
     return response.data;
   },
 
