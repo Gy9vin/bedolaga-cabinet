@@ -1,6 +1,7 @@
 import { useTranslation } from 'react-i18next';
 import type { SubscriptionTimelineEvent } from '../../types/timeline';
 import { humanizeDuration } from '../../utils/subscriptionTimeline';
+import { formatPrice } from '../../utils/format';
 
 const fmtDate = (iso: string | null): string =>
   iso
@@ -19,10 +20,13 @@ export function SubscriptionTimeline({
   events,
   since,
   isDark = true,
+  showAmount = false,
 }: {
   events: SubscriptionTimelineEvent[];
   since: string | null;
   isDark?: boolean;
+  /** Цена события справа в строке (находка 8, используется в простом режиме). */
+  showAmount?: boolean;
 }) {
   const { t } = useTranslation();
   if (!events.length) return <p className="text-sm text-dark-50/40">{t('timeline.empty')}</p>;
@@ -48,9 +52,20 @@ export function SubscriptionTimeline({
                   {t(`timeline.kind.${ev.event_type}`)}
                 </span>
                 <span className="text-xs text-dark-50/45">{fmtDate(ev.date)}</span>
-                <span className="ml-auto rounded-full bg-accent-500/15 px-2 py-0.5 text-xs font-medium text-accent-400">
-                  +{ev.period_days ?? 0}&nbsp;{t('timeline.daysShort')}
-                </span>
+                <div className="ml-auto flex items-center gap-2">
+                  {showAmount && (
+                    <span
+                      className={`text-sm font-semibold tabular-nums ${
+                        ev.amount_kopeks ? 'text-dark-50' : 'text-dark-50/40'
+                      }`}
+                    >
+                      {ev.amount_kopeks ? formatPrice(ev.amount_kopeks) : t('timeline.free')}
+                    </span>
+                  )}
+                  <span className="rounded-full bg-accent-500/15 px-2 py-0.5 text-xs font-medium text-accent-400">
+                    +{ev.period_days ?? 0}&nbsp;{t('timeline.daysShort')}
+                  </span>
+                </div>
               </div>
 
               {ev.downtime_seconds ? (

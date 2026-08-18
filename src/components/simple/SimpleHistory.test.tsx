@@ -94,7 +94,9 @@ describe('SimpleHistory', () => {
 
     await waitFor(() => {
       // Сумма оплаченного — сумма amount_kopeks по событиям (249 ₽; триал бесплатный).
-      expect(screen.getByText(/249/)).toBeTruthy();
+      // Та же сумма появляется и в ленте — цена события теперь видна и там
+      // (находка 8), поэтому совпадений минимум два, а не одно.
+      expect(screen.getAllByText(/249/).length).toBeGreaterThanOrEqual(2);
     });
     // Дней с подпиской — календарные дни от `since` (10 дней назад) до сегодня.
     expect(screen.getByText('10')).toBeTruthy();

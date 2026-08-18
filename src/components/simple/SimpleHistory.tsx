@@ -65,7 +65,7 @@ export default function SimpleHistory() {
           {t('simple.history.allEvents')}
         </span>
         <div className="mt-2">
-          <SubscriptionTimeline events={events} since={since} isDark={isDark} />
+          <SubscriptionTimeline events={events} since={since} isDark={isDark} showAmount />
         </div>
       </div>
 
