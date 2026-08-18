@@ -8,7 +8,7 @@
  */
 import type React from 'react';
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
-import { render, screen, cleanup, waitFor } from '@testing-library/react';
+import { render, screen, cleanup, waitFor, fireEvent } from '@testing-library/react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { MemoryRouter } from 'react-router';
 import { I18nextProvider } from 'react-i18next';
@@ -190,6 +190,19 @@ describe('SimpleDashboard', () => {
       expect(screen.getByText(/Выбрать тариф/i)).toBeTruthy();
     });
     expect(screen.queryByText(/Попробовать/i)).toBeNull();
+  });
+
+  it('нет подписки: клик по «Выбрать тариф» ведёт на /subscriptions, а не на старый визард', async () => {
+    getSubscriptionMock.mockResolvedValue({ has_subscription: false, subscription: null });
+    getTrialInfoMock.mockResolvedValue(UNAVAILABLE_TRIAL);
+
+    render(<SimpleDashboard />, { wrapper: makeWrapper() });
+
+    const btn = await screen.findByText(/Выбрать тариф/i);
+    fireEvent.click(btn);
+
+    expect(mockNavigate).toHaveBeenCalledWith('/subscriptions');
+    expect(mockNavigate).not.toHaveBeenCalledWith('/subscription/purchase');
   });
 
   it('device_limit === 0: в плитке устройств «∞» и нет полосы заполнения', async () => {

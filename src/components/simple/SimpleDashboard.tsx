@@ -248,7 +248,11 @@ export default function SimpleDashboard() {
             variant={trialInfo?.is_available ? 'ghost' : 'primary'}
             size={trialInfo?.is_available ? 'sm' : 'lg'}
             fullWidth
-            onClick={() => navigate('/subscription/purchase')}
+            // Ведём на новый одноэкранный SimpleSubscription (/subscriptions),
+            // а не на старый пятишаговый визард полного кабинета — иначе
+            // именно на первой покупке простой режим выбрасывает новичка
+            // в сложный интерфейс, от которого его должен уводить.
+            onClick={() => navigate('/subscriptions')}
           >
             {t('simple.dashboard.choosePlan')}
           </Button>
