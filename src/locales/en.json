@@ -6026,6 +6026,34 @@
       "feedLabel": "Referrals and payouts",
       "feedPaid": "paid for a subscription",
       "feedWaiting": "has not paid yet"
+    },
+    "profile": {
+      "title": "Profile",
+      "unnamed": "No name",
+      "idLabel": "ID {{id}}",
+      "loginMethodsLabel": "Sign-in methods",
+      "providerTelegram": "Telegram",
+      "providerEmail": "Email",
+      "providerYandex": "Yandex ID",
+      "providerGoogle": "Google",
+      "providerDiscord": "Discord",
+      "providerVk": "VK",
+      "providerNotLinked": "One-tap sign-in",
+      "providerLinked": "Linked",
+      "providerLink": "Link",
+      "settingsLabel": "Settings",
+      "uiModeTitle": "Simple interface",
+      "uiModeSubtitle": "Turn off to open every section",
+      "uiModeSaving": "Saving…",
+      "notificationsTitle": "Notifications",
+      "notificationsSubtitle": "About subscription expiry",
+      "languageTitle": "Language",
+      "adminPanelTitle": "Admin panel",
+      "adminPanelSubtitle": "Visible to admins only",
+      "adminBadge": "Admin",
+      "supportTitle": "Support",
+      "supportSubtitle": "We reply within an hour",
+      "logout": "Log out"
     }
   }
 }

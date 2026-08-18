@@ -5413,6 +5413,34 @@
       "feedLabel": "邀请与收益记录",
       "feedPaid": "已支付订阅",
       "feedWaiting": "尚未支付"
+    },
+    "profile": {
+      "title": "个人资料",
+      "unnamed": "未命名",
+      "idLabel": "ID {{id}}",
+      "loginMethodsLabel": "登录方式",
+      "providerTelegram": "Telegram",
+      "providerEmail": "邮箱",
+      "providerYandex": "Yandex ID",
+      "providerGoogle": "Google",
+      "providerDiscord": "Discord",
+      "providerVk": "VK",
+      "providerNotLinked": "一键登录",
+      "providerLinked": "已绑定",
+      "providerLink": "绑定",
+      "settingsLabel": "设置",
+      "uiModeTitle": "简易界面",
+      "uiModeSubtitle": "关闭后可打开全部功能",
+      "uiModeSaving": "正在保存…",
+      "notificationsTitle": "通知",
+      "notificationsSubtitle": "订阅到期提醒",
+      "languageTitle": "语言",
+      "adminPanelTitle": "管理面板",
+      "adminPanelSubtitle": "仅管理员可见",
+      "adminBadge": "管理员",
+      "supportTitle": "客服支持",
+      "supportSubtitle": "一小时内回复",
+      "logout": "退出登录"
     }
   }
 }

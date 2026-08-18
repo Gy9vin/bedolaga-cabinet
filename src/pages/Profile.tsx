@@ -20,6 +20,7 @@ import { referralApi } from '../api/referral';
 import { brandingApi, type EmailAuthEnabled } from '../api/branding';
 import { UI } from '../config/constants';
 import { useUiMode } from '@/hooks/useUiMode';
+import SimpleProfile from '@/components/simple/SimpleProfile';
 import { Card } from '@/components/data-display/Card';
 import { Button } from '@/components/primitives/Button';
 import { Switch } from '@/components/primitives/Switch';
@@ -272,6 +273,14 @@ export default function Profile() {
     const update: NotificationSettingsUpdate = { [key]: value };
     updateNotificationsMutation.mutate(update);
   };
+
+  // Ранний возврат — после ВСЕХ хуков компонента (см. критический инвариант
+  // задачи 8): переключение режима не должно менять порядок хуков между
+  // рендерами, иначе React падает при переключении. Сам тумблер режима
+  // внутри SimpleProfile ни от чего не зависит и рендерится всегда.
+  if (isSimple) {
+    return <SimpleProfile />;
+  }
 
   return (
     <motion.div

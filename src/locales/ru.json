@@ -6580,6 +6580,34 @@
       "feedLabel": "Кто пришёл и начисления",
       "feedPaid": "оплатил подписку",
       "feedWaiting": "ещё не оплатил"
+    },
+    "profile": {
+      "title": "Профиль",
+      "unnamed": "Без имени",
+      "idLabel": "ID {{id}}",
+      "loginMethodsLabel": "Вход в аккаунт",
+      "providerTelegram": "Telegram",
+      "providerEmail": "Почта",
+      "providerYandex": "Яндекс ID",
+      "providerGoogle": "Google",
+      "providerDiscord": "Discord",
+      "providerVk": "VK",
+      "providerNotLinked": "Вход одной кнопкой",
+      "providerLinked": "Привязан",
+      "providerLink": "Привязать",
+      "settingsLabel": "Настройки",
+      "uiModeTitle": "Простой интерфейс",
+      "uiModeSubtitle": "Выключите, чтобы открыть все разделы",
+      "uiModeSaving": "Сохраняем…",
+      "notificationsTitle": "Уведомления",
+      "notificationsSubtitle": "Об окончании подписки",
+      "languageTitle": "Язык",
+      "adminPanelTitle": "Админ-панель",
+      "adminPanelSubtitle": "Видна только администраторам",
+      "adminBadge": "Админ",
+      "supportTitle": "Поддержка",
+      "supportSubtitle": "Отвечаем в течение часа",
+      "logout": "Выйти"
     }
   }
 }

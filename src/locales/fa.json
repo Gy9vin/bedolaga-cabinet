@@ -5414,6 +5414,34 @@
       "feedLabel": "دعوت‌شده‌ها و تراکنش‌ها",
       "feedPaid": "اشتراک را پرداخت کرد",
       "feedWaiting": "هنوز پرداخت نکرده"
+    },
+    "profile": {
+      "title": "پروفایل",
+      "unnamed": "بدون نام",
+      "idLabel": "شناسه {{id}}",
+      "loginMethodsLabel": "روش‌های ورود",
+      "providerTelegram": "تلگرام",
+      "providerEmail": "ایمیل",
+      "providerYandex": "یاندکس ID",
+      "providerGoogle": "گوگل",
+      "providerDiscord": "دیسکورد",
+      "providerVk": "VK",
+      "providerNotLinked": "ورود با یک کلیک",
+      "providerLinked": "متصل",
+      "providerLink": "اتصال",
+      "settingsLabel": "تنظیمات",
+      "uiModeTitle": "رابط ساده",
+      "uiModeSubtitle": "برای باز کردن همه بخش‌ها خاموش کنید",
+      "uiModeSaving": "در حال ذخیره…",
+      "notificationsTitle": "اعلان‌ها",
+      "notificationsSubtitle": "درباره پایان اشتراک",
+      "languageTitle": "زبان",
+      "adminPanelTitle": "پنل مدیریت",
+      "adminPanelSubtitle": "فقط برای مدیران قابل مشاهده است",
+      "adminBadge": "مدیر",
+      "supportTitle": "پشتیبانی",
+      "supportSubtitle": "ظرف یک ساعت پاسخ می‌دهیم",
+      "logout": "خروج"
     }
   }
 }
