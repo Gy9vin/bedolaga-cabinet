@@ -5341,6 +5341,34 @@
       "sponsoredRowSub": "从您的余额扣款 — 为好友",
       "summaryBaseDevicesHint_other": "{{basePrice}} 套餐 + {{devicesPrice}}（{{count}} 台设备）"
     },
+    "sponsored": {
+      "title": "为好友付费",
+      "subtitle": "找到好友并为其续费 — 费用将从您的余额扣除。",
+      "recipientLabel": "收款人",
+      "recipientPlaceholder": "@昵称、telegram id 或邮箱",
+      "searchButton": "查找",
+      "errors": {
+        "recipientNotFound": "请检查昵称或 ID",
+        "recipientIsSelf": "这是您自己的账户，请使用普通续费",
+        "rateLimited": "尝试次数过多，请稍后再试",
+        "periodUnavailable": "该周期已不可用，请重新查找收款人"
+      },
+      "payingForLabel": "您正在为以下账户付费",
+      "period": "续费时长",
+      "periodDays_other": "{{count}} 天",
+      "noOptions": "该用户暂无可用的付费方案",
+      "costLabel": "「{{name}}」的订阅",
+      "fromBalanceLabel": "从您的余额扣款",
+      "fromBalanceSub": "您的余额 {{balance}}",
+      "topUpLabel": "充值",
+      "topUpSub": "仅充值差额部分",
+      "payButton": "为好友付款 {{price}}",
+      "topUpAndPayButton": "充值 {{price}} 并为好友付款",
+      "payHint": "将立即从您的余额扣款，无需再返回此页面。",
+      "successTitle": "好友的订阅已续期",
+      "successDesc": "{{recipient}} 获得了 {{days}} 天订阅，已从您的余额扣款 {{amount}}。",
+      "payAnotherButton": "为另一个人付费"
+    },
     "history": {
       "title": "历史记录",
       "since": "成为用户起始于",

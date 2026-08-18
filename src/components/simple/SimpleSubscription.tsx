@@ -637,6 +637,12 @@ export default function SimpleSubscription() {
           onClick={() => navigate('/subscription/history')}
           chevron
         />
+        <SimpleRow
+          title={t('simple.subscription.sponsoredRowTitle')}
+          subtitle={t('simple.subscription.sponsoredRowSub')}
+          onClick={() => navigate('/sponsored')}
+          chevron
+        />
       </SimpleGroup>
 
       <button

@@ -5956,6 +5956,35 @@
       "summaryBaseDevicesHint_one": "{{basePrice}} plan + {{devicesPrice}} for {{count}} device",
       "summaryBaseDevicesHint_other": "{{basePrice}} plan + {{devicesPrice}} for {{count}} devices"
     },
+    "sponsored": {
+      "title": "Pay for a friend's subscription",
+      "subtitle": "Find your friend and pay for their renewal — it's charged from your balance.",
+      "recipientLabel": "Recipient",
+      "recipientPlaceholder": "@username, telegram id or email",
+      "searchButton": "Search",
+      "errors": {
+        "recipientNotFound": "Check the username or ID",
+        "recipientIsSelf": "This is your own account, use the regular renewal instead",
+        "rateLimited": "Too many attempts, please wait a minute",
+        "periodUnavailable": "This period is no longer available, try looking up the recipient again"
+      },
+      "payingForLabel": "You're paying for the subscription of",
+      "period": "Extend by",
+      "periodDays_one": "{{count}} day",
+      "periodDays_other": "{{count}} days",
+      "noOptions": "No payment options available for this person",
+      "costLabel": "{{name}}'s subscription",
+      "fromBalanceLabel": "Charged from your balance",
+      "fromBalanceSub": "Your balance: {{balance}}",
+      "topUpLabel": "Top up",
+      "topUpSub": "Only the missing part",
+      "payButton": "Pay for friend {{price}}",
+      "topUpAndPayButton": "Top up {{price}} and pay for friend",
+      "payHint": "It's charged from your balance right away. No need to come back here.",
+      "successTitle": "Friend's subscription extended",
+      "successDesc": "{{recipient}} received {{days}} days of subscription. {{amount}} was charged from your balance.",
+      "payAnotherButton": "Pay for another person"
+    },
     "history": {
       "title": "History",
       "since": "Customer since",

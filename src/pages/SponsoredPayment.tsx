@@ -11,6 +11,8 @@ import InsufficientBalancePrompt from '../components/InsufficientBalancePrompt';
 import PriceBreakdown from '../components/PriceBreakdown';
 import { WebBackButton } from '../components/WebBackButton';
 import { SearchIcon, UserIcon, CheckIcon } from '@/components/icons';
+import { useUiMode } from '../hooks/useUiMode';
+import SimpleSponsored from '../components/simple/SimpleSponsored';
 
 type LookupErrorCode = 'recipient_not_found' | 'recipient_is_self' | 'rate_limited' | 'unknown';
 
@@ -48,6 +50,7 @@ function getPayError(err: unknown): PayErrorInfo {
 export default function SponsoredPayment() {
   const { t } = useTranslation();
   const queryClient = useQueryClient();
+  const { isSimple } = useUiMode();
   const { isDark } = useTheme();
   const g = getGlassColors(isDark);
   const { formatAmount, currencySymbol } = useCurrency();
@@ -119,6 +122,13 @@ export default function SponsoredPayment() {
     setPayError(null);
     setPayResult(null);
   };
+
+  // Ранний возврат — строго после всех хуков выше (правило хуков): переключение
+  // режима не должно ронять экран, а хуки должны вызываться в одном и том же
+  // порядке при каждом рендере независимо от режима.
+  if (isSimple) {
+    return <SimpleSponsored />;
+  }
 
   return (
     <div className="space-y-5">

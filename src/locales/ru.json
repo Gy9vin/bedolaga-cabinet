@@ -6511,6 +6511,36 @@
       "summaryBaseDevicesHint_few": "{{basePrice}} тариф + {{devicesPrice}} за {{count}} устройства",
       "summaryBaseDevicesHint_many": "{{basePrice}} тариф + {{devicesPrice}} за {{count}} устройств"
     },
+    "sponsored": {
+      "title": "Оплатить подписку другу",
+      "subtitle": "Найдите друга и оплатите его продление — спишем с вашего баланса.",
+      "recipientLabel": "Кому",
+      "recipientPlaceholder": "@ник, telegram id или email",
+      "searchButton": "Найти",
+      "errors": {
+        "recipientNotFound": "Проверьте ник или ID",
+        "recipientIsSelf": "Это ваш аккаунт, используйте обычное продление",
+        "rateLimited": "Слишком много попыток, подождите минуту",
+        "periodUnavailable": "Этот период больше недоступен, попробуйте найти получателя ещё раз"
+      },
+      "payingForLabel": "Вы оплачиваете подписку",
+      "period": "Продлить на",
+      "periodDays_one": "{{count}} день",
+      "periodDays_few": "{{count}} дня",
+      "periodDays_many": "{{count}} дней",
+      "noOptions": "Нет доступных вариантов оплаты для этого человека",
+      "costLabel": "Подписка «{{name}}»",
+      "fromBalanceLabel": "Спишем с вашего баланса",
+      "fromBalanceSub": "На вашем балансе {{balance}}",
+      "topUpLabel": "Пополнить",
+      "topUpSub": "Только недостающую часть",
+      "payButton": "Оплатить другу {{price}}",
+      "topUpAndPayButton": "Пополнить {{price}} и оплатить другу",
+      "payHint": "Спишем с вашего баланса сразу. Возвращаться сюда не нужно.",
+      "successTitle": "Подписка друга продлена",
+      "successDesc": "{{recipient}} получил(а) {{days}} дн. подписки. Списано {{amount}} с вашего баланса.",
+      "payAnotherButton": "Оплатить другому человеку"
+    },
     "history": {
       "title": "История",
       "since": "С вами с",

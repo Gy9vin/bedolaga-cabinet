@@ -5342,6 +5342,34 @@
       "sponsoredRowSub": "از موجودی شما — برای دوست",
       "summaryBaseDevicesHint_other": "{{basePrice}} طرح + {{devicesPrice}} برای {{count}} دستگاه"
     },
+    "sponsored": {
+      "title": "پرداخت اشتراک برای دوست",
+      "subtitle": "دوستتان را پیدا کنید و تمدید او را پرداخت کنید — از موجودی شما کسر می‌شود.",
+      "recipientLabel": "گیرنده",
+      "recipientPlaceholder": "@نام کاربری، شناسه تلگرام یا ایمیل",
+      "searchButton": "جستجو",
+      "errors": {
+        "recipientNotFound": "نام کاربری یا شناسه را بررسی کنید",
+        "recipientIsSelf": "این حساب خودتان است، از تمدید معمولی استفاده کنید",
+        "rateLimited": "تلاش‌های زیاد، لطفاً یک دقیقه صبر کنید",
+        "periodUnavailable": "این دوره دیگر در دسترس نیست، دوباره گیرنده را جستجو کنید"
+      },
+      "payingForLabel": "شما در حال پرداخت اشتراک این فرد هستید",
+      "period": "تمدید برای",
+      "periodDays_other": "{{count}} روز",
+      "noOptions": "گزینه پرداختی برای این فرد موجود نیست",
+      "costLabel": "اشتراک «{{name}}»",
+      "fromBalanceLabel": "از موجودی شما کسر می‌شود",
+      "fromBalanceSub": "موجودی شما: {{balance}}",
+      "topUpLabel": "شارژ حساب",
+      "topUpSub": "فقط مبلغ کسری",
+      "payButton": "پرداخت برای دوست {{price}}",
+      "topUpAndPayButton": "شارژ {{price}} و پرداخت برای دوست",
+      "payHint": "بلافاصله از موجودی شما کسر می‌شود. نیازی به بازگشت به این صفحه نیست.",
+      "successTitle": "اشتراک دوست شما تمدید شد",
+      "successDesc": "{{recipient}} {{days}} روز اشتراک دریافت کرد. {{amount}} از موجودی شما کسر شد.",
+      "payAnotherButton": "پرداخت برای فرد دیگر"
+    },
     "history": {
       "title": "تاریخچه",
       "since": "مشتری از",
