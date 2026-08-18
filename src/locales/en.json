@@ -40,6 +40,14 @@
       "days": "days",
       "mo": "mo"
     },
+    "period": {
+      "days_one": "{{count}} day",
+      "days_other": "{{count}} days",
+      "months_one": "{{count}} month",
+      "months_other": "{{count}} months",
+      "years_one": "{{count}} year",
+      "years_other": "{{count}} years"
+    },
     "retry": "Retry",
     "saving": "Saving...",
     "understand": "Got it",
@@ -6010,7 +6018,7 @@
       "requestOn": "last seen {{date}}",
       "renameButton": "Name",
       "renameDone": "Done",
-      "hint": "Until a name is set, we show the device model from the panel. Tap \"Name\" to rename it — the name is visible only to you and is kept across all your subscriptions.",
+      "hint": "Until a name is set, we show the device model from the panel. Tap \"Name\" to rename it — the name is visible only to you and is kept across all your subscriptions. The last subscription request date shows which device hasn't been used in a while.",
       "disconnectAll": "Disconnect all devices",
       "disconnectSelected": "Disconnect {{count}}",
       "disconnectSelectedHint": "Access on them will end immediately. You can reconnect anytime.",
@@ -6028,7 +6036,7 @@
       "slotsValue": "{{count}} slots",
       "freeingSlots": "You are freeing up",
       "refundPerSlot": "Refund per slot",
-      "refundPerSlotSub": "For the remaining {{days}} days",
+      "refundPerSlotSub": "{{basePrice}} per 30 days, {{days}} left",
       "refundSlotsCount": "Slots freed",
       "refundTotal": "We'll refund to your balance",
       "selectDevicesTitle": "Which devices to disconnect — {{selected}} of {{needed}} selected",
@@ -6047,7 +6055,6 @@
       "balanceAfter": "Balance after top-up",
       "amountLabel": "Amount",
       "presetsLabel": "Or a ready amount",
-      "presetDays": "{{count}} days",
       "presetsHint": "These amounts match your plan prices — top up and buy right away, with nothing left on the balance.",
       "methodLabel": "Payment method",
       "methodMin": "from {{amount}}",
@@ -6061,6 +6068,7 @@
       "whatNextLabel": "What happens next",
       "stepTopUp": "Top up the balance",
       "stepCharge": "Charge for the subscription",
+      "stepChargeSub": "The amount from your purchase",
       "stepActivate": "Activate the subscription",
       "stepActivateSub": "Automatically, no action needed",
       "hint": "You can close this screen. We'll activate the subscription ourselves and send you a notification in Telegram."

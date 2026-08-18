@@ -70,3 +70,21 @@ export function formatShortDate(date: string | null): string {
     year: 'numeric',
   });
 }
+
+type PeriodT = (key: string, opts?: Record<string, unknown>) => string;
+
+/**
+ * Человеческая подпись периода в днях (находка 9): готовые суммы пополнения
+ * показывали «90 дней» вместо «3 месяца». 360/365 проверяем раньше кратности
+ * 30 — иначе год посчитался бы как 12 месяцев. Не кратное 30 и не годовое —
+ * оставляем как есть, в днях (не выдумываем неточные «месяцы»).
+ */
+export function formatPeriodDays(days: number, t: PeriodT): string {
+  if (days === 360 || days === 365) {
+    return t('common.period.years', { count: 1 });
+  }
+  if (days > 0 && days % 30 === 0) {
+    return t('common.period.months', { count: days / 30 });
+  }
+  return t('common.period.days', { count: days });
+}

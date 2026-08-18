@@ -63,6 +63,13 @@ export default function SimplePaymentSuccess({
 
   const topUpSubtitle =
     [methodName, formatTimeOfDay(paidAt)].filter(Boolean).join(' · ') || undefined;
+  // Сумму списания за подписку показать нечем (см. комментарий класса выше) —
+  // но время самой оплаты известно (paidAt), поэтому в подпись «Автоматически»
+  // добавляем хотя бы его, как в мокапе («Автоматически · 20:14»).
+  const chargeSubtitle =
+    [t('simple.paymentSuccess.rowChargeSub'), formatTimeOfDay(paidAt)]
+      .filter(Boolean)
+      .join(' · ') || undefined;
 
   return (
     <div className="flex min-h-dvh items-center justify-center bg-dark-950 px-4">
@@ -78,6 +85,12 @@ export default function SimplePaymentSuccess({
               <h1 className="text-xl font-bold text-dark-50">
                 {t('simple.paymentSuccess.statusTitle')}
               </h1>
+              {/* Мокап добавляет сюда купленный период («3 месяца»), но у
+               * Subscription нет поля с длительностью именно этой покупки —
+               * только start_date/end_date всей подписки, а их разница
+               * включает и более ранние продления. Читающего корзину
+               * эндпоинта тоже нет (см. комментарий класса выше), поэтому
+               * период не выдумываем и оставляем тариф/устройства/дату. */}
               <p className="mt-1 text-sm text-dark-400">
                 {t('simple.subscription.tariffLabel', { name: subscription.tariff_name || '—' })}
                 {' · '}
@@ -122,10 +135,7 @@ export default function SimplePaymentSuccess({
               />
             )}
             {hasSubscription && (
-              <SimpleRow
-                title={t('simple.paymentSuccess.rowCharge')}
-                subtitle={t('simple.paymentSuccess.rowChargeSub')}
-              />
+              <SimpleRow title={t('simple.paymentSuccess.rowCharge')} subtitle={chargeSubtitle} />
             )}
             <SimpleRow
               title={t('simple.paymentSuccess.rowBalanceLeft')}

@@ -51,7 +51,15 @@ export default function SimplePaymentPending({ amountKopeks }: SimplePaymentPend
                 ) : undefined
               }
             />
-            <SimpleRow title={t('simple.paymentPending.stepCharge')} />
+            {/* Состав и сумму покупки здесь показать нечем: кабинет не хранит
+             * прочитываемую корзину (previewPurchase/saveTariffCart только
+             * пишут флаг намерения на бэкенде, назад состав не отдают), а
+             * TopUpResult знает только сумму самого пополнения. Вместо
+             * пустой строки — честная подпись без выдуманных чисел. */}
+            <SimpleRow
+              title={t('simple.paymentPending.stepCharge')}
+              subtitle={t('simple.paymentPending.stepChargeSub')}
+            />
             <SimpleRow
               title={t('simple.paymentPending.stepActivate')}
               subtitle={t('simple.paymentPending.stepActivateSub')}

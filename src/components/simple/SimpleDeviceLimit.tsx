@@ -202,7 +202,14 @@ export default function SimpleDeviceLimit() {
         <BentoCard className="border-success-500/30 bg-success-500/10">
           <SumRow
             title={t('simple.deviceLimit.refundPerSlot')}
-            sub={t('simple.deviceLimit.refundPerSlotSub', { days: subscription?.days_left ?? 0 })}
+            sub={t('simple.deviceLimit.refundPerSlotSub', {
+              // Базовая цена места за 30 дней — та же devicePriceForMax, что
+              // уже используется на этом экране для maxLimit (см. бриф
+              // задачи 1): без неё было видно только «за сколько дней»,
+              // а откуда взялась сумма возврата — нет.
+              basePrice: formatPrice(devicePriceForMax?.base_device_price_kopeks ?? 0),
+              days: subscription?.days_left ?? 0,
+            })}
             value={formatPrice(refundPerSlot)}
           />
           <SumRow title={t('simple.deviceLimit.refundSlotsCount')} value={`× ${freedSlots}`} />

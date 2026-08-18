@@ -34,6 +34,11 @@
       "days": "天",
       "mo": "月"
     },
+    "period": {
+      "days_other": "{{count}} 天",
+      "months_other": "{{count}} 个月",
+      "years_other": "{{count}} 年"
+    },
     "balance": "余额",
     "copied": "已复制",
     "no_results": "无结果",
@@ -5394,7 +5399,7 @@
       "requestOn": "{{date}} 请求",
       "renameButton": "命名",
       "renameDone": "完成",
-      "hint": "未设置名称前，显示面板中的设备型号。点击\"命名\"可自定义名称——名称仅您可见，并会保留在您的所有订阅中。",
+      "hint": "未设置名称前，显示面板中的设备型号。点击\"命名\"可自定义名称——名称仅您可见，并会保留在您的所有订阅中。根据订阅的最后请求日期，可以看出哪台设备已经很久没用过了。",
       "disconnectAll": "断开所有设备",
       "disconnectSelected": "断开 {{count}} 个",
       "disconnectSelectedHint": "这些设备的访问权限将立即失效，随时可以重新连接。",
@@ -5412,7 +5417,7 @@
       "slotsValue": "{{count}} 个位置",
       "freeingSlots": "将释放",
       "refundPerSlot": "每个位置的退款",
-      "refundPerSlotSub": "按剩余 {{days}} 天计算",
+      "refundPerSlotSub": "{{basePrice}}／30 天，剩 {{days}} 天",
       "refundSlotsCount": "释放的位置数",
       "refundTotal": "将退回余额",
       "selectDevicesTitle": "选择要断开的设备 — 已选 {{selected}} / {{needed}}",
@@ -5431,7 +5436,6 @@
       "balanceAfter": "充值后余额",
       "amountLabel": "金额",
       "presetsLabel": "或选择预设金额",
-      "presetDays": "{{count}} 天",
       "presetsHint": "这些金额与您的套餐价格一致——充值后立即购买，余额不留零头。",
       "methodLabel": "支付方式",
       "methodMin": "起充 {{amount}}",
@@ -5445,6 +5449,7 @@
       "whatNextLabel": "接下来会发生什么",
       "stepTopUp": "充值余额",
       "stepCharge": "扣除订阅费用",
+      "stepChargeSub": "金额与您的订单一致",
       "stepActivate": "开通订阅",
       "stepActivateSub": "自动完成，无需操作",
       "hint": "您可以关闭此页面。我们会自动为您开通订阅，并通过 Telegram 发送通知。"
