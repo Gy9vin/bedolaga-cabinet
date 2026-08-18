@@ -593,6 +593,46 @@ export const subscriptionApi = {
     return response.data;
   },
 
+  /**
+   * Сохраняет «корзину» покупки тарифа — вызывает POST /purchase-tariff и
+   * трактует HTTP 402 insufficient_funds как успех (корзина сохранена на
+   * бэкенде, автопокупка после пополнения включится сама). Тот же приём,
+   * что и saveTrialCart: вызывающий обязан звать это ТОЛЬКО когда баланса
+   * уже не хватает — иначе вызов реально купит тариф вместо сохранения
+   * намерения.
+   */
+  saveTariffCart: async (
+    tariffId: number,
+    periodDays: number,
+    subscriptionId?: number,
+  ): Promise<void> => {
+    try {
+      await apiClient.post('/cabinet/subscription/purchase-tariff', {
+        tariff_id: tariffId,
+        period_days: periodDays,
+        subscription_id: subscriptionId,
+        yandex_cid: getYandexCid() || undefined,
+      });
+    } catch (err: unknown) {
+      // 402 insufficient_funds означает «баланса не хватает, но корзина сохранена»
+      if (
+        err &&
+        typeof err === 'object' &&
+        'response' in err &&
+        (err as { response?: { status?: number; data?: { detail?: { code?: string } } } }).response
+          ?.status === 402
+      ) {
+        const detail = (err as { response?: { data?: { detail?: { code?: string } } } }).response
+          ?.data?.detail;
+        if (detail?.code === 'insufficient_funds') {
+          // Корзина сохранена — считаем успехом, не пробрасываем
+          return;
+        }
+      }
+      throw err;
+    }
+  },
+
   // ── Countries / Servers ─────────────────────────────────────────────
 
   getCountries: async (

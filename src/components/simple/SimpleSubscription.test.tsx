@@ -9,7 +9,7 @@
  */
 import type React from 'react';
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
-import { render, screen, cleanup, waitFor } from '@testing-library/react';
+import { render, screen, cleanup, waitFor, fireEvent } from '@testing-library/react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { MemoryRouter } from 'react-router';
 import { I18nextProvider } from 'react-i18next';
@@ -33,6 +33,7 @@ vi.mock('../../api/subscription', () => ({
     submitPurchase: vi.fn(),
     updateAutopay: vi.fn(),
     purchaseTariff: vi.fn(),
+    saveTariffCart: vi.fn(),
   },
 }));
 
@@ -277,6 +278,31 @@ describe('SimpleSubscription', () => {
     // помесячной ценой.
     expect(screen.getByText('1 009 ₽')).toBeTruthy();
   });
+
+  it('разрыв 2: клик по кнопке пополнения (классический режим) заново сохраняет корзину (previewPurchase) ПЕРЕД навигацией', async () => {
+    previewPurchaseMock.mockResolvedValue(
+      makePreview({ balance_kopeks: 34000, missing_amount_kopeks: 66900, can_purchase: false }),
+    );
+
+    render(<SimpleSubscription />, { wrapper: makeWrapper() });
+
+    const btn = await screen.findByRole('button', { name: /Пополнить/i });
+    // Автоматический вызов previewPurchase из react-query (на монтировании
+    // экрана) уже мог сохранить корзину, но к моменту клика этот флаг может
+    // успеть протухнуть — проверяем, что клик порождает СВОЙ, новый вызов,
+    // а не просто полагается на старый.
+    const callsBeforeClick = previewPurchaseMock.mock.calls.length;
+
+    fireEvent.click(btn);
+
+    await waitFor(() => {
+      expect(mockNavigate).toHaveBeenCalled();
+    });
+    // Без свежего сохранения корзины прямо перед переходом авто-покупка
+    // после пополнения не сработает — деньги спишутся, а подписка не
+    // включится (баг, уже случавшийся у владельца).
+    expect(previewPurchaseMock.mock.calls.length).toBeGreaterThan(callsBeforeClick);
+  });
 });
 
 describe('SimpleSubscription — тарифный режим (sales_mode=tariffs)', () => {
@@ -316,5 +342,36 @@ describe('SimpleSubscription — тарифный режим (sales_mode=tariffs
     const btn = await screen.findByRole('button', { name: /Пополнить/i });
     expect(btn.textContent).toMatch(/300/);
     expect(btn.textContent).not.toMatch(/500/);
+  });
+
+  it('разрыв 2: клик по кнопке пополнения (тарифный режим) вызывает saveTariffCart ПЕРЕД навигацией', async () => {
+    getPurchaseOptionsMock.mockResolvedValue({
+      ...TARIFFS_OPTIONS,
+      balance_kopeks: 20000, // не хватает 300 ₽
+      balance_label: '200 ₽',
+    });
+
+    const saveTariffCartMock = subscriptionApi.saveTariffCart as ReturnType<typeof vi.fn>;
+    const callOrder: string[] = [];
+    saveTariffCartMock.mockImplementation(async () => {
+      callOrder.push('saveTariffCart');
+    });
+    mockNavigate.mockImplementation(() => {
+      callOrder.push('navigate');
+    });
+
+    render(<SimpleSubscription />, { wrapper: makeWrapper() });
+
+    const btn = await screen.findByRole('button', { name: /Пополнить/i });
+    fireEvent.click(btn);
+
+    await waitFor(() => {
+      expect(callOrder).toContain('navigate');
+    });
+    // Тарифный режим не проходит через previewPurchase — без явного
+    // saveTariffCart корзина вообще никогда не сохраняется (это и есть
+    // разрыв 2: кнопка обещает «включится сразу», а на деле бот ждёт флаг
+    // намерения, которого нет).
+    expect(callOrder).toEqual(['saveTariffCart', 'navigate']);
   });
 });

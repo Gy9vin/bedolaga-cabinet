@@ -206,12 +206,33 @@ export default function SimpleSubscription() {
       }
       return;
     }
+    // Без сохранённой корзины авто-покупка после пополнения не сработает —
+    // бэкенд включает подписку сама только при свежем флаге намерения
+    // (тот же приём, что и saveTrialCart на главной). Деньги иначе спишутся,
+    // а подписка не активируется — уже случавшийся у владельца баг.
+    // Классический режим: previewPurchase сам сохраняет корзину, когда
+    // can_purchase=false — просто зовём его ещё раз прямо перед переходом,
+    // чтобы флаг был свежим именно в момент клика.
+    // Тарифный режим: purchase-preview не используется, поэтому корзину
+    // сохраняет saveTariffCart — обёртка над purchase-tariff, трактующая
+    // 402 insufficient_funds как «корзина сохранена» (см. saveTrialCart).
+    const saveCart = isClassic
+      ? subscriptionApi.previewPurchase(currentSelection as PurchaseSelection)
+      : subscriptionApi.saveTariffCart(
+          (selectedTariff as Tariff).id,
+          effectiveTariffPeriodDays as number,
+          subscription?.id,
+        );
     const rubles = Math.ceil(effectiveMissingKopeks / 100);
-    navigate(
-      `/balance/top-up?amount=${rubles}&returnTo=${encodeURIComponent(location.pathname)}${
-        effectiveMethodId ? `&method=${encodeURIComponent(effectiveMethodId)}` : ''
-      }`,
-    );
+    saveCart
+      .catch(() => undefined)
+      .finally(() => {
+        navigate(
+          `/balance/top-up?amount=${rubles}&returnTo=${encodeURIComponent(location.pathname)}${
+            effectiveMethodId ? `&method=${encodeURIComponent(effectiveMethodId)}` : ''
+          }`,
+        );
+      });
   };
 
   if (subLoading || optionsLoading) {
