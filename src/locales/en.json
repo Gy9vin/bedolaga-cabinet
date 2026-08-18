@@ -5938,6 +5938,14 @@
       "changeTrafficLink": "Change traffic and countries",
       "tariffsModeFallback": "This screen doesn't support plan selection yet. Open the full cabinet.",
       "openFull": "Open full cabinet"
+    },
+    "history": {
+      "title": "History",
+      "since": "Customer since",
+      "totalPaid": "Total paid",
+      "daysWithSubscription": "Days with a subscription",
+      "allEvents": "All events",
+      "hint": "\"Carried over\" is days that weren't lost on early renewal. \"Gap\" is time when the subscription wasn't active."
     }
   }
 }

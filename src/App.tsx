@@ -53,6 +53,7 @@ import Dashboard from './pages/Dashboard';
 const Subscriptions = lazyWithRetry(() => import('./pages/Subscriptions'));
 const Subscription = lazyWithRetry(() => import('./pages/Subscription'));
 const SubscriptionPurchase = lazyWithRetry(() => import('./pages/SubscriptionPurchase'));
+const SubscriptionHistory = lazyWithRetry(() => import('./pages/SubscriptionHistory'));
 const Balance = lazyWithRetry(() => import('./pages/Balance'));
 const SavedCards = lazyWithRetry(() => import('./pages/SavedCards'));
 const Referral = lazyWithRetry(() => import('./pages/Referral'));
@@ -390,6 +391,16 @@ function App() {
             <ProtectedRoute>
               <LazyPage>
                 <SubscriptionPurchase />
+              </LazyPage>
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/subscription/history"
+          element={
+            <ProtectedRoute>
+              <LazyPage>
+                <SubscriptionHistory />
               </LazyPage>
             </ProtectedRoute>
           }

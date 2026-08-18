@@ -5325,6 +5325,14 @@
       "changeTrafficLink": "修改流量和国家",
       "tariffsModeFallback": "此页面暂不支持选择套餐，请打开完整版面板。",
       "openFull": "打开完整版面板"
+    },
+    "history": {
+      "title": "历史记录",
+      "since": "成为用户起始于",
+      "totalPaid": "累计支付",
+      "daysWithSubscription": "订阅天数",
+      "allEvents": "全部事件",
+      "hint": "「结转余量」指提前续费时未作废的剩余天数。「中断」指订阅未生效的时间段。"
     }
   }
 }
