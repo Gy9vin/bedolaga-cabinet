@@ -39,9 +39,11 @@ export function MobileBottomNav({
   //
   // In the simple mode the tabbar is cut down to four sections and Support
   // is one of the items that leaves it — this is intentional, not a
-  // regression of the rule above. Support stays reachable from Profile
-  // instead, since the simple mode's promise is fewer top-level surfaces,
-  // not fewer capabilities.
+  // regression of the rule above. Support stays reachable via the header
+  // in both modes (ticket notification bell in AppHeader, plus the command
+  // palette) — neither is filtered by simple mode. There is no Support entry
+  // in Profile; adding one is out of scope here and belongs to the profile
+  // screen rework planned for a later wave.
   //
   // Wheel and Referral are shown INDEPENDENTLY: when both feature flags are
   // on, BOTH appear in the bar (operator wants referral reachable in the

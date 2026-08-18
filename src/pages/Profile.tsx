@@ -756,25 +756,32 @@ export default function Profile() {
                   }
                 />
               </div>
-
-              {/* UI Mode */}
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="font-medium text-dark-100">{t('profile.uiMode.title')}</p>
-                  <p className="text-sm text-dark-400">
-                    {isSaving ? t('profile.uiMode.saving') : t('profile.uiMode.description')}
-                  </p>
-                </div>
-                <Switch
-                  checked={isSimple}
-                  disabled={isSaving}
-                  onCheckedChange={(checked) => setMode(checked ? 'simple' : 'advanced')}
-                />
-              </div>
             </div>
           ) : (
             <p className="text-dark-400">{t('profile.notifications.unavailable')}</p>
           )}
+        </Card>
+      </motion.div>
+
+      {/* UI Mode — отдельная карточка, не зависит от notificationSettings.
+          Переключатель обязан рендериться всегда: даже если запрос настроек
+          уведомлений ещё грузится или упал с ошибкой, у человека должен
+          остаться способ вернуться из простого режима в полный. */}
+      <motion.div variants={staggerItem}>
+        <Card>
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="font-medium text-dark-100">{t('profile.uiMode.title')}</p>
+              <p className="text-sm text-dark-400">
+                {isSaving ? t('profile.uiMode.saving') : t('profile.uiMode.description')}
+              </p>
+            </div>
+            <Switch
+              checked={isSimple}
+              disabled={isSaving}
+              onCheckedChange={(checked) => setMode(checked ? 'simple' : 'advanced')}
+            />
+          </div>
         </Card>
       </motion.div>
     </motion.div>
