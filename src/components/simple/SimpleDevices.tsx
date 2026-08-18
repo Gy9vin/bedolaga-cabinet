@@ -65,6 +65,15 @@ export default function SimpleDevices() {
   const deviceLimit = devicesData?.device_limit ?? subscription?.device_limit ?? 0;
   const isUnlimited = deviceLimit === 0;
 
+  // Цена докупки одного места и дата, до которой она действует (находка 6):
+  // цена пропорциональна остатку подписки, поэтому без даты подпись врёт.
+  // При безлимите докупать нечего — запрос не шлём вовсе.
+  const { data: devicePriceInfo } = useQuery({
+    queryKey: ['device-price', 1],
+    queryFn: () => subscriptionApi.getDevicePrice(1),
+    enabled: !isUnlimited,
+  });
+
   const renameMutation = useMutation({
     mutationFn: ({ hwid, name }: { hwid: string; name: string | null }) =>
       subscriptionApi.renameDevice(hwid, name),
@@ -135,6 +144,17 @@ export default function SimpleDevices() {
     : Math.min(100, (total / Math.max(deviceLimit, 1)) * 100);
   const isFull = !isUnlimited && total >= deviceLimit;
 
+  const addSlotPriceLabel = devicePriceInfo?.available
+    ? devicePriceInfo.price_per_device_label
+    : null;
+  const limitRowSub =
+    !isUnlimited && addSlotPriceLabel && subscription?.end_date
+      ? t('simple.devices.limitRowSub', {
+          price: addSlotPriceLabel,
+          date: formatShortDate(subscription.end_date),
+        })
+      : null;
+
   return (
     <SimpleScreen>
       <div className="flex items-center justify-between gap-3">
@@ -202,6 +222,7 @@ export default function SimpleDevices() {
           >
             <div className="min-w-0 flex-1">
               <p className="font-medium text-dark-100">{t('simple.devices.limitRowTitle')}</p>
+              {limitRowSub && <p className="mt-0.5 text-sm text-dark-400">{limitRowSub}</p>}
             </div>
             <span className="shrink-0 font-semibold tabular-nums text-dark-50">
               {isUnlimited ? '∞' : deviceLimit}
@@ -211,14 +232,8 @@ export default function SimpleDevices() {
         </SimpleGroup>
       )}
 
-      {selectionMode && devices.length > 0 && (
-        <button
-          type="button"
-          onClick={selectAll}
-          className="text-center text-sm font-medium text-accent-400"
-        >
-          {t('simple.devices.selectAll')}
-        </button>
+      {!selectionMode && !isUnlimited && (
+        <p className="-mt-2 text-xs text-dark-500">{t('simple.devices.freeUpHint')}</p>
       )}
 
       {batchError && <p className="text-sm text-error-400">{batchError}</p>}
@@ -296,6 +311,16 @@ export default function SimpleDevices() {
         </SimpleGroup>
       )}
 
+      {selectionMode && devices.length > 0 && (
+        <button
+          type="button"
+          onClick={selectAll}
+          className="text-center text-sm font-medium text-accent-400"
+        >
+          {t('simple.devices.selectAll')}
+        </button>
+      )}
+
       {!selectionMode && <p className="text-xs text-dark-500">{t('simple.devices.hint')}</p>}
 
       {!selectionMode && devices.length > 0 && (
@@ -312,7 +337,7 @@ export default function SimpleDevices() {
       {selectionMode && (
         <>
           <Button
-            variant="primary"
+            variant="destructive"
             size="lg"
             fullWidth
             disabled={selectedHwids.size === 0}
