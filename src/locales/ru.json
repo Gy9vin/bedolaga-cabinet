@@ -6517,10 +6517,7 @@
       "historyRowSub": "Покупки, продления и перерывы",
       "changeTrafficLink": "Изменить трафик и страны",
       "sponsoredRowTitle": "Оплатить подписку другу",
-      "sponsoredRowSub": "С вашего баланса — для друга",
-      "summaryBaseDevicesHint_one": "{{basePrice}} тариф + {{devicesPrice}} за {{count}} устройство",
-      "summaryBaseDevicesHint_few": "{{basePrice}} тариф + {{devicesPrice}} за {{count}} устройства",
-      "summaryBaseDevicesHint_many": "{{basePrice}} тариф + {{devicesPrice}} за {{count}} устройств"
+      "sponsoredRowSub": "С вашего баланса — для друга"
     },
     "sponsored": {
       "title": "Оплатить подписку другу",

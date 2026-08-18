@@ -190,19 +190,18 @@ export default function SimpleSubscription() {
   const fromBalanceKopeks = Math.max(totalKopeks - missingKopeks, 0);
   const hasEnoughBalance = missingKopeks <= 0;
 
-  // Расшифровка первой строки сводки — «649 ₽ тариф + 360 ₽ за 2 устройства»
-  // (находка «в первой строке сводки нет подписи, из чего сложилась сумма»).
-  // Строим подпись из готовых строк preview.breakdown, а не пересчитываем
-  // сами: неверная расшифровка хуже её отсутствия. breakdown[0] — тариф/
-  // период, он приходит от бэкенда всегда первым и безусловно; строку про
-  // устройства ищем по label — бэкенд отдаёт её только при реальной
-  // доплате сверх включённых в тариф (см. build_preview_payload). Нет
-  // доплаты за устройства или breakdown пуст — подписи не будет вовсе.
-  const breakdownBaseItem = isClassic ? preview?.breakdown?.[0] : undefined;
-  const breakdownDevicesItem = isClassic
-    ? preview?.breakdown?.find((item) => item.label === 'Devices')
-    : undefined;
-  const extraDevicesCount = Math.max(effectiveDevices - (selectedPeriod?.devices.min ?? 0), 0);
+  // Расшифровка первой строки сводки — «из чего сложилась сумма» (находка
+  // «в первой строке сводки нет подписи, из чего сложилась цена»).
+  // Раньше строку про устройства искали по label === 'Devices' — подпись
+  // локализована (бэкенд шлёт её по-русски, а не по-английски) и зависит
+  // от режима продаж, так что поиск по конкретному тексту никогда не
+  // находил совпадение и подпись не показывалась вовсе. Сопоставлять
+  // строки по смыслу — заведомо хрупко: рендерим весь breakdown как
+  // пришёл, ничего не считаем и не угадываем на фронте. Доступно только в
+  // classic-режиме — эндпоинт покупки тарифа (/purchase-tariff) не даёт
+  // preview без побочных эффектов (либо покупает, либо сохраняет корзину),
+  // поэтому в tariffs-режиме расшифровки пока нет.
+  const breakdownLines = isClassic ? (preview?.breakdown ?? []) : [];
 
   const totalTariffKopeks = selectedTariffPeriod?.price_kopeks ?? 0;
   const tariffBalanceKopeks = tariffsOptions?.balance_kopeks ?? 0;
@@ -573,14 +572,14 @@ export default function SimpleSubscription() {
                   ? `${selectedPeriod?.label} · ${t('simple.subscription.devicesCount', { count: effectiveDevices })}`
                   : `${selectedTariff?.name} · ${selectedTariffPeriod?.label}`}
               </p>
-              {breakdownBaseItem && breakdownDevicesItem && (
-                <p className="mt-0.5 text-xs text-dark-400">
-                  {t('simple.subscription.summaryBaseDevicesHint', {
-                    basePrice: breakdownBaseItem.value,
-                    devicesPrice: breakdownDevicesItem.value,
-                    count: extraDevicesCount,
-                  })}
-                </p>
+              {breakdownLines.length > 1 && (
+                <div className="mt-0.5 space-y-0.5">
+                  {breakdownLines.map((line, idx) => (
+                    <p key={idx} className="text-xs text-dark-400">
+                      {line.label} — {line.value}
+                    </p>
+                  ))}
+                </div>
               )}
             </div>
             <span className="shrink-0 font-semibold tabular-nums text-dark-50">

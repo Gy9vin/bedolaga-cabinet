@@ -5343,8 +5343,7 @@
       "historyRowSub": "购买、续费和中断记录",
       "changeTrafficLink": "修改流量和国家",
       "sponsoredRowTitle": "为好友付费",
-      "sponsoredRowSub": "从您的余额扣款 — 为好友",
-      "summaryBaseDevicesHint_other": "{{basePrice}} 套餐 + {{devicesPrice}}（{{count}} 台设备）"
+      "sponsoredRowSub": "从您的余额扣款 — 为好友"
     },
     "sponsored": {
       "title": "为好友付费",

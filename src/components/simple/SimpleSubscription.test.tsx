@@ -266,12 +266,15 @@ describe('SimpleSubscription', () => {
     expect(screen.getByText(/баланса кабинета/i)).toBeTruthy();
   });
 
-  it('первая строка сводки — с подписью из чего сложилась цена (тариф + устройства)', async () => {
+  it('первая строка сводки — со всеми строками расшифровки цены, как их прислал бэкенд', async () => {
+    // Бэкенд реально шлёт подписи по-русски (см. price_breakdown.py) — тест
+    // на английском 'Devices' пропустил бы баг, из-за которого расшифровка
+    // не рендерилась вовсе (поиск шёл по несуществующему label === 'Devices').
     previewPurchaseMock.mockResolvedValue(
       makePreview({
         breakdown: [
-          { label: 'Base plan', value: '649 ₽' },
-          { label: 'Devices', value: '360 ₽' },
+          { label: 'Тариф', value: '649 ₽' },
+          { label: 'Устройства', value: '360 ₽' },
         ],
       }),
     );
@@ -279,14 +282,14 @@ describe('SimpleSubscription', () => {
     render(<SimpleSubscription />, { wrapper: makeWrapper() });
 
     await waitFor(() => {
-      expect(screen.getByText(/649 ₽/)).toBeTruthy();
+      expect(screen.getByText(/Тариф.*649 ₽/)).toBeTruthy();
     });
-    expect(screen.getByText(/649 ₽.*\+.*360 ₽/)).toBeTruthy();
+    expect(screen.getByText(/Устройства.*360 ₽/)).toBeTruthy();
   });
 
-  it('без доплаты за устройства в breakdown подписи под первой строкой сводки нет', async () => {
+  it('одна строка расшифровки (или её отсутствие) — блок с расшифровкой не показываем', async () => {
     previewPurchaseMock.mockResolvedValue(
-      makePreview({ breakdown: [{ label: 'Base plan', value: '1 009 ₽' }] }),
+      makePreview({ breakdown: [{ label: 'Тариф', value: '1 009 ₽' }] }),
     );
 
     render(<SimpleSubscription />, { wrapper: makeWrapper() });
@@ -294,9 +297,9 @@ describe('SimpleSubscription', () => {
     await waitFor(() => {
       expect(screen.getByText('1 009 ₽')).toBeTruthy();
     });
-    // Неверная расшифровка хуже её отсутствия — без строки «Devices» в
-    // breakdown подпись про доплату придумывать не должны.
-    expect(screen.queryByText(/Base plan/)).toBeNull();
+    // Единственная строка расшифровки повторяла бы итог — не показываем её
+    // отдельным блоком (в такой связке label и value встречаются только там).
+    expect(screen.queryByText(/Тариф.*—.*1 009 ₽/)).toBeNull();
   });
 
   it('находка 7: у периода на 3 месяца подпись про месяц словами, а итог отличается от неё', async () => {

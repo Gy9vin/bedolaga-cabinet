@@ -5344,8 +5344,7 @@
       "historyRowSub": "خریدها، تمدیدها و وقفه‌ها",
       "changeTrafficLink": "تغییر ترافیک و کشورها",
       "sponsoredRowTitle": "پرداخت اشتراک برای دوست",
-      "sponsoredRowSub": "از موجودی شما — برای دوست",
-      "summaryBaseDevicesHint_other": "{{basePrice}} طرح + {{devicesPrice}} برای {{count}} دستگاه"
+      "sponsoredRowSub": "از موجودی شما — برای دوست"
     },
     "sponsored": {
       "title": "پرداخت اشتراک برای دوست",
