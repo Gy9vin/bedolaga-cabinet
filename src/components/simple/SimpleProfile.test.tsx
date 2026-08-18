@@ -63,6 +63,15 @@ vi.mock('@/platform', () => ({
   }),
 }));
 
+vi.mock('@/platform/hooks/usePlatform', () => ({
+  usePlatform: () => ({ openLink: vi.fn() }),
+  useIsTelegram: () => false,
+}));
+
+vi.mock('../Toast', () => ({
+  useToast: () => ({ showToast: vi.fn() }),
+}));
+
 const mockNavigate = vi.fn();
 vi.mock('react-router', async (importOriginal) => {
   const actual = await importOriginal<typeof import('react-router')>();

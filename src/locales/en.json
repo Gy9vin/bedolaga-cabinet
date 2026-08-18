@@ -5879,6 +5879,7 @@
   },
   "simple": {
     "dashboard": {
+      "modeChip": "Simple mode",
       "statusConnected": "Connected",
       "statusNoSub": "No subscription",
       "daysLeft": "{{count}} days left",
@@ -5904,8 +5905,12 @@
       "trialDaysRow": "{{count}} days of access",
       "trialTrafficRow": "{{count}} GB of traffic",
       "trialDevicesRow": "{{count}} devices",
+      "trialCostRow": "Cost",
       "balance": "Balance",
-      "balanceHint": "Tap to top up"
+      "balanceHint": "Tap to top up",
+      "trialBalanceEnough": "Enough — we'll charge it right away",
+      "trialBalanceMissing": "Short by {{amount}}",
+      "trialClosingHint": "Next comes the regular plan from {{price}} a month."
     },
     "subscription": {
       "title": "Subscription",

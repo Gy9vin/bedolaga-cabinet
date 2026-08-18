@@ -5266,6 +5266,7 @@
   },
   "simple": {
     "dashboard": {
+      "modeChip": "简易模式",
       "statusConnected": "已连接",
       "statusNoSub": "暂无订阅",
       "daysLeft": "剩余 {{count}} 天",
@@ -5291,8 +5292,12 @@
       "trialDaysRow": "{{count}} 天使用权限",
       "trialTrafficRow": "{{count}} GB 流量",
       "trialDevicesRow": "{{count}} 台设备",
+      "trialCostRow": "费用",
       "balance": "余额",
-      "balanceHint": "点击充值"
+      "balanceHint": "点击充值",
+      "trialBalanceEnough": "余额充足 — 将立即扣款",
+      "trialBalanceMissing": "还差 {{amount}}",
+      "trialClosingHint": "之后是普通套餐，起价 {{price}}/月。"
     },
     "subscription": {
       "title": "订阅",

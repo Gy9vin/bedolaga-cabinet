@@ -5267,6 +5267,7 @@
   },
   "simple": {
     "dashboard": {
+      "modeChip": "حالت ساده",
       "statusConnected": "متصل",
       "statusNoSub": "بدون اشتراک",
       "daysLeft": "{{count}} روز باقی‌مانده",
@@ -5292,8 +5293,12 @@
       "trialDaysRow": "{{count}} روز دسترسی",
       "trialTrafficRow": "{{count}} گیگابایت ترافیک",
       "trialDevicesRow": "{{count}} دستگاه",
+      "trialCostRow": "هزینه",
       "balance": "موجودی",
-      "balanceHint": "برای شارژ ضربه بزنید"
+      "balanceHint": "برای شارژ ضربه بزنید",
+      "trialBalanceEnough": "کافی است — بلافاصله کسر می‌شود",
+      "trialBalanceMissing": "{{amount}} کم دارید",
+      "trialClosingHint": "در ادامه، تعرفهٔ معمولی از {{price}} در ماه."
     },
     "subscription": {
       "title": "اشتراک",

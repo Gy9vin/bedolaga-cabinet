@@ -6433,6 +6433,7 @@
   },
   "simple": {
     "dashboard": {
+      "modeChip": "Простой режим",
       "statusConnected": "Подключено",
       "statusNoSub": "Подписки нет",
       "daysLeft": "Осталось {{count}} дн.",
@@ -6458,8 +6459,12 @@
       "trialDaysRow": "{{count}} дн. доступа",
       "trialTrafficRow": "{{count}} ГБ трафика",
       "trialDevicesRow": "{{count}} устройства",
+      "trialCostRow": "Стоимость",
       "balance": "Баланс",
-      "balanceHint": "Нажмите, чтобы пополнить"
+      "balanceHint": "Нажмите, чтобы пополнить",
+      "trialBalanceEnough": "Хватает — спишем сразу",
+      "trialBalanceMissing": "Не хватает {{amount}}",
+      "trialClosingHint": "Дальше — обычный тариф от {{price}} в месяц."
     },
     "subscription": {
       "title": "Подписка",

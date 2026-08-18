@@ -7,6 +7,7 @@ import SimpleRow from './SimpleRow';
 import SimpleGroup from './SimpleGroup';
 import { Button } from '@/components/primitives/Button/Button';
 import { BentoCard } from '@/components/ui/BentoCard';
+import { ChevronRightIcon } from '@/components/icons';
 import { usePlatform } from '@/platform';
 import { useBranding } from '@/hooks/useBranding';
 import { useSubscriptionConnection } from '@/hooks/useSubscriptionConnection';
@@ -14,6 +15,7 @@ import { subscriptionApi } from '../../api/subscription';
 import { balanceApi } from '../../api/balance';
 import { API } from '../../config/constants';
 import { formatPrice, formatShortDate } from '../../utils/format';
+import type { ClassicPurchaseOptions, TariffsPurchaseOptions } from '../../types';
 
 /**
  * Главная простого режима: одна карточка «работает ли подписка» плюс одно
@@ -46,6 +48,31 @@ export default function SimpleDashboard() {
     queryFn: () => subscriptionApi.getTrialInfo(),
     enabled: !hasSubscription && !subLoading,
   });
+
+  // Только для замыкающей подсказки бесплатного триала («Дальше — обычный
+  // тариф от X ₽ в месяц») — тот же ключ кэша, что и у SimpleSubscription,
+  // так что при переходе туда повторного запроса не будет.
+  const isFreeTrialState =
+    !hasSubscription && !!trialInfo?.is_available && !trialInfo.requires_payment;
+  const { data: purchaseOptionsForHint } = useQuery({
+    queryKey: ['purchase-options', undefined],
+    queryFn: () => subscriptionApi.getPurchaseOptions(),
+    enabled: isFreeTrialState,
+  });
+
+  const minMonthlyPriceKopeks = useMemo(() => {
+    if (!purchaseOptionsForHint) return null;
+    const prices: number[] =
+      purchaseOptionsForHint.sales_mode === 'classic'
+        ? (purchaseOptionsForHint as ClassicPurchaseOptions).periods.map(
+            (period) => period.per_month_price_kopeks,
+          )
+        : (purchaseOptionsForHint as TariffsPurchaseOptions).tariffs.flatMap((tariff) =>
+            tariff.periods.map((period) => period.price_per_month_kopeks),
+          );
+    const positive = prices.filter((price) => price > 0);
+    return positive.length > 0 ? Math.min(...positive) : null;
+  }, [purchaseOptionsForHint]);
 
   const { data: devicesData } = useQuery({
     queryKey: ['devices'],
@@ -104,6 +131,16 @@ export default function SimpleDashboard() {
     activateTrialMutation.mutate();
   };
 
+  // Экран нарисован ради этой проверки (находка 5): у владельца был баг,
+  // где цена триала оказывалась ниже минимума платёжного метода — поэтому
+  // строка баланса должна прямо говорить, хватит ли денег на списание,
+  // а не молча уводить кнопкой «Пополнить».
+  const trialBalanceKopeks = balanceData?.balance_kopeks ?? 0;
+  const trialCanAfford = !!trialInfo && trialBalanceKopeks >= trialInfo.price_kopeks;
+  const trialMissingKopeks = trialInfo
+    ? Math.max(trialInfo.price_kopeks - trialBalanceKopeks, 0)
+    : 0;
+
   if (subLoading) {
     return (
       <SimpleScreen brand={appName}>
@@ -113,7 +150,7 @@ export default function SimpleDashboard() {
   }
 
   return (
-    <SimpleScreen brand={appName}>
+    <SimpleScreen brand={appName} modeChip={t('simple.dashboard.modeChip')}>
       {hasSubscription && subscription ? (
         <>
           <BentoCard size="xl" className="text-center">
@@ -179,6 +216,7 @@ export default function SimpleDashboard() {
               as="button"
               onClick={() => navigate('/subscription/devices')}
               label={t('simple.dashboard.devices')}
+              labelChevron
               value={
                 subscription.device_limit === 0 ? (
                   '∞'
@@ -283,22 +321,54 @@ export default function SimpleDashboard() {
                   <SimpleRow
                     title={t('simple.dashboard.trialDevicesRow', { count: trialInfo.device_limit })}
                   />
+                  {trialInfo.requires_payment && (
+                    <SimpleRow
+                      title={t('simple.dashboard.trialCostRow')}
+                      value={formatPrice(trialInfo.price_kopeks)}
+                    />
+                  )}
                 </SimpleGroup>
               </div>
+
+              {trialInfo.requires_payment && (
+                <SimpleGroup>
+                  <SimpleRow
+                    title={t('simple.dashboard.balance')}
+                    subtitle={
+                      trialCanAfford
+                        ? t('simple.dashboard.trialBalanceEnough')
+                        : t('simple.dashboard.trialBalanceMissing', {
+                            amount: formatPrice(trialMissingKopeks),
+                          })
+                    }
+                    value={formatPrice(trialBalanceKopeks)}
+                  />
+                </SimpleGroup>
+              )}
+
+              {!trialInfo.requires_payment && minMonthlyPriceKopeks !== null && (
+                <p className="text-xs text-dark-500">
+                  {t('simple.dashboard.trialClosingHint', {
+                    price: formatPrice(minMonthlyPriceKopeks),
+                  })}
+                </p>
+              )}
             </>
           )}
         </>
       )}
 
-      <SimpleGroup>
-        <SimpleRow
-          title={t('simple.dashboard.balance')}
-          subtitle={t('simple.dashboard.balanceHint')}
-          value={formatPrice(balanceData?.balance_kopeks ?? 0)}
-          onClick={() => navigate('/balance/top-up')}
-          chevron
-        />
-      </SimpleGroup>
+      {(hasSubscription || !trialInfo?.is_available) && (
+        <SimpleGroup>
+          <SimpleRow
+            title={t('simple.dashboard.balance')}
+            subtitle={t('simple.dashboard.balanceHint')}
+            value={formatPrice(balanceData?.balance_kopeks ?? 0)}
+            onClick={() => navigate('/balance/top-up')}
+            chevron
+          />
+        </SimpleGroup>
+      )}
     </SimpleScreen>
   );
 }
@@ -337,14 +407,26 @@ interface SimpleTileProps {
   as?: 'div' | 'button';
   onClick?: () => void;
   testId?: string;
+  /** Шеврон рядом с подписью — знак, что плитка кликабельна (находка 11). */
+  labelChevron?: boolean;
 }
 
 /** Плитка с показателем и мини-полосой заполнения (как SimpleStat, но с баром). */
-function SimpleTile({ label, value, percent, warn, as = 'div', onClick, testId }: SimpleTileProps) {
+function SimpleTile({
+  label,
+  value,
+  percent,
+  warn,
+  as = 'div',
+  onClick,
+  testId,
+  labelChevron,
+}: SimpleTileProps) {
   const content = (
     <>
-      <p className="text-[10px] font-semibold uppercase tracking-[0.1em] text-dark-50/40">
-        {label}
+      <p className="flex items-center justify-between gap-1 text-[10px] font-semibold uppercase tracking-[0.1em] text-dark-50/40">
+        <span>{label}</span>
+        {labelChevron && <ChevronRightIcon className="size-3 shrink-0 text-dark-50/30" />}
       </p>
       <p className="mt-1 text-lg font-bold tabular-nums tracking-tight text-dark-50">{value}</p>
       {percent !== null && (
