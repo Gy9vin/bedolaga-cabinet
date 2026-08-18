@@ -15,6 +15,7 @@ import { I18nextProvider } from 'react-i18next';
 import i18n from '../../i18n';
 import SimpleTopUp from './SimpleTopUp';
 import { balanceApi } from '../../api/balance';
+import { useSuccessNotification } from '../../store/successNotification';
 import type { Balance, PaymentMethod } from '../../types';
 
 vi.mock('../../api/balance', () => ({
@@ -35,12 +36,21 @@ vi.mock('@/platform', () => ({
   }),
 }));
 
-function makeWrapper() {
+const mockNavigate = vi.fn();
+vi.mock('react-router', async (importOriginal) => {
+  const actual = await importOriginal<typeof import('react-router')>();
+  return {
+    ...actual,
+    useNavigate: () => mockNavigate,
+  };
+});
+
+function makeWrapper(initialEntries: string[] = ['/balance/top-up']) {
   const qc = new QueryClient({ defaultOptions: { queries: { retry: false } } });
   function Wrapper({ children }: { children: React.ReactNode }) {
     return (
       <QueryClientProvider client={qc}>
-        <MemoryRouter>
+        <MemoryRouter initialEntries={initialEntries}>
           <I18nextProvider i18n={i18n}>{children}</I18nextProvider>
         </MemoryRouter>
       </QueryClientProvider>
@@ -76,6 +86,8 @@ const getPaymentMethodsMock = balanceApi.getPaymentMethods as ReturnType<typeof 
 
 beforeEach(async () => {
   vi.clearAllMocks();
+  mockNavigate.mockClear();
+  useSuccessNotification.setState({ isOpen: false, data: null, closeOthersSignal: 0 });
   await i18n.changeLanguage('ru');
   getBalanceMock.mockResolvedValue(BALANCE);
   getPaymentMethodsMock.mockResolvedValue(METHODS);
@@ -133,6 +145,74 @@ describe('SimpleTopUp', () => {
     });
     await waitFor(() => {
       expect(screen.getByRole('button', { name: /СБП/i })).toBeTruthy();
+    });
+  });
+
+  it('разрыв 1: сумма и способ оплаты из query-строки предзаполняют экран', async () => {
+    getTopupPresetsMock.mockResolvedValue({ presets: [], sales_mode: 'classic' });
+
+    render(<SimpleTopUp />, {
+      wrapper: makeWrapper(['/balance/top-up?amount=669&method=card&returnTo=%2Fsubscriptions']),
+    });
+
+    // SimpleSubscription уже посчитал недостающую сумму — её не нужно
+    // вводить вручную ещё раз.
+    const amountInput = (await screen.findByLabelText(/Сумма/i)) as HTMLInputElement;
+    expect(amountInput.value).toBe('669');
+
+    await waitFor(() => {
+      const cardBtn = screen.getByRole('button', { name: /Банковская карта/i });
+      expect(cardBtn.getAttribute('aria-pressed')).toBe('true');
+    });
+  });
+
+  it('разрыв 1: готовые суммы остаются доступны, даже если amount пришёл из query', async () => {
+    getTopupPresetsMock.mockResolvedValue({
+      presets: [{ amount_kopeks: 64900, label_days: 90 }],
+      sales_mode: 'classic',
+    });
+
+    render(<SimpleTopUp />, {
+      wrapper: makeWrapper(['/balance/top-up?amount=669']),
+    });
+
+    const presetBtn = await screen.findByRole('button', { name: /649/ });
+    expect(presetBtn.hasAttribute('disabled')).toBe(false);
+  });
+
+  it('разрыв 1: после успешного пополнения возвращает на returnTo из query', async () => {
+    getTopupPresetsMock.mockResolvedValue({ presets: [], sales_mode: 'classic' });
+
+    render(<SimpleTopUp />, {
+      wrapper: makeWrapper(['/balance/top-up?returnTo=%2Fsubscriptions']),
+    });
+
+    await waitFor(() => {
+      expect(screen.getByRole('button', { name: /СБП/i })).toBeTruthy();
+    });
+
+    // Успешное пополнение приходит асинхронно (WebSocket) — тот же сигнал,
+    // на который реагирует TopUpAmount в расширенном режиме.
+    useSuccessNotification.getState().show({ type: 'balance_topup' });
+
+    await waitFor(() => {
+      expect(mockNavigate).toHaveBeenCalledWith('/subscriptions', { replace: true });
+    });
+  });
+
+  it('разрыв 1: без returnTo успешное пополнение возвращает на главный экран', async () => {
+    getTopupPresetsMock.mockResolvedValue({ presets: [], sales_mode: 'classic' });
+
+    render(<SimpleTopUp />, { wrapper: makeWrapper() });
+
+    await waitFor(() => {
+      expect(screen.getByRole('button', { name: /СБП/i })).toBeTruthy();
+    });
+
+    useSuccessNotification.getState().show({ type: 'balance_topup' });
+
+    await waitFor(() => {
+      expect(mockNavigate).toHaveBeenCalledWith('/', { replace: true });
     });
   });
 });

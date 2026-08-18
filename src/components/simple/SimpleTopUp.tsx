@@ -1,5 +1,6 @@
-import { useMemo, useState } from 'react';
+import { useCallback, useMemo, useState } from 'react';
 import { useMutation, useQuery } from '@tanstack/react-query';
+import { useNavigate, useSearchParams } from 'react-router';
 import { useTranslation } from 'react-i18next';
 import SimpleScreen from './SimpleScreen';
 import { Button } from '@/components/primitives/Button/Button';
@@ -8,6 +9,8 @@ import { usePlatform } from '@/platform';
 import { openPaymentUrl } from '../../utils/openPaymentUrl';
 import { balanceApi } from '../../api/balance';
 import { formatPrice } from '../../utils/format';
+import { getSafeRedirectPath } from '../../utils/safeRedirect';
+import { useCloseOnSuccessNotification } from '../../store/successNotification';
 
 /**
  * Экран «Пополнение баланса» простого режима: сумма и способ оплаты на
@@ -20,9 +23,18 @@ import { formatPrice } from '../../utils/format';
 export default function SimpleTopUp() {
   const { t } = useTranslation();
   const { platform, openLink } = usePlatform();
+  const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
 
-  const [amountRub, setAmountRub] = useState('');
-  const [selectedMethodId, setSelectedMethodId] = useState<string | null>(null);
+  // SimpleSubscription (обычная покупка/продление) и главная (платный
+  // триал) уводят сюда с уже посчитанной недостающей суммой и способом —
+  // их не нужно вводить/выбирать заново.
+  const initialAmount = searchParams.get('amount');
+  const initialMethod = searchParams.get('method');
+  const returnTo = searchParams.get('returnTo');
+
+  const [amountRub, setAmountRub] = useState(initialAmount ?? '');
+  const [selectedMethodId, setSelectedMethodId] = useState<string | null>(initialMethod);
   const [paymentUrl, setPaymentUrl] = useState<string | null>(null);
 
   const { data: balance } = useQuery({
@@ -50,15 +62,28 @@ export default function SimpleTopUp() {
   const isMethodDisabled = (minAmountKopeks: number) =>
     amountKopeks > 0 && minAmountKopeks > amountKopeks;
 
+  // Метод из query (?method=) должен реально существовать в списке — иначе,
+  // например, при устаревшей ссылке, отправка ушла бы с несуществующим id.
+  const selectedMethod = availableMethods.find((m) => m.id === selectedMethodId);
   const effectiveMethodId =
-    selectedMethodId &&
-    !isMethodDisabled(
-      availableMethods.find((m) => m.id === selectedMethodId)?.min_amount_kopeks ?? 0,
-    )
-      ? selectedMethodId
+    selectedMethod && !isMethodDisabled(selectedMethod.min_amount_kopeks)
+      ? selectedMethod.id
       : (availableMethods.find((m) => !isMethodDisabled(m.min_amount_kopeks))?.id ?? null);
 
   const balanceAfter = (balance?.balance_kopeks ?? 0) + amountKopeks;
+
+  const handleTopUpSuccess = useCallback(() => {
+    // returnTo приходит из query — проверяем как безопасный внутренний
+    // путь (см. TopUpAmount), иначе используем главный экран простого
+    // режима по умолчанию.
+    const safe = getSafeRedirectPath(returnTo);
+    navigate(returnTo && safe !== '/' ? safe : '/', { replace: true });
+  }, [navigate, returnTo]);
+
+  // Пополнение может подтвердиться, пока человек ещё на этом экране
+  // (например, WebSocket-уведомление после возврата от провайдера) —
+  // тогда его нужно увести на returnTo, а не оставлять на форме ввода.
+  useCloseOnSuccessNotification(handleTopUpSuccess);
 
   const topUpMutation = useMutation({
     mutationFn: () => {
