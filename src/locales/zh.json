@@ -5455,6 +5455,8 @@
       "providerNotLinked": "一键登录",
       "providerLinked": "已绑定",
       "providerLink": "绑定",
+      "unlink": "取消绑定",
+      "unlinkConfirm": "确定？",
       "settingsLabel": "设置",
       "uiModeTitle": "简易界面",
       "uiModeSubtitle": "关闭后可打开全部功能",

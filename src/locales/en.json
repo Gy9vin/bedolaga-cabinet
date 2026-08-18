@@ -6068,6 +6068,8 @@
       "providerNotLinked": "One-tap sign-in",
       "providerLinked": "Linked",
       "providerLink": "Link",
+      "unlink": "Unlink",
+      "unlinkConfirm": "Confirm?",
       "settingsLabel": "Settings",
       "uiModeTitle": "Simple interface",
       "uiModeSubtitle": "Turn off to open every section",

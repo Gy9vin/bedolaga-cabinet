@@ -5456,6 +5456,8 @@
       "providerNotLinked": "ورود با یک کلیک",
       "providerLinked": "متصل",
       "providerLink": "اتصال",
+      "unlink": "لغو پیوند",
+      "unlinkConfirm": "مطمئنید؟",
       "settingsLabel": "تنظیمات",
       "uiModeTitle": "رابط ساده",
       "uiModeSubtitle": "برای باز کردن همه بخش‌ها خاموش کنید",

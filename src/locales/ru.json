@@ -6622,6 +6622,8 @@
       "providerNotLinked": "Вход одной кнопкой",
       "providerLinked": "Привязан",
       "providerLink": "Привязать",
+      "unlink": "Отвязать",
+      "unlinkConfirm": "Точно?",
       "settingsLabel": "Настройки",
       "uiModeTitle": "Простой интерфейс",
       "uiModeSubtitle": "Выключите, чтобы открыть все разделы",
