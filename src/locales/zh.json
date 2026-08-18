@@ -5379,6 +5379,20 @@
       "trialHint": "试用订阅不能更改设备限额。",
       "unavailable": "无限制订阅无需更改——位置永远够用。",
       "goBack": "返回设备"
+    },
+    "topUp": {
+      "title": "充值",
+      "currentBalance": "当前余额",
+      "balanceAfter": "充值后余额",
+      "amountLabel": "金额",
+      "presetsLabel": "或选择预设金额",
+      "presetDays": "{{count}} 天",
+      "presetsHint": "这些金额与您的套餐价格一致——充值后立即购买，余额不留零头。",
+      "methodLabel": "支付方式",
+      "methodMin": "起充 {{amount}}",
+      "methodHint": "每种支付方式都有各自的最低金额——金额不足时该方式将不可用。",
+      "submitButton": "充值 {{amount}}",
+      "paymentReady": "正在打开支付页面…"
     }
   }
 }

@@ -5,20 +5,30 @@ import { motion } from 'framer-motion';
 
 import { balanceApi } from '../api/balance';
 import { useCurrency } from '../hooks/useCurrency';
+import { useUiMode } from '@/hooks/useUiMode';
 import { Card } from '@/components/data-display/Card';
 import { staggerContainer, staggerItem } from '@/components/motion/transitions';
 import PaymentMethodIcon from '@/components/PaymentMethodIcon';
+import SimpleTopUp from '@/components/simple/SimpleTopUp';
 
 export default function TopUpMethodSelect() {
   const { t } = useTranslation();
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const { formatAmount, currencySymbol } = useCurrency();
+  // Хук вызывается вместе со всеми остальными, ранний возврат — ниже, после
+  // всех хуков: иначе порядок хуков меняется между рендерами при переключении
+  // режима, и React падает (см. инвариант из брифа задачи 8).
+  const { isSimple } = useUiMode();
 
   const { data: paymentMethods, isLoading } = useQuery({
     queryKey: ['payment-methods'],
     queryFn: balanceApi.getPaymentMethods,
   });
+
+  if (isSimple) {
+    return <SimpleTopUp />;
+  }
 
   const handleMethodClick = (methodId: string) => {
     const params = new URLSearchParams();

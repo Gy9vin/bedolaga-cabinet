@@ -5992,6 +5992,20 @@
       "trialHint": "The device limit cannot be changed on a trial subscription.",
       "unavailable": "There is nothing to change on an unlimited subscription — slots are never full.",
       "goBack": "Back to devices"
+    },
+    "topUp": {
+      "title": "Top up",
+      "currentBalance": "Current balance",
+      "balanceAfter": "Balance after top-up",
+      "amountLabel": "Amount",
+      "presetsLabel": "Or a ready amount",
+      "presetDays": "{{count}} days",
+      "presetsHint": "These amounts match your plan prices — top up and buy right away, with nothing left on the balance.",
+      "methodLabel": "Payment method",
+      "methodMin": "from {{amount}}",
+      "methodHint": "Each method has its own minimum — a smaller amount makes it unavailable.",
+      "submitButton": "Top up {{amount}}",
+      "paymentReady": "Opening the payment page…"
     }
   }
 }

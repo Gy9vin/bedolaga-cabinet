@@ -38,6 +38,19 @@ export const balanceApi = {
     return response.data;
   },
 
+  /**
+   * Готовые суммы пополнения простого режима — считаются от цен действующих
+   * тарифов (пополнил ровно на тариф — купил без остатка на балансе), плюс
+   * подпись, сколько дней подписки эта сумма покрывает.
+   */
+  getTopupPresets: async (): Promise<{
+    presets: Array<{ amount_kopeks: number; label_days: number }>;
+    sales_mode: string;
+  }> => {
+    const response = await apiClient.get('/cabinet/balance/topup-presets');
+    return response.data;
+  },
+
   // Create top-up payment
   createTopUp: async (
     amountKopeks: number,
