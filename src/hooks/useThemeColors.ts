@@ -14,12 +14,26 @@ function rgbToString(r: number, g: number, b: number): string {
   return `${r}, ${g}, ${b}`;
 }
 
-// Generate color palette from base color (returns RGB strings)
+// Generate color palette from base color (returns RGB strings).
+//
+// Uses piecewise lightness interpolation around the anchor (shade 500 = baseL)
+// so that the ramp is strictly monotone regardless of how dark or light the
+// base colour is. A simple delta-shift collapses dark accents (e.g. #0E7C7B,
+// L≈27 %) because shades below 500 can be clamped to 0 while shades 50-200
+// stay up near 70-74 % and appear neon/chaotic.
+//
+// Instead:
+//   • Light half (orig >= anchor, shades 50-500): linearly stretch
+//     [anchor..lightEnd] → [baseL..lightEnd]
+//   • Dark half (orig < anchor, shades 600-950): linearly compress
+//     [darkEnd..anchor) → [darkEnd..baseL)
+//
+// This guarantees: 500 == baseL, 50 ≈ lightEnd (~97), 950 ≈ darkEnd (~10),
+// strictly monotone decreasing, no clamping artifacts.
 function generatePalette(baseHex: string): ColorPalette {
   const { h, s, l: baseL } = hexToHsl(baseHex);
 
-  // Lightness values for each shade level (from light to dark).
-  // Shade 500 anchors to the base color's actual lightness (see delta below).
+  // Reference lightness curve (shape of the neutral ramp; shade 500 = 50).
   const lightnessMap: Record<number, number> = {
     50: 97,
     100: 94,
@@ -34,18 +48,28 @@ function generatePalette(baseHex: string): ColorPalette {
     950: 10,
   };
 
-  // Shift the whole ramp so that shade 500 matches the base color's lightness.
-  // For a dark accent like #0E7C7B (L≈27 %) the delta is -23, pulling 500 from
-  // the fixed L=50 % down to L=27 %, while shades 50-400 stay lighter and
-  // 600-950 stay darker, preserving the monotone shape of the ramp.
-  const delta = baseL - lightnessMap[500];
+  const anchor = lightnessMap[500]; // 50
+  const lightEnd = lightnessMap[50]; // 97
+  const darkEnd = lightnessMap[950]; // 10
 
   const palette: Partial<ColorPalette> = {};
 
   for (const shade of SHADE_LEVELS) {
-    const lightness = Math.min(100, Math.max(0, lightnessMap[shade] + delta));
-    // Adjust saturation slightly for very light/dark shades
+    const orig = lightnessMap[shade];
+    let lightness: number;
+    if (orig >= anchor) {
+      // Light half: [anchor..lightEnd] → [baseL..lightEnd]
+      lightness = baseL + ((orig - anchor) / (lightEnd - anchor)) * (lightEnd - baseL);
+    } else {
+      // Dark half: [darkEnd..anchor) → [darkEnd..baseL)
+      lightness = baseL - ((anchor - orig) / (anchor - darkEnd)) * (baseL - darkEnd);
+    }
+    lightness = Math.min(100, Math.max(0, lightness));
+
+    // Taper saturation at the extremes: very light shades look washed-out when
+    // fully saturated; very dark shades lose chroma anyway.
     const adjustedS = shade <= 100 ? s * 0.7 : shade >= 900 ? s * 0.8 : s;
+
     const { r, g, b } = hslToRgb(h, adjustedS, lightness);
     palette[shade] = rgbToString(r, g, b);
   }
