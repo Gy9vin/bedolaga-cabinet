@@ -2021,6 +2021,9 @@
         "sys_version": "نسخه",
         "sys_logging": "لاگ‌ها"
       },
+      "presets": {
+        "simple": "ساده"
+      },
       "categories": {
         "TELEGRAM_WIDGET": "Telegram Login Widget",
         "TELEGRAM_OIDC": "Telegram Login (OIDC)"

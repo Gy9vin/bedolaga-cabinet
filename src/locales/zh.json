@@ -2088,6 +2088,9 @@
         "sys_version": "版本",
         "sys_logging": "日志"
       },
+      "presets": {
+        "simple": "简约"
+      },
       "categories": {
         "TELEGRAM_WIDGET": "Telegram Login Widget",
         "TELEGRAM_OIDC": "Telegram Login (OIDC)"

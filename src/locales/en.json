@@ -2392,6 +2392,9 @@
         "sys_version": "Version",
         "sys_logging": "Logging"
       },
+      "presets": {
+        "simple": "Simple"
+      },
       "categories": {
         "TELEGRAM_WIDGET": "Telegram Login Widget",
         "TELEGRAM_OIDC": "Telegram Login (OIDC)"

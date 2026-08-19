@@ -297,4 +297,21 @@ export const THEME_PRESETS: ThemePreset[] = [
       error: '#ef4444',
     },
   },
+  {
+    id: 'simple',
+    colors: {
+      accent: '#0e7c7b',
+      darkBackground: '#0b1211',
+      darkSurface: '#151f1d',
+      darkText: '#e7eeec',
+      darkTextSecondary: '#a2b2af',
+      lightBackground: '#f2f5f4',
+      lightSurface: '#ffffff',
+      lightText: '#141f1d',
+      lightTextSecondary: '#4a5c59',
+      success: '#2e9e5b',
+      warning: '#b0770f',
+      error: '#b94a40',
+    },
+  },
 ];

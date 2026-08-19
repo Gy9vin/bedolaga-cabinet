@@ -2410,7 +2410,8 @@
         "violet": "Фиолет",
         "rose": "Роза",
         "midnight": "Полночь",
-        "turquoise": "Бирюза"
+        "turquoise": "Бирюза",
+        "simple": "Простой"
       },
       "colors": {
         "background": "Фон",
