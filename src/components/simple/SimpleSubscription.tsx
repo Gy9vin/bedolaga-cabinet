@@ -59,12 +59,17 @@ export default function SimpleSubscription() {
   const hasSubscription =
     !!subscription && !subscription.is_expired && (subscription.status !== 'disabled' || isFrozen);
 
-  const canFreeze =
+  const canFreezeBase =
     !isFrozen &&
     subscription?.status === 'active' &&
     !subscription?.is_trial &&
     !subscription?.is_daily &&
     subscription?.freeze_subscriptions_enabled === true;
+
+  const canFreezeByDays =
+    (subscription?.days_left ?? 0) >= (subscription?.freeze_min_days_remaining ?? 0);
+
+  const canFreeze = canFreezeBase && canFreezeByDays;
 
   const hasVerifiedEmail = !!(user?.email && user?.email_verified);
 
@@ -405,6 +410,15 @@ export default function SimpleSubscription() {
             </p>
           )}
         </>
+      )}
+
+      {/* Подсказка когда дней меньше минимума для заморозки */}
+      {canFreezeBase && !canFreezeByDays && (
+        <p className="text-sm text-dark-400">
+          {t('simple.subscription.freeze.not_enough_days_hint', {
+            count: subscription?.freeze_min_days_remaining ?? 0,
+          })}
+        </p>
       )}
 
       {/* Модал подтверждения заморозки */}

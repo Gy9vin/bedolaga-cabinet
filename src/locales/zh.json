@@ -5369,6 +5369,7 @@
         "auto_unfreeze_at": "自动解冻：{{date}}",
         "email_required_cta": "请绑定邮箱以冻结订阅。",
         "email_link": "前往个人资料",
+        "not_enough_days_hint": "剩余 {{count}} 天或以上时方可冻结。",
         "hero_status": "已冻结",
         "hero_days_banked": "已保存：{{count}} 天",
         "hero_hint": "在订阅页面解冻"

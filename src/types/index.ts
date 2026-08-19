@@ -101,6 +101,7 @@ export interface Subscription {
   frozen_days_banked?: number | null;
   frozen_auto_unfreeze_at?: string | null;
   freeze_subscriptions_enabled?: boolean;
+  freeze_min_days_remaining?: number;
   daily_price_kopeks?: number;
   next_daily_charge_at?: string; // ISO datetime string
   // Tariff info

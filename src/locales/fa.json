@@ -5370,6 +5370,7 @@
         "auto_unfreeze_at": "رفع مسدودیت خودکار: {{date}}",
         "email_required_cta": "ایمیل خود را وارد کنید تا اشتراک را مسدود کنید.",
         "email_link": "رفتن به پروفایل",
+        "not_enough_days_hint": "انجماد با {{count}} روز یا بیشتر باقی‌مانده در دسترس است.",
         "hero_status": "مسدود",
         "hero_days_banked": "ذخیره‌شده: {{count}} روز",
         "hero_hint": "در بخش اشتراک رفع مسدودیت کنید"

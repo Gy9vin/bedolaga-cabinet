@@ -5996,6 +5996,7 @@
         "auto_unfreeze_at": "Auto-unfreeze: {{date}}",
         "email_required_cta": "Link your email to freeze the subscription.",
         "email_link": "Go to profile",
+        "not_enough_days_hint": "Freeze available with {{count}} or more days remaining.",
         "hero_status": "Frozen",
         "hero_days_banked": "Saved: {{count}} days",
         "hero_hint": "Unfreeze in the Subscription section"
