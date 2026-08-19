@@ -40,6 +40,8 @@ export default function SimpleDashboard() {
     staleTime: API.BALANCE_STALE_TIME_MS,
   });
   const subscription = subscriptionResponse?.subscription ?? null;
+  const isFrozen = !!subscription?.is_frozen;
+  const frozenDaysBanked = subscription?.frozen_days_banked ?? 0;
   const hasSubscription =
     !!subscription && !subscription.is_expired && subscription.status !== 'disabled';
 
@@ -151,7 +153,38 @@ export default function SimpleDashboard() {
 
   return (
     <SimpleScreen brand={appName} modeChip={t('simple.dashboard.modeChip')}>
-      {hasSubscription && subscription ? (
+      {isFrozen && subscription ? (
+        <>
+          {/* Hero — заморожена, кликабелен → /subscriptions */}
+          <button
+            type="button"
+            onClick={() => navigate('/subscriptions')}
+            className="w-full cursor-pointer rounded-2xl focus:outline-none focus-visible:ring-2 focus-visible:ring-accent-500 focus-visible:ring-offset-2"
+          >
+            <BentoCard size="xl" className="text-center">
+              <div className="flex items-center justify-center gap-2">
+                <span
+                  className="h-2 w-2 rounded-full"
+                  style={{ backgroundColor: 'rgb(var(--blue-400))' }}
+                  aria-hidden="true"
+                />
+                <span
+                  className="text-xs font-semibold uppercase tracking-wide"
+                  style={{ color: 'rgb(var(--blue-400))' }}
+                >
+                  {t('simple.dashboard.statusFrozen')}
+                </span>
+              </div>
+              <p className="mt-2 text-2xl font-bold tracking-tight text-dark-50">
+                {t('simple.dashboard.frozenDaysBanked', { count: frozenDaysBanked })}
+              </p>
+            </BentoCard>
+          </button>
+
+          {/* Подсказка: разморозьте в разделе Подписка */}
+          <p className="text-center text-sm text-dark-400">{t('simple.dashboard.frozenHint')}</p>
+        </>
+      ) : hasSubscription && subscription ? (
         <>
           <button
             type="button"
@@ -372,7 +405,7 @@ export default function SimpleDashboard() {
         </>
       )}
 
-      {(hasSubscription || !trialInfo?.is_available) && (
+      {(isFrozen || hasSubscription || !trialInfo?.is_available) && (
         <SimpleGroup>
           <SimpleRow
             title={t('simple.dashboard.balance')}
