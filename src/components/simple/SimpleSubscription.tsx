@@ -2,6 +2,7 @@ import { useMemo, useState } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useLocation, useNavigate } from 'react-router';
 import { useTranslation } from 'react-i18next';
+import { useAuthStore } from '../../store/auth';
 import SimpleScreen from './SimpleScreen';
 import SimpleRow from './SimpleRow';
 import SimpleGroup from './SimpleGroup';
@@ -37,8 +38,10 @@ export default function SimpleSubscription() {
   const navigate = useNavigate();
   const location = useLocation();
   const queryClient = useQueryClient();
+  const user = useAuthStore((s) => s.user);
 
   const [selectedPeriodId, setSelectedPeriodId] = useState<string | null>(null);
+  const [showFreezeModal, setShowFreezeModal] = useState(false);
   const [selectedDevices, setSelectedDevices] = useState<number | null>(null);
   const [selectedMethodId, setSelectedMethodId] = useState<string | null>(null);
   const [selectedTariffId, setSelectedTariffId] = useState<number | null>(null);
@@ -50,8 +53,20 @@ export default function SimpleSubscription() {
     retry: false,
   });
   const subscription = subscriptionResponse?.subscription ?? null;
+  const isFrozen = subscription?.is_frozen === true;
+  // Замороженная подписка имеет status=disabled, но её нужно показывать
+  // как «есть подписка», чтобы можно было разморозить.
   const hasSubscription =
-    !!subscription && !subscription.is_expired && subscription.status !== 'disabled';
+    !!subscription && !subscription.is_expired && (subscription.status !== 'disabled' || isFrozen);
+
+  const canFreeze =
+    !isFrozen &&
+    subscription?.status === 'active' &&
+    !subscription?.is_trial &&
+    !subscription?.is_daily &&
+    subscription?.freeze_subscriptions_enabled === true;
+
+  const hasVerifiedEmail = !!(user?.email && user?.email_verified);
 
   const { data: purchaseOptions, isLoading: optionsLoading } = useQuery({
     queryKey: ['purchase-options', undefined],
@@ -171,6 +186,33 @@ export default function SimpleSubscription() {
     },
   });
 
+  const [freezeError, setFreezeError] = useState<string | null>(null);
+  const freezeMutation = useMutation({
+    mutationFn: () => subscriptionApi.freeze(subscription?.id),
+    onSuccess: () => {
+      setShowFreezeModal(false);
+      setFreezeError(null);
+      queryClient.invalidateQueries({ queryKey: ['subscription'] });
+    },
+    onError: (err: unknown) => {
+      const code =
+        (err as { response?: { data?: { error_code?: string } } })?.response?.data?.error_code ??
+        null;
+      if (code === 'email_not_verified') {
+        setFreezeError('email_not_verified');
+      } else {
+        setFreezeError('generic');
+      }
+    },
+  });
+
+  const unfreezeMutation = useMutation({
+    mutationFn: () => subscriptionApi.unfreeze(subscription?.id),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['subscription'] });
+    },
+  });
+
   const availableMethods = (paymentMethods ?? []).filter((m) => m.is_available);
   const effectiveMethodId = selectedMethodId ?? availableMethods[0]?.id ?? null;
 
@@ -271,7 +313,44 @@ export default function SimpleSubscription() {
     <SimpleScreen
       title={t(hasSubscription ? 'simple.subscription.title' : 'simple.subscription.titleBuy')}
     >
-      {hasSubscription && subscription && (
+      {/* Баннер заморозки — показываем вместо обычного статусного блока */}
+      {isFrozen && subscription && (
+        <BentoCard>
+          <div className="flex items-center gap-2">
+            <span className="h-2 w-2 rounded-full bg-warning-400" aria-hidden="true" />
+            <span className="text-xs font-semibold uppercase tracking-wide text-warning-400">
+              {t('simple.subscription.freeze.status_frozen')}
+            </span>
+          </div>
+          {subscription.frozen_days_banked != null && (
+            <p className="mt-2 text-base font-bold text-dark-50">
+              {t('simple.subscription.freeze.days_banked', {
+                count: subscription.frozen_days_banked,
+              })}
+            </p>
+          )}
+          {subscription.frozen_auto_unfreeze_at && (
+            <p className="mt-0.5 text-sm text-dark-400">
+              {t('simple.subscription.freeze.auto_unfreeze_at', {
+                date: formatLongDate(subscription.frozen_auto_unfreeze_at),
+              })}
+            </p>
+          )}
+          <div className="mt-4">
+            <Button
+              variant="primary"
+              size="md"
+              fullWidth
+              loading={unfreezeMutation.isPending}
+              onClick={() => unfreezeMutation.mutate()}
+            >
+              {t('simple.subscription.freeze.unfreeze_button')}
+            </Button>
+          </div>
+        </BentoCard>
+      )}
+
+      {hasSubscription && !isFrozen && subscription && (
         <BentoCard>
           <div className="flex items-center gap-2">
             <span className="h-2 w-2 rounded-full bg-success-400" aria-hidden="true" />
@@ -298,11 +377,106 @@ export default function SimpleSubscription() {
         </BentoCard>
       )}
 
-      {isTariffsMode && tariffs.length === 0 && (
+      {/* Кнопка/CTA заморозки — только для активных незамороженных подписок */}
+      {canFreeze && !isFrozen && (
+        <>
+          {hasVerifiedEmail ? (
+            <Button
+              variant="outline"
+              size="md"
+              fullWidth
+              onClick={() => {
+                setFreezeError(null);
+                setShowFreezeModal(true);
+              }}
+            >
+              {t('simple.subscription.freeze.freeze_button')}
+            </Button>
+          ) : (
+            <p className="text-sm text-dark-400">
+              {t('simple.subscription.freeze.email_required_cta')}{' '}
+              <button
+                type="button"
+                className="text-accent-400 underline underline-offset-2"
+                onClick={() => navigate('/profile')}
+              >
+                {t('simple.subscription.freeze.email_link')}
+              </button>
+            </p>
+          )}
+        </>
+      )}
+
+      {/* Модал подтверждения заморозки */}
+      {showFreezeModal && (
+        <div
+          className="fixed inset-0 z-50 flex items-end justify-center bg-black/60 p-4 sm:items-center"
+          role="dialog"
+          aria-modal="true"
+          onClick={(e) => {
+            if (e.target === e.currentTarget) {
+              setShowFreezeModal(false);
+            }
+          }}
+        >
+          <div className="w-full max-w-sm rounded-2xl bg-dark-900 p-6 shadow-xl">
+            <h2 className="text-lg font-bold text-dark-50">
+              {t('simple.subscription.freeze.modal_title')}
+            </h2>
+            <p className="mt-3 text-sm text-dark-300">
+              {t('simple.subscription.freeze.modal_body', {
+                days: subscription?.days_left ?? 0,
+              })}
+            </p>
+            {freezeError === 'email_not_verified' && (
+              <p className="mt-3 text-sm text-warning-400">
+                {t('simple.subscription.freeze.email_required_cta')}{' '}
+                <button
+                  type="button"
+                  className="underline underline-offset-2"
+                  onClick={() => {
+                    setShowFreezeModal(false);
+                    navigate('/profile');
+                  }}
+                >
+                  {t('simple.subscription.freeze.email_link')}
+                </button>
+              </p>
+            )}
+            {freezeError === 'generic' && (
+              <p className="mt-3 text-sm text-error-400">{t('common.error')}</p>
+            )}
+            <div className="mt-5 flex flex-col gap-2">
+              <Button
+                variant="primary"
+                size="md"
+                fullWidth
+                loading={freezeMutation.isPending}
+                onClick={() => freezeMutation.mutate()}
+              >
+                {t('simple.subscription.freeze.confirm_button')}
+              </Button>
+              <Button
+                variant="secondary"
+                size="md"
+                fullWidth
+                onClick={() => {
+                  setShowFreezeModal(false);
+                  setFreezeError(null);
+                }}
+              >
+                {t('simple.subscription.freeze.cancel_button')}
+              </Button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {!isFrozen && isTariffsMode && tariffs.length === 0 && (
         <p className="text-sm text-dark-400">{t('simple.subscription.noTariffsAvailable')}</p>
       )}
 
-      {isTariffsMode && tariffs.length > 0 && (
+      {!isFrozen && isTariffsMode && tariffs.length > 0 && (
         <div>
           <span className="text-[11px] font-semibold uppercase tracking-[0.1em] text-dark-50/40">
             {t('simple.subscription.tariffSectionLabel')}
@@ -357,7 +531,7 @@ export default function SimpleSubscription() {
         </div>
       )}
 
-      {isTariffsMode && selectedTariff && tariffPeriods.length > 0 && (
+      {!isFrozen && isTariffsMode && selectedTariff && tariffPeriods.length > 0 && (
         <div>
           <span className="text-[11px] font-semibold uppercase tracking-[0.1em] text-dark-50/40">
             {t('simple.subscription.period')}
@@ -404,7 +578,7 @@ export default function SimpleSubscription() {
         </div>
       )}
 
-      {periods.length > 0 && (
+      {!isFrozen && periods.length > 0 && (
         <div>
           <span className="text-[11px] font-semibold uppercase tracking-[0.1em] text-dark-50/40">
             {t('simple.subscription.period')}
@@ -451,7 +625,7 @@ export default function SimpleSubscription() {
         </div>
       )}
 
-      {selectedPeriod && (
+      {!isFrozen && selectedPeriod && (
         <BentoCard>
           <div className="flex items-center justify-between gap-3">
             <div className="min-w-0">
@@ -496,7 +670,7 @@ export default function SimpleSubscription() {
         </BentoCard>
       )}
 
-      {hasSubscription && subscription && (
+      {hasSubscription && !isFrozen && subscription && (
         <>
           <SimpleGroup>
             <div className="flex w-full items-center gap-3 py-3">
@@ -542,7 +716,7 @@ export default function SimpleSubscription() {
         </>
       )}
 
-      {availableMethods.length > 0 && (
+      {!isFrozen && availableMethods.length > 0 && (
         <div>
           <span className="text-[11px] font-semibold uppercase tracking-[0.1em] text-dark-50/40">
             {t('simple.subscription.paymentMethodLabel')}
@@ -583,7 +757,7 @@ export default function SimpleSubscription() {
         </div>
       )}
 
-      {showSummary && (
+      {!isFrozen && showSummary && (
         <BentoCard>
           <div className="flex items-start justify-between gap-3 py-1.5">
             <div className="min-w-0">
@@ -631,7 +805,7 @@ export default function SimpleSubscription() {
         </BentoCard>
       )}
 
-      {showSummary && (
+      {!isFrozen && showSummary && (
         <>
           <Button
             variant="primary"

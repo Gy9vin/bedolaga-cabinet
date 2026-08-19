@@ -5980,7 +5980,23 @@
       "historyRowSub": "Purchases, renewals and gaps",
       "changeTrafficLink": "Change traffic and countries",
       "sponsoredRowTitle": "Pay for a friend's subscription",
-      "sponsoredRowSub": "From your balance — for a friend"
+      "sponsoredRowSub": "From your balance — for a friend",
+      "freeze": {
+        "freeze_button": "Freeze subscription",
+        "unfreeze_button": "Unfreeze subscription",
+        "modal_title": "Freeze subscription?",
+        "modal_body": "While frozen, VPN will not work. Your remaining days ({{days}}) will be saved and restored when you unfreeze. You can unfreeze here or via the Telegram bot. If you do nothing, the subscription will unfreeze on its own later.",
+        "confirm_button": "Freeze",
+        "cancel_button": "Cancel",
+        "status_frozen": "Subscription frozen",
+        "days_banked": "Days saved: {{count}}",
+        "auto_unfreeze_at": "Auto-unfreeze: {{date}}",
+        "email_required_cta": "Link your email to freeze the subscription.",
+        "email_link": "Go to profile",
+        "hero_status": "Frozen",
+        "hero_days_banked": "Saved: {{count}} days",
+        "hero_hint": "Unfreeze in the Subscription section"
+      }
     },
     "sponsored": {
       "title": "Pay for a friend's subscription",

@@ -5353,7 +5353,23 @@
       "historyRowSub": "购买、续费和中断记录",
       "changeTrafficLink": "修改流量和国家",
       "sponsoredRowTitle": "为好友付费",
-      "sponsoredRowSub": "从您的余额扣款 — 为好友"
+      "sponsoredRowSub": "从您的余额扣款 — 为好友",
+      "freeze": {
+        "freeze_button": "冻结订阅",
+        "unfreeze_button": "解冻订阅",
+        "modal_title": "冻结订阅？",
+        "modal_body": "冻结期间 VPN 将无法使用。剩余天数（{{days}}）将被保存，解冻后恢复。您可以在此处或通过 Telegram 机器人解冻。如果不做任何操作，订阅将稍后自动解冻。",
+        "confirm_button": "冻结",
+        "cancel_button": "取消",
+        "status_frozen": "订阅已冻结",
+        "days_banked": "已保存天数：{{count}}",
+        "auto_unfreeze_at": "自动解冻：{{date}}",
+        "email_required_cta": "请绑定邮箱以冻结订阅。",
+        "email_link": "前往个人资料",
+        "hero_status": "已冻结",
+        "hero_days_banked": "已保存：{{count}} 天",
+        "hero_hint": "在订阅页面解冻"
+      }
     },
     "sponsored": {
       "title": "为好友付费",

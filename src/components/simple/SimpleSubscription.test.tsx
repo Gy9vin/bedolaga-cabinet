@@ -34,7 +34,13 @@ vi.mock('../../api/subscription', () => ({
     updateAutopay: vi.fn(),
     purchaseTariff: vi.fn(),
     saveTariffCart: vi.fn(),
+    freeze: vi.fn(),
+    unfreeze: vi.fn(),
   },
+}));
+
+vi.mock('../../store/auth', () => ({
+  useAuthStore: (selector: (s: { user: null }) => unknown) => selector({ user: null }),
 }));
 
 vi.mock('../../api/balance', () => ({
