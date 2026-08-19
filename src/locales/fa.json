@@ -5303,7 +5303,13 @@
       "balanceHint": "برای شارژ ضربه بزنید",
       "trialBalanceEnough": "کافی است — بلافاصله کسر می‌شود",
       "trialBalanceMissing": "{{amount}} کم دارید",
-      "trialClosingHint": "در ادامه، تعرفهٔ معمولی از {{price}} در ماه."
+      "trialClosingHint": "در ادامه، تعرفهٔ معمولی از {{price}} در ماه.",
+      "daysLeft_other": "{{count}} روز باقی مانده",
+      "heroSubTrialFree_other": "{{days}} روز رایگان — برای امتحان",
+      "heroSubTrialPaid_other": "{{days}} روز به قیمت {{price}} — برای امتحان",
+      "trialDaysRow_other": "{{count}} روز دسترسی",
+      "tryTrialFree_other": "امتحان {{days}} روز رایگان",
+      "tryTrialPaid_other": "امتحان {{days}} روز به قیمت {{price}}"
     },
     "subscription": {
       "title": "اشتراک",
@@ -5412,7 +5418,8 @@
       "disconnectAll": "قطع همه دستگاه‌ها",
       "disconnectSelected": "قطع {{count}} دستگاه",
       "disconnectSelectedHint": "دسترسی روی آن‌ها فوراً قطع می‌شود. هر زمان می‌توانید دوباره وصل کنید.",
-      "batchDeletePartialError": "قطع {{count}} دستگاه ناموفق بود — دوباره تلاش کنید"
+      "batchDeletePartialError": "قطع {{count}} دستگاه ناموفق بود — دوباره تلاش کنید",
+      "disconnectSelected_other": "قطع {{count}} دستگاه"
     },
     "deviceLimit": {
       "title": "محدودیت دستگاه",
@@ -5472,7 +5479,8 @@
       "rowCharge": "پرداخت اشتراک",
       "rowChargeSub": "به‌صورت خودکار",
       "rowBalanceLeft": "باقیمانده موجودی",
-      "hint": "تاریخچه کامل تراکنش‌ها در حالت پیشرفته قابل مشاهده است."
+      "hint": "تاریخچه کامل تراکنش‌ها در حالت پیشرفته قابل مشاهده است.",
+      "untilLower": "تا {{date}}"
     },
     "referral": {
       "title": "دعوت از دوستان",
@@ -5490,10 +5498,11 @@
       "withdrawalRemaining": "{{amount}} تا رسیدن به حداقل مبلغ",
       "withdrawButtonReady": "برداشت {{amount}}",
       "withdrawButtonMin": "برداشت از {{amount}}",
-      "feedLabel": "دعوت‌شده‌ها و تراکنش‌ها",
+      "feedLabel": "کسانی که آمدند",
       "feedPaid": "اشتراک را پرداخت کرد",
       "feedWaiting": "هنوز پرداخت نکرده",
-      "showAllLink": "نمایش همه — {{count}}"
+      "showAllLink": "نمایش همه — {{count}}",
+      "feedWaitingValue": "در انتظار"
     },
     "profile": {
       "title": "پروفایل",

@@ -260,9 +260,13 @@ export default function SimpleDashboard() {
                 : trialInfo.requires_payment
                   ? t('simple.dashboard.heroSubTrialPaid', {
                       days: trialInfo.duration_days,
+                      count: trialInfo.duration_days,
                       price: formatPrice(trialInfo.price_kopeks),
                     })
-                  : t('simple.dashboard.heroSubTrialFree', { days: trialInfo.duration_days })}
+                  : t('simple.dashboard.heroSubTrialFree', {
+                      days: trialInfo.duration_days,
+                      count: trialInfo.duration_days,
+                    })}
             </p>
           </BentoCard>
 
@@ -277,9 +281,13 @@ export default function SimpleDashboard() {
               {trialInfo.requires_payment
                 ? t('simple.dashboard.tryTrialPaid', {
                     days: trialInfo.duration_days,
+                    count: trialInfo.duration_days,
                     price: formatPrice(trialInfo.price_kopeks),
                   })
-                : t('simple.dashboard.tryTrialFree', { days: trialInfo.duration_days })}
+                : t('simple.dashboard.tryTrialFree', {
+                    days: trialInfo.duration_days,
+                    count: trialInfo.duration_days,
+                  })}
             </Button>
           )}
 

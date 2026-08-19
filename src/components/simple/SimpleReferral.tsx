@@ -23,6 +23,7 @@ type FeedItem = {
   subtitle: string;
   value: string | null;
   positive: boolean;
+  muted?: boolean;
   createdAt: string;
 };
 
@@ -155,8 +156,9 @@ export default function SimpleReferral() {
       subtitle: `${formatShortDate(ref.created_at)} · ${
         ref.has_paid ? t('simple.referral.feedPaid') : t('simple.referral.feedWaiting')
       }`,
-      value: null,
+      value: ref.has_paid ? null : t('simple.referral.feedWaitingValue'),
       positive: false,
+      muted: !ref.has_paid,
       createdAt: ref.created_at,
     }));
     const earningItems: FeedItem[] = (earnings?.items ?? []).map((earning) => ({
@@ -166,6 +168,7 @@ export default function SimpleReferral() {
       subtitle: `${formatShortDate(earning.created_at)} · ${t(`referral.reasons.${earning.reason}`, earning.reason)}`,
       value: formatPrice(earning.amount_kopeks),
       positive: true,
+      muted: false,
       createdAt: earning.created_at,
     }));
     return [...referralItems, ...earningItems]
@@ -279,9 +282,13 @@ export default function SimpleReferral() {
                 subtitle={item.subtitle}
                 value={
                   item.value ? (
-                    <span className={item.positive ? 'text-success-400' : undefined}>
-                      +{item.value}
-                    </span>
+                    item.muted ? (
+                      <span className="text-dark-500">{item.value}</span>
+                    ) : (
+                      <span className={item.positive ? 'text-success-400' : undefined}>
+                        +{item.value}
+                      </span>
+                    )
                   ) : undefined
                 }
               />

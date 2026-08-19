@@ -5921,7 +5921,19 @@
       "balanceHint": "Tap to top up",
       "trialBalanceEnough": "Enough — we'll charge it right away",
       "trialBalanceMissing": "Short by {{amount}}",
-      "trialClosingHint": "Next comes the regular plan from {{price}} a month."
+      "trialClosingHint": "Next comes the regular plan from {{price}} a month.",
+      "daysLeft_one": "{{count}} day left",
+      "daysLeft_other": "{{count}} days left",
+      "heroSubTrialFree_one": "{{days}} day free — try it out",
+      "heroSubTrialFree_other": "{{days}} days free — try it out",
+      "heroSubTrialPaid_one": "{{days}} day for {{price}} — try it out",
+      "heroSubTrialPaid_other": "{{days}} days for {{price}} — try it out",
+      "trialDaysRow_one": "{{count}} day of access",
+      "trialDaysRow_other": "{{count}} days of access",
+      "tryTrialFree_one": "Try {{days}} day free",
+      "tryTrialFree_other": "Try {{days}} days free",
+      "tryTrialPaid_one": "Try {{days}} day for {{price}}",
+      "tryTrialPaid_other": "Try {{days}} days for {{price}}"
     },
     "subscription": {
       "title": "Subscription",
@@ -6031,11 +6043,13 @@
       "renameDone": "Done",
       "hint": "Until a name is set, we show the device model from the panel. Tap \"Name\" to rename it — the name is visible only to you and is kept across all your subscriptions. The last subscription request date shows which device hasn't been used in a while.",
       "disconnectAll": "Disconnect all devices",
-      "disconnectSelected": "Disconnect {{count}}",
+      "disconnectSelected": "Disconnect {{count}} devices",
       "disconnectSelectedHint": "Access on them will end immediately. You can reconnect anytime.",
       "batchDeletePartialError": "Failed to disconnect {{count}} devices — try again",
       "batchDeletePartialError_one": "Failed to disconnect {{count}} device — try again",
-      "batchDeletePartialError_other": "Failed to disconnect {{count}} devices — try again"
+      "batchDeletePartialError_other": "Failed to disconnect {{count}} devices — try again",
+      "disconnectSelected_one": "Disconnect {{count}} device",
+      "disconnectSelected_other": "Disconnect {{count}} devices"
     },
     "deviceLimit": {
       "title": "Device limit",
@@ -6078,7 +6092,7 @@
       "presetsLabel": "Or a ready amount",
       "presetsHint": "These amounts match your plan prices — top up and buy right away, with nothing left on the balance.",
       "methodLabel": "Payment method",
-      "methodMin": "from {{amount}}",
+      "methodMin": "From {{amount}}",
       "methodHint": "Each method has its own minimum — a smaller amount makes it unavailable.",
       "submitButton": "Top up {{amount}}",
       "submitButtonEmpty": "Top up",
@@ -6103,7 +6117,8 @@
       "rowCharge": "Subscription payment",
       "rowChargeSub": "Automatic",
       "rowBalanceLeft": "Balance left",
-      "hint": "The full history is available in extended mode."
+      "hint": "The full history is available in extended mode.",
+      "untilLower": "until {{date}}"
     },
     "referral": {
       "title": "Referrals",
@@ -6121,10 +6136,11 @@
       "withdrawalRemaining": "{{amount}} more until the minimum amount",
       "withdrawButtonReady": "Withdraw {{amount}}",
       "withdrawButtonMin": "Withdraw from {{amount}}",
-      "feedLabel": "Referrals and payouts",
+      "feedLabel": "Who joined",
       "feedPaid": "paid for a subscription",
       "feedWaiting": "has not paid yet",
-      "showAllLink": "Show all — {{count}}"
+      "showAllLink": "Show all — {{count}}",
+      "feedWaitingValue": "pending"
     },
     "profile": {
       "title": "Profile",

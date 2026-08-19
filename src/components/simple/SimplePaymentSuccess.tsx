@@ -96,7 +96,9 @@ export default function SimplePaymentSuccess({
                 {' · '}
                 {t('simple.subscription.devicesCount', { count: subscription.device_limit })}
                 {' · '}
-                {t('simple.subscription.until', { date: formatShortDate(subscription.end_date) })}
+                {t('simple.paymentSuccess.untilLower', {
+                  date: formatShortDate(subscription.end_date),
+                })}
               </p>
             </div>
           ) : (

@@ -5302,7 +5302,13 @@
       "balanceHint": "点击充值",
       "trialBalanceEnough": "余额充足 — 将立即扣款",
       "trialBalanceMissing": "还差 {{amount}}",
-      "trialClosingHint": "之后是普通套餐，起价 {{price}}/月。"
+      "trialClosingHint": "之后是普通套餐，起价 {{price}}/月。",
+      "daysLeft_other": "剩余 {{count}} 天",
+      "heroSubTrialFree_other": "免费试用 {{days}} 天 — 体验效果",
+      "heroSubTrialPaid_other": "{{days}} 天，仅需 {{price}} — 体验效果",
+      "trialDaysRow_other": "{{count}} 天使用权限",
+      "tryTrialFree_other": "免费试用 {{days}} 天",
+      "tryTrialPaid_other": "试用 {{days}} 天，{{price}}"
     },
     "subscription": {
       "title": "订阅",
@@ -5409,9 +5415,10 @@
       "renameDone": "完成",
       "hint": "未设置名称前，显示面板中的设备型号。点击\"命名\"可自定义名称——名称仅您可见，并会保留在您的所有订阅中。根据订阅的最后请求日期，可以看出哪台设备已经很久没用过了。",
       "disconnectAll": "断开所有设备",
-      "disconnectSelected": "断开 {{count}} 个",
+      "disconnectSelected": "断开 {{count}} 台设备",
       "disconnectSelectedHint": "这些设备的访问权限将立即失效，随时可以重新连接。",
-      "batchDeletePartialError": "有 {{count}} 台设备断开失败，请重试"
+      "batchDeletePartialError": "有 {{count}} 台设备断开失败，请重试",
+      "disconnectSelected_other": "断开 {{count}} 台设备"
     },
     "deviceLimit": {
       "title": "设备限额",
@@ -5471,7 +5478,8 @@
       "rowCharge": "订阅扣费",
       "rowChargeSub": "自动完成",
       "rowBalanceLeft": "剩余余额",
-      "hint": "完整的操作记录可在扩展模式中查看。"
+      "hint": "完整的操作记录可在扩展模式中查看。",
+      "untilLower": "至 {{date}}"
     },
     "referral": {
       "title": "推荐好友",
@@ -5489,10 +5497,11 @@
       "withdrawalRemaining": "距最低提现金额还差 {{amount}}",
       "withdrawButtonReady": "提现 {{amount}}",
       "withdrawButtonMin": "满 {{amount}} 起可提现",
-      "feedLabel": "邀请与收益记录",
+      "feedLabel": "谁加入了",
       "feedPaid": "已支付订阅",
       "feedWaiting": "尚未支付",
-      "showAllLink": "查看全部 — {{count}}"
+      "showAllLink": "查看全部 — {{count}}",
+      "feedWaitingValue": "等待中"
     },
     "profile": {
       "title": "个人资料",
