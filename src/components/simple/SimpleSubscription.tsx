@@ -182,7 +182,10 @@ export default function SimpleSubscription() {
     ? (selectedPeriod?.traffic.selectable ?? classicOptions?.traffic.selectable ?? false)
     : (selectedTariff?.custom_traffic_enabled ?? false);
   const hasAvailableCountries = (countriesData?.countries ?? []).some((c) => c.is_available);
-  const canCustomize = trafficSelectable || hasAvailableCountries;
+  // Безлимитный трафик (traffic_limit_gb === 0) нельзя менять — ссылку скрываем.
+  const isUnlimitedTraffic = subscription?.traffic_limit_gb === 0;
+  const trafficCustomizable = trafficSelectable && !isUnlimitedTraffic;
+  const canCustomize = trafficCustomizable || hasAvailableCountries;
 
   const availableMethods = (paymentMethods ?? []).filter((m) => m.is_available);
   const effectiveMethodId = selectedMethodId ?? availableMethods[0]?.id ?? null;
