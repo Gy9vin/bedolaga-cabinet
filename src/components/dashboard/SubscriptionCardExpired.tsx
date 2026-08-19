@@ -52,6 +52,13 @@ export default function SubscriptionCardExpired({
   const hasBalance = isDaily ? balanceKopeks >= dailyPrice && dailyPrice > 0 : balanceKopeks >= 100;
 
   const handleQuickRenew = async () => {
+    if (!isDisabledDaily && !isDaily) {
+      // Не-суточная подписка: ведём на страницу выбора периода продления,
+      // а не списываем фиксированный 1 месяц без подтверждения.
+      navigate(`/subscriptions/${subscription.id}/renew`);
+      return;
+    }
+
     setIsRenewing(true);
     setRenewError(null);
     haptic.buttonPressHeavy();
@@ -60,14 +67,18 @@ export default function SubscriptionCardExpired({
       if (isDisabledDaily) {
         // Resume daily subscription via toggle pause endpoint
         await subscriptionApi.togglePause(subscription.id);
-      } else if (isDaily && subscription.tariff_id) {
+      } else {
+        // isDaily && subscription.tariff_id
         // Expired daily tariff — purchase for 1 day. Pass subscription.id
         // so the backend resolves the EXACT row instead of doing a
         // (user_id, tariff_id) re-lookup that races with concurrent
         // panel webhooks (would surface as "Тариф уже активен" + refund).
-        await subscriptionApi.purchaseTariff(subscription.tariff_id, 1, undefined, subscription.id);
-      } else {
-        await subscriptionApi.renewSubscription(30, subscription.id);
+        await subscriptionApi.purchaseTariff(
+          subscription.tariff_id!,
+          1,
+          undefined,
+          subscription.id,
+        );
       }
       haptic.success();
       queryClient.invalidateQueries({
