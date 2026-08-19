@@ -171,22 +171,6 @@ export default function SimpleSubscription() {
     },
   });
 
-  const { data: countriesData } = useQuery({
-    queryKey: ['subscription-countries'],
-    queryFn: () => subscriptionApi.getCountries(),
-  });
-
-  // Ссылку «Изменить трафик и страны» показываем только когда есть что менять:
-  // трафик выбирается (TrafficConfig.selectable) или есть хотя бы одна доступная страна.
-  const trafficSelectable = isClassic
-    ? (selectedPeriod?.traffic.selectable ?? classicOptions?.traffic.selectable ?? false)
-    : (selectedTariff?.custom_traffic_enabled ?? false);
-  const hasAvailableCountries = (countriesData?.countries ?? []).some((c) => c.is_available);
-  // Безлимитный трафик (traffic_limit_gb === 0) нельзя менять — ссылку скрываем.
-  const isUnlimitedTraffic = subscription?.traffic_limit_gb === 0;
-  const trafficCustomizable = trafficSelectable && !isUnlimitedTraffic;
-  const canCustomize = trafficCustomizable || hasAvailableCountries;
-
   const availableMethods = (paymentMethods ?? []).filter((m) => m.is_available);
   const effectiveMethodId = selectedMethodId ?? availableMethods[0]?.id ?? null;
 
@@ -680,16 +664,6 @@ export default function SimpleSubscription() {
           chevron
         />
       </SimpleGroup>
-
-      {canCustomize && (
-        <button
-          type="button"
-          onClick={() => navigate('/subscription/purchase')}
-          className="text-center text-sm font-medium text-accent-400"
-        >
-          {t('simple.subscription.changeTrafficLink')}
-        </button>
-      )}
     </SimpleScreen>
   );
 }
