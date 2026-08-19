@@ -2,7 +2,6 @@ import { useEffect, useMemo, useRef, useState } from 'react';
 import { useNavigate } from 'react-router';
 import { useQuery } from '@tanstack/react-query';
 import { useTranslation } from 'react-i18next';
-import QRCode from 'qrcode';
 import SimpleScreen from './SimpleScreen';
 import SimpleStat from './SimpleStat';
 import SimpleRow from './SimpleRow';
@@ -40,8 +39,6 @@ export default function SimpleReferral() {
   const { setMode } = useUiMode();
 
   const [copiedLink, setCopiedLink] = useState<'cabinet' | 'bot' | null>(null);
-  const [showQr, setShowQr] = useState(false);
-  const [qrDataUrl, setQrDataUrl] = useState<string | null>(null);
   const copyTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   useEffect(() => {
@@ -127,21 +124,6 @@ export default function SimpleReferral() {
 
     const telegramUrl = `https://t.me/share/url?url=${encodeURIComponent(cabinetLink)}&text=${encodeURIComponent(shareText)}`;
     openTelegramLink(telegramUrl);
-  };
-
-  const openQr = async () => {
-    if (!cabinetLink) return;
-    try {
-      const dataUrl = await QRCode.toDataURL(cabinetLink, {
-        width: 280,
-        margin: 2,
-        color: { dark: '#000000', light: '#ffffff' },
-      });
-      setQrDataUrl(dataUrl);
-      setShowQr(true);
-    } catch {
-      /* ignore */
-    }
   };
 
   // Лента «Кто пришёл»: одна строка на человека, без сырых ключей reason.
@@ -272,12 +254,9 @@ export default function SimpleReferral() {
             t={t}
           />
         )}
-        <div className="mt-3 grid grid-cols-2 gap-2">
-          <Button variant="primary" size="sm" onClick={shareLink} disabled={!cabinetLink}>
+        <div className="mt-3">
+          <Button variant="primary" size="sm" fullWidth onClick={shareLink} disabled={!cabinetLink}>
             {t('simple.referral.shareButton')}
-          </Button>
-          <Button variant="secondary" size="sm" onClick={openQr} disabled={!cabinetLink}>
-            {t('simple.referral.qrButton')}
           </Button>
         </div>
       </BentoCard>
@@ -363,28 +342,6 @@ export default function SimpleReferral() {
           >
             {t('simple.referral.showAllLink', { count: info?.total_referrals ?? 0 })}
           </button>
-        </div>
-      )}
-
-      {showQr && qrDataUrl && (
-        <div
-          className="fixed inset-0 z-50 flex items-start justify-center overflow-y-auto bg-black/60 pt-20 backdrop-blur-sm"
-          onClick={() => setShowQr(false)}
-        >
-          <div
-            className="mx-4 mb-10 w-full max-w-xs rounded-2xl border border-dark-700/50 bg-dark-800 p-6"
-            onClick={(e) => e.stopPropagation()}
-          >
-            <div className="mb-4 text-center text-lg font-medium text-dark-100">
-              {t('simple.referral.qrButton')}
-            </div>
-            <div className="flex justify-center rounded-xl bg-white p-4">
-              <img src={qrDataUrl} alt="QR" className="h-auto w-full max-w-[248px]" />
-            </div>
-            <Button variant="secondary" fullWidth onClick={() => setShowQr(false)} className="mt-4">
-              {t('common.close')}
-            </Button>
-          </div>
         </div>
       )}
     </SimpleScreen>
