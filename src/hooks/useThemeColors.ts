@@ -1,7 +1,12 @@
 import { useEffect } from 'react';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { themeColorsApi } from '../api/themeColors';
-import { ThemeColors, DEFAULT_THEME_COLORS, SHADE_LEVELS, ColorPalette } from '../types/theme';
+import {
+  type ThemeColors,
+  DEFAULT_THEME_COLORS,
+  SHADE_LEVELS,
+  type ColorPalette,
+} from '../types/theme';
 import { hexToRgb, hexToHsl, hslToRgb } from '../utils/colorConversion';
 
 // Convert RGB to string format for CSS variable
@@ -11,9 +16,10 @@ function rgbToString(r: number, g: number, b: number): string {
 
 // Generate color palette from base color (returns RGB strings)
 function generatePalette(baseHex: string): ColorPalette {
-  const { h, s } = hexToHsl(baseHex);
+  const { h, s, l: baseL } = hexToHsl(baseHex);
 
-  // Lightness values for each shade level (from light to dark)
+  // Lightness values for each shade level (from light to dark).
+  // Shade 500 anchors to the base color's actual lightness (see delta below).
   const lightnessMap: Record<number, number> = {
     50: 97,
     100: 94,
@@ -28,10 +34,16 @@ function generatePalette(baseHex: string): ColorPalette {
     950: 10,
   };
 
+  // Shift the whole ramp so that shade 500 matches the base color's lightness.
+  // For a dark accent like #0E7C7B (L≈27 %) the delta is -23, pulling 500 from
+  // the fixed L=50 % down to L=27 %, while shades 50-400 stay lighter and
+  // 600-950 stay darker, preserving the monotone shape of the ramp.
+  const delta = baseL - lightnessMap[500];
+
   const palette: Partial<ColorPalette> = {};
 
   for (const shade of SHADE_LEVELS) {
-    const lightness = lightnessMap[shade];
+    const lightness = Math.min(100, Math.max(0, lightnessMap[shade] + delta));
     // Adjust saturation slightly for very light/dark shades
     const adjustedS = shade <= 100 ? s * 0.7 : shade >= 900 ? s * 0.8 : s;
     const { r, g, b } = hslToRgb(h, adjustedS, lightness);
@@ -68,7 +80,7 @@ function mixRgb(rgb1: Rgb, rgb2: Rgb, factor: number): Rgb {
 function relativeLuminance({ r, g, b }: Rgb): number {
   const srgb = (v: number) => {
     const c = v / 255;
-    return c <= 0.04045 ? c / 12.92 : Math.pow((c + 0.055) / 1.055, 2.4);
+    return c <= 0.04045 ? c / 12.92 : ((c + 0.055) / 1.055) ** 2.4;
   };
   return 0.2126 * srgb(r) + 0.7152 * srgb(g) + 0.0722 * srgb(b);
 }
