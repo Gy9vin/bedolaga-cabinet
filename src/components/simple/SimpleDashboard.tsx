@@ -165,12 +165,12 @@ export default function SimpleDashboard() {
               <div className="flex items-center justify-center gap-2">
                 <span
                   className="h-2 w-2 rounded-full"
-                  style={{ backgroundColor: 'rgb(var(--blue-400))' }}
+                  style={{ backgroundColor: 'var(--blue-400)' }}
                   aria-hidden="true"
                 />
                 <span
                   className="text-xs font-semibold uppercase tracking-wide"
-                  style={{ color: 'rgb(var(--blue-400))' }}
+                  style={{ color: 'var(--blue-400)' }}
                 >
                   {t('simple.dashboard.statusFrozen')}
                 </span>
