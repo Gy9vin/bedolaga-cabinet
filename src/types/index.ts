@@ -96,6 +96,10 @@ export interface Subscription {
   // Daily tariff fields
   is_daily?: boolean;
   is_daily_paused?: boolean;
+  // Freeze fields
+  is_frozen?: boolean;
+  frozen_days_banked?: number | null;
+  frozen_auto_unfreeze_at?: string | null;
   daily_price_kopeks?: number;
   next_daily_charge_at?: string; // ISO datetime string
   // Tariff info

@@ -821,4 +821,38 @@ export const subscriptionApi = {
     );
     return response.data;
   },
+
+  // ── Freeze subscription ─────────────────────────────────────────────
+
+  freeze: async (
+    subscriptionId?: number,
+  ): Promise<{
+    success: boolean;
+    is_frozen: boolean;
+    frozen_days_banked: number | null;
+    frozen_auto_unfreeze_at: string | null;
+    new_end_date: string;
+  }> => {
+    const response = await apiClient.post(
+      '/cabinet/subscription/freeze',
+      undefined,
+      withSubId(subscriptionId),
+    );
+    return response.data;
+  },
+
+  unfreeze: async (
+    subscriptionId?: number,
+  ): Promise<{
+    success: boolean;
+    is_frozen: boolean;
+    new_end_date: string;
+  }> => {
+    const response = await apiClient.post(
+      '/cabinet/subscription/unfreeze',
+      undefined,
+      withSubId(subscriptionId),
+    );
+    return response.data;
+  },
 };
