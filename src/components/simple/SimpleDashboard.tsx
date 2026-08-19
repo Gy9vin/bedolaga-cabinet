@@ -330,18 +330,26 @@ export default function SimpleDashboard() {
             </Button>
           )}
 
-          <Button
-            variant={trialInfo?.is_available ? 'ghost' : 'primary'}
-            size={trialInfo?.is_available ? 'sm' : 'lg'}
-            fullWidth
-            // Ведём на новый одноэкранный SimpleSubscription (/subscriptions),
-            // а не на старый пятишаговый визард полного кабинета — иначе
-            // именно на первой покупке простой режим выбрасывает новичка
-            // в сложный интерфейс, от которого его должен уводить.
-            onClick={() => navigate('/subscriptions')}
-          >
-            {t('simple.dashboard.choosePlan')}
-          </Button>
+          {trialInfo?.is_available ? (
+            <button
+              type="button"
+              className="w-full text-center text-sm font-medium text-accent-400"
+              // Ведём на новый одноэкранный SimpleSubscription (/subscriptions),
+              // а не на старый пятишаговый визард полного кабинета.
+              onClick={() => navigate('/subscriptions')}
+            >
+              {t('simple.dashboard.choosePlan')}
+            </button>
+          ) : (
+            <Button
+              variant="primary"
+              size="lg"
+              fullWidth
+              onClick={() => navigate('/subscriptions')}
+            >
+              {t('simple.dashboard.choosePlan')}
+            </Button>
+          )}
 
           {trialInfo?.is_available && (
             <>
