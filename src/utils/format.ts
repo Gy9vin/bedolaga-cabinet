@@ -77,16 +77,26 @@ export function formatShortDate(date: string | null): string {
 /**
  * Человеческая дата «9 сентября» (день + месяц словом) в активной локали —
  * формат простого режима из макета, где даты пишутся словами, а не
- * «09.09.2026». По умолчанию без года (как «до 9 сентября», «18 августа»);
- * с `{ year: true }` добавляет год для дат-вех вроде «С вами с 1 июня 2026».
+ * «09.09.2026».
+ *
+ * Логика отображения года:
+ * - `{ year: true }`  — год всегда (напр. «С вами с 1 июня 2026»).
+ * - `{ year: false }` — год никогда.
+ * - opts не передан / `year` не задан — **авто**: год показывается только
+ *   если год даты отличается от текущего (напр. «30 сентября 2099»).
+ *   Для дат текущего года — коротко: «9 сентября».
+ *
  * Возвращает '' для пустой даты, чтобы пустое значение не занимало место.
  */
 export function formatLongDate(date: string | null, opts?: { year?: boolean }): string {
   if (!date) return '';
-  return new Date(date).toLocaleDateString(uiLocale(), {
+  const d = new Date(date);
+  const showYear =
+    opts?.year !== undefined ? opts.year : d.getFullYear() !== new Date().getFullYear();
+  return d.toLocaleDateString(uiLocale(), {
     day: 'numeric',
     month: 'long',
-    ...(opts?.year ? { year: 'numeric' } : {}),
+    ...(showYear ? { year: 'numeric' } : {}),
   });
 }
 
