@@ -460,7 +460,7 @@ function App() {
         <Route
           path="/balance/top-up/result"
           element={
-            <ProtectedRoute withLayout={false}>
+            <ProtectedRoute>
               <LazyPage>
                 <TopUpResult />
               </LazyPage>
@@ -472,7 +472,7 @@ function App() {
         <Route
           path="/balance/top-up/result/:method"
           element={
-            <ProtectedRoute withLayout={false}>
+            <ProtectedRoute>
               <LazyPage>
                 <TopUpResult />
               </LazyPage>

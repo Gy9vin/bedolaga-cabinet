@@ -282,9 +282,9 @@ describe('SimpleSubscription', () => {
     render(<SimpleSubscription />, { wrapper: makeWrapper() });
 
     await waitFor(() => {
-      expect(screen.getByText(/Тариф.*649 ₽/)).toBeTruthy();
+      expect(screen.getByText(/649 ₽.*Тариф/)).toBeTruthy();
     });
-    expect(screen.getByText(/Устройства.*360 ₽/)).toBeTruthy();
+    expect(screen.getByText(/360 ₽.*Устройства/)).toBeTruthy();
   });
 
   it('одна строка расшифровки (или её отсутствие) — блок с расшифровкой не показываем', async () => {

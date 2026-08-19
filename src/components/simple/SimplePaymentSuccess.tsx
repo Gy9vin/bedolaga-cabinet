@@ -1,7 +1,9 @@
+import { useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { useQuery } from '@tanstack/react-query';
 import { useNavigate } from 'react-router';
 import { useTranslation } from 'react-i18next';
+import SimpleScreen from './SimpleScreen';
 import SimpleGroup from './SimpleGroup';
 import SimpleRow from './SimpleRow';
 import { Button } from '@/components/primitives/Button/Button';
@@ -9,7 +11,8 @@ import { AnimatedCheckmark } from '@/components/ui/AnimatedCheckmark';
 import { useSubscriptionConnection } from '@/hooks/useSubscriptionConnection';
 import { subscriptionApi } from '../../api/subscription';
 import { balanceApi } from '../../api/balance';
-import { formatPrice, formatShortDate } from '../../utils/format';
+import { formatPrice, formatLongDate } from '../../utils/format';
+import { useNavActiveOverrideStore } from '@/store/navActiveOverride';
 
 interface SimplePaymentSuccessProps {
   /** Сумма пополнения в копейках — реальное число со страницы TopUpResult. */
@@ -33,6 +36,10 @@ function formatTimeOfDay(iso: string | null | undefined): string | null {
  * (в связке с разрывом 2) включило подписку само. Главное действие —
  * подключение устройства, а не список подписок: человек уже там, куда шёл.
  *
+ * Рендерится внутри общего layout (AppShell) с шапкой и нижним таб-баром.
+ * Активная вкладка таб-бара — «Главная» (override через navActiveOverride
+ * store, т.к. URL /balance/top-up/result не совпадает с путями простого таббара).
+ *
  * Сколько именно списалось за подписку, отсюда не видно (нет читающего
  * корзину эндпоинта) — эту цифру не выдумываем, показываем только то, что
  * реально известно странице: сумму пополнения и текущий остаток баланса.
@@ -44,6 +51,13 @@ export default function SimplePaymentSuccess({
 }: SimplePaymentSuccessProps) {
   const { t } = useTranslation();
   const navigate = useNavigate();
+  const setNavActivePath = useNavActiveOverrideStore((s) => s.setNavActivePath);
+
+  // Подсвечиваем вкладку «Главная» пока этот экран открыт.
+  useEffect(() => {
+    setNavActivePath('/');
+    return () => setNavActivePath(null);
+  }, [setNavActivePath]);
 
   const { data: subscriptionResponse } = useQuery({
     queryKey: ['subscription'],
@@ -72,11 +86,11 @@ export default function SimplePaymentSuccess({
       .join(' · ') || undefined;
 
   return (
-    <div className="flex min-h-dvh items-center justify-center bg-dark-950 px-4">
+    <SimpleScreen title={t('simple.paymentSuccess.pageTitle')}>
       <motion.div
         initial={{ opacity: 0, scale: 0.9 }}
         animate={{ opacity: 1, scale: 1 }}
-        className="w-full max-w-md space-y-5 rounded-2xl border border-dark-800/50 bg-dark-900/50 p-8"
+        className="space-y-5"
       >
         <div className="flex flex-col items-center gap-3 text-center">
           <AnimatedCheckmark />
@@ -97,7 +111,7 @@ export default function SimplePaymentSuccess({
                 {t('simple.subscription.devicesCount', { count: subscription.device_limit })}
                 {' · '}
                 {t('simple.paymentSuccess.untilLower', {
-                  date: formatShortDate(subscription.end_date),
+                  date: formatLongDate(subscription.end_date),
                 })}
               </p>
             </div>
@@ -148,6 +162,6 @@ export default function SimplePaymentSuccess({
 
         <p className="text-center text-xs text-dark-500">{t('simple.paymentSuccess.hint')}</p>
       </motion.div>
-    </div>
+    </SimpleScreen>
   );
 }

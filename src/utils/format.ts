@@ -52,6 +52,9 @@ export function formatPrice(kopeks: number, lang?: string): string {
     return new Intl.NumberFormat(config.locale, {
       style: 'currency',
       currency: config.currency,
+      // Целые суммы показываем без «,00» (как в макете: «249 ₽», а не
+      // «249,00 ₽»); дробная часть выводится только когда есть копейки.
+      minimumFractionDigits: 0,
       maximumFractionDigits,
     }).format(amount);
   } catch {
@@ -68,6 +71,22 @@ export function formatShortDate(date: string | null): string {
     day: '2-digit',
     month: '2-digit',
     year: 'numeric',
+  });
+}
+
+/**
+ * Человеческая дата «9 сентября» (день + месяц словом) в активной локали —
+ * формат простого режима из макета, где даты пишутся словами, а не
+ * «09.09.2026». По умолчанию без года (как «до 9 сентября», «18 августа»);
+ * с `{ year: true }` добавляет год для дат-вех вроде «С вами с 1 июня 2026».
+ * Возвращает '' для пустой даты, чтобы пустое значение не занимало место.
+ */
+export function formatLongDate(date: string | null, opts?: { year?: boolean }): string {
+  if (!date) return '';
+  return new Date(date).toLocaleDateString(uiLocale(), {
+    day: 'numeric',
+    month: 'long',
+    ...(opts?.year ? { year: 'numeric' } : {}),
   });
 }
 

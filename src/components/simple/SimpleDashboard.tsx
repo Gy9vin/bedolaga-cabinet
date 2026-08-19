@@ -14,7 +14,7 @@ import { useSubscriptionConnection } from '@/hooks/useSubscriptionConnection';
 import { subscriptionApi } from '../../api/subscription';
 import { balanceApi } from '../../api/balance';
 import { API } from '../../config/constants';
-import { formatPrice, formatShortDate } from '../../utils/format';
+import { formatPrice, formatLongDate } from '../../utils/format';
 import type { ClassicPurchaseOptions, TariffsPurchaseOptions } from '../../types';
 
 /**
@@ -153,21 +153,27 @@ export default function SimpleDashboard() {
     <SimpleScreen brand={appName} modeChip={t('simple.dashboard.modeChip')}>
       {hasSubscription && subscription ? (
         <>
-          <BentoCard size="xl" className="text-center">
-            <div className="flex items-center justify-center gap-2">
-              <span className="h-2 w-2 rounded-full bg-success-400" aria-hidden="true" />
-              <span className="text-xs font-semibold uppercase tracking-wide text-success-400">
-                {t('simple.dashboard.statusConnected')}
-              </span>
-            </div>
-            <p className="mt-2 text-2xl font-bold tracking-tight text-dark-50">
-              {t('simple.dashboard.daysLeft', { count: subscription.days_left })}
-            </p>
-            <p className="mt-1 text-sm text-dark-400">
-              {t('simple.dashboard.activeUntil', { date: formatShortDate(subscription.end_date) })}
-            </p>
-            <TermProgressBar subscription={subscription} />
-          </BentoCard>
+          <button
+            type="button"
+            onClick={() => navigate('/subscriptions')}
+            className="w-full cursor-pointer rounded-2xl focus:outline-none focus-visible:ring-2 focus-visible:ring-accent-500 focus-visible:ring-offset-2"
+          >
+            <BentoCard size="xl" className="text-center">
+              <div className="flex items-center justify-center gap-2">
+                <span className="h-2 w-2 rounded-full bg-success-400" aria-hidden="true" />
+                <span className="text-xs font-semibold uppercase tracking-wide text-success-400">
+                  {t('simple.dashboard.statusConnected')}
+                </span>
+              </div>
+              <p className="mt-2 text-2xl font-bold tracking-tight text-dark-50">
+                {t('simple.dashboard.daysLeft', { count: subscription.days_left })}
+              </p>
+              <p className="mt-1 text-sm text-dark-400">
+                {t('simple.dashboard.activeUntil', { date: formatLongDate(subscription.end_date) })}
+              </p>
+              <TermProgressBar subscription={subscription} />
+            </BentoCard>
+          </button>
 
           <Button variant="primary" size="lg" fullWidth onClick={() => navigate('/connection')}>
             {t('simple.dashboard.connectDevice')}

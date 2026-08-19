@@ -5464,6 +5464,7 @@
       "paymentReady": "در حال باز کردن صفحه پرداخت…"
     },
     "paymentPending": {
+      "pageTitle": "پرداخت",
       "title": "در انتظار تأیید",
       "subtitle": "معمولاً کمتر از یک دقیقه طول می‌کشد. ممکن است بانک بیشتر طول بدهد.",
       "whatNextLabel": "در ادامه چه اتفاقی می‌افتد",
@@ -5475,6 +5476,7 @@
       "hint": "می‌توانید این صفحه را ببندید. خودمان اشتراک را فعال می‌کنیم و در تلگرام اطلاع می‌دهیم."
     },
     "paymentSuccess": {
+      "pageTitle": "انجام شد",
       "statusTitle": "اشتراک فعال است",
       "statusTitleNoSubscription": "موجودی شارژ شد",
       "whatHappenedLabel": "چه اتفاقی افتاد",
@@ -5503,6 +5505,7 @@
       "withdrawButtonMin": "برداشت از {{amount}}",
       "feedLabel": "کسانی که آمدند",
       "feedPaid": "اشتراک را پرداخت کرد",
+      "feedTopUp": "موجودی را شارژ کرد",
       "feedWaiting": "هنوز پرداخت نکرده",
       "showAllLink": "نمایش همه — {{count}}",
       "feedWaitingValue": "در انتظار"

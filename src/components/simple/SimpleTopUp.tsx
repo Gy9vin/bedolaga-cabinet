@@ -35,7 +35,6 @@ export default function SimpleTopUp() {
 
   const [amountRub, setAmountRub] = useState(initialAmount ?? '');
   const [selectedMethodId, setSelectedMethodId] = useState<string | null>(initialMethod);
-  const [paymentUrl, setPaymentUrl] = useState<string | null>(null);
 
   const { data: balance } = useQuery({
     queryKey: ['balance'],
@@ -93,7 +92,6 @@ export default function SimpleTopUp() {
     onSuccess: (data) => {
       const redirectUrl = data.payment_url;
       if (redirectUrl) {
-        setPaymentUrl(redirectUrl);
         openPaymentUrl(redirectUrl, platform, openLink);
       }
     },
@@ -188,25 +186,29 @@ export default function SimpleTopUp() {
                   aria-pressed={isSelected}
                   disabled={disabled}
                   onClick={() => setSelectedMethodId(method.id)}
-                  className={`flex w-full items-center justify-between rounded-2xl border p-3.5 text-left transition-colors disabled:cursor-not-allowed disabled:opacity-40 ${
+                  className={`flex w-full items-center rounded-2xl border p-3.5 text-left transition-colors disabled:cursor-not-allowed disabled:opacity-40 ${
                     isSelected
                       ? 'border-accent-500/60 bg-accent-500/10'
                       : 'border-dark-700/40 bg-dark-900/70'
                   }`}
                 >
+                  {/* Radio-кружок */}
+                  <div className="mr-3 flex h-[18px] w-[18px] shrink-0 items-center justify-center rounded-full border-2 border-dark-500">
+                    {isSelected && <div className="h-2.5 w-2.5 rounded-full bg-accent-500" />}
+                  </div>
                   <div className="min-w-0">
                     <div className="font-medium text-dark-100">{method.name}</div>
                     {method.description && (
                       <div className="mt-0.5 text-xs text-dark-400">{method.description}</div>
                     )}
+                    {method.min_amount_kopeks > 0 && (
+                      <div className="mt-0.5 text-xs text-dark-400">
+                        {t('simple.topUp.methodMin', {
+                          amount: formatPrice(method.min_amount_kopeks),
+                        })}
+                      </div>
+                    )}
                   </div>
-                  {method.min_amount_kopeks > 0 && (
-                    <span className="shrink-0 text-xs text-dark-400">
-                      {t('simple.topUp.methodMin', {
-                        amount: formatPrice(method.min_amount_kopeks),
-                      })}
-                    </span>
-                  )}
                 </button>
               );
             })}
@@ -228,9 +230,7 @@ export default function SimpleTopUp() {
       </Button>
       <p className="text-xs text-dark-500">{t('simple.topUp.methodHint')}</p>
 
-      {paymentUrl && (
-        <p className="text-center text-xs text-dark-500">{t('simple.topUp.paymentReady')}</p>
-      )}
+      {/* paymentReady убран по макету — элемент не показываем */}
     </SimpleScreen>
   );
 }

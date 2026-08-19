@@ -5,6 +5,7 @@ import { motion } from 'framer-motion';
 import { cn } from '@/lib/utils';
 import { usePlatform } from '@/platform';
 import { useUiMode } from '@/hooks/useUiMode';
+import { useNavActiveOverrideStore } from '@/store/navActiveOverride';
 
 // Icons
 import {
@@ -31,9 +32,12 @@ export function MobileBottomNav({
   const { t } = useTranslation();
   const location = useLocation();
   const { haptic } = usePlatform();
+  const navOverride = useNavActiveOverrideStore((s) => s.activePath);
 
-  const isActive = (path: string) =>
-    path === '/' ? location.pathname === '/' : location.pathname.startsWith(path);
+  const isActive = (path: string) => {
+    if (navOverride !== null) return path === navOverride;
+    return path === '/' ? location.pathname === '/' : location.pathname.startsWith(path);
+  };
 
   // Core navigation items for bottom bar.
   //

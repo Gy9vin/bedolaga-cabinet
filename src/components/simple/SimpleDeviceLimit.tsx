@@ -8,7 +8,7 @@ import { Button } from '@/components/primitives/Button/Button';
 import { BentoCard } from '@/components/ui/BentoCard';
 import { CheckIcon } from '@/components/icons';
 import { subscriptionApi } from '../../api/subscription';
-import { formatPrice, formatShortDate } from '../../utils/format';
+import { formatPrice, formatLongDate } from '../../utils/format';
 
 /**
  * Экран «Лимит устройств» простого режима. Степпер меняет device_limit,
@@ -150,7 +150,7 @@ export default function SimpleDeviceLimit() {
               {t('simple.deviceLimit.stepperSub', {
                 limit: oldLimit,
                 connected: connectedCount,
-                date: formatShortDate(subscription?.end_date ?? null),
+                date: formatLongDate(subscription?.end_date ?? null),
               })}
             </p>
           </div>
@@ -239,7 +239,7 @@ export default function SimpleDeviceLimit() {
                 device.client || null,
                 device.platform || null,
                 device.created_at
-                  ? t('simple.devices.requestOn', { date: formatShortDate(device.created_at) })
+                  ? t('simple.devices.requestOn', { date: formatLongDate(device.created_at) })
                   : null,
               ].filter(Boolean);
               return (

@@ -10,7 +10,7 @@ import { Switch } from '@/components/primitives/Switch';
 import { BentoCard } from '@/components/ui/BentoCard';
 import { subscriptionApi } from '../../api/subscription';
 import { balanceApi } from '../../api/balance';
-import { formatPrice, formatShortDate } from '../../utils/format';
+import { formatPrice, formatLongDate } from '../../utils/format';
 import type {
   ClassicPurchaseOptions,
   PurchaseSelection,
@@ -171,6 +171,19 @@ export default function SimpleSubscription() {
     },
   });
 
+  const { data: countriesData } = useQuery({
+    queryKey: ['subscription-countries'],
+    queryFn: () => subscriptionApi.getCountries(),
+  });
+
+  // Ссылку «Изменить трафик и страны» показываем только когда есть что менять:
+  // трафик выбирается (TrafficConfig.selectable) или есть хотя бы одна доступная страна.
+  const trafficSelectable = isClassic
+    ? (selectedPeriod?.traffic.selectable ?? classicOptions?.traffic.selectable ?? false)
+    : (selectedTariff?.custom_traffic_enabled ?? false);
+  const hasAvailableCountries = (countriesData?.countries ?? []).some((c) => c.is_available);
+  const canCustomize = trafficSelectable || hasAvailableCountries;
+
   const availableMethods = (paymentMethods ?? []).filter((m) => m.is_available);
   const effectiveMethodId = selectedMethodId ?? availableMethods[0]?.id ?? null;
 
@@ -280,7 +293,9 @@ export default function SimpleSubscription() {
             </span>
           </div>
           <p className="mt-2 text-base font-bold text-dark-50">
-            {t('simple.subscription.until', { date: formatShortDate(subscription.end_date) })}
+            {t('simple.subscription.until', {
+              date: formatLongDate(subscription.end_date, { year: true }),
+            })}
           </p>
           <p className="mt-0.5 text-sm text-dark-400">
             {t('simple.subscription.tariffLabel', { name: subscription.tariff_name || '—' })}
@@ -504,7 +519,7 @@ export default function SimpleSubscription() {
                   {autopayChargeDate
                     ? t('simple.subscription.autopaySubWithDate', {
                         price: formatPrice(effectiveTotalKopeks),
-                        date: formatShortDate(autopayChargeDate),
+                        date: formatLongDate(autopayChargeDate),
                       })
                     : t('simple.subscription.autopaySub', {
                         price: formatPrice(effectiveTotalKopeks),
@@ -519,9 +534,23 @@ export default function SimpleSubscription() {
             </div>
           </SimpleGroup>
           <p className="-mt-2 text-xs text-dark-500">
-            {autopayChargeDate
-              ? t('simple.subscription.autopayHint')
-              : t('simple.subscription.autopayHintNoDate')}
+            {(() => {
+              const hint = t(
+                autopayChargeDate
+                  ? 'simple.subscription.autopayHint'
+                  : 'simple.subscription.autopayHintNoDate',
+              );
+              const boldPhrase = 'только с баланса кабинета';
+              const idx = hint.indexOf(boldPhrase);
+              if (idx === -1) return hint;
+              return (
+                <>
+                  {hint.slice(0, idx)}
+                  <b>{boldPhrase}</b>
+                  {hint.slice(idx + boldPhrase.length)}
+                </>
+              );
+            })()}
           </p>
         </>
       )}
@@ -577,13 +606,9 @@ export default function SimpleSubscription() {
                   : `${selectedTariff?.name} · ${selectedTariffPeriod?.label}`}
               </p>
               {breakdownLines.length > 1 && (
-                <div className="mt-0.5 space-y-0.5">
-                  {breakdownLines.map((line, idx) => (
-                    <p key={idx} className="text-xs text-dark-400">
-                      {line.label} — {line.value}
-                    </p>
-                  ))}
-                </div>
+                <p className="mt-0.5 text-xs text-dark-400">
+                  {breakdownLines.map((line) => `${line.value} ${line.label}`).join(' + ')}
+                </p>
               )}
             </div>
             <span className="shrink-0 font-semibold tabular-nums text-dark-50">
@@ -653,13 +678,15 @@ export default function SimpleSubscription() {
         />
       </SimpleGroup>
 
-      <button
-        type="button"
-        onClick={() => navigate('/subscription/purchase')}
-        className="text-center text-sm font-medium text-accent-400"
-      >
-        {t('simple.subscription.changeTrafficLink')}
-      </button>
+      {canCustomize && (
+        <button
+          type="button"
+          onClick={() => navigate('/subscription/purchase')}
+          className="text-center text-sm font-medium text-accent-400"
+        >
+          {t('simple.subscription.changeTrafficLink')}
+        </button>
+      )}
     </SimpleScreen>
   );
 }

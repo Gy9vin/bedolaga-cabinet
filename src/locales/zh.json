@@ -5463,6 +5463,7 @@
       "paymentReady": "正在打开支付页面…"
     },
     "paymentPending": {
+      "pageTitle": "支付",
       "title": "等待确认",
       "subtitle": "通常不到一分钟，银行处理可能更久。",
       "whatNextLabel": "接下来会发生什么",
@@ -5474,6 +5475,7 @@
       "hint": "您可以关闭此页面。我们会自动为您开通订阅，并通过 Telegram 发送通知。"
     },
     "paymentSuccess": {
+      "pageTitle": "完成",
       "statusTitle": "订阅已激活",
       "statusTitleNoSubscription": "余额已充值",
       "whatHappenedLabel": "发生了什么",
@@ -5502,6 +5504,7 @@
       "withdrawButtonMin": "满 {{amount}} 起可提现",
       "feedLabel": "谁加入了",
       "feedPaid": "已支付订阅",
+      "feedTopUp": "已充值余额",
       "feedWaiting": "尚未支付",
       "showAllLink": "查看全部 — {{count}}",
       "feedWaitingValue": "等待中"

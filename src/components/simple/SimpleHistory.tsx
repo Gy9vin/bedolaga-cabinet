@@ -6,8 +6,7 @@ import SimpleGroup from './SimpleGroup';
 import SimpleRow from './SimpleRow';
 import { BentoCard } from '@/components/ui/BentoCard';
 import { subscriptionApi } from '../../api/subscription';
-import { humanizeDuration } from '../../utils/subscriptionTimeline';
-import { formatPrice, formatShortDate, formatPeriodDays } from '../../utils/format';
+import { formatPrice, formatLongDate, formatPeriodDays } from '../../utils/format';
 import type { SubscriptionTimelineEvent } from '../../types/timeline';
 
 /**
@@ -59,7 +58,10 @@ export default function SimpleHistory() {
     <SimpleScreen title={t('simple.history.title')}>
       {since && (
         <BentoCard>
-          <SummaryLine title={t('simple.history.since')} value={formatShortDate(since)} />
+          <SummaryLine
+            title={t('simple.history.since')}
+            value={formatLongDate(since, { year: true })}
+          />
           <SummaryLine title={t('simple.history.totalPaid')} value={formatPrice(totalPaidKopeks)} />
           <SummaryLine title={t('simple.history.daysWithSubscription')} value={String(daysSince)} />
         </BentoCard>
@@ -115,7 +117,7 @@ function EventRow({ event }: { event: SubscriptionTimelineEvent }) {
   const period = formatPeriodDays(event.period_days ?? 0, t);
   const title = t(EVENT_TITLE_KEY[event.event_type], { period });
   const status = t(EVENT_STATUS_KEY[event.event_type], {
-    date: formatShortDate(event.new_end),
+    date: formatLongDate(event.new_end),
   });
 
   // Перерыв и перенесённый остаток взаимоисключающие (см. SubscriptionTimeline) —
@@ -123,14 +125,14 @@ function EventRow({ event }: { event: SubscriptionTimelineEvent }) {
   const note = event.downtime_seconds
     ? {
         text: t('simple.history.downtimeNote', {
-          dur: humanizeDuration(event.downtime_seconds, t),
+          dur: t('common.period.days', { count: Math.round(event.downtime_seconds / 86400) }),
         }),
         className: 'text-warning-400',
       }
     : event.carried_seconds
       ? {
           text: t('simple.history.carriedNote', {
-            dur: humanizeDuration(event.carried_seconds, t),
+            dur: t('common.period.days', { count: Math.round(event.carried_seconds / 86400) }),
           }),
           className: 'text-accent-400',
         }
@@ -139,7 +141,7 @@ function EventRow({ event }: { event: SubscriptionTimelineEvent }) {
   const subtitle = (
     <>
       <span className="block">
-        {formatShortDate(event.date)} · {status}
+        {formatLongDate(event.date)} · {status}
       </span>
       {note && <span className={`mt-0.5 block font-medium ${note.className}`}>{note.text}</span>}
     </>

@@ -6675,6 +6675,7 @@
       "paymentReady": "Открываем страницу оплаты…"
     },
     "paymentPending": {
+      "pageTitle": "Оплата",
       "title": "Ждём подтверждение",
       "subtitle": "Обычно меньше минуты. Банк может думать дольше.",
       "whatNextLabel": "Что произойдёт дальше",
@@ -6686,6 +6687,7 @@
       "hint": "Экран можно закрыть. Мы включим подписку сами и пришлём уведомление в Телеграм."
     },
     "paymentSuccess": {
+      "pageTitle": "Готово",
       "statusTitle": "Подписка активна",
       "statusTitleNoSubscription": "Баланс пополнен",
       "whatHappenedLabel": "Что произошло",
@@ -6714,6 +6716,7 @@
       "withdrawButtonMin": "Вывести от {{amount}}",
       "feedLabel": "Кто пришёл",
       "feedPaid": "оплатил подписку",
+      "feedTopUp": "пополнил баланс",
       "feedWaiting": "ещё не оплатил",
       "showAllLink": "Показать всех — {{count}}",
       "feedWaitingValue": "ждём"

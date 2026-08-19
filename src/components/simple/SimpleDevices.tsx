@@ -8,7 +8,7 @@ import { Button } from '@/components/primitives/Button/Button';
 import { BentoCard } from '@/components/ui/BentoCard';
 import { ChevronRightIcon, CheckIcon } from '@/components/icons';
 import { subscriptionApi } from '../../api/subscription';
-import { formatShortDate } from '../../utils/format';
+import { formatLongDate } from '../../utils/format';
 
 interface DeviceItem {
   hwid: string;
@@ -151,7 +151,7 @@ export default function SimpleDevices() {
     !isUnlimited && addSlotPriceLabel && subscription?.end_date
       ? t('simple.devices.limitRowSub', {
           price: addSlotPriceLabel,
-          date: formatShortDate(subscription.end_date),
+          date: formatLongDate(subscription.end_date),
         })
       : null;
 
@@ -248,7 +248,7 @@ export default function SimpleDevices() {
               device.client || null,
               device.platform || null,
               device.created_at
-                ? t('simple.devices.requestOn', { date: formatShortDate(device.created_at) })
+                ? t('simple.devices.requestOn', { date: formatLongDate(device.created_at) })
                 : null,
             ].filter(Boolean);
 

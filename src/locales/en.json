@@ -6102,6 +6102,7 @@
       "paymentReady": "Opening the payment page…"
     },
     "paymentPending": {
+      "pageTitle": "Payment",
       "title": "Awaiting confirmation",
       "subtitle": "Usually under a minute. The bank may take longer.",
       "whatNextLabel": "What happens next",
@@ -6113,6 +6114,7 @@
       "hint": "You can close this screen. We'll activate the subscription ourselves and send you a notification in Telegram."
     },
     "paymentSuccess": {
+      "pageTitle": "Done",
       "statusTitle": "Subscription active",
       "statusTitleNoSubscription": "Balance topped up",
       "whatHappenedLabel": "What happened",
@@ -6141,6 +6143,7 @@
       "withdrawButtonMin": "Withdraw from {{amount}}",
       "feedLabel": "Who joined",
       "feedPaid": "paid for a subscription",
+      "feedTopUp": "topped up balance",
       "feedWaiting": "has not paid yet",
       "showAllLink": "Show all — {{count}}",
       "feedWaitingValue": "pending"

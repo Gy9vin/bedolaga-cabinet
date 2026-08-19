@@ -15,7 +15,7 @@ import { referralApi } from '../../api/referral';
 import { withdrawalApi } from '../../api/withdrawals';
 import { brandingApi } from '../../api/branding';
 import { copyToClipboard } from '../../utils/clipboard';
-import { formatPrice, formatShortDate } from '../../utils/format';
+import { formatPrice, formatLongDate } from '../../utils/format';
 
 type FeedItem = {
   id: string;
@@ -144,34 +144,92 @@ export default function SimpleReferral() {
     }
   };
 
-  // Приглашённые и начисления — один список (бриф задачи 6), а не два.
+  // Лента «Кто пришёл»: одна строка на человека, без сырых ключей reason.
   const feed: FeedItem[] = useMemo(() => {
-    // Дата раньше только сортировала ленту и нигде не была видна человеку —
-    // подпись выглядела как голый статус без контекста, когда это произошло
-    // (бриф задачи 6). Формат — как в остальном кабинете, через
-    // formatShortDate, а не свой парсинг даты.
-    const referralItems: FeedItem[] = (referralList?.items ?? []).map((ref) => ({
-      id: `ref-${ref.id}`,
-      title: ref.first_name || ref.username || t('referral.anonymousUser', { id: ref.id }),
-      subtitle: `${formatShortDate(ref.created_at)} · ${
-        ref.has_paid ? t('simple.referral.feedPaid') : t('simple.referral.feedWaiting')
-      }`,
-      value: ref.has_paid ? null : t('simple.referral.feedWaitingValue'),
-      positive: false,
-      muted: !ref.has_paid,
-      createdAt: ref.created_at,
-    }));
-    const earningItems: FeedItem[] = (earnings?.items ?? []).map((earning) => ({
-      id: `earn-${earning.id}`,
-      title:
-        earning.referral_first_name || earning.referral_username || t('referral.anonymousReferral'),
-      subtitle: `${formatShortDate(earning.created_at)} · ${t(`referral.reasons.${earning.reason}`, earning.reason)}`,
-      value: formatPrice(earning.amount_kopeks),
-      positive: true,
-      muted: false,
-      createdAt: earning.created_at,
-    }));
-    return [...referralItems, ...earningItems]
+    // reason → ключ человеческого статуса (без t(`referral.reasons.${reason}`))
+    const reasonToStatus = (reason: string): 'feedPaid' | 'feedTopUp' => {
+      if (reason === 'referral_first_payment' || reason === 'referral_subscription_renewal') {
+        return 'feedPaid';
+      }
+      if (
+        reason === 'referral_bonus' ||
+        reason.startsWith('referral_registration') ||
+        reason.includes('topup') ||
+        reason.includes('top_up')
+      ) {
+        return 'feedTopUp';
+      }
+      // fallback — никогда не показываем сырой ключ
+      return 'feedPaid';
+    };
+
+    // Индекс начислений по имени пользователя: первое (самое свежее) начисление
+    // на человека — именно оно показывается в строке, остальные игнорируются.
+    const earningByName = new Map<string, NonNullable<typeof earnings>['items'][number]>();
+    for (const e of earnings?.items ?? []) {
+      const key = e.referral_first_name || e.referral_username || '';
+      if (key && !earningByName.has(key)) {
+        earningByName.set(key, e);
+      }
+    }
+
+    const items: FeedItem[] = [];
+    const seen = new Set<string>();
+
+    // referralList — главный источник строк; начисление обогащает его.
+    for (const ref of referralList?.items ?? []) {
+      const nameKey = ref.first_name || ref.username || String(ref.id);
+      if (seen.has(nameKey)) continue;
+      seen.add(nameKey);
+
+      const displayName =
+        ref.first_name || ref.username || t('referral.anonymousUser', { id: ref.id });
+      const earning = earningByName.get(nameKey);
+
+      if (earning) {
+        earningByName.delete(nameKey);
+        const status = reasonToStatus(earning.reason);
+        items.push({
+          id: `ref-${ref.id}`,
+          title: displayName,
+          subtitle: `${formatLongDate(earning.created_at)} · ${t(`simple.referral.${status}`)}`,
+          value: formatPrice(earning.amount_kopeks),
+          positive: true,
+          muted: false,
+          createdAt: earning.created_at,
+        });
+      } else {
+        items.push({
+          id: `ref-${ref.id}`,
+          title: displayName,
+          subtitle: `${formatLongDate(ref.created_at)} · ${t('simple.referral.feedWaiting')}`,
+          value: t('simple.referral.feedWaitingValue'),
+          positive: false,
+          muted: true,
+          createdAt: ref.created_at,
+        });
+      }
+    }
+
+    // Начисления без пары в referralList (редкий кейс — показываем в конце).
+    for (const [nameKey, earning] of earningByName) {
+      if (seen.has(nameKey)) continue;
+      seen.add(nameKey);
+      const displayName =
+        earning.referral_first_name || earning.referral_username || t('referral.anonymousReferral');
+      const status = reasonToStatus(earning.reason);
+      items.push({
+        id: `earn-${earning.id}`,
+        title: displayName,
+        subtitle: `${formatLongDate(earning.created_at)} · ${t(`simple.referral.${status}`)}`,
+        value: formatPrice(earning.amount_kopeks),
+        positive: true,
+        muted: false,
+        createdAt: earning.created_at,
+      });
+    }
+
+    return items
       .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
       .slice(0, 8);
   }, [referralList, earnings, t]);

@@ -215,6 +215,27 @@ export default function SimpleProfile() {
     setShowLangPicker(false);
   };
 
+  const providerSubtitle = (provider: LinkedProvider): string | undefined => {
+    if (!provider.linked) return t('simple.profile.providerNotLinked');
+    if (provider.provider === 'telegram') {
+      return (
+        [
+          user?.username ? `@${user.username}` : null,
+          (user?.telegram_id ?? provider.identifier)
+            ? t('simple.profile.idLabel', { id: user?.telegram_id ?? provider.identifier })
+            : null,
+        ]
+          .filter(Boolean)
+          .join(' · ') || undefined
+      );
+    }
+    if (provider.provider === 'email') {
+      return provider.identifier ?? undefined;
+    }
+    // OAuth-провайдеры (yandex, google, discord, vk): не показываем сырой числовой ID
+    return undefined;
+  };
+
   return (
     <SimpleScreen title={t('simple.profile.title')}>
       <BentoCard className="flex items-center gap-3.5">
@@ -282,11 +303,7 @@ export default function SimpleProfile() {
                 <SimpleRow
                   key={provider.provider}
                   title={t(PROVIDER_LABEL_KEYS[provider.provider] ?? '', provider.provider)}
-                  subtitle={
-                    provider.linked
-                      ? (provider.identifier ?? undefined)
-                      : t('simple.profile.providerNotLinked')
-                  }
+                  subtitle={providerSubtitle(provider)}
                   value={action}
                 />
               );

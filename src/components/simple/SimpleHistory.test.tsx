@@ -117,7 +117,7 @@ describe('SimpleHistory', () => {
     await waitFor(() => {
       // «Перерыв …» — подпись под строкой события (находка 1: собственный
       // список простого режима вместо карточек SubscriptionTimeline).
-      expect(screen.getByText(/Перерыв 4 дн без подписки/)).toBeTruthy();
+      expect(screen.getByText(/Перерыв 4 дня без подписки/)).toBeTruthy();
     });
   });
 
