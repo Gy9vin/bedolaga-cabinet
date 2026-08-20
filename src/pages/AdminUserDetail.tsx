@@ -41,6 +41,7 @@ import { ActivityTab } from '../components/admin/userDetail/ActivityTab';
 import { SubscriptionTab } from '../components/admin/userDetail/SubscriptionTab';
 import { AdminMergePanel } from '../components/admin/userDetail/AdminMergePanel';
 import { createNumberInputHandler, toNumber } from '../utils/inputHelpers';
+import { getApiErrorMessage } from '../utils/api-error';
 import { usePermissionStore } from '../store/permissions';
 import { MessageMediaGrid } from '../components/tickets/MessageMediaGrid';
 import { linkifyText } from '../utils/linkify';
@@ -1195,7 +1196,6 @@ export default function AdminUserDetail() {
 
   const handleDeleteSubscription = async () => {
     if (!userId || !activeSubscriptionId) return;
-    const subIdToDelete: number = activeSubscriptionId;
     if (
       !confirm(
         t(
@@ -1207,15 +1207,22 @@ export default function AdminUserDetail() {
       return;
     setActionLoading(true);
     try {
-      await adminUsersApi.deleteSubscription(userId, subIdToDelete);
+      // Активную платную подписку сервер по умолчанию бережёт — подтверждение
+      // через confirm() уже получено, поэтому просим удалить принудительно.
+      const force = Boolean(selectedSub?.is_active) && !selectedSub?.is_trial;
+      await adminUsersApi.deleteSubscription(userId, activeSubscriptionId, force);
       notify.success(
         t('admin.users.detail.subscription.deleted', 'Подписка удалена'),
         t('common.success'),
       );
+      setSubscriptionDetailView(false);
       await loadUser();
     } catch (error) {
-      console.error('Failed to delete subscription:', error);
-      notify.error(t('admin.users.userActions.error'), t('common.error'));
+      // Отказы тут осмысленные: 409 (grace), 404 — показываем текст сервера.
+      notify.error(
+        getApiErrorMessage(error, t('admin.users.userActions.error')),
+        t('common.error'),
+      );
     } finally {
       setActionLoading(false);
     }
@@ -2451,8 +2458,8 @@ export default function AdminUserDetail() {
               )}
               <div className="mb-1 text-sm text-dark-400">Remnawave UUID</div>
               <div className="break-all font-mono text-sm text-dark-100">
-                {syncStatus?.remnawave_uuid ||
-                  user.remnawave_uuid ||
+                {syncStatus?.remnawave_id ||
+                  user.remnawave_id ||
                   t('admin.users.detail.sync.notLinked')}
               </div>
             </div>

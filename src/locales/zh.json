@@ -219,6 +219,9 @@
     "orOpenInApp": "或在应用中打开机器人",
     "loginFailed": "登录失败",
     "telegramWidgetBlocked": "Telegram登录小部件不可用。请使用机器人登录：",
+    "deepLinkIntro": "直接在机器人中确认登录 — 无需手机号：",
+    "loginWithBot": "通过机器人登录",
+    "backToWidget": "返回小部件登录",
     "openBotToLogin": "打开机器人登录",
     "waitingForConfirmation": "等待确认...",
     "deepLinkExpired": "链接已过期，请重试。",
@@ -665,6 +668,16 @@
     },
     "dailyAutoCharge": "每日自动扣费",
     "defaultName": "订阅",
+    "connectFooter": {
+      "connect": "连接设备",
+      "full": "所有名额已占满",
+      "connectedDevices": "已连接设备",
+      "disconnect": "断开",
+      "addSlots": "增加名额",
+      "limitExplained": "「{{name}}」套餐提供 {{count}} 个名额，且已全部占用。请释放一个名额或增加名额。",
+      "limitExplainedNoTopup": "「{{name}}」套餐提供 {{count}} 个名额，且已全部占用。请先释放一个名额。",
+      "noTopupHint": "试用订阅无法购买名额 — 请释放已占用的名额或改用付费套餐。"
+    },
     "delete": "删除",
     "deleteTitle": "删除订阅",
     "get_config": "获取配置",
@@ -1046,7 +1059,12 @@
     "create_ticket": "创建工单",
     "writeButton": "发消息",
     "aiSuggest": "AI建议回复",
-    "aiSuggesting": "分析中..."
+    "aiSuggesting": "分析中...",
+    "errors": {
+      "alreadyOpenTicket": "您已有一个未关闭的工单。请在该工单中继续沟通，当前工单关闭后即可创建新工单。",
+      "createFailed": "创建工单失败，请重试。",
+      "replyFailed": "发送回复失败，请重试。"
+    }
   },
   "wheel": {
     "title": "幸运转盘",
@@ -2086,12 +2104,19 @@
         "sys_maintenance": "维护",
         "sys_backup": "备份",
         "sys_version": "版本",
-        "sys_logging": "日志"
+        "sys_logging": "日志",
+        "iface_info": "法律文件",
+        "iface_menu": "菜单按钮",
+        "sys_cabinet": "用户中心",
+        "sys_other": "其他设置"
       },
       "presets": {
         "simple": "简约"
       },
       "categories": {
+        "CABINET": "用户中心",
+        "INFO_PAGES": "法律文件与 FAQ",
+        "MENU": "菜单按钮",
         "TELEGRAM_WIDGET": "Telegram Login Widget",
         "TELEGRAM_OIDC": "Telegram Login (OIDC)"
       },
@@ -2861,7 +2886,10 @@
         "save": "保存",
         "defaultTrialTariff": "默认试用套餐",
         "selectTariff": "选择套餐",
-        "tariff": "套餐"
+        "tariff": "套餐",
+        "includeTraffic": "流量",
+        "trafficAmount": "流量额度",
+        "gb": "GB"
       },
       "stats": {
         "title": "促销码统计",
@@ -2933,7 +2961,8 @@
         "daysRequired": "天数必须大于0",
         "groupRequired": "请选择折扣组",
         "discountPercentInvalid": "折扣百分比必须在1到100之间",
-        "discountHoursRequired": "请指定折扣有效期（小时）"
+        "discountHoursRequired": "请指定折扣有效期（小时）",
+        "trafficRequired": "流量额度必须大于 0"
       }
     },
     "promoGroups": {
@@ -3014,7 +3043,8 @@
         "byDate": "按日期",
         "byBalance": "按余额",
         "byActivity": "按活跃度",
-        "bySpent": "按消费"
+        "bySpent": "按消费",
+        "byExpiry": "按到期时间"
       },
       "pagination": {
         "showing": "显示 {{from}}-{{to}}，共 {{total}}"
@@ -3162,6 +3192,9 @@
           "sbpStatus_PAST_DUE": "扣款失败",
           "delete": "🗑 删除订阅",
           "confirmDelete": "永久删除此订阅？密钥将从 Remnawave 中移除。",
+          "deleteTitle": "删除订阅",
+          "deleteHint": "订阅及其设备将被永久删除",
+          "deleteButton": "删除订阅",
           "deleted": "订阅已删除"
         },
         "balance": {
@@ -3555,6 +3588,47 @@
           "users": "用户"
         },
         "usersOnlineCount": "{{count}} 在线"
+      },
+      "geoCheck": {
+        "title": "GeoCheck",
+        "start": "开始检测",
+        "running": "正在检测地理位置",
+        "runningHint": "节点正在测试连接，通常需要一分钟以内。",
+        "changeRoute": "更改路由",
+        "rerun": "重新检测",
+        "reportAlt": "{{node}} 的 GeoCheck 报告",
+        "invalidIp": "请输入有效的 IPv4 或 IPv6 地址",
+        "invalidInterface": "请输入有效的网卡名称",
+        "fullscreen": "全屏",
+        "exitFullscreen": "退出全屏",
+        "copyJson": "复制 JSON 报告",
+        "download": "下载 SVG",
+        "zoomIn": "放大",
+        "zoomOut": "缩小",
+        "zoomReset": "重置缩放",
+        "mode": {
+          "legend": "检测路由",
+          "default": "默认",
+          "ip": "IP 地址",
+          "interface": "网络接口"
+        },
+        "hint": {
+          "default": "节点将使用默认出站路由。",
+          "ip": "选择节点的某个 IP 地址，或输入任意地址。",
+          "interface": "选择节点的某个网络接口，或输入任意名称。"
+        },
+        "placeholder": {
+          "default": "自动"
+        },
+        "tab": {
+          "report": "报告",
+          "json": "JSON"
+        },
+        "error": {
+          "title": "检测失败",
+          "timeout": "节点未及时响应。请重新运行检测。",
+          "generic": "无法完成检测。"
+        }
       },
       "overview": {
         "bandwidth": "各 inbound 流量",
