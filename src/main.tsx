@@ -43,7 +43,8 @@ installEncodingSurrogateGuard();
 // See: https://github.com/Telegram-Mini-Apps/tma.js/issues/683
 if (typeof (Object as { hasOwn?: unknown }).hasOwn !== 'function') {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  (Object as any).hasOwn = (obj: object, prop: PropertyKey): boolean => Object.hasOwn(obj, prop);
+  (Object as any).hasOwn = (obj: object, prop: PropertyKey): boolean =>
+    Object.prototype.hasOwnProperty.call(obj, prop);
 }
 
 // Only initialize Telegram SDK when running inside Telegram
